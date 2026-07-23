@@ -1,4 +1,4 @@
-# HaluLens / EvidenceLens Project Blueprint
+# HaluLens Project Blueprint
 
 ## Two-Version Single Source of Truth
 
