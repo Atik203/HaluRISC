@@ -57,7 +57,8 @@ The two versions must not be mixed during the course. The biggest risk is trying
    - [B14. Publication Risks and Mitigations](#b14-publication-risks-and-mitigations)
    - [B15. Publication Final Verdict](#b15-publication-final-verdict)
 5. [Name Evaluation](#name-evaluation)
-6. [Final Recommendation](#final-recommendation)
+6. [Verified Starter Reference List](#verified-starter-reference-list)
+7. [Final Recommendation](#final-recommendation)
 
 ---
 
@@ -1573,6 +1574,62 @@ Best combined strategy:
 ---
 
 # Final Recommendation
+
+## Verified Starter Reference List
+
+Below is a **high-confidence starter bibliography** made of widely cited, published, or widely indexed papers that are directly relevant to this project. Use these as the first related-work backbone, then verify exact BibTeX formatting from ACL Anthology, NeurIPS, KDD, ICML, EMNLP, or Google Scholar before submission.
+
+### Explainability and calibration foundations
+
+1. **Ribeiro, Singh, and Guestrin (2016)** — _“Why Should I Trust You? Explaining the Predictions of Any Classifier”_ — KDD 2016.  
+   Why it matters: classic LIME paper; useful for explainability positioning.
+
+2. **Lundberg and Lee (2017)** — _“A Unified Approach to Interpreting Model Predictions”_ — NeurIPS 2017.  
+   Why it matters: foundational SHAP reference.
+
+3. **Guo et al. (2017)** — _“On Calibration of Modern Neural Networks”_ — ICML 2017.  
+   Why it matters: calibration framing for trustworthy probability outputs.
+
+4. **Reimers and Gurevych (2019)** — _“Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks”_ — EMNLP-IJCNLP 2019.  
+   Why it matters: strong justification for lightweight semantic similarity features.
+
+### Core ML baselines
+
+5. **Chen and Guestrin (2016)** — _“XGBoost: A Scalable Tree Boosting System”_ — KDD 2016.  
+   Why it matters: your main tree-ensemble baseline.
+
+6. **Prokhorenkova et al. (2018)** — _“CatBoost: unbiased boosting with categorical features”_ — NeurIPS 2018.  
+   Why it matters: optional comparison baseline for tabular engineered features.
+
+### Hallucination / factuality / verification
+
+7. **Thorne et al. (2018)** — _“FEVER: a Large-scale Dataset for Fact Extraction and VERification”_ — NAACL 2018.  
+   Why it matters: standard evidence-based fact verification benchmark.
+
+8. **Lin et al. (2022)** — _“TruthfulQA: Measuring How Models Mimic Human Falsehoods”_.  
+   Why it matters: widely used benchmark for truthfulness and false-answer stress testing.
+
+9. **Manakul, Liusie, and Gales (2023)** — _“SelfCheckGPT: Zero-Resource Black-Box Hallucination Detection for Generative Large Language Models”_ — EMNLP 2023.  
+   Why it matters: one of the closest black-box hallucination detection baselines.
+
+10. **Min et al. (2023)** — _“FActScore: Fine-grained Atomic Evaluation of Factual Precision in Long Form Text Generation”_ — EMNLP 2023.  
+    Why it matters: strong factuality evaluation reference for long-form generation.
+
+11. **HaluEval benchmark paper (2023)** — _“HaluEval: A Large-Scale Hallucination Evaluation Benchmark for Large Language Models”_.  
+    Why it matters: primary benchmark family for this project; verify the exact bibliographic entry from the official paper page or ACL/ArXiv record before finalizing the bibliography.
+
+12. **RAGTruth benchmark paper (2024)** — _“RAGTruth: A Hallucination Benchmark for Retrieval-Augmented Generation”_ (benchmark paper / published or indexed version).  
+    Why it matters: strong publication-stage extension dataset for retrieval-grounded hallucination analysis.
+
+### How to use this list in the paper
+
+- Use items **1–6** for methodology, explainability, calibration, and baseline justification.
+- Use items **7–12** for literature review, benchmark positioning, and the transition from course version to publication version.
+- For the final manuscript, keep only the references that you actually cite in the method/results discussion.
+
+### Bibliography caution
+
+This is a **starter list**, not the final bibliography. Before submission, verify the exact venue, year, and author formatting of each entry using the original publisher page, ACL Anthology, NeurIPS proceedings page, or Google Scholar.
 
 ## What to do now
 
