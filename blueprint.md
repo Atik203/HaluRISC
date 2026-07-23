@@ -81,7 +81,9 @@ That claim is scientifically weak. Truth cannot always be inferred from style, l
 Use:
 
 - **HaluLens** for course branding and demo.
-- **EvidenceLens** if you want a more professional publication-oriented name.
+- **HaluRISC** (Hallucination Risk Scoring and Calibration) or **EvidenceLens** for publication. HaluRISC is preferred for publication because it communicates risk + calibration in the acronym and has no naming collisions.
+
+**Critical: Name collision with HalluLens benchmark (ACL 2025).** Bang et al. (Meta FAIR) published a hallucination evaluation benchmark called "HalluLens" at ACL 2025. This is a different project — a benchmark for distinguishing intrinsic vs extrinsic hallucination. The name overlap may cause Google Scholar confusion and reviewer confusion. For the course, HaluLens is fine. For publication, use **HaluRISC** or **EvidenceLens** and add a footnote disambiguating from the HalluLens benchmark.
 
 Recommended paper title for course:
 
@@ -89,7 +91,7 @@ Recommended paper title for course:
 
 Recommended publication title:
 
-> **EvidenceLens: Cross-Domain Calibrated and Explainable Hallucination Risk Estimation for Black-Box LLM Responses**
+> **HaluRISC: Cross-Domain Calibrated and Explainable Hallucination Risk Estimation for Black-Box LLM Responses**
 
 ---
 
@@ -118,6 +120,33 @@ The corrected idea remains valuable because it is practical, measurable, explain
 | EMNLP Findings                   | Borderline/weak                 | Similar to ACL; benchmark-only applied system is likely insufficient.  | Add new benchmark insight, annotation analysis, or explanation-faithfulness study.   |
 
 Do **not** claim that the course version is ready for ACL/EMNLP. The realistic target after extension is a decent applied Q2 journal, not a top NLP findings paper.
+
+## Critical Overlaps with Published Work (Must Address)
+
+Before implementation, acknowledge these directly competing papers that overlap with the proposed approach. These are NOT reasons to abandon the project — they are reasons to differentiate cleanly.
+
+### Overlap 1: SHAP+LIME Hallucination Detection (Multimedia Systems, Springer, 2026)
+
+**Paper:** "Quantifying Factual Divergence in Generative Models: SHAP-LIME Based Hallucination Score for LLMs" — *Multimedia Systems, Vol. 32, 2026.*  
+**Overlap:** Token-level SHAP+LIME attribution + custom Hallucination Score tested on TruthfulQA/QAGS (GPT-3.5, LLaMA-2, Falcon-40B). F1=0.84, AUC=0.89.  
+**Differentiation:** They use token-level SHAP on raw LLM outputs. HaluLens uses feature-level SHAP on engineered evidence-consistency features — enabling semantically meaningful explanations, calibration analysis, and cross-domain evaluation. They only visualize SHAP; we test explanation reliability via feature-ablation correlation and perturbation stability.
+
+### Overlap 2: Multi-Indicator Ensemble with XGBoost (IJERT Framework, April 2026)
+
+**Paper:** A multi-indicator ensemble combining lexical overlap, entity coverage, semantic similarity, NLI contradiction, and numeric consistency with XGBoost.  
+**Overlap:** Covers 5/6 of the proposed feature groups.  
+**Differentiation:** HaluLens adds (1) hedging/uncertainty features, (2) probability calibration analysis (Platt vs isotonic), (3) cross-domain evaluation, (4) SHAP-based explanation with reliability testing, and (5) a deployable web artifact. IJERT does not include any of these.
+
+### Overlap 3: IEEE Access Hybrid Framework (2026)
+
+**Paper:** "A Hybrid Framework for Hallucination Detection in LLMs" — IEEE Access, DOI: 11346950, 2026. Uses frozen BERT/RoBERTa/DeBERTa encoders + lightweight neural classifiers. Evaluated on PolyFEVER, FactCHD, HaluEval.  
+**Differentiation:** HaluLens uses **engineered interpretable features** (not frozen neural embeddings), enabling SHAP explanations at semantically meaningful feature levels. Neural embeddings are opaque; our features are explainable by design.
+
+### How the project differentiates (compound contribution)
+
+> While individual components — feature engineering, SHAP visualization, calibration, or cross-domain evaluation — have been explored in isolation, no published work combines all five into a single lightweight framework: (1) engineered evidence-consistency features, (2) calibrated risk estimation, (3) explanation reliability testing, (4) cross-domain evaluation, and (5) a reproducible deployable artifact.
+
+Cite these papers in Related Work and explicitly differentiate. Do not claim to be the first to use SHAP for hallucination detection — that claim is now false.
 
 ---
 
@@ -181,22 +210,22 @@ For an undergraduate course, this is strong if executed cleanly.
 
 ## A4. Idea Verification Scores for Course Version
 
-| Criterion              | Score / 10 | Course-Level Assessment                                                                                           |
-| ---------------------- | ---------: | ----------------------------------------------------------------------------------------------------------------- |
-| Originality            |          6 | Not entirely new, but sufficiently fresh for an undergraduate ML project when combined with calibration and demo. |
-| Novelty                |          6 | Moderate novelty for coursework; not enough for strong publication alone.                                         |
-| Practicality           |          9 | Highly practical because it uses existing datasets and classical ML.                                              |
-| Engineering Complexity |          6 | Manageable with FastAPI + React/TypeScript.                                                                       |
-| Research Complexity    |          7 | Strong enough if experiments, ablations, and calibration are done properly.                                       |
-| Publication Potential  |          4 | The course version alone is unlikely to be publishable in a good journal.                                         |
-| Implementation Risk    |          5 | Moderate; mostly data/evaluation risk, not coding risk.                                                           |
-| Scalability            |          7 | Lightweight inference can scale, but course system does not need production-grade deployment.                     |
-| Reproducibility        |          8 | Good if scripts, seeds, and splits are documented.                                                                |
-| Educational Value      |          9 | Excellent: covers ML, NLP, XAI, calibration, API design, and frontend demo.                                       |
+| Criterion              | Score / 10 | Course-Level Assessment                                                                                                         |
+| ---------------------- | ---------: | ------------------------------------------------------------------------------------------------------------------------------- |
+| Originality            |          7 | Fresh for undergraduate ML; combines feature engineering + calibration + SHAP + NLI + deployable artifact as a compound system. |
+| Novelty                |          8 | Compound novelty: NLI-enhanced features + calibrated classical ML + explanation reliability + deployable demo in one pipeline.  |
+| Practicality           |          9 | Highly practical; uses existing datasets and classical ML; 2-4 orders of magnitude cheaper than LLM-based detection.            |
+| Engineering Complexity |          7 | Manageable with FastAPI + React (Vite)/TypeScript + NLI model.                                                                  |
+| Research Complexity    |          8 | Strong with mandatory 5-fold CV, hyperparameter tuning, 3-seed reporting, statistical tests, and NLI features.                  |
+| Publication Potential  |          5 | Course version alone not publishable; but significantly stronger foundation for extension.                                       |
+| Implementation Risk    |          4 | Low-medium risk; NLI integration adds minor complexity but feature extraction is the primary risk.                               |
+| Scalability            |          7 | Lightweight inference can scale; classical ML is inherently efficient on CPU.                                                   |
+| Reproducibility        |          9 | Strong with pinned dependencies, saved splits, model artifacts, and explicit reproducibility checklist.                          |
+| Educational Value      |          9 | Excellent: covers ML, NLP, NLI, XAI, calibration, API design, and frontend demo.                                                |
 
 ### Course success probability
 
-**8/10** if scope is controlled.
+**9/10** if scope is controlled and all mandatory upgrades (NLI features, 5-fold CV, 3 seeds, hyperparameter tuning, parallel paper writing) are implemented.
 
 ---
 
@@ -343,11 +372,27 @@ Use **HaluEval** as the primary dataset.
 
 ### Why HaluEval is best for the course
 
-- large enough
-- directly related to hallucination evaluation
-- commonly referenced
+- large enough (35,000 samples across 4 task types)
+- directly related to hallucination evaluation (EMNLP 2023)
+- commonly referenced and well-known
 - manageable within 2 months
-- provides QA/dialogue/summarization/general examples depending on availability
+- provides QA/dialogue/summarization/general examples
+
+### Critical HaluEval Limitations (Must Disclose in Paper)
+
+HaluEval is the best available dataset for the course, but it has known weaknesses that must be acknowledged:
+
+1. **85% synthetic data.** 30K of 35K samples are ChatGPT-generated hallucinations via "sampling-then-filtering." These are engineered, not naturally occurring. Real-world hallucination patterns may differ systematically from synthetic ones.
+2. **Self-reinforcement risk.** ChatGPT generates AND filters the hallucinated samples, creating a potential circular artifact — the benchmark may reward systems that recognize ChatGPT-specific hallucination patterns rather than general hallucination patterns.
+3. **Binary classification oversimplification.** "Is this answer hallucinated? Yes/No" ignores graded severity, partial hallucination, and ambiguity. Real deployment needs risk scores, not binary flags — which is exactly what HaluLens provides.
+4. **Generated with early-2023 ChatGPT.** RLHF, model architectures, and hallucination patterns have evolved significantly since.
+5. **No license file.** The GitHub repo lacks a LICENSE — a minor reproducibility concern.
+6. **Conflates factuality with hallucination.** HalluLens (ACL 2025) notes the benchmark tests consistency with Wikipedia, not consistency with model training data — blurring the line between factually wrong and hallucinated.
+
+**Required actions:**
+- Manually inspect 50 random HaluEval samples (Week 1) to verify label quality before committing to the dataset.
+- Add a dedicated "Dataset Limitations" subsection in the course paper discussing these issues.
+- Do NOT claim the model generalizes to real-world LLM outputs based on HaluEval results alone. Frame results as "performance on HaluEval benchmark" not "general hallucination detection performance."
 
 ### Recommended subset for the course
 
@@ -381,14 +426,30 @@ The course version must use a compact feature set. Do not create dozens of poorl
 
 ### MVP/course feature groups
 
+NLI-based features are now **mandatory for Version A** (not deferred to Version B). NLI entailment/contradiction is the single most important feature signal across all published feature importance analyses (IJERT, 2026; SelfCheckGPT, 2023; Cost-Effective, 2024).
+
 | Feature Group       | Example Features                                                    | Why It Exists                                             | Cost     | Expected Importance | Phase      |
 | ------------------- | ------------------------------------------------------------------- | --------------------------------------------------------- | -------- | ------------------- | ---------- |
 | Length/style        | answer length, sentence count, avg sentence length                  | Captures stylistic differences and verbosity              | Very low | Medium              | MVP        |
 | Lexical overlap     | answer-context overlap, answer-question overlap, Jaccard similarity | Measures grounding and source adherence                   | Low      | High                | MVP        |
-| Entity overlap      | named entity count, entity novelty ratio                            | Unsupported entities often indicate hallucination         | Moderate | High                | MVP/course |
+| Entity overlap      | named entity count, entity novelty ratio                            | Unsupported entities often indicate hallucination         | Moderate | High                | MVP        |
+| NLI consistency     | entailment/contradiction probability from lightweight NLI model     | Captures semantic contradiction between context and answer | Moderate | **Very High**       | **MVP**    |
 | Numeric consistency | number count, number overlap, new numbers in answer                 | Fabricated numbers/dates are common hallucination signals | Low      | Medium-high         | Course     |
 | Hedging             | maybe, might, likely, possibly, uncertain phrases                   | Captures uncertainty language                             | Very low | Medium              | Course     |
 | Semantic similarity | embedding cosine similarity between context/question and answer     | Captures semantic drift beyond exact words                | Moderate | High                | Course     |
+
+### NLI Feature Specification (Mandatory for Version A)
+
+Use a lightweight NLI model to extract entailment/contradiction signals:
+
+- **Primary:** `cross-encoder/nli-deberta-v3-base` (HuggingFace, ~500MB, ~50ms per pair) — state-of-the-art NLI accuracy.
+- **Fallback (if too heavy):** `cross-encoder/nli-MiniLM2-L6` (<100MB, ~15ms per pair) — 90%+ of DeBERTa performance at 1/5 the size and latency.
+- **Extract 3 features per direction (6 total):**
+  1. `nli_context_entails_answer` — probability that context entails the answer
+  2. `nli_context_contradicts_answer` — probability that context contradicts the answer
+  3. `nli_context_neutral_answer` — probability of neutral relationship
+  4-6. Same three in reverse: does the answer entail/contradict/neutral the context?
+- **Fallback if NLI model download fails:** Omit NLI features but document as a limitation. NLI adds 0.5-1 day of implementation time.
 
 ### Recommended course feature set
 
@@ -425,11 +486,13 @@ flowchart TD
 ### Preprocessing
 
 - normalize whitespace
-- lowercase only for lexical features, not necessarily for NER
+- lowercase only for lexical features, not for NER
 - tokenize text
-- handle missing context
-- remove invalid samples
+- handle missing context (empty context → lexical overlap = 0, NLI = 0.33 [neutral])
+- remove invalid samples (empty answer, corrupted text)
 - keep label mapping documented
+- **Check class balance before splitting.** If HaluEval QA is not ~50/50, document imbalance and use `scale_pos_weight` in XGBoost.
+- **Feature scaling:** Apply `StandardScaler` for Logistic Regression (LR requires scaled features). Tree-based models (RF, XGBoost) use raw features.
 
 ### Split strategy
 
@@ -440,19 +503,31 @@ Recommended:
 - test: 15%
 
 Use stratification by label. If official splits are available and clean, use official splits.
+**Save split indices to disk** for exact reproducibility (not just fixed seed).
 
 ### Cross-validation
 
-Minimum acceptable:
+**Mandatory (not optional):**
 
-- fixed train/validation/test split
-- one random seed
-- clear reproducibility notes
+- **5-fold stratified cross-validation** on the training set for hyperparameter selection and model comparison.
+- **Final evaluation on locked test set**, used once at the end.
+- This is standard practice and significantly strengthens the experimental section.
 
-Better:
+### Hyperparameter tuning (Mandatory)
 
-- 5-fold cross-validation for model selection
-- final untouched test set for reporting
+For XGBoost, tune at minimum these 4-5 parameters via randomized search (30-50 iterations on training set via 5-fold CV):
+
+- `max_depth`: [3, 4, 5, 6, 7]
+- `learning_rate`: [0.01, 0.05, 0.1, 0.2]
+- `n_estimators`: [100, 200, 300, 500]
+- `subsample`: [0.7, 0.8, 0.9, 1.0]
+- `scale_pos_weight`: auto-computed from class ratio if imbalanced
+
+Report best parameters in paper appendix. This is ~30 minutes of compute time and dramatically improves experimental credibility.
+
+### Random seed discipline (Mandatory)
+
+**Run all experiments with 3 different random seeds** (e.g., 42, 123, 456) and report **mean ± standard deviation** for all metrics. Single-seed results are increasingly criticized even at undergraduate level.
 
 ### Models
 
