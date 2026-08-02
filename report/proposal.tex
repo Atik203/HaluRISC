@@ -1,16 +1,19 @@
 % HaluRISC Project Proposal
 % Compile with: pdflatex proposal.tex  (run twice)
 % Place the UIU logo as uiu.png / uiu.jpg / uiu.pdf in this folder.
-\documentclass[10pt,a4paper]{article}
+\documentclass[12pt,a4paper]{article}
 
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage[a4paper,margin=0.9in]{geometry}
+\usepackage[a4paper,margin=0.75in]{geometry}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{parskip}
+\usepackage{enumitem}
 
+\setlength{\parskip}{0.5em}
+\setlist{topsep=2pt, itemsep=1pt, parsep=1pt}
 \emergencystretch=2em
 
 % University logo (renders only if an image file is present)
@@ -146,8 +149,6 @@ Based on published baselines on the same benchmark \cite{haluEval,ieeeTai}, we e
 The project follows a straightforward pipeline: (1) prepare the HaluEval QA data and manually audit a sample of the labels, (2) extract about 20--30 text features in seven groups, (3) train and compare simple models, calibrate the risk scores, and evaluate them with statistical tests, (4) explain the predictions with SHAP, and (5) wrap the final model in a FastAPI backend and a React dashboard for live demonstration. The first half of the project (Weeks 1--4) focuses on the experiments --- data, features, models, and calibration --- while the second half (Weeks 5--8) focuses on explanations, the web product, and the final report.
 
 \newpage
-
-\section*{References}
 
 \begin{thebibliography}{8}
 \bibitem{haluEval} Li, J., Cheng, X., Zhao, W.X., Nie, J.-Y., Wen, J.-R. (2023). \emph{HaluEval: A Large-Scale Hallucination Evaluation Benchmark for Large Language Models.} EMNLP 2023.
