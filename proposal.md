@@ -4,7 +4,7 @@
 
 | Field     | Value |
 | --------- | ----- |
-| Student   | Saiful Alam Sabbir (0112320105), Md. Atikur Rahaman (0112310298) |
+| Student   | Saiful Alam Sabbir (0112320105), Md. Atikur Rahaman (0112310298), MD. Miraz Ahamed (0112310524) |
 | Supervisor| Ohidujjaman Tuhin, PhD |
 | Course    | Machine Learning, Section E |
 | Date      | [Date] |
