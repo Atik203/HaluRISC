@@ -135,9 +135,9 @@ Before implementation, acknowledge these directly competing papers that overlap 
 **Overlap:** Covers 5/6 of the proposed feature groups.  
 **Differentiation:** HaluRISC adds (1) hedging/uncertainty features, (2) probability calibration analysis (Platt vs isotonic), (3) cross-domain evaluation, (4) SHAP-based explanation with reliability testing, and (5) a deployable web artifact. IJERT does not include any of these.
 
-### Overlap 3: IEEE Access Hybrid Framework (2026)
+### Overlap 3: IEEE TAI Hybrid Framework (2026)
 
-**Paper:** "A Hybrid Framework for Hallucination Detection in LLMs" — IEEE Access, DOI: 11346950, 2026. Uses frozen BERT/RoBERTa/DeBERTa encoders + lightweight neural classifiers. Evaluated on PolyFEVER, FactCHD, HaluEval.  
+**Paper:** "A Hybrid Framework for Hallucination Detection in Large Language Models" — *IEEE Transactions on Artificial Intelligence*, pp. 1–13, 2026 (Yadav & Verma, IIT Kanpur). DOI: 10.1109/TAI.2026.3653354. Uses frozen BERT/RoBERTa/DeBERTa encoders + lightweight neural classifiers. Evaluated on PolyFEVER, FactCHD, HaluEval. Note: the paper's IEEE Xplore article number is 11346950 — this is NOT a DOI.  
 **Differentiation:** HaluRISC uses **engineered interpretable features** (not frozen neural embeddings), enabling SHAP explanations at semantically meaningful feature levels. Neural embeddings are opaque; our features are explainable by design.
 
 ### How the project differentiates (compound contribution)
@@ -610,7 +610,7 @@ Statistical testing (Mandatory):
 Compare against at least one external reference point so readers can calibrate whether the achieved performance is good:
 
 - **SelfCheckGPT-NLI performance** on the same HaluEval QA subset. Use published numbers if available, or re-implement the NLI-based variant (requires multiple LLM generations — expensive, so run on a 200-sample test subset only).
-- **Alternative:** Cite the best published HaluEval QA detection F1/AUROC from the benchmark leaderboard or recent papers (e.g., IEEE Access 2026 hybrid framework, IJERT 2026, Luna/COLING 2025).
+- **Alternative:** Cite the best published HaluEval QA detection F1/AUROC from the benchmark leaderboard or recent papers (e.g., IEEE TAI 2026 hybrid framework, IJERT 2026, Luna/COLING 2025).
 - This comparison takes ~2 hours and dramatically improves paper credibility. Without it, readers cannot tell if F1=0.78 is good or bad.
 
 ### Ablation studies
@@ -1830,19 +1830,19 @@ Below is a **high-confidence starter bibliography** made of widely cited, publis
 17. **Sanchez et al. (2025)** - "FaithBench: A Challenging Hallucination Benchmark" - NAACL 2025.  
     Why it matters: human-annotated from 10 modern LLMs; strong stress test for Version B.
 
-18. **Kang et al. (2025)** - "Uncertainty Quantification for Hallucination Detection in LLMs" - arXiv:2510.12040 (USC).  
+18. **Kang et al. (2025)** - "Uncertainty Quantification for Hallucination Detection in Large Language Models: Foundations, Methodology, and Future Directions" - arXiv:2510.12040 (Kang, Bakman, Yaldiz, Buyukates, Avestimehr; USC/Birmingham), submitted 14 Oct 2025.  
     Why it matters: comprehensive UQ survey covering calibration and epistemic/aleatoric uncertainty.
 
-19. **Deng et al. (2026)** - "SpikeScore: Beyond In-Domain Detection for Cross-Domain Hallucination Detection" - ICLR 2026.  
+19. **Deng et al. (2026)** - "Beyond In-Domain Detection: SpikeScore for Cross-Domain Hallucination Detection" - ICLR 2026 (Deng, Fang, Li, Chen; UTS + UW-Madison). arXiv:2601.19245.  
     Why it matters: first major cross-domain hallucination detection paper at a top venue.
 
-20. **[Author(s)] (2026)** - "Quantifying Factual Divergence in Generative Models: SHAP-LIME Based Hallucination Score for LLMs" - Multimedia Systems, Springer, Vol. 32, 2026.  
+20. **Haq et al. (2026)** - "Quantifying Factual Divergence in Generative Models: SHAP-LIME Based Hallucination Score for LLMs" - Multimedia Systems, Springer, Vol. 32, Art. 146 (2026). DOI: 10.1007/s00530-025-02150-4. Authors: Ijazul Haq, Muhammad Saqib, Yingjie Zhang, Irfan Ali Khan.  
     Why it matters: **direct competitor.** Token-level SHAP+LIME for hallucination detection. **Must cite and differentiate.**
 
-21. **IJERT Framework (2026)** - Multi-indicator ensemble (lexical + entity + semantic + NLI + numeric) with XGBoost for hallucination detection.  
+21. **Sundaragiri et al. (2026)** - "Framework for Hallucination Detection in Large Language Models" - IJERT Vol. 15, Issue 04, April 2026, Paper ID: IJERTV15IS043963. DOI: 10.5281/zenodo.20025987. Authors: Dheeraj Sundaragiri, Lenkala Manohar Reddy, Pitla Gunavardhan, Bandaru Navahith. Multi-signal framework (retrieval grounding, fact atomization, NLI verification) + XGBoost on HaluEval (1,000 samples).  
     Why it matters: most similar feature combination. **Must cite and differentiate.**
 
-22. **IEEE Access (2026)** - "A Hybrid Framework for Hallucination Detection in LLMs" - DOI: 11346950.  
+22. **Yadav and Verma (2026)** - "A Hybrid Framework for Hallucination Detection in Large Language Models" - IEEE Transactions on Artificial Intelligence, pp. 1–13, 2026. DOI: 10.1109/TAI.2026.3653354. (IEEE Xplore article number 11346950 is NOT a DOI.)  
     Why it matters: validates decoupled encoder-classifier on HaluEval; demonstrates venue viability.
 
 
