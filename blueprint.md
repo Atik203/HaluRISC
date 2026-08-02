@@ -1,4 +1,4 @@
-# HaluLens Project Blueprint
+# HaluRISC Project Blueprint
 
 ## Two-Version Single Source of Truth
 
@@ -78,16 +78,13 @@ That claim is scientifically weak. Truth cannot always be inferred from style, l
 
 ## Recommended project name
 
-Use:
+Use **HaluRISC** (Hallucination Risk Scoring and Calibration) as the single name across the course project, code, demo, and publication. A single unified name is preferred because it communicates the core contribution (risk + calibration) in the acronym, is more distinctive, and has **no naming collision** with existing published work.
 
-- **HaluLens** for course branding and demo.
-- **HaluRISC** (Hallucination Risk Scoring and Calibration) or **EvidenceLens** for publication. HaluRISC is preferred for publication because it communicates risk + calibration in the acronym and has no naming collisions.
+**Why not HaluLens.** An earlier draft used "HaluLens" for the course. This collides with the **HalluLens** benchmark (Bang et al., Meta FAIR, ACL 2025) — a different project that distinguishes intrinsic vs extrinsic hallucination — and risks Google Scholar / reviewer confusion. Standardizing on **HaluRISC** everywhere removes this risk from the start. (Note: HalluLens with the double "l" always refers to the external benchmark, never to this project.)
 
-**Critical: Name collision with HalluLens benchmark (ACL 2025).** Bang et al. (Meta FAIR) published a hallucination evaluation benchmark called "HalluLens" at ACL 2025. This is a different project — a benchmark for distinguishing intrinsic vs extrinsic hallucination. The name overlap may cause Google Scholar confusion and reviewer confusion. For the course, HaluLens is fine. For publication, use **HaluRISC** or **EvidenceLens** and add a footnote disambiguating from the HalluLens benchmark.
+Recommended paper title for the course:
 
-Recommended paper title for course:
-
-> **HaluLens: Calibrated Explainable Hallucination Risk Prediction for Black-Box LLM Outputs**
+> **HaluRISC: Calibrated Explainable Hallucination Risk Prediction for Black-Box LLM Outputs**
 
 Recommended publication title:
 
@@ -130,18 +127,18 @@ Before implementation, acknowledge these directly competing papers that overlap 
 
 **Paper:** "Quantifying Factual Divergence in Generative Models: SHAP-LIME Based Hallucination Score for LLMs" — *Multimedia Systems, Vol. 32, 2026.*  
 **Overlap:** Token-level SHAP+LIME attribution + custom Hallucination Score tested on TruthfulQA/QAGS (GPT-3.5, LLaMA-2, Falcon-40B). F1=0.84, AUC=0.89.  
-**Differentiation:** They use token-level SHAP on raw LLM outputs. HaluLens uses feature-level SHAP on engineered evidence-consistency features — enabling semantically meaningful explanations, calibration analysis, and cross-domain evaluation. They only visualize SHAP; we test explanation reliability via feature-ablation correlation and perturbation stability.
+**Differentiation:** They use token-level SHAP on raw LLM outputs. HaluRISC uses feature-level SHAP on engineered evidence-consistency features — enabling semantically meaningful explanations, calibration analysis, and cross-domain evaluation. They only visualize SHAP; we test explanation reliability via feature-ablation correlation and perturbation stability.
 
 ### Overlap 2: Multi-Indicator Ensemble with XGBoost (IJERT Framework, April 2026)
 
 **Paper:** A multi-indicator ensemble combining lexical overlap, entity coverage, semantic similarity, NLI contradiction, and numeric consistency with XGBoost.  
 **Overlap:** Covers 5/6 of the proposed feature groups.  
-**Differentiation:** HaluLens adds (1) hedging/uncertainty features, (2) probability calibration analysis (Platt vs isotonic), (3) cross-domain evaluation, (4) SHAP-based explanation with reliability testing, and (5) a deployable web artifact. IJERT does not include any of these.
+**Differentiation:** HaluRISC adds (1) hedging/uncertainty features, (2) probability calibration analysis (Platt vs isotonic), (3) cross-domain evaluation, (4) SHAP-based explanation with reliability testing, and (5) a deployable web artifact. IJERT does not include any of these.
 
 ### Overlap 3: IEEE Access Hybrid Framework (2026)
 
 **Paper:** "A Hybrid Framework for Hallucination Detection in LLMs" — IEEE Access, DOI: 11346950, 2026. Uses frozen BERT/RoBERTa/DeBERTa encoders + lightweight neural classifiers. Evaluated on PolyFEVER, FactCHD, HaluEval.  
-**Differentiation:** HaluLens uses **engineered interpretable features** (not frozen neural embeddings), enabling SHAP explanations at semantically meaningful feature levels. Neural embeddings are opaque; our features are explainable by design.
+**Differentiation:** HaluRISC uses **engineered interpretable features** (not frozen neural embeddings), enabling SHAP explanations at semantically meaningful feature levels. Neural embeddings are opaque; our features are explainable by design.
 
 ### How the project differentiates (compound contribution)
 
@@ -385,7 +382,7 @@ HaluEval is the best available dataset for the course, but it has known weakness
 
 1. **85% synthetic data.** 30K of 35K samples are ChatGPT-generated hallucinations via "sampling-then-filtering." These are engineered, not naturally occurring. Real-world hallucination patterns may differ systematically from synthetic ones.
 2. **Self-reinforcement risk.** ChatGPT generates AND filters the hallucinated samples, creating a potential circular artifact — the benchmark may reward systems that recognize ChatGPT-specific hallucination patterns rather than general hallucination patterns.
-3. **Binary classification oversimplification.** "Is this answer hallucinated? Yes/No" ignores graded severity, partial hallucination, and ambiguity. Real deployment needs risk scores, not binary flags — which is exactly what HaluLens provides.
+3. **Binary classification oversimplification.** "Is this answer hallucinated? Yes/No" ignores graded severity, partial hallucination, and ambiguity. Real deployment needs risk scores, not binary flags — which is exactly what HaluRISC provides.
 4. **Generated with early-2023 ChatGPT.** RLHF, model architectures, and hallucination patterns have evolved significantly since.
 5. **No license file.** The GitHub repo lacks a LICENSE — a minor reproducibility concern.
 6. **Conflates factuality with hallucination.** HalluLens (ACL 2025) notes the benchmark tests consistency with Wikipedia, not consistency with model training data — blurring the line between factually wrong and hallucinated.
@@ -784,7 +781,7 @@ Do NOT fill the paper with UI screenshots. The web application is a demonstratio
 
 ### Recommended course paper title
 
-**HaluLens: A Calibrated and Explainable Machine Learning Framework for Hallucination Risk Prediction in Black-Box LLM Outputs**
+**HaluRISC: A Calibrated and Explainable Machine Learning Framework for Hallucination Risk Prediction in Black-Box LLM Outputs**
 
 ### Abstract outline
 
