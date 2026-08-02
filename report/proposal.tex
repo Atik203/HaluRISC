@@ -5,14 +5,14 @@
 
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage[a4paper,margin=0.75in]{geometry}
+\usepackage[a4paper,margin=0.7in]{geometry}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{parskip}
 \usepackage{enumitem}
 
-\setlength{\parskip}{0.5em}
+\setlength{\parskip}{0.4em}
 \setlist{topsep=2pt, itemsep=1pt, parsep=1pt}
 \emergencystretch=2em
 
@@ -25,38 +25,35 @@
 \begin{document}
 
 \begin{titlepage}
-\centering
+    \centering
 
-\begin{center}
-\ifuiu
-\includegraphics[scale=0.22]{./uiu}
-\else
-\textbf{[Place UIU logo as uiu.png/jpg/pdf in the report folder]}
-\fi
-\end{center}
+    \begin{center}
+        \ifuiu
+            \includegraphics[scale=0.22]{./uiu}
+        \else
+            \textbf{[Place UIU logo as uiu.png/jpg/pdf in the report folder]}
+        \fi
+    \end{center}
 
-{\scshape\Large United International University}\\[0.3em]
-{\scshape Department of Computer Science and Engineering}
+    {\scshape\Large United International University}\\[0.3em]
+    {\scshape Department of Computer Science and Engineering}
 
-\vspace{2cm}
+    \vspace{2cm}
 
-{\Large\scshape Project Proposal}
+    {\Large\scshape Project Proposal}
 
 \vspace{1.2cm}
 
-{\Huge\bfseries HaluRISC: Calibrated, Explainable\\[0.4em] Hallucination Risk Prediction for LLM Outputs}
+{\Huge\bfseries HaluRISC}\\[0.6em]
+{\LARGE Calibrated, Explainable Hallucination\\[0.2em] Risk Prediction for LLM Outputs}
 
 \vspace{1cm}
 
 \rule{\textwidth}{0.5pt}
 
-\vspace{0.8cm}
-
-Course: Machine Learning, Section: E
-
 \vfill
 
-{\large\scshape Submitted By}
+{\large Submitted By}
 
 \vspace{0.5cm}
 
@@ -68,13 +65,17 @@ Course: Machine Learning, Section: E
 
 \vfill
 
-{\large\scshape Supervision}
+{\large Supervision}
 
 \vspace{0.4cm}
 
 {\large\bfseries Ohidujjaman Tuhin, PhD}\\
 Associate Professor, Dept. of Computer Science and Engineering\\
 United International University
+
+\vspace{0.6em}
+
+Course: Machine Learning, Section: E
 
 \vfill
 
@@ -98,20 +99,24 @@ Research question: Can a lightweight machine learning model predict hallucinatio
 
 \section{Related Work}
 
-Hallucination detection is an active research area. The most common approach asks the LLM itself to judge its own answer, as in SelfCheckGPT \cite{selfcheck}, but this is slow and expensive. Other approaches train neural classifiers on frozen language encoders \cite{ieeeTai}, or combine explainable text signals with machine learning \cite{ijert,multimedia}. None of these combine lightweight engineered features with calibrated risk scores, tested explanations, and a deployable dashboard --- this is the gap the project fills.
+Hallucination detection is an active research area. The most common approach asks the LLM itself to judge its own answer, as in SelfCheckGPT \cite{selfcheck}, but this is slow and expensive. To cut this cost, small language models have been used as detectors \cite{haluagent}, and lightweight evaluation models such as Luna \cite{luna} show that efficient detection is possible in practice. Other approaches train neural classifiers on frozen language encoders \cite{ieeeTai}, or combine explainable text signals with machine learning \cite{ijert,multimedia}.
+
+On the benchmark side, HaluEval \cite{haluEval} and TruthfulQA \cite{truthqa} provide standard test beds, and fine-grained methods such as FActScore \cite{factscore} evaluate factual precision in detail. Newer benchmarks such as FaithBench \cite{faithbench} show that current detectors still fail on challenging cases, and SpikeScore \cite{spikescore} shows that cross-domain generalization remains an open problem.
+
+None of these works combine lightweight engineered features with calibrated risk scores, tested explanations, and a deployable dashboard --- this is the gap the project fills.
 
 \section{Methodology}
 
 The pipeline has seven clear steps:
 
 \begin{enumerate}
-\item Data preparation --- load the HaluEval QA dataset, clean the text, and manually inspect 50 random samples to verify label quality before training.
-\item Feature extraction --- compute features in seven groups: length/style, lexical overlap, entity overlap, NLI contradiction (using a lightweight pre-trained NLI model), numeric consistency, hedging phrases, and semantic similarity.
-\item Model training --- 5-fold stratified cross-validation, hyperparameter tuning for XGBoost, and every experiment repeated with 3 random seeds, reported as mean $\pm$ standard deviation.
-\item Model comparison --- heuristic baseline, Logistic Regression, Random Forest, and XGBoost, judged on F1, AUROC, precision, recall, and MCC.
-\item Calibration --- apply Platt scaling to the final model and measure the gain with Expected Calibration Error (ECE) and Brier score.
-\item Explanation --- SHAP global feature importance plus 3 local case studies; error analysis on 20 wrong predictions (10 false positives, 10 false negatives).
-\item Deployment --- FastAPI backend serving the trained model, and a React (Vite) dashboard with a clean, modern UI: risk gauge, feature breakdown, and live input panel.
+    \item Data preparation --- load the HaluEval QA dataset, clean the text, and manually inspect 50 random samples to verify label quality before training.
+    \item Feature extraction --- compute features in seven groups: length/style, lexical overlap, entity overlap, NLI contradiction (using a lightweight pre-trained NLI model), numeric consistency, hedging phrases, and semantic similarity.
+    \item Model training --- 5-fold stratified cross-validation, hyperparameter tuning for XGBoost, and every experiment repeated with 3 random seeds, reported as mean $\pm$ standard deviation.
+    \item Model comparison --- heuristic baseline, Logistic Regression, Random Forest, and XGBoost, judged on F1, AUROC, precision, recall, and MCC.
+    \item Calibration --- apply Platt scaling to the final model \cite{costeff} and measure the gain with Expected Calibration Error (ECE) and Brier score.
+    \item Explanation --- SHAP global feature importance plus 3 local case studies; error analysis on 20 wrong predictions (10 false positives, 10 false negatives).
+    \item Deployment --- FastAPI backend serving the trained model, and a React (Vite) dashboard with a clean, modern UI: risk gauge, feature breakdown, and live input panel.
 \end{enumerate}
 
 Statistical rigor: model differences are tested with McNemar's test and bootstrap confidence intervals, so conclusions are not based on chance from a single split.
@@ -123,9 +128,9 @@ External comparison: results are compared with published HaluEval detection base
 We use the HaluEval benchmark \cite{haluEval} (EMNLP 2023) --- the standard dataset for hallucination evaluation, widely used and well documented.
 
 \begin{itemize}
-\item Size: 35{,}000 samples across 4 task types (QA, dialogue, summarization, general).
-\item Used here: the QA subset (about 10{,}000 samples). Each sample has a question, an answer, a context, and a label (hallucinated or not).
-\item Why QA: it is the largest, cleanest, and most comparable subset, and it matches the demo scenario (question $\rightarrow$ answer $\rightarrow$ risk score).
+    \item Size: 35{,}000 samples across 4 task types (QA, dialogue, summarization, general).
+    \item Used here: the QA subset (about 10{,}000 samples). Each sample has a question, an answer, a context, and a label (hallucinated or not).
+    \item Why QA: it is the largest, cleanest, and most comparable subset, and it matches the demo scenario (question $\rightarrow$ answer $\rightarrow$ risk score).
 \end{itemize}
 
 One limitation to note: most HaluEval samples were generated by ChatGPT, so results will be framed as performance on the HaluEval benchmark rather than as general hallucination detection performance.
@@ -134,10 +139,9 @@ One limitation to note: most HaluEval samples were generated by ChatGPT, so resu
 
 Based on published baselines on the same benchmark \cite{haluEval,ieeeTai}, we expect the tuned XGBoost model to reach an F1 score of around 0.75--0.85 and an AUROC of around 0.80--0.90 on the QA subset. Success means matching or beating these baselines while keeping the system lightweight, explainable, and ready for live demonstration.
 
-\section{Expected Outcomes}
+The project will deliver:
 
 \begin{enumerate}
-\item A journal-style project report (methodology, experiments, results, error analysis, limitations).
 \item A trained, calibrated XGBoost model with feature ablation and SHAP explanations.
 \item Statistical significance tests (McNemar, bootstrap confidence intervals).
 \item A polished, judge-ready web dashboard --- live risk prediction with clean UI/UX.
@@ -146,11 +150,11 @@ Based on published baselines on the same benchmark \cite{haluEval,ieeeTai}, we e
 
 \section{Project Plan}
 
-The project follows a straightforward pipeline: (1) prepare the HaluEval QA data and manually audit a sample of the labels, (2) extract about 20--30 text features in seven groups, (3) train and compare simple models, calibrate the risk scores, and evaluate them with statistical tests, (4) explain the predictions with SHAP, and (5) wrap the final model in a FastAPI backend and a React dashboard for live demonstration. The first half of the project (Weeks 1--4) focuses on the experiments --- data, features, models, and calibration --- while the second half (Weeks 5--8) focuses on explanations, the web product, and the final report.
+The project runs in two phases: experiments in the first half, product in the second. Weeks 1--4 cover data preparation, feature extraction, model comparison, and calibration. Weeks 5--8 cover SHAP explanations and error analysis, the FastAPI backend, the React dashboard, and the final report and demo.
 
 \newpage
 
-\begin{thebibliography}{8}
+\begin{thebibliography}{12}
 \bibitem{haluEval} Li, J., Cheng, X., Zhao, W.X., Nie, J.-Y., Wen, J.-R. (2023). \emph{HaluEval: A Large-Scale Hallucination Evaluation Benchmark for Large Language Models.} EMNLP 2023.
 \bibitem{selfcheck} Manakul, P., Liusie, A., Gales, M. (2023). \emph{SelfCheckGPT: Zero-Resource Black-Box Hallucination Detection for Generative Large Language Models.} EMNLP 2023.
 \bibitem{truthqa} Lin, S., Hilton, J., Evans, O. (2022). \emph{TruthfulQA: Measuring How Models Mimic Human Falsehoods.} ACL 2022.
@@ -159,6 +163,10 @@ The project follows a straightforward pipeline: (1) prepare the HaluEval QA data
 \bibitem{ijert} Sundaragiri, D., Reddy, L.M., Gunavardhan, P., Navahith, B. (2026). \emph{Framework for Hallucination Detection in Large Language Models.} IJERT, Vol.~15, Issue~04. DOI: 10.5281/zenodo.20025987.
 \bibitem{ieeeTai} Yadav, S., Verma, N.K. (2026). \emph{A Hybrid Framework for Hallucination Detection in Large Language Models.} IEEE Transactions on Artificial Intelligence. DOI: 10.1109/TAI.2026.3653354.
 \bibitem{multimedia} Haq, I., Saqib, M., Zhang, Y., Khan, I.A. (2026). \emph{Quantifying Factual Divergence in Generative Models: SHAP-LIME Based Hallucination Score for LLMs.} Multimedia Systems, Vol.~32, Art.~146. DOI: 10.1007/s00530-025-02150-4.
+\bibitem{haluagent} Cheng, X., Li, J., Zhao, W.X., Zhang, H., Zhang, F., Zhang, D., Gai, K., Wen, J.-R. (2024). \emph{Small Agent Can Also Rock! Empowering Small Language Models as Hallucination Detector.} EMNLP 2024.
+\bibitem{luna} Belyi, M., Friel, R., Shao, S., Sanyal, A. (2025). \emph{Luna: A Lightweight Evaluation Model to Catch Language Model Hallucinations with High Accuracy and Low Cost.} COLING 2025 Industry Track, pp.~398--409.
+\bibitem{faithbench} Bao, F.S., Li, M., Qu, R., et al. (2025). \emph{FaithBench: A Diverse Hallucination Benchmark for Summarization by Modern LLMs.} NAACL 2025 (Short Papers), pp.~448--461. DOI: 10.18653/v1/2025.naacl-short.38.
+\bibitem{spikescore} Deng, Y., Fang, Z., Li, S., Chen, L. (2026). \emph{Beyond In-Domain Detection: SpikeScore for Cross-Domain Hallucination Detection.} ICLR 2026. arXiv:2601.19245.
 \end{thebibliography}
 
 \end{document}
