@@ -1096,7 +1096,7 @@ Mitigation: record backup demo video/screenshots; prioritize paper quality over 
 | Implementation | API/frontend delay                        | Medium | Build with mock JSON first; reduce to 2 pages if needed.              |
 | Novelty        | Reviewers see "XGBoost + SHAP only"       | High   | Frame as compound system; differentiate from Multimedia Systems 2026 paper. |
 | Novelty        | IJERT (2026) pre-covers feature combo     | Medium | Cite and differentiate via hedging features, calibration, and cross-domain. |
-| Novelty        | Name collision with HalluLens (ACL 2025)  | Low    | Course name is fine; publication switches to HaluRISC or EvidenceLens. |
+| Novelty        | Name collision with HalluLens (ACL 2025)  | Low    | Resolved: project standardized on **HaluRISC** (distinct from the HalluLens benchmark). |
 | Presentation   | Demo failure                              | Medium | Record backup demo video/screenshots; rehearse 3+ times.              |
 
 ---
@@ -1328,7 +1328,7 @@ The publication version can extend the course features, but every new feature mu
 
 ### Multicalibration methodology (from Valentin et al., 2024)
 
-Standard Platt/isotonisotonic calibration fits a single calibrator. Multicalibration:
+Standard Platt/isotonic calibration fits a single calibrator. Multicalibration:
 1. Cluster inputs by semantic embedding (use Sentence-BERT to embed context+question+answer).
 2. Fit per-cluster calibrators.
 3. Report per-cluster ECE and overall weighted ECE.
@@ -1724,51 +1724,45 @@ The project can become a strong Q2-level journal paper if the post-course versio
 
 # Name Evaluation
 
-## Current name: HaluLens
+## Chosen name: HaluRISC
 
 ### Score
 
-**6/10** (downgraded from 7 due to literature collision)
+**8/10** (single unified name; no literature collision)
 
 ### Strengths
 
-- memorable
-- short
+- memorable and short
 - relevant to hallucination
 - good for demo branding
+- communicates the core contribution (**Risk** + **Calibration**) directly in the acronym — Hallucination Risk Scoring and Calibration
+- **no naming collision** with existing published work, avoiding Google Scholar / reviewer confusion
 
 ### Weaknesses
 
-- slightly informal
-- may sound less professional in a journal title
-- does not clearly communicate evidence grounding or calibration
-- **Critical: Name collision with "HalluLens" benchmark by Bang et al. (ACL 2025, Meta FAIR)** — a different project that evaluates intrinsic vs extrinsic hallucination. This causes Google Scholar/SEO confusion.
+- the "RISC" styling can be misread as the CPU architecture term; always expand it on first use (Hallucination Risk Scoring and Calibration)
+- does not, by itself, signal evidence grounding — address this in the subtitle/abstract
 
-## Alternative names
+## Alternative names (rejected in favor of HaluRISC)
 
-1. **HaluRISC** — Hallucination Risk Scoring and Calibration. Preferred publication name.
-2. **EvidenceLens**
-3. **TrustLens**
-4. **VeriLens**
-5. **GroundScore**
-6. **FactualityLens**
-7. **TruthTrace**
-8. **HalluGauge**
-9. **CalibraFact**
-10. **RiskLens AI**
-11. **LLMTrustMap**
-12. **FactShield**
-13. **GroundedLens**
+1. **EvidenceLens**
+2. **TrustLens**
+3. **VeriLens**
+4. **GroundScore**
+5. **FactualityLens**
+6. **TruthTrace**
+7. **HalluGauge**
+8. **CalibraFact**
+9. **RiskLens AI**
+10. **LLMTrustMap**
+11. **FactShield**
+12. **GroundedLens**
 
 ## Recommendation
 
-- Use **HaluLens** for the course project (name collision with ACL 2025 benchmark is acceptable for coursework).
-- Use **HaluRISC** or **EvidenceLens** for journal submission. **HaluRISC** is preferred: it communicates the core contribution (risk + calibration) in the acronym, is more distinctive, and has no naming collisions.
-
-Best combined strategy:
-
-> Course demo/code name: **HaluLens**  
-> Publication paper name: **HaluRISC** (or **EvidenceLens** as fallback)
+- Use **HaluRISC** consistently across the course project, code, demo, and journal submission. A single name avoids the confusion of maintaining two brandings and eliminates the collision with the **HalluLens** benchmark (Bang et al., ACL 2025).
+- Always expand the acronym on first use: *HaluRISC (Hallucination Risk Scoring and Calibration)*.
+- **EvidenceLens** remains an acceptable fallback only if a venue objects to the acronym styling.
 
 ---
 
@@ -1831,7 +1825,7 @@ Below is a **high-confidence starter bibliography** made of widely cited, publis
     Why it matters: lightweight deployable detector; baseline for efficiency comparison.
 
 16. **Bang et al. (2025)** - "HalluLens: LLM Hallucination Benchmark" - ACL 2025.  
-    Why it matters: intrinsic/extrinsic taxonomy; critiques HaluEval. **Note: name collision with HaluLens project name.**
+    Why it matters: intrinsic/extrinsic taxonomy; critiques HaluEval. **Note: the "HalluLens" benchmark (double "l") is a distinct external work — not to be confused with this project, HaluRISC.**
 
 17. **Sanchez et al. (2025)** - "FaithBench: A Challenging Hallucination Benchmark" - NAACL 2025.  
     Why it matters: human-annotated from 10 modern LLMs; strong stress test for Version B.
