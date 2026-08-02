@@ -1,4 +1,4 @@
-# HaluRISC: Calibrated, Explainable Hallucination Risk Prediction for LLM Outputs
+# HaluRISC: Calibrated and Explainable Hallucination Risk Prediction for Large Language Model Outputs
 
 **Project Proposal — Machine Learning**
 
@@ -22,7 +22,7 @@ LLMs are now used in real products — chatbots, Q&A systems, content review too
 
 ## 3. Objectives
 
-Research question: Can a lightweight machine learning model predict hallucination risk in LLM answers using simple text features, while giving calibrated risk scores and clear explanations? To answer this, the project has five objectives: (1) build a feature extraction pipeline (~20–30 features) that captures how well an answer agrees with the question and context — word overlap, named entities, contradiction signals, numbers, hedging words, and semantic similarity; (2) train and honestly compare classical models — a simple heuristic baseline, Logistic Regression, Random Forest, and XGBoost; (3) calibrate the risk scores so that a score of 0.8 truly means "about 80% risk", making the score trustworthy for real use; (4) explain predictions with SHAP, giving a global view of which features matter most plus detailed case studies of individual predictions; and (5) build a polished web dashboard (React + FastAPI) with strong UI/UX — live prediction, risk gauge, explanation panel, and a demo gallery — designed for presentation and judging.
+Research question: Can a lightweight machine learning model predict hallucination risk in LLM answers using simple text features, while giving calibrated risk scores and clear explanations? To answer this, the project has five objectives. The first is to build a feature extraction pipeline (~20–30 features) that captures how well an answer agrees with the question and context, covering word overlap, named entities, contradiction signals, numbers, hedging words, and semantic similarity. The second is to train and honestly compare classical models, including a simple heuristic baseline, Logistic Regression, Random Forest, and XGBoost. The third is to calibrate the risk scores so that a score of 0.8 truly means "about 80% risk", making the score trustworthy for real use. The fourth is to explain predictions with SHAP, giving a global view of which features matter most plus detailed case studies of individual predictions. The fifth is to build a polished web dashboard (React + FastAPI) with strong UI/UX, featuring live prediction, a risk gauge, an explanation panel, and a demo gallery, designed for presentation and judging.
 
 ## 4. Related Work
 

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.10.23)  3 AUG 2026 00:54
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.10.23)  3 AUG 2026 01:02
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -192,11 +192,11 @@ File: ./uiu.png Graphic file (type png)
 Package pdftex.def Info: ./uiu.png  used on input line 32.
 (pdftex.def)             Requested size: 77.28899pt x 70.44337pt.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 60.
+(Font)              <12> on input line 57.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 60.
+(Font)              <8> on input line 57.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 60.
+(Font)              <6> on input line 57.
 
 
 [1
@@ -208,12 +208,12 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 [2{c:/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}]
 
 [3]
-Underfull \hbox (badness 4242) in paragraph at lines 173--174
+Underfull \hbox (badness 4242) in paragraph at lines 170--171
 []\T1/cmr/m/n/12 Yadav, S., Verma, N.K. (2026). \T1/cmr/m/it/12 A Hy-brid Frame-work for Hal-lu-ci-na-tion De-tec-
  []
 
 
-Underfull \hbox (badness 1742) in paragraph at lines 173--174
+Underfull \hbox (badness 1742) in paragraph at lines 170--171
 \T1/cmr/m/it/12 tion in Large Lan-guage Mod-els. \T1/cmr/m/n/12 IEEE Trans-ac-tions on Ar-ti-fi-cial In-tel-li-gence. DOI:
  []
 
@@ -226,18 +226,18 @@ L3 programming layer <2025-09-02>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 3367 strings out of 467748
- 51629 string characters out of 5431137
+ 3355 strings out of 467748
+ 51484 string characters out of 5431137
  468671 words of memory out of 5000000
- 32037 multiletter control sequences out of 15000+600000
- 639773 words of font info for 62 fonts, out of 8000000 for 9000
+ 32031 multiletter control sequences out of 15000+600000
+ 635238 words of font info for 56 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  57i,6n,65p,1332b,193s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx1440.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx1728.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx2488.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfcc1200.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfcc1728.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm1440.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm2074.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfti1200.pfb>
-Output written on out/proposal.pdf (5 pages, 333575 bytes).
+<c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx1728.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfcc1200.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfti1200.pfb>
+Output written on out/proposal.pdf (5 pages, 284292 bytes).
 PDF statistics:
- 81 PDF objects out of 1000 (max. 8388607)
- 49 compressed objects within 1 object stream
+ 56 PDF objects out of 1000 (max. 8388607)
+ 34 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  6 words of extra memory for PDF output out of 10000 (max. 10000000)
 
