@@ -83,15 +83,19 @@ United International University
 
 \section{Project Overview}
 
-Large language models (LLMs) like ChatGPT are very good at writing text that sounds confident and correct, but they sometimes generate information that is wrong or made up --- this is called a hallucination. This project builds a complete system that predicts how likely an LLM answer is to be hallucinated. The system is black-box friendly --- it only needs the question, the answer, and (optionally) some context, without ever looking inside the LLM. It is lightweight --- it uses simple text features and classical machine learning (XGBoost), so it runs in milliseconds on a normal computer, with no GPU and no API fees. It is explainable --- for every prediction it shows \emph{why} the answer looks risky (for example: ``the answer contradicts the provided context'', or ``the answer contains numbers that are not supported''). Finally, it is presentable --- a polished, interactive web dashboard lets a judge or supervisor test the system live, type any question and answer, and see the risk score and explanation instantly. The project is judged on two tracks: the quality of the machine learning, and the quality of the final product --- the dashboard is designed from day one to be the centerpiece of the demo.
+Large language models (LLMs) like ChatGPT are very good at writing text that sounds confident and correct, but they sometimes generate information that is wrong or made up --- this is called a hallucination. This project builds a complete system that predicts how likely an LLM answer is to be hallucinated. The system is black-box friendly --- it only needs the question, the answer, and (optionally) some context, without ever looking inside the LLM. It is lightweight --- it uses simple text features and classical machine learning (XGBoost), so it runs in milliseconds on a normal computer, with no GPU and no API fees. It is explainable --- for every prediction it shows \emph{why} the answer looks risky (for example: ``the answer contradicts the provided context'', or ``the answer contains numbers that are not supported''). Finally, it is presentable --- a polished, interactive web dashboard lets a judge or supervisor test the system live, type any question and answer, and see the risk score and explanation instantly. The novelty is not in inventing hallucination detection, but in combining NLI-based consistency features, calibrated risk scores, and tested explanations into one lightweight system --- a combination no published work offers as a single product.
 
 \section{Motivation}
 
-LLMs are now used in real products --- chatbots, Q\&A systems, content review tools --- where a wrong answer has a real cost, and the most common way to detect hallucinations is to ask the LLM itself to judge its own output, which is slow, expensive, and sometimes wrong. A lightweight model trained on simple text features (word overlap, named entities, contradiction with context, numbers, hedging words) can flag risky answers almost instantly and at almost zero cost. A risk score is also more useful than a simple ``yes/no'' flag, because real systems can decide what to do with a risky answer --- show a warning, ask for human review, or fetch better evidence. And because the final result is a working product with a clean UI rather than just a report, the project is fully demo-able and easy to present.
+LLMs are now used in real products --- chatbots, Q\&A systems, content review tools --- where a wrong answer has a real cost, and the most common way to detect hallucinations is to ask the LLM itself to judge its own output \cite{selfcheck}, which is slow, expensive, and sometimes wrong. A lightweight model trained on simple text features (word overlap, named entities, contradiction with context, numbers, hedging words) can flag risky answers almost instantly and at almost zero cost. A risk score is also more useful than a simple ``yes/no'' flag, because real systems can decide what to do with a risky answer --- show a warning, ask for human review, or fetch better evidence. And because the final result is a working product with a clean UI rather than just a report, the project is fully ready for live demonstration.
 
 \section{Objectives}
 
 Research question: Can a lightweight machine learning model predict hallucination risk in LLM answers using simple text features, while giving calibrated risk scores and clear explanations? To answer this, the project has five objectives: (1) build a feature extraction pipeline (about 20--30 features) that captures how well an answer agrees with the question and context --- word overlap, named entities, contradiction signals, numbers, hedging words, and semantic similarity; (2) train and honestly compare classical models --- a simple heuristic baseline, Logistic Regression, Random Forest, and XGBoost; (3) calibrate the risk scores so that a score of 0.8 truly means ``about 80\% risk'', making the score trustworthy for real use; (4) explain predictions with SHAP, giving a global view of which features matter most plus detailed case studies of individual predictions; and (5) build a polished web dashboard (React + FastAPI) with strong UI/UX --- live prediction, risk gauge, explanation panel, and a demo gallery --- designed for presentation and judging.
+
+\section{Related Work}
+
+Hallucination detection is an active research area. The most common approach asks the LLM itself to judge its own answer, as in SelfCheckGPT \cite{selfcheck}, but this is slow and expensive. Other approaches train neural classifiers on frozen language encoders \cite{ieeeTai}, or combine explainable text signals with machine learning \cite{ijert,multimedia}. None of these combine lightweight engineered features with calibrated risk scores, tested explanations, and a deployable dashboard --- this is the gap the project fills.
 
 \section{Methodology}
 
@@ -107,19 +111,25 @@ The pipeline has seven clear steps:
 \item Deployment --- FastAPI backend serving the trained model, and a React (Vite) dashboard with a clean, modern UI: risk gauge, feature breakdown, and live input panel.
 \end{enumerate}
 
-Statistical rigor: model differences are tested with McNemar's test and bootstrap confidence intervals, so conclusions are not based on luck of the split.
+Statistical rigor: model differences are tested with McNemar's test and bootstrap confidence intervals, so conclusions are not based on chance from a single split.
 
-External comparison: results are compared with published HaluEval detection baselines (e.g., SelfCheckGPT) so a judge can see whether the scores are good or bad.
+External comparison: results are compared with published HaluEval detection baselines, such as SelfCheckGPT \cite{selfcheck}, so a judge can see whether the scores are good or bad.
 
 \section{Dataset}
 
-We use the HaluEval benchmark (EMNLP 2023) --- the standard dataset for hallucination evaluation, widely used and well documented.
+We use the HaluEval benchmark \cite{haluEval} (EMNLP 2023) --- the standard dataset for hallucination evaluation, widely used and well documented.
 
 \begin{itemize}
 \item Size: 35{,}000 samples across 4 task types (QA, dialogue, summarization, general).
 \item Used here: the QA subset (about 10{,}000 samples). Each sample has a question, an answer, a context, and a label (hallucinated or not).
 \item Why QA: it is the largest, cleanest, and most comparable subset, and it matches the demo scenario (question $\rightarrow$ answer $\rightarrow$ risk score).
 \end{itemize}
+
+One limitation to note: most HaluEval samples were generated by ChatGPT, so results will be framed as performance on the HaluEval benchmark rather than as general hallucination detection performance.
+
+\section{Expected Results}
+
+Based on published baselines on the same benchmark \cite{haluEval,ieeeTai}, we expect the tuned XGBoost model to reach an F1 score of around 0.75--0.85 and an AUROC of around 0.80--0.90 on the QA subset. Success means matching or beating these baselines while keeping the system lightweight, explainable, and ready for live demonstration.
 
 \section{Expected Outcomes}
 
@@ -139,15 +149,15 @@ The project follows a straightforward pipeline: (1) prepare the HaluEval QA data
 
 \section*{References}
 
-\begin{enumerate}
-\item Li, J., Cheng, X., Zhao, W.X., Nie, J.-Y., Wen, J.-R. (2023). \emph{HaluEval: A Large-Scale Hallucination Evaluation Benchmark for Large Language Models.} EMNLP 2023.
-\item Manakul, P., Liusie, A., Gales, M. (2023). \emph{SelfCheckGPT: Zero-Resource Black-Box Hallucination Detection for Generative Large Language Models.} EMNLP 2023.
-\item Lin, S., Hilton, J., Evans, O. (2022). \emph{TruthfulQA: Measuring How Models Mimic Human Falsehoods.} ACL 2022.
-\item Min, S., Krishna, K., Lyu, X., Lewis, M., Yih, W., Koh, P.W., Iyyer, M., Zettlemoyer, L., Hajishirzi, H. (2023). \emph{FActScore: Fine-grained Atomic Evaluation of Factual Precision in Long Form Text Generation.} EMNLP 2023.
-\item Valentin, S., Fu, J., Detommaso, G., Xu, S., Zappella, G., Wang, B. (2024). \emph{Cost-Effective Hallucination Detection for LLMs.} arXiv:2407.21424.
-\item Sundaragiri, D., Reddy, L.M., Gunavardhan, P., Navahith, B. (2026). \emph{Framework for Hallucination Detection in Large Language Models.} IJERT, Vol.~15, Issue~04. DOI: 10.5281/zenodo.20025987.
-\item Yadav, S., Verma, N.K. (2026). \emph{A Hybrid Framework for Hallucination Detection in Large Language Models.} IEEE Transactions on Artificial Intelligence. DOI: 10.1109/TAI.2026.3653354.
-\item Haq, I., Saqib, M., Zhang, Y., Khan, I.A. (2026). \emph{Quantifying Factual Divergence in Generative Models: SHAP-LIME Based Hallucination Score for LLMs.} Multimedia Systems, Vol.~32, Art.~146. DOI: 10.1007/s00530-025-02150-4.
-\end{enumerate}
+\begin{thebibliography}{8}
+\bibitem{haluEval} Li, J., Cheng, X., Zhao, W.X., Nie, J.-Y., Wen, J.-R. (2023). \emph{HaluEval: A Large-Scale Hallucination Evaluation Benchmark for Large Language Models.} EMNLP 2023.
+\bibitem{selfcheck} Manakul, P., Liusie, A., Gales, M. (2023). \emph{SelfCheckGPT: Zero-Resource Black-Box Hallucination Detection for Generative Large Language Models.} EMNLP 2023.
+\bibitem{truthqa} Lin, S., Hilton, J., Evans, O. (2022). \emph{TruthfulQA: Measuring How Models Mimic Human Falsehoods.} ACL 2022.
+\bibitem{factscore} Min, S., Krishna, K., Lyu, X., Lewis, M., Yih, W., Koh, P.W., Iyyer, M., Zettlemoyer, L., Hajishirzi, H. (2023). \emph{FActScore: Fine-grained Atomic Evaluation of Factual Precision in Long Form Text Generation.} EMNLP 2023.
+\bibitem{costeff} Valentin, S., Fu, J., Detommaso, G., Xu, S., Zappella, G., Wang, B. (2024). \emph{Cost-Effective Hallucination Detection for LLMs.} arXiv:2407.21424.
+\bibitem{ijert} Sundaragiri, D., Reddy, L.M., Gunavardhan, P., Navahith, B. (2026). \emph{Framework for Hallucination Detection in Large Language Models.} IJERT, Vol.~15, Issue~04. DOI: 10.5281/zenodo.20025987.
+\bibitem{ieeeTai} Yadav, S., Verma, N.K. (2026). \emph{A Hybrid Framework for Hallucination Detection in Large Language Models.} IEEE Transactions on Artificial Intelligence. DOI: 10.1109/TAI.2026.3653354.
+\bibitem{multimedia} Haq, I., Saqib, M., Zhang, Y., Khan, I.A. (2026). \emph{Quantifying Factual Divergence in Generative Models: SHAP-LIME Based Hallucination Score for LLMs.} Multimedia Systems, Vol.~32, Art.~146. DOI: 10.1007/s00530-025-02150-4.
+\end{thebibliography}
 
 \end{document}

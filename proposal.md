@@ -14,17 +14,21 @@
 
 ## 1. Project Overview
 
-Large language models (LLMs) like ChatGPT are very good at writing text that sounds confident and correct, but they sometimes generate information that is wrong or made up — this is called a hallucination. This project builds a complete system that predicts how likely an LLM answer is to be hallucinated. The system is black-box friendly — it only needs the question, the answer, and (optionally) some context, without ever looking inside the LLM. It is lightweight — it uses simple text features and classical machine learning (XGBoost), so it runs in milliseconds on a normal computer, with no GPU and no API fees. It is explainable — for every prediction it shows *why* the answer looks risky (for example: "the answer contradicts the provided context", or "the answer contains numbers that are not supported"). Finally, it is presentable — a polished, interactive web dashboard lets a judge or supervisor test the system live, type any question and answer, and see the risk score and explanation instantly. The project is judged on two tracks: the quality of the machine learning, and the quality of the final product — the dashboard is designed from day one to be the centerpiece of the demo.
+Large language models (LLMs) like ChatGPT are very good at writing text that sounds confident and correct, but they sometimes generate information that is wrong or made up — this is called a hallucination. This project builds a complete system that predicts how likely an LLM answer is to be hallucinated. The system is black-box friendly — it only needs the question, the answer, and (optionally) some context, without ever looking inside the LLM. It is lightweight — it uses simple text features and classical machine learning (XGBoost), so it runs in milliseconds on a normal computer, with no GPU and no API fees. It is explainable — for every prediction it shows *why* the answer looks risky (for example: "the answer contradicts the provided context", or "the answer contains numbers that are not supported"). Finally, it is presentable — a polished, interactive web dashboard lets a judge or supervisor test the system live, type any question and answer, and see the risk score and explanation instantly. The novelty is not in inventing hallucination detection, but in combining NLI-based consistency features, calibrated risk scores, and tested explanations into one lightweight system — a combination no published work offers as a single product.
 
 ## 2. Motivation
 
-LLMs are now used in real products — chatbots, Q&A systems, content review tools — where a wrong answer has a real cost, and the most common way to detect hallucinations is to ask the LLM itself to judge its own output, which is slow, expensive, and sometimes wrong. A lightweight model trained on simple text features (word overlap, named entities, contradiction with context, numbers, hedging words) can flag risky answers almost instantly and at almost zero cost. A risk score is also more useful than a simple "yes/no" flag, because real systems can decide what to do with a risky answer — show a warning, ask for human review, or fetch better evidence. And because the final result is a working product with a clean UI rather than just a report, the project is fully demo-able and easy to present.
+LLMs are now used in real products — chatbots, Q&A systems, content review tools — where a wrong answer has a real cost, and the most common way to detect hallucinations is to ask the LLM itself to judge its own output [2], which is slow, expensive, and sometimes wrong. A lightweight model trained on simple text features (word overlap, named entities, contradiction with context, numbers, hedging words) can flag risky answers almost instantly and at almost zero cost. A risk score is also more useful than a simple "yes/no" flag, because real systems can decide what to do with a risky answer — show a warning, ask for human review, or fetch better evidence. And because the final result is a working product with a clean UI rather than just a report, the project is fully ready for live demonstration.
 
 ## 3. Objectives
 
 Research question: Can a lightweight machine learning model predict hallucination risk in LLM answers using simple text features, while giving calibrated risk scores and clear explanations? To answer this, the project has five objectives: (1) build a feature extraction pipeline (~20–30 features) that captures how well an answer agrees with the question and context — word overlap, named entities, contradiction signals, numbers, hedging words, and semantic similarity; (2) train and honestly compare classical models — a simple heuristic baseline, Logistic Regression, Random Forest, and XGBoost; (3) calibrate the risk scores so that a score of 0.8 truly means "about 80% risk", making the score trustworthy for real use; (4) explain predictions with SHAP, giving a global view of which features matter most plus detailed case studies of individual predictions; and (5) build a polished web dashboard (React + FastAPI) with strong UI/UX — live prediction, risk gauge, explanation panel, and a demo gallery — designed for presentation and judging.
 
-## 4. Methodology
+## 4. Related Work
+
+Hallucination detection is an active research area. The most common approach asks the LLM itself to judge its own answer, as in SelfCheckGPT [2], but this is slow and expensive. Other approaches train neural classifiers on frozen language encoders [7], or combine explainable text signals with machine learning [6, 8]. None of these combine lightweight engineered features with calibrated risk scores, tested explanations, and a deployable dashboard — this is the gap the project fills.
+
+## 5. Methodology
 
 The pipeline has seven clear steps:
 
@@ -36,19 +40,25 @@ The pipeline has seven clear steps:
 6. Explanation — SHAP global feature importance plus 3 local case studies; error analysis on 20 wrong predictions (10 false positives, 10 false negatives).
 7. Deployment — FastAPI backend serving the trained model, and a React (Vite) dashboard with a clean, modern UI: risk gauge, feature breakdown, and live input panel.
 
-Statistical rigor: model differences are tested with McNemar's test and bootstrap confidence intervals, so conclusions are not based on luck of the split.
+Statistical rigor: model differences are tested with McNemar's test and bootstrap confidence intervals, so conclusions are not based on chance from a single split.
 
-External comparison: results are compared with published HaluEval detection baselines (e.g., SelfCheckGPT) so a judge can see whether the scores are good or bad.
+External comparison: results are compared with published HaluEval detection baselines, such as SelfCheckGPT [2], so a judge can see whether the scores are good or bad.
 
-## 5. Dataset
+## 6. Dataset
 
-We use the HaluEval benchmark (EMNLP 2023) — the standard dataset for hallucination evaluation, widely used and well documented.
+We use the HaluEval benchmark [1] (EMNLP 2023) — the standard dataset for hallucination evaluation, widely used and well documented.
 
 - Size: 35,000 samples across 4 task types (QA, dialogue, summarization, general).
 - Used here: the QA subset (~10,000 samples). Each sample has a question, an answer, a context, and a label (hallucinated or not).
 - Why QA: it is the largest, cleanest, and most comparable subset, and it matches the demo scenario (question → answer → risk score).
 
-## 6. Expected Outcomes
+One limitation to note: most HaluEval samples were generated by ChatGPT, so results will be framed as performance on the HaluEval benchmark rather than as general hallucination detection performance.
+
+## 7. Expected Results
+
+Based on published baselines on the same benchmark [1, 7], we expect the tuned XGBoost model to reach an F1 score of around 0.75–0.85 and an AUROC of around 0.80–0.90 on the QA subset. Success means matching or beating these baselines while keeping the system lightweight, explainable, and ready for live demonstration.
+
+## 8. Expected Outcomes
 
 1. A journal-style project report (methodology, experiments, results, error analysis, limitations).
 2. A trained, calibrated XGBoost model with feature ablation and SHAP explanations.
@@ -56,7 +66,7 @@ We use the HaluEval benchmark (EMNLP 2023) — the standard dataset for hallucin
 4. A polished, judge-ready web dashboard — live risk prediction with clean UI/UX.
 5. Reproducible code: dataset preparation, feature extraction, training, and API.
 
-## 7. Project Plan
+## 9. Project Plan
 
 The project follows a straightforward pipeline: (1) prepare the HaluEval QA data and manually audit a sample of the labels, (2) extract about 20–30 text features in seven groups, (3) train and compare simple models, calibrate the risk scores, and evaluate them with statistical tests, (4) explain the predictions with SHAP, and (5) wrap the final model in a FastAPI backend and a React dashboard for live demonstration. The first half of the project (Weeks 1–4) focuses on the experiments — data, features, models, and calibration — while the second half (Weeks 5–8) focuses on explanations, the web product, and the final report.
 
