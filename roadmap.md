@@ -31,12 +31,17 @@
 
 ## 2. Project Folder Structure
 
+> **Note:** this is the **target** layout to build toward, not the current state. As of now the repo contains only `blueprint.md`, `proposal.md`, `roadmap.md`, and `report/` (LaTeX proposal + PDF). The `src/`, `data/`, `web/`, and `artifacts/` trees are created during the phases below.
+
 ```
 HaluRISC/
 ├── blueprint.md            # research blueprint (source of truth)
-├── proposal.md             # supervisor proposal (md copy)
+├── proposal.md             # supervisor proposal (Markdown copy)
 ├── roadmap.md              # this file
-├── report/                 # LaTeX proposal + PDF
+├── report/                 # LaTeX proposal
+│   ├── proposal.tex        # main proposal source
+│   ├── uiu.png             # university logo
+│   └── out/                # compiled PDF output
 ├── data/
 │   ├── raw/halueval/       # qa_data.json (downloaded)
 │   ├── raw/ragtruth/       # RAGTruth processed parquet/json
@@ -88,6 +93,7 @@ HaluRISC/
   - Direct raw file: `https://raw.githubusercontent.com/RUCAIBox/HaluEval/main/data/qa_data.json`
 - **What is inside `qa_data.json`:** 10,000 QA entries; each has `question`, `knowledge` (facts = context), `answer` (correct), `hallucinated_answer`, and `hallucination_label` (binary).
 - **How to build the binary dataset:** for each entry, use `knowledge` as **context**, `answer` as the response, and `hallucination_label` as the label. If you want both variants per question (correct + hallucinated answer), create two rows per question and label accordingly — decide once and document it.
+  - **⚠ Decide the row layout up front** — it changes dataset size and NLI cost: one row per question = **10,000 rows / 20K NLI pairs**; two rows per question = **20,000 rows / 40K NLI pairs** (~2–4 hrs CPU instead of 1–2). The proposal quotes "~10,000 samples", so the **two-rows layout means updating that number to ~20,000 everywhere** (proposal §Dataset, paper dataset table).
 - **License:** the repo has **no LICENSE file** — use locally only, do not redistribute, and note this in the paper's dataset section.
 - **Manual audit (mandatory):** randomly sample 50 entries, read each, and record whether the label looks right. Keep the audit notes file — it goes in the paper's dataset-limitations section.
 
@@ -143,7 +149,7 @@ One module per group in `src/features/`. Output: a single DataFrame, cached to `
 
 `src/models/`:
 
-1. **Heuristic baseline** (no training): risk = `nli_ctx_contradicts_ans` probability, threshold 0.5. Gives the "minimum bar".
+1. **Heuristic baseline** (no training): risk = `nli_ctx_contradicts_ans` probability, threshold 0.5. Gives the "minimum bar". *If NLI is dropped (see Phase 3 fallback), switch the heuristic to `1 - overlap_answer_context` so the baseline still works without NLI.*
 2. **Logistic Regression**: `Pipeline(StandardScaler, LogisticRegression(max_iter=2000))` — features must be scaled.
 3. **Random Forest**: `RandomForestClassifier(n_estimators=300, min_samples_leaf=5, class_weight='balanced_subsample')`.
 4. **XGBoost (final)**: `XGBClassifier(objective="binary:logistic", eval_metric="logloss", scale_pos_weight=<from class ratio>, early_stopping_rounds=30)`.
@@ -154,7 +160,7 @@ One module per group in `src/features/`. Output: a single DataFrame, cached to `
 - `learning_rate`: [0.01, 0.05, 0.1, 0.2]
 - `n_estimators`: [100, 200, 300, 500]
 - `subsample`: [0.7, 0.8, 0.9, 1.0]
-- `colsample_bytree`: [0.7, 0.9, 1.0]
+- `colsample_bytree`: [0.7, 0.9, 1.0]  *(optional extra — the proposal/blueprint grid lists `scale_pos_weight` as the 5th parameter; both are fine, keep them consistent across docs)*
 
 **Seeds (mandatory):** repeat every experiment with seeds 42, 123, 456 → report mean ± std.
 
@@ -256,7 +262,7 @@ npm install axios                                 # or fetch wrapper
 
 | Paper section | Artifact |
 |---|---|
-| Dataset | `data/processed/*.parquet` + manual audit notes |
+| Dataset | `data/processed/*.parquet` + manual audit notes (the 50-sample audit from Phase 1) |
 | Features | `src/features/` + feature table CSV |
 | Experiments | `artifacts/results/*.csv` (all 3 seeds) |
 | Calibration | ECE/Brier + reliability diagram PNG |
@@ -264,6 +270,18 @@ npm install axios                                 # or fetch wrapper
 | Efficiency | latency breakdown table + cost estimate |
 | Explainability | SHAP figures + JSON |
 | Reproducibility | pinned requirements, saved splits, saved models |
+
+**Before submission — verify every citation (Week 8):**
+- Click through each DOI / URL in `report/proposal.tex` and the paper — the 2026 entries (`ijert`, `ieeeTai`, `multimedia`, `spikescore`) in particular must resolve. A broken DOI in a project about hallucination is a credibility hit.
+- Confirm the two live claims behind the roadmap `[verified]` markers: XGBoost `3.3.0` and the `cross-encoder/nli-deberta-v3-base` model card still match before you install (PyPI/HF links in §15).
+
+**Roadmap completion checklist (Week 8, before submission):**
+- [ ] All `data/processed/*.parquet`, `artifacts/models/*`, `artifacts/results/*` produced and committed
+- [ ] `requirements.txt` fully pinned (no `>=`, no un-pinned top-level packages)
+- [ ] Split indices + seeds saved (not just a fixed seed)
+- [ ] `report/out/proposal.pdf` and paper PDF built from source
+- [ ] Every citation's DOI/URL verified live
+- [ ] README setup/run commands verified by a clean clone test (or documented as pending if skipped)
 
 ---
 
