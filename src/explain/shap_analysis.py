@@ -42,6 +42,10 @@ N_TOP_FEATURES = 10
 def load_test_set():
     path = FEATURES_PATH if FEATURES_PATH.exists() else FEATURES_FALLBACK
     df = pd.read_parquet(path)
+    clean = pd.read_parquet(ROOT / "data" / "processed" / "qa_clean.parquet")
+    text_cols = [c for c in ["question", "answer", "context"] if c in clean.columns]
+    if text_cols:
+        df = pd.concat([df, clean[text_cols]], axis=1)
     feature_cols = json.loads((MODELS_DIR / "feature_names.json").read_text())
     test_df = df[df["split"] == "test"].copy()
     X_test = test_df[feature_cols].values
@@ -149,7 +153,7 @@ def main():
     plt.close(fig)
 
     # ---- Local: 3 waterfall cases ----
-    cases = case_indexes(y_prob_full)
+    cases = case_indexes(y_prob)
     case_shap = {}
     for label, idx in cases.items():
         shap.waterfall_plot(
@@ -164,12 +168,12 @@ def main():
         )
         plt.savefig(FIGURES_DIR / f"fig_shap_waterfall_{label}.png", dpi=150, bbox_inches="tight")
         plt.close()
-        logger.info(f"Case '{label}': index={idx}, prob={y_prob_full[idx]:.4f}, true_label={y_test[idx]}")
+        logger.info(f"Case '{label}': index={idx}, prob={y_prob[idx]:.4f}, true_label={y_test[idx]}")
         case_shap[label] = {
             "sample_id": str(test_df.iloc[idx]["sample_id"]),
             "question": str(test_df.iloc[idx]["question"])[:200],
             "answer": str(test_df.iloc[idx]["answer"])[:200],
-            "probability": float(y_prob_full[idx]),
+            "probability": float(y_prob[idx]),
             "true_label": int(y_test[idx]),
         }
 
