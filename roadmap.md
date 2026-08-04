@@ -6,7 +6,7 @@
 
 > **IMPLEMENTATION STATUS (updated 2026-08-05):** ✅ DONE | 🔶 PARTIAL | ⬜ TODO
 >
-> Phases 0–8 are **done** (the pipeline, API, and web app work end-to-end with real artifacts). Phase 9–10 remain for final packaging (Docker optional, demo rehearsal, paper). Known gaps: LLM-judge cost table (🔶), error-analysis taxonomy (🔶), explanation-reliability analysis (⬜), citation verification (⬜).
+> Phases 0–8 are **done** (pipeline, API, web app work end-to-end with real artifacts), and Phase 5's evaluation extras (LLM-judge comparison on 200 samples, error analysis, latency analysis) are **done**. Remaining: explanation-reliability analysis (⬜ optional), citation verification (⬜), demo rehearsal/backup video (⬜), clean-clone README test (⬜), paper write-up (🔶).
 
 ---
 
@@ -175,7 +175,7 @@ One module per group in `src/features/`. Output: a single DataFrame, cached to `
 
 ---
 
-## 8. Phase 5 — Calibration & Evaluation (Week 4–5) — ✅ DONE (Platt on val vs isotonic, ECE/Brier/reliability, McNemar, bootstrap CIs, Wilcoxon, 7-group ablations, RAGTruth zero-shot) · 🔶 PARTIAL: LLM-as-judge cost table (endpoint exists, judge run on a sample subset not yet executed)
+## 8. Phase 5 — Calibration & Evaluation (Week 4–5) — ✅ DONE (Platt on val vs isotonic, ECE/Brier/reliability, McNemar, bootstrap CIs, Wilcoxon, 7-group ablations, RAGTruth zero-shot) · ✅ LLM-as-judge comparison executed (200 samples: judge F1 0.83 vs XGBoost 0.99, ~$0.099/1K) · ✅ error analysis (10 FP + 10 FN) + latency analysis
 
 - **Calibration:** `CalibratedClassifierCV(estimator=best_xgb, method="sigmoid", cv="prefit")` fit on the **validation** set. Compare Platt (sigmoid) vs isotonic on the test set.
 - **Metrics:** Precision, Recall, F1, AUROC, PR-AUC, MCC (classification); **ECE**, **Brier score**, reliability diagram (calibration).

@@ -140,6 +140,22 @@ def main():
     y_true_sub = y_true[sample_idx]
     y_xgb_sub = y_pred_xgb[sample_idx]
 
+    # McNemar: judge vs XGBoost on the same 200 samples (off-diagonal = discordant)
+    judge_wrong = y_pred_judge != y_true_sub
+    xgb_wrong = y_xgb_sub != y_true_sub
+    both_wrong = int((judge_wrong & xgb_wrong).sum())
+    judge_wrong_xgb_right = int((judge_wrong & ~xgb_wrong).sum())
+    judge_right_xgb_wrong = int((~judge_wrong & xgb_wrong).sum())
+    both_right = int((~judge_wrong & ~xgb_wrong).sum())
+    from statsmodels.stats.contingency_tables import mcnemar
+
+    mcn = mcnemar(
+        [[both_wrong, judge_wrong_xgb_right], [judge_right_xgb_wrong, both_right]],
+        exact=False,
+        correction=True,
+    )
+    mcnemar_p = float(mcn.pvalue)
+
     cost = (in_tokens / 1e6) * PRICING["input_per_mtok"] + (out_tokens / 1e6) * PRICING["output_per_mtok"]
 
     results = {
@@ -160,6 +176,8 @@ def main():
             "f1": round(float(f1_score(y_true_sub, y_xgb_sub, zero_division=0)), 4),
         },
         "agreement_with_xgboost": round(float((y_pred_judge == y_xgb_sub).mean()), 4),
+        "mcnemar_judge_vs_xgboost_p": mcnemar_p,
+        "discordant_pairs": {"judge_wrong_xgb_right": judge_wrong_xgb_right, "judge_right_xgb_wrong": judge_right_xgb_wrong},
         "cost_usd": round(cost, 4),
         "cost_per_1000_usd": round(cost / len(sample_idx) * 1000, 3),
         "tokens": {"input": int(in_tokens), "output": int(out_tokens)},
@@ -174,8 +192,8 @@ def main():
     print("=" * 80)
     for name, m in [("Judge", results["judge"]), ("XGBoost", results["xgboost_on_same_subset"])]:
         print(f"{name:<10} acc={m['accuracy']:.4f} P={m['precision']:.4f} R={m['recall']:.4f} F1={m['f1']:.4f}")
-    print(f"Agreement: {results['agreement_with_xgboost']:.4f} | Judge cost: ${results['cost_usd']:.4f} "
-          f"({results['cost_per_1000_usd']:.3f}/1K) | p50 {results['judge']['latency_ms_p50']}ms")
+    print(f"Agreement: {results['agreement_with_xgboost']:.4f} | McNemar p={mcnemar_p:.2e} | "
+          f"Judge cost: ${results['cost_usd']:.4f} ({results['cost_per_1000_usd']:.3f}/1K) | p50 {results['judge']['latency_ms_p50']}ms")
     print("=" * 80)
     logger.info(f"Saved llm_judge_results.json to {RESULTS_DIR}")
 

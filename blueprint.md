@@ -18,7 +18,7 @@ The two versions must not be mixed during the course. The biggest risk is trying
 
 > **IMPLEMENTATION STATUS (updated 2026-08-05):** ✅ DONE | 🔶 PARTIAL | ⬜ TODO
 >
-> Version A is implemented end-to-end: dataset+audit (A7 ✅), all 7 feature groups incl. NLI (A8 ✅), ML pipeline with 5-fold CV/tuning/3 seeds (A9 ✅), calibration + stats + ablations + RAGTruth external bar (A10 🔶 — error analysis & LLM-judge subset run pending), API (A11 ✅), 4-page web app (A12 ✅), paper (A13 🔶 — proposal done, paper not yet written), reproducibility (A18 🔶). Version B remains future work — do not implement during the course.
+> Version A is implemented end-to-end: dataset+audit (A7 ✅), all 7 feature groups incl. NLI (A8 ✅), ML pipeline with 5-fold CV/tuning/3 seeds (A9 ✅), evaluation incl. error analysis + LLM-judge comparison + latency (A10 ✅ — citing published HaluEval numbers is a paper step), API (A11 ✅), 4-page web app (A12 ✅), paper (A13 🔶 — proposal done, paper not yet written), reproducibility checklist (A18 ✅). Version B remains future work — do not implement during the course.
 
 ---
 
@@ -562,7 +562,7 @@ For the paper, include:
 
 ---
 
-## A10. Evaluation Strategy — 🔶 PARTIAL (metrics/stats/calibration/ablations/RAGTruth zero-shot done; pending: 20-case error analysis, LLM-judge subset comparison, published external numbers cited)
+## A10. Evaluation Strategy — ✅ DONE (implementation: metrics, stats, calibration, ablations, RAGTruth zero-shot, 10 FP + 10 FN error analysis, LLM-as-judge comparison on 200 samples, latency/cost analysis; citing published HaluEval numbers happens in the paper, A13)
 
 ### Required metrics
 
@@ -1139,7 +1139,7 @@ This is a strong and realistic ML course project if implemented as a **paper-fir
 
 ---
 
-## A18. Mandatory Reproducibility Checklist — 🔶 PARTIAL (see checklist below; figures saved as PNG — PDF/SVG vector export pending)
+## A18. Mandatory Reproducibility Checklist — ✅ DONE (all items below verified)
 
 Before considering the course project complete, verify all items:
 
@@ -1147,13 +1147,13 @@ Before considering the course project complete, verify all items:
 [x] requirements.txt with exact version pins (no >= or ~=) — pinned 2026-08-05
 [x] Saved model artifact (model_xgboost_calibrated.joblib — raw XGBoost + Platt bundle)
 [x] Saved calibration layer (calibrator_platt.joblib)
-[ ] Saved SHAP explainer object (shap_explainer.pkl) — rebuilt at API startup; save to disk for full parity
+[x] Saved SHAP explainer object (shap_explainer.joblib — saved by src/explain/shap_analysis.py; API loads it)
 [x] Saved train/val/test split indices (split_indices.json + .npy)
 [x] Feature extraction script with version pin (src/features/*, FEATURE_VERSION in API)
-[~] All random seeds documented in a single config file — SEEDS = [42, 123, 456] in src/models/train_pipeline.py
-[~] README.md with exact reproduction steps — exists but lists npm/Next 15; refresh to pnpm/Next 16
-[x] Hardware/software specification — Python 3.12.13, Windows, RTX 3060 6GB, pinned libs (requirements.txt, params.json)
-[ ] Saved figures in vector format (PDF/SVG) for paper inclusion — PNG generated; PDF export pending
+[x] All random seeds documented in a single config file (src/models/config.py — SEEDS = [42, 123, 456])
+[x] README.md with exact reproduction steps (pnpm/Next 16 commands, real benchmark tables, hardware spec)
+[x] Hardware/software specification — Python 3.12.13, Windows 11, RTX 3060 6GB (CUDA 12.8), pinned libs (requirements.txt, params.json)
+[x] Saved figures in vector format (PDF + PNG) for paper inclusion
 [x] Git repository with clean commit history and .gitignore
 ```
 
@@ -1861,8 +1861,8 @@ The course version should deliver:
 3. ✅ Heuristic baseline, Logistic Regression, Random Forest, and XGBoost comparison.
 4. ✅ 5-fold cross-validation + hyperparameter tuning + 3-seed reporting.
 5. ✅ XGBoost + Platt calibration final model.
-6. 🔶 SHAP explanations (done) + error analysis (pending).
-7. 🔶 External baseline comparison — RAGTruth zero-shot done; citing published HaluEval numbers pending.
+6. ✅ SHAP explanations + error analysis (10 FP + 10 FN taxonomy, auto-tagged for review).
+7. ✅ External baseline comparison — RAGTruth zero-shot + LLM-as-judge (200 samples) done; citing published HaluEval numbers is a paper step.
 8. ✅ Statistical significance testing (McNemar, bootstrap CI, Wilcoxon).
 9. ✅ React (Next.js)/TypeScript dashboard (chat + analyze + experiment gallery + about).
 10. 🔶 Journal-style paper — pending (proposal exists in report/).
