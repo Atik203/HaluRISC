@@ -1,6 +1,5 @@
 # HaluRISC — Calibrated & Explainable Hallucination Risk Analyzer
 
-[![License: MIT](https://img.img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
 [![Python 3.12](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
 [![Next.js 15](https://img.shields.io/badge/Next.js-15-black.svg)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.141-green.svg)](https://fastapi.tiangolo.com/)
@@ -14,7 +13,7 @@
 
 - 💬 **Conversational AI Risk Analyst (`assistant-ui`)**: Interactive streaming chat powered by GPT 5.6 Luna that explains why an answer is risky in natural language.
 - 🎨 **Generative UI Widgets**: Animated SVG semicircular risk gauges and SHAP feature contribution charts rendered directly inside chat messages.
-- 📊 **Multi-Mode Web App**: 
+- 📊 **Multi-Mode Web App**:
   - **💬 Chat Mode**: Conversational risk interrogation (`/chat`)
   - **📊 Analyze Mode**: Form-based evidence inspector (`/analyze`)
   - **📈 Dashboard**: Empirical benchmarks and cost comparisons (`/dashboard`)
@@ -27,13 +26,13 @@
 
 ## 📊 Benchmark Results (HaluEval QA Holdout Test Set, N=3,000)
 
-| Model Architecture | Precision | Recall | F1-Score | AUROC | PR-AUC | MCC |
-|---|---|---|---|---|---|---|
-| **Heuristic (Overlap)** | 0.9392 | 0.9467 | 0.9429 | 0.9148 | 0.8117 | 0.8854 |
-| **Logistic Regression** | 0.9789 | 0.9607 | 0.9697 | 0.9936 | 0.9934 | 0.9402 |
-| **Random Forest** | 0.9880 | 0.9840 | 0.9860 | 0.9976 | 0.9983 | 0.9720 |
+| Model Architecture              | Precision  | Recall     | F1-Score   | AUROC      | PR-AUC     | MCC        |
+| ------------------------------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- |
+| **Heuristic (Overlap)**         | 0.9392     | 0.9467     | 0.9429     | 0.9148     | 0.8117     | 0.8854     |
+| **Logistic Regression**         | 0.9789     | 0.9607     | 0.9697     | 0.9936     | 0.9934     | 0.9402     |
+| **Random Forest**               | 0.9880     | 0.9840     | 0.9860     | 0.9976     | 0.9983     | 0.9720     |
 | **XGBoost (Calibrated — Ours)** | **0.9899** | **0.9820** | **0.9859** | **0.9974** | **0.9982** | **0.9720** |
-| **GPT 5.6 Luna Judge Baseline** | 0.9450 | 0.9500 | 0.9470 | 0.9520 | 0.9400 | 0.8900 |
+| **GPT 5.6 Luna Judge Baseline** | 0.9450     | 0.9500     | 0.9470     | 0.9520     | 0.9400     | 0.8900     |
 
 ---
 
@@ -61,6 +60,7 @@
 ## 🚀 Quick Start Guide
 
 ### Prerequisites
+
 - **Python 3.12+**
 - **Node.js 18+ & npm**
 - **OpenAI API Key** (for conversational chat & LLM judge baseline)
@@ -165,5 +165,5 @@ HaluRISC/
 - **Md. Atikur Rahaman** (0112310298)
 - **MD. Miraz Ahamed** (0112310524)
 
-*Supervisor:* **Ohidujjaman Tuhin, PhD**  
-*Course:* Machine Learning (Section E)
+_Supervisor:_ **Ohidujjaman Tuhin, PhD**  
+_Course:_ Machine Learning (Section E)
