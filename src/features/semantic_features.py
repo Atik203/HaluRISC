@@ -9,6 +9,7 @@ Empty context -> cosine_ctx_ans = 0.0 (no evidence available).
 """
 
 import logging
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -18,11 +19,29 @@ logger = logging.getLogger(__name__)
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
 
-def load_embedding_model():
-    """Load the SBERT embedding model (lazy, cached at call site)."""
+def _safe_device(device: Optional[str]) -> Optional[str]:
+    """Return the device to use; cuda is only honored when torch supports it."""
+    if device == "cuda":
+        try:
+            import torch
+
+            if torch.cuda.is_available():
+                return "cuda"
+        except ImportError:
+            pass
+        logger.warning("device=cuda requested but torch has no CUDA support; using CPU")
+        return None
+    return device
+
+
+def load_embedding_model(device: Optional[str] = None):
+    """Load the SBERT embedding model (lazy, cached at call site).
+
+    device=None -> library default (GPU if available); set "cpu" for stability.
+    """
     from sentence_transformers import SentenceTransformer
 
-    return SentenceTransformer(EMBEDDING_MODEL)
+    return SentenceTransformer(EMBEDDING_MODEL, device=_safe_device(device))
 
 
 def _cosine(a: np.ndarray, b: np.ndarray) -> float:

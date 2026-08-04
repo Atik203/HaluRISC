@@ -9,13 +9,19 @@ Endpoints:
 
 Boundary rule: the API LOADS artifacts and feature models at startup; it NEVER trains.
 
+Stability: heavy models (spaCy, NLI, SBERT) are preloaded at startup. Set
+HALU_API_DEVICE=cpu (default) to avoid VRAM OOM / driver crashes on small GPUs;
+HALU_API_DEVICE=cuda opts into GPU inference. Prefer running WITHOUT --reload
+(uvicorn's file watcher can restart the server when repo files change).
+
 Run (repo root, .venv):
-  python -m uvicorn src.api.main:app --reload --port 8000
+  python -m uvicorn src.api.main:app --port 8000
 """
 
 import json
 import logging
 import os
+import threading
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -41,6 +47,11 @@ MAX_CONTEXT_CHARS = 20000
 
 MODEL_VERSION = "xgboost-v1.0"
 FEATURE_VERSION = "course-v1.0"
+
+# Heavy models (spaCy + NLI + SBERT) are preloaded at startup and loaded lazily
+# on first request only if startup failed. The lock prevents concurrent
+# double-loading, which previously caused memory spikes and process exits.
+FEATURE_MODEL_LOAD_LOCK = threading.Lock()
 
 STATE = {"model": None, "explainer": None, "feature_models": None, "feature_cols": None, "params": None}
 
@@ -146,18 +157,45 @@ def load_artifacts():
 
 
 def load_feature_models():
-    if STATE["feature_models"] is None:
+    """Thread-safe lazy load of NER + NLI + embedding models.
+
+    Eagerly preloaded at startup (see lifespan); this is a fallback that must
+    never run concurrently from multiple request threads.
+    """
+    if STATE["feature_models"] is not None:
+        return STATE["feature_models"]
+
+    with FEATURE_MODEL_LOAD_LOCK:
+        if STATE["feature_models"] is not None:
+            return STATE["feature_models"]
+
         from src.features.extract_features import load_heavy_models
 
+        device = os.environ.get("HALU_API_DEVICE", "cpu")
         t0 = time.time()
-        STATE["feature_models"] = load_heavy_models()
-        logger.info(f"Feature models loaded in {time.time() - t0:.1f}s")
+        try:
+            STATE["feature_models"] = load_heavy_models(device=device)
+            logger.info(f"Feature models loaded in {time.time() - t0:.1f}s (device={device})")
+        except Exception as e:
+            logger.error(f"Feature models failed to load (device={device}): {e}")
+            raise
     return STATE["feature_models"]
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     load_artifacts()
+    if os.environ.get("HALU_API_PRELOAD", "1") != "0":
+        try:
+            load_feature_models()
+            STATE["models_ready"] = True
+            logger.info("All models preloaded. API ready.")
+        except Exception as e:
+            STATE["models_ready"] = False
+            logger.warning(f"Preload of heavy feature models failed ({e}); API still serving "
+                           f"/health and /judge, /predict will retry on first request.")
+    else:
+        logger.info("HALU_API_PRELOAD=0 -> heavy models will load lazily on first /predict.")
     yield
     STATE.clear()
 
@@ -181,7 +219,10 @@ app.add_middleware(
 def _feature_vector(req: AnalysisRequest) -> Dict[str, float]:
     from src.features.extract_features import extract_all_features_single
 
-    models = load_feature_models()
+    try:
+        models = load_feature_models()
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Feature models unavailable: {e}")
     feats = extract_all_features_single(req.question or "", req.context or "", req.answer, models)
     missing = [c for c in STATE["feature_cols"] if c not in feats]
     if missing:
@@ -204,10 +245,11 @@ def _risk_label(p: float) -> str:
 def health_check():
     artifacts_ok = STATE["model"] is not None
     return {
-        "status": "ok" if artifacts_ok else "degraded",
+        "status": "ok" if artifacts_ok and STATE["feature_models"] is not None else "degraded",
         "model": MODEL_VERSION,
         "feature_version": FEATURE_VERSION,
         "artifacts_loaded": artifacts_ok,
+        "feature_models_ready": STATE["feature_models"] is not None,
         "explainer_ready": STATE["explainer"] is not None,
         "n_features": len(STATE["feature_cols"]) if STATE["feature_cols"] else 0,
     }

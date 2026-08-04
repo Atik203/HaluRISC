@@ -1,10 +1,14 @@
 """API contract tests (health, validation, artifact gating). No model loading."""
 
+import os
 import sys
 from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
+
+# Keep tests fast: skip eager preload of spaCy/NLI/SBERT models.
+os.environ.setdefault("HALU_API_PRELOAD", "0")
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))

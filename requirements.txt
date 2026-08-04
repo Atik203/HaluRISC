@@ -14,8 +14,10 @@ scipy==1.17.1
 statsmodels==0.14.6
 shap==0.52.0
 
-# NLP & NLI (torch: PyPI default wheel is CUDA-enabled; RTX 3060 build used locally was 2.11.0+cu128 from the pytorch index)
-torch==2.11.0
+# NLP & NLI (torch is the CUDA 12.8 build from the PyTorch index; +cu128 only
+# resolves when the pytorch index is included, hence --extra-index-url below)
+--extra-index-url https://download.pytorch.org/whl/cu128
+torch==2.11.0+cu128
 transformers==5.14.1
 sentence-transformers==5.6.1
 spacy==3.8.14

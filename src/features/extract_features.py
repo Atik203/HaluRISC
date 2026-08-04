@@ -133,8 +133,11 @@ def extract_all_core_features(df: pd.DataFrame) -> pd.DataFrame:
     return result_df
 
 
-def load_heavy_models(nli_model_name: str | None = None) -> dict:
-    """Load NER + NLI + embedding models once (used by batch extraction and API)."""
+def load_heavy_models(nli_model_name: str | None = None, device: str | None = None) -> dict:
+    """Load NER + NLI + embedding models once (used by batch extraction and API).
+
+    device=None -> library default; pass "cpu" for API stability (no VRAM OOM).
+    """
     import time
 
     from src.features.entity_features import load_ner_model
@@ -146,10 +149,10 @@ def load_heavy_models(nli_model_name: str | None = None) -> dict:
     models["nlp"] = load_ner_model()
     logging.info(f"NER model loaded in {time.time() - t0:.1f}s")
     t0 = time.time()
-    models["nli"], nli_name = load_nli_model(nli_model_name)
+    models["nli"], nli_name = load_nli_model(nli_model_name, device=device)
     logging.info(f"NLI model ({nli_name}) loaded in {time.time() - t0:.1f}s")
     t0 = time.time()
-    models["embedder"] = load_embedding_model()
+    models["embedder"] = load_embedding_model(device=device)
     logging.info(f"Embedding model loaded in {time.time() - t0:.1f}s")
     return models
 

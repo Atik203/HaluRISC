@@ -23,7 +23,7 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 NLI_MODEL_PRIMARY = "cross-encoder/nli-deberta-v3-base"
-NLI_MODEL_FALLBACK = "cross-encoder/nli-MiniLM2-L6"
+NLI_MODEL_FALLBACK = "cross-encoder/nli-MiniLM2-L6-H768"
 NLI_MODEL_ENV = "HALU_NLI_MODEL"
 
 NEUTRAL = 1.0 / 3.0
@@ -32,20 +32,39 @@ NEUTRAL = 1.0 / 3.0
 LABELS = ["contradiction", "entailment", "neutral"]
 
 
-def load_nli_model(model_name: Optional[str] = None):
-    """Load the NLI CrossEncoder (falls back to MiniLM2 on failure)."""
+def _safe_device(device: Optional[str]) -> Optional[str]:
+    """Return the device to use; cuda is only honored when torch supports it."""
+    if device == "cuda":
+        try:
+            import torch
+
+            if torch.cuda.is_available():
+                return "cuda"
+        except ImportError:
+            pass
+        logger.warning("device=cuda requested but torch has no CUDA support; using CPU")
+        return None
+    return device
+
+
+def load_nli_model(model_name: Optional[str] = None, device: Optional[str] = None):
+    """Load the NLI CrossEncoder (falls back to MiniLM2 on failure).
+
+    device=None -> library default (GPU if available); set "cpu" for stability.
+    """
     from sentence_transformers import CrossEncoder
 
+    device = _safe_device(device)
     chosen = model_name or os.environ.get(NLI_MODEL_ENV, NLI_MODEL_PRIMARY)
     try:
-        logger.info(f"Loading NLI CrossEncoder: {chosen} ...")
-        model = CrossEncoder(chosen)
+        logger.info(f"Loading NLI CrossEncoder: {chosen} (device={device or 'auto'}) ...")
+        model = CrossEncoder(chosen, device=device)
         logger.info("NLI CrossEncoder loaded.")
         return model, chosen
     except Exception as e:
         if chosen != NLI_MODEL_FALLBACK:
             logger.warning(f"NLI model {chosen} failed ({e}); falling back to {NLI_MODEL_FALLBACK}")
-            return load_nli_model(NLI_MODEL_FALLBACK)
+            return load_nli_model(NLI_MODEL_FALLBACK, device=device)
         raise
 
 
