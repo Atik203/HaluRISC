@@ -120,6 +120,19 @@ Open `http://localhost:3000` in your browser.
 
 ---
 
+## ☁️ Train on Colab (GPU, no local GPU needed)
+
+Run the **full training pipeline** (feature extraction → XGBoost tuning → calibration → SHAP → RAGTruth validation) on Google Colab with a GPU, then download the artifacts back into this repo:
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1aTlrAcIx5FqAaDiYzsLTiMxbMVw1RsRR?usp=sharing)
+
+1. Open the notebook (viewable by anyone with the link), select **GPU → T4** as the runtime.
+2. Run cells in order; cell 3 prompts for `colab/halurisc_src.zip` (from this repo).
+3. Cell 11 saves `halurisc_artifacts_<date>.zip` to your Google Drive — download it and unzip **at the repo root**.
+4. Start the API and web app as above — they automatically load the trained artifacts.
+
+---
+
 ## 📁 Repository Structure
 
 ```
