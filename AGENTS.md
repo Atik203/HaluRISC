@@ -168,12 +168,13 @@ Python (from repo root, use the venv interpreter explicitly):
 & .venv\Scripts\python.exe src\models\train_pipeline.py  # full experiment protocol
 ```
 
-Web (from `web/`):
+Web (from `web/`, package manager is **pnpm** — do not use npm; Next.js 16 + Tailwind v4 + assistant-ui 0.15 + AI SDK v7):
 
 ```powershell
-npm run dev     # dev server on http://localhost:3000
-npm run build   # production build (must pass before finishing web work)
-npm run lint    # lint check
+pnpm install    # install deps (pnpm-workspace.yaml holds settings)
+pnpm run dev    # dev server on http://localhost:3000
+pnpm run build  # production build (must pass before finishing web work)
+pnpm run lint   # eslint (flat config, eslint 9)
 ```
 
 ### 7.1 Colab Training Workflow (optional, for heavy compute)

@@ -1,13 +1,12 @@
 "use client";
 
-import { AssistantRuntimeProvider, Thread } from "@assistant-ui/react";
+import { AssistantRuntimeProvider } from "@assistant-ui/react";
 import { useChatRuntime } from "@assistant-ui/react-ai-sdk";
 import { Sparkles } from "lucide-react";
+import { Thread } from "@/components/assistant-ui/thread";
 
 export default function ChatPage() {
-  const runtime = useChatRuntime({
-    api: "/api/chat",
-  });
+  const runtime = useChatRuntime();
 
   return (
     <div className="flex flex-col h-[calc(100vh-6rem)] gap-4">

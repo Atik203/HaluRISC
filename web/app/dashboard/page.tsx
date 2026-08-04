@@ -6,11 +6,73 @@ export const dynamic = "force-dynamic";
 
 const RESULTS_DIR = path.resolve(process.cwd(), "..", "artifacts", "results");
 
-function readJson(name: string) {
+interface ModelMetrics {
+  precision: number;
+  recall: number;
+  f1: number;
+  auroc: number;
+  pr_auc: number;
+  mcc: number;
+  f1_std?: number;
+  threshold?: number;
+  val_f1?: number;
+}
+
+interface CalibrationMethod {
+  f1_mean: number;
+  ece_mean: number;
+  brier_mean: number;
+}
+
+interface Calibration {
+  platt: CalibrationMethod;
+  isotonic: CalibrationMethod;
+}
+
+interface Stats {
+  mcnemar_p_value?: number;
+  bootstrap_f1_ci?: [number, number];
+  bootstrap_auroc_ci?: [number, number];
+}
+
+interface AblationRow {
+  removed_group: string;
+  f1_mean: number;
+  f1_std: number;
+  auroc_mean: number;
+  auroc_std: number;
+}
+
+interface FinalResults {
+  heuristic: ModelMetrics;
+  logistic_regression: ModelMetrics;
+  random_forest: ModelMetrics;
+  xgboost: ModelMetrics;
+  calibration?: Calibration;
+  statistics?: Stats;
+  ablation?: AblationRow[];
+}
+
+interface RagTruthResults {
+  n_samples: number;
+  f1: number;
+  auroc: number;
+  pr_auc: number;
+  mcc: number;
+  ece: number;
+  brier: number;
+  label_distribution: Record<string, number>;
+}
+
+interface ShapSummary {
+  top_features?: Array<{ feature: string; mean_abs_shap: number }>;
+}
+
+function readJson<T>(name: string): T | null {
   const p = path.join(RESULTS_DIR, name);
   if (!fs.existsSync(p)) return null;
   try {
-    return JSON.parse(fs.readFileSync(p, "utf-8"));
+    return JSON.parse(fs.readFileSync(p, "utf-8")) as T;
   } catch {
     return null;
   }
@@ -24,15 +86,16 @@ const MODEL_LABELS: Record<string, string> = {
 };
 
 export default async function DashboardPage() {
-  const results = readJson("final_results.json") as any;
-  const ablation = readJson("ablation_results.csv") as string | null;
-  const ragtruth = readJson("ragtruth_results.json") as any;
-  const shap = readJson("shap_summary.json") as any;
+  const results = readJson<FinalResults>("final_results.json");
+  const ragtruth = readJson<RagTruthResults>("ragtruth_results.json");
+  const shap = readJson<ShapSummary>("shap_summary.json");
 
   const modelRows = results
-    ? Object.entries(MODEL_LABELS)
-        .filter(([key]) => results[key])
-        .map(([key, label]) => ({ key, label, ...results[key] }))
+    ? (Object.entries(MODEL_LABELS)
+        .filter(([key]) => results[key as keyof FinalResults])
+        .map(([key, label]) => ({ key, label, ...results[key as keyof FinalResults] })) as Array<
+        { key: string; label: string } & ModelMetrics
+      >)
     : null;
 
   const xgb = results?.xgboost;
@@ -84,7 +147,7 @@ export default async function DashboardPage() {
               <div>
                 <div className="text-2xl font-extrabold">{xgb.auroc.toFixed(3)}</div>
                 <div className="text-xs text-muted-foreground">
-                  AUROC (95% CI [{stats?.bootstrap?.auroc_ci?.[0]?.toFixed(3) ?? "—"}, {stats?.bootstrap?.auroc_ci?.[1]?.toFixed(3) ?? "—"}])
+                  AUROC (95% CI [{stats?.bootstrap_auroc_ci?.[0]?.toFixed(3) ?? "—"}, {stats?.bootstrap_auroc_ci?.[1]?.toFixed(3) ?? "—"}])
                 </div>
               </div>
             </div>
@@ -127,7 +190,7 @@ export default async function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {modelRows!.map((m: any) => (
+                  {modelRows!.map((m) => (
                     <tr
                       key={m.key}
                       className={`border-b border-border/50 hover:bg-secondary/40 transition-colors ${
@@ -168,7 +231,7 @@ export default async function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {["platt", "isotonic"].map((m) => (
+                  {(["platt", "isotonic"] as const).map((m) => (
                     <tr key={m} className="border-b border-border/50">
                       <td className="py-2 px-3 capitalize">{m}</td>
                       <td className="py-2 px-3 font-mono">{cal?.[m]?.f1_mean?.toFixed(4)}</td>
@@ -193,7 +256,7 @@ export default async function DashboardPage() {
               <h3 className="text-base font-bold gradient-text mb-3">🔬 SHAP Global Importance (top 10)</h3>
               {shap ? (
                 <ul className="space-y-2">
-                  {shap.top_features?.map((f: any, i: number) => (
+                  {shap.top_features?.map((f, i) => (
                     <li key={f.feature} className="flex items-center gap-3 text-xs">
                       <span className="w-6 text-muted-foreground font-mono">{i + 1}</span>
                       <span className="flex-1 truncate">{f.feature}</span>
@@ -216,7 +279,7 @@ export default async function DashboardPage() {
           <div className="glass-panel p-6 rounded-2xl grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div>
               <h3 className="text-base font-bold gradient-text mb-3">🧩 Feature Group Ablation (F1 drop when removed)</h3>
-              {ablation ? (
+              {results.ablation?.length ? (
                 <table className="w-full text-left text-sm border-collapse">
                   <thead>
                     <tr className="border-b border-border text-xs text-muted-foreground">
@@ -226,17 +289,17 @@ export default async function DashboardPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {ablation.split("\n").slice(1).map((line) => {
-                      const [group, f1, f1std, auroc, aurocstd] = line.split(",");
-                      const delta = xgb.f1 - parseFloat(f1);
+                    {results.ablation.map((row) => {
+                      const delta = xgb.f1 - row.f1_mean;
                       return (
-                        <tr key={group} className="border-b border-border/50">
-                          <td className="py-2 px-3">-{group}</td>
+                        <tr key={row.removed_group} className="border-b border-border/50">
+                          <td className="py-2 px-3">-{row.removed_group}</td>
                           <td className="py-2 px-3 font-mono">
-                            {parseFloat(f1).toFixed(4)} ± {parseFloat(f1std).toFixed(4)}
+                            {row.f1_mean.toFixed(4)} ± {row.f1_std.toFixed(4)}
                           </td>
                           <td className={`py-2 px-3 font-mono ${delta > 0.01 ? "text-red-400" : "text-emerald-400"}`}>
-                            {delta >= 0 ? "+" : ""}{delta.toFixed(4)}
+                            {delta >= 0 ? "+" : ""}
+                            {delta.toFixed(4)}
                           </td>
                         </tr>
                       );
@@ -252,7 +315,7 @@ export default async function DashboardPage() {
               {ragtruth ? (
                 <table className="w-full text-left text-sm border-collapse">
                   <tbody>
-                    {["f1", "auroc", "pr_auc", "mcc", "ece", "brier"].map((k) => (
+                    {(["f1", "auroc", "pr_auc", "mcc", "ece", "brier"] as const).map((k) => (
                       <tr key={k} className="border-b border-border/50">
                         <td className="py-2 px-3 capitalize">{k === "pr_auc" ? "PR-AUC" : k === "auroc" ? "AUROC" : k}</td>
                         <td className="py-2 px-3 font-mono">{ragtruth[k].toFixed(4)}</td>

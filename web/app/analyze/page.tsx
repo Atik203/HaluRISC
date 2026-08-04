@@ -3,7 +3,34 @@
 import React, { useState } from "react";
 import { RiskGauge } from "@/components/risk-gauge";
 import { ShapChart } from "@/components/shap-chart";
-import { Play, Sparkles, CheckCircle, AlertTriangle } from "lucide-react";
+import { Play, Sparkles, AlertTriangle } from "lucide-react";
+
+interface FeatureImpact {
+  feature: string;
+  value: number;
+  impact: number;
+}
+
+interface Prediction {
+  calibrated_score: number;
+  label: string;
+  latency_ms?: number;
+  model_version?: string;
+  risk_score?: number;
+  thresholds?: Record<string, number>;
+  warning?: string;
+  features?: Record<string, number>;
+}
+
+interface Explanation {
+  top_features?: FeatureImpact[];
+  base_value?: number;
+}
+
+interface AnalysisResult {
+  prediction: Prediction;
+  explanation: Explanation | null;
+}
 
 export default function AnalyzePage() {
   const [question, setQuestion] = useState("Who discovered penicillin?");
@@ -11,7 +38,7 @@ export default function AnalyzePage() {
   const [answer, setAnswer] = useState("Penicillin was discovered by Louis Pasteur in 1945.");
 
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const sampleScenarios = [
@@ -173,7 +200,7 @@ export default function AnalyzePage() {
                 label={result.prediction.label}
                 latencyMs={result.prediction.latency_ms}
               />
-              {result.explanation && (
+              {result.explanation?.top_features && (
                 <ShapChart
                   features={result.explanation.top_features}
                   baseValue={result.explanation.base_value}
@@ -185,7 +212,7 @@ export default function AnalyzePage() {
               <Sparkles className="w-10 h-10 text-muted-foreground/40 animate-pulse" />
               <h3 className="text-sm font-semibold">No Analysis Computed Yet</h3>
               <p className="text-xs text-muted-foreground max-w-sm">
-                Fill in the form or click one of the sample scenarios above and press "Run Risk Analysis".
+                Fill in the form or click one of the sample scenarios above and press &quot;Run Risk Analysis&quot;.
               </p>
             </div>
           )}

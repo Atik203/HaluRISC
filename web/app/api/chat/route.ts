@@ -1,5 +1,5 @@
 import { openai } from "@ai-sdk/openai";
-import { streamText } from "ai";
+import { isStepCount, streamText } from "ai";
 import { z } from "zod";
 
 export const runtime = "nodejs";
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
         analyze_hallucination: {
           description:
             "Analyze an answer for hallucination risk using the HaluRISC ML model (calls FastAPI /predict + /explain)",
-          parameters: z.object({
+          inputSchema: z.object({
             question: z.string().describe("The question that was asked"),
             context: z.string().describe("The reference context or evidence"),
             answer: z.string().describe("The answer to analyze for hallucination"),
@@ -54,20 +54,21 @@ export async function POST(req: Request) {
             ]);
 
             const prediction = predRes.ok
-              ? await predRes.json()
+              ? ((await predRes.json()) as { error?: string; calibrated_score?: number; label?: string; latency_ms?: number })
               : { error: `ML backend error: ${predRes.status} ${await predRes.text()}` };
-            const explanation = expRes.ok ? await expRes.json() : null;
+            const explanation = expRes.ok ? ((await expRes.json()) as { top_features?: unknown; base_value?: unknown } | null) : null;
 
             return { prediction, explanation };
           },
         },
       },
-      maxSteps: 3,
+      stopWhen: isStepCount(3),
     });
 
-    return result.toDataStreamResponse();
-  } catch (error: any) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    return result.toUIMessageStreamResponse();
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });

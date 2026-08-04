@@ -87,7 +87,7 @@ export function ShapChart({ features, baseValue }: ShapChartProps) {
                 borderRadius: "8px",
                 fontSize: "12px",
               }}
-              formatter={(val: any) => [`Impact: ${val}`, "SHAP Value"]}
+              formatter={(val: number | string) => [`Impact: ${val}`, "SHAP Value"]}
             />
             <ReferenceLine x={0} stroke="#3f3f46" strokeDasharray="3 3" />
             <Bar dataKey="impact" radius={[4, 4, 4, 4]}>
