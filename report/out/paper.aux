@@ -1,0 +1,93 @@
+\relax 
+\citation{selfcheck}
+\citation{ieeeTai}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{}\protected@file@percent }
+\citation{selfcheck}
+\citation{haluagent}
+\citation{luna}
+\citation{ieeeTai}
+\citation{ijert}
+\citation{multimedia}
+\citation{multimedia}
+\citation{haluEval}
+\citation{truthqa}
+\citation{factscore}
+\citation{ragtruth}
+\citation{faithbench}
+\citation{spikescore}
+\citation{haluEval}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Methodology}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Task definition}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Dataset and preprocessing}{2}{}\protected@file@percent }
+\citation{shap}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Feature groups (26 features total).}}{3}{}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{tab:features}{{1}{3}{}{table.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Features}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Models}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Calibration}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.6}Explainability}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Experiments}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Setup}{3}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Test-set performance (mean over seeds 42/123/456). XGBoost and RF produce identical predictions on this test set (std $=0$ across seeds).}}{4}{}\protected@file@percent }
+\newlabel{tab:models}{{2}{4}{}{table.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Calibration comparison on the test set (mean over seeds).}}{4}{}\protected@file@percent }
+\newlabel{tab:calib}{{3}{4}{}{table.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Model comparison}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Calibration}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Ablation study}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Statistical testing}{4}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Reliability diagram of the calibrated model (ECE 0.0116 Platt / 0.0051 isotonic).}}{5}{}\protected@file@percent }
+\newlabel{fig:reliability}{{1}{5}{}{figure.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces ROC and precision-recall curves on the test set (AUROC 0.9980, PR-AUC 0.9987).}}{5}{}\protected@file@percent }
+\newlabel{fig:rocpr}{{2}{5}{}{figure.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Efficiency and cost}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.7}LLM-as-judge comparison}{5}{}\protected@file@percent }
+\citation{ragtruth}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Feature-group ablation (F1/AUROC, mean $\pm $ std over 3 seeds; full model F1 0.9886, AUROC 0.9980).}}{6}{}\protected@file@percent }
+\newlabel{tab:ablation}{{4}{6}{}{table.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Per-component latency (ms), n=200.}}{6}{}\protected@file@percent }
+\newlabel{tab:latency}{{5}{6}{}{table.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.8}External zero-shot evaluation (RAGTruth)}{6}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Web Application}{6}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces LLM-as-judge vs.\ XGBoost on 200 test samples.}}{7}{}\protected@file@percent }
+\newlabel{tab:judge}{{6}{7}{}{table.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces RAGTruth zero-shot (n=2{,}000, labels: 631 hallucinated / 1{,}369 grounded).}}{7}{}\protected@file@percent }
+\newlabel{tab:ragtruth}{{7}{7}{}{table.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Results and Discussion}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Feature importance}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Error analysis}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Limitations}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion and Future Work}{7}{}\protected@file@percent }
+\citation{faithbench}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces HaluRISC system architecture: the Next.js backend-for-frontend proxies ML requests to FastAPI and streams LLM chat with tool-generated UI widgets.}}{8}{}\protected@file@percent }
+\newlabel{fig:arch}{{3}{8}{}{figure.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Error taxonomy for the 20 sampled misclassifications (heuristic first-pass tags, reviewed).}}{8}{}\protected@file@percent }
+\newlabel{tab:errors}{{8}{8}{}{table.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Reproducibility Statement}{8}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9}Ethical Considerations}{8}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Analyze page: hallucinated-date case (high risk) and grounded case (low risk) with SHAP contribution charts.}}{9}{}\protected@file@percent }
+\newlabel{fig:screens}{{4}{9}{}{figure.4}{}}
+\bibcite{haluEval}{1}
+\bibcite{selfcheck}{2}
+\bibcite{truthqa}{3}
+\bibcite{factscore}{4}
+\bibcite{costeff}{5}
+\bibcite{ijert}{6}
+\bibcite{ieeeTai}{7}
+\bibcite{multimedia}{8}
+\bibcite{haluagent}{9}
+\bibcite{luna}{10}
+\bibcite{faithbench}{11}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Mean $|$SHAP$|$ feature importance (top 10).}}{10}{}\protected@file@percent }
+\newlabel{fig:shap}{{5}{10}{}{figure.5}{}}
+\bibcite{spikescore}{12}
+\bibcite{ragtruth}{13}
+\bibcite{shap}{14}
+\bibcite{xgboost}{15}
+\bibcite{guo}{16}
+\bibcite{sbert}{17}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces SHAP beeswarm summary over the test set.}}{11}{}\protected@file@percent }
+\newlabel{fig:shap2}{{6}{11}{}{figure.6}{}}
+\gdef \@abspage@last{12}

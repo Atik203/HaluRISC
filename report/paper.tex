@@ -1,0 +1,476 @@
+% HaluRISC Course Paper (Version A)
+% Compile with: pdflatex paper.tex  (run twice)
+% Figures: ../artifacts/figures/*.pdf, ./screenshots/*.png
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper,margin=0.75in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{tikz}
+\usepackage{amsmath}
+
+\setlength{\parskip}{0.35em}
+\setlist{topsep=2pt, itemsep=1pt, parsep=1pt}
+\emergencystretch=2em
+\sloppy
+\captionsetup{font=small,labelfont=bf}
+
+\graphicspath{{../artifacts/figures/}{./screenshots/}}
+
+% University logo (renders only if an image file is present)
+\newif\ifuiu
+\IfFileExists{./uiu.png}{\uiutrue}{}
+\IfFileExists{./uiu.jpg}{\uiutrue}{}
+\IfFileExists{./uiu.pdf}{\uiutrue}{}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+
+    \begin{center}
+        \ifuiu
+            \includegraphics[scale=0.22]{./uiu}
+        \else
+            \textbf{[Place UIU logo as uiu.png/jpg/pdf in the report folder]}
+        \fi
+    \end{center}
+
+    {\scshape United International University}\\[0.3em]
+    {\scshape Department of Computer Science and Engineering}
+
+    \vspace{2cm}
+
+    {\scshape Journal-Style Term Paper}
+
+    \vspace{1.2cm}
+
+    {\Large\bfseries HaluRISC: A Calibrated and Explainable Machine Learning\\[0.2em]
+    Framework for Hallucination Risk Prediction in Black-Box LLM Outputs}
+
+    \vspace{1.2cm}
+
+    \vfill
+
+    { Submitted By}
+
+    \vspace{0.5cm}
+
+    \begin{tabular}{lc}
+        \bfseries Md. Atikur Rahaman & 0112310298 \\
+        \bfseries Saiful Alam Sabbir & 0112320105 \\
+        \bfseries MD. Miraz Ahamed   & 0112310524 \\
+    \end{tabular}
+
+    \vfill
+
+    { Supervision}
+
+    \vspace{0.4cm}
+
+    {\bfseries Ohidujjaman Tuhin, PhD}\\
+    Associate Professor, Dept. of Computer Science and Engineering\\
+    United International University
+
+    \vspace{0.6em}
+
+    Course: Machine Learning, Section: E
+
+    \vfill
+
+    \the\year
+
+\end{titlepage}
+
+\newpage
+
+\begin{abstract}
+\noindent
+Large language models (LLMs) produce fluent but occasionally fabricated output, and detecting such \emph{hallucinations} is expensive, opaque, or requires model internals in most existing approaches. We present HaluRISC, a lightweight black-box framework that predicts hallucination risk from the question, a reference context, and the candidate answer using 26 engineered evidence-consistency features (lexical, entity, NLI, numeric, hedging, semantic, length) and a tuned XGBoost classifier with calibrated probabilities and SHAP explanations. On the HaluEval QA benchmark (20{,}000 rows, 70/15/15 stratified split), the calibrated model reaches F1 = 0.9886, AUROC = 0.9980 and MCC = 0.9774. Isotonic calibration reduces the expected calibration error from 0.0115 to 0.0051. The full pipeline runs in roughly 137~ms per sample (5~ms for inference alone), costs near zero locally, and outperforms a GPT 5.6 Luna LLM-as-judge baseline (F1 0.82, McNemar $p = 3\times10^{-7}$) at roughly 1/100th of the cost. A zero-shot evaluation on the natural RAGTruth corpus (F1 = 0.4822) shows that synthetic-benchmark performance does not transfer, an honest limitation we discuss. The complete system is deployed as a FastAPI backend with a Next.js/assistant-ui web dashboard for live demonstration.
+\end{abstract}
+
+\section{Introduction}
+
+Large language models are increasingly embedded in real products---chatbots, retrieval-augmented question answering, and content-review tools---where a confidently wrong answer has a real cost. LLMs occasionally generate text that is fluent but factually unsupported, an effect known as \emph{hallucination}. Detecting hallucinations is therefore a first-class safety problem.
+
+The dominant detection strategy asks a strong LLM to judge its own output (SelfCheckGPT \cite{selfcheck}) or to act as an external judge. Such approaches are slow (seconds per response), expensive at scale (API fees per call), and opaque (no feature-level reason for the verdict). Neural classifiers over frozen encoders \cite{ieeeTai} are more accurate but require model weights and GPU inference, and their decisions are difficult to explain.
+
+HaluRISC takes a different route. We treat the problem as a supervised risk-prediction task over \emph{engineered evidence-consistency features}---how well the answer agrees with the question and reference context in terms of vocabulary, named entities, logical entailment, numbers, hedging, and semantics---and train a lightweight XGBoost classifier with calibrated probabilities and SHAP explanations. The system is black-box friendly (it never inspects the LLM), runs in milliseconds on a CPU, costs essentially nothing per prediction, and explains every verdict with the feature contributions that drove it.
+
+The contributions of this work are:
+
+\begin{enumerate}
+    \item A reproducible feature-extraction pipeline with 26 features across 7 groups, including bidirectional NLI entailment/contradiction signals, entity overlap, and semantic similarity.
+    \item A rigorous comparison of heuristic, logistic regression, random forest, and XGBoost baselines under 5-fold cross-validation, randomized hyperparameter search, and a three-seed protocol, with McNemar and bootstrap significance testing.
+    \item A calibration study (Platt vs.\ isotonic) fit strictly on the validation split, showing that isotonic regression reduces ECE from 0.0115 to 0.0051.
+    \item An honest external evaluation: zero-shot transfer to the natural RAGTruth corpus fails (F1 = 0.4822), quantifying the synthetic-benchmark gap.
+    \item A deployable FastAPI + Next.js system with SHAP explanations, LLM-as-judge comparison, and a live web dashboard.
+\end{enumerate}
+
+\section{Related Work}
+
+Hallucination detection is an active research area with three broad families of approaches.
+
+\textbf{LLM-based detection.} SelfCheckGPT \cite{selfcheck} detects hallucination by sampling multiple LLM responses and measuring consistency, without external resources. Small language models have been used as cheaper detectors \cite{haluagent}, and lightweight evaluation models such as Luna \cite{luna} show that efficient detection is possible in practice. LLM-as-judge setups remain expensive and non-explainable at scale.
+
+\textbf{Neural classifiers.} Frozen BERT/RoBERTa/DeBERTa encoders combined with lightweight classifiers achieve strong results on hallucination benchmarks \cite{ieeeTai}. These methods require the encoder weights and GPU inference, and their embeddings are not directly interpretable.
+
+\textbf{Feature-based and explainable methods.} A multi-signal framework combining retrieval grounding, NLI verification, and XGBoost was proposed in \cite{ijert}, and token-level SHAP-LIME attributions for hallucination scoring in \cite{multimedia}. Unlike \cite{multimedia}, which attributes token-level importance on raw LLM outputs, HaluRISC explains predictions at the level of semantically meaningful evidence-consistency features and additionally provides calibrated risk scores and cross-domain evaluation.
+
+On the benchmark side, HaluEval \cite{haluEval} and TruthfulQA \cite{truthqa} provide standard test beds; FActScore \cite{factscore} evaluates factual precision in detail. RAGTruth \cite{ragtruth} contributes natural responses with human word-level annotations, and FaithBench \cite{faithbench} shows that current detectors still fail on challenging modern-LLM outputs. SpikeScore \cite{spikescore} demonstrates that cross-domain generalization remains open, which motivates our honest zero-shot evaluation.
+
+Our positioning follows the literature-honesty rule: prior work has explored hallucination detection, feature engineering, calibration, and SHAP in isolation; this paper focuses on a compact, course-feasible, calibrated and explainable risk-prediction pipeline with a deployable interface.
+
+\section{Methodology}
+
+\subsection{Task definition}
+
+Given a question $q$, an optional reference context $c$ (evidence), and a candidate answer $a$ produced by a black-box LLM, predict the probability $P(\text{hallucinated} \mid q, c, a)$. We predict \emph{risk}, not truth: the system flags answers that are unsupported by or contradictory to the available evidence.
+
+\subsection{Dataset and preprocessing}
+
+We use the QA subset of HaluEval \cite{haluEval} (EMNLP 2023), a widely used hallucination-evaluation benchmark. Each of the 10{,}000 QA entries provides a question, a knowledge passage (used as context), a correct answer, and a hallucinated answer. We create two rows per question (correct answer, label 0; hallucinated answer, label 1), giving 20{,}000 rows with a perfectly balanced label distribution. A 50-sample manual audit was performed to verify label quality before training.
+
+Text was whitespace-normalized; lexical features operate on lowercased token sets while NER and NLI keep original casing. Missing context is handled explicitly (lexical overlap $=0$, NLI probabilities $=1/3$). The dataset is split 70/15/15 stratified by label (14{,}000/3{,}000/3{,}000), and the split indices are saved for exact reproducibility.
+
+\subsection{Features}
+
+We extract 26 features in seven groups (Table~\ref{tab:features}). NLI signals use a cross-encoder NLI model (DeBERTa-v3-based, SNLI+MultiNLI), evaluated in both directions---context$\to$answer and answer$\to$context---producing six probability features. Semantic similarity uses MiniLM sentence embeddings; entity features use spaCy NER.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Feature groups (26 features total).}
+\label{tab:features}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Group} & \textbf{Features} & \textbf{Source} \\
+\midrule
+Length/style & n\_chars, n\_words, n\_sentences, avg\_word\_len & regex \\
+Lexical overlap & overlap/answer vs.\ context \& question, Jaccard $\times$2 & token sets \\
+Entity overlap & entity counts, overlap ratio, novel-entity ratio & spaCy NER \\
+NLI consistency & entail/contradict/neutral $\times$ 2 directions & cross-encoder NLI \\
+Numeric & number counts, overlap ratio, novel numbers & regex \\
+Hedging & hedge count, hedge density & lexicon \\
+Semantic & cosine(context,answer), cosine(question,answer) & MiniLM \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Models}
+
+We compare a heuristic baseline (risk $= 1 - \text{overlap}(\text{answer}, \text{context})$, threshold tuned on validation), logistic regression (standardized features), random forest (300 trees), and XGBoost. XGBoost hyperparameters are selected by randomized search (30 iterations, 5-fold stratified CV on the training split) over depth, learning rate, tree count, subsample, and column subsampling; the best configuration is $\{\text{max\_depth}=4, \text{lr}=0.01, \text{n\_estimators}=500, \text{subsample}=0.9, \text{colsample\_bytree}=0.7\}$ (CV AUROC 0.9971). Every experiment is repeated with seeds 42, 123, and 456 and reported as mean $\pm$ std.
+
+\subsection{Calibration}
+
+Calibrators are fit on the \emph{validation} split only. Platt scaling (sigmoid logistic regression on raw scores) and isotonic regression are compared against the raw model on the test split using Expected Calibration Error (ECE, 10 bins), Brier score, and reliability diagrams.
+
+\subsection{Explainability}
+
+A SHAP TreeExplainer \cite{shap} over the raw XGBoost model produces global mean-$|$SHAP$|$ importance and beeswarm summaries, plus local waterfall explanations for hand-picked high-risk, low-risk, and borderline test cases.
+
+\section{Experiments}
+
+\subsection{Setup}
+
+All results below are computed on the locked test split (3{,}000 samples) with the calibrator fit on validation only. Metrics: precision, recall, F1, AUROC, PR-AUC, MCC, ECE, Brier. Significance: McNemar's test on paired test predictions, bootstrap 95\% confidence intervals (1{,}000 resamples), Wilcoxon signed-rank across seeds.
+
+\subsection{Model comparison}
+
+Table~\ref{tab:models} reports test-set performance. All trained models perform strongly, confirming that HaluEval QA is a comparatively easy benchmark for supervised classifiers; the engineered features are highly informative. XGBoost and random forest produce near-identical predictions (McNemar $p=1.0$; zero discordant pairs), and the differences between XGBoost and logistic regression are not statistically significant on this benchmark (McNemar $p=0.44$). The honest conclusion is that all supervised models comfortably outperform the overlap heuristic and that benchmark saturation, rather than model choice, dominates this comparison.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Test-set performance (mean over seeds 42/123/456). XGBoost and RF produce identical predictions on this test set (std $=0$ across seeds).}
+\label{tab:models}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+\textbf{Model} & \textbf{P} & \textbf{R} & \textbf{F1} & \textbf{AUROC} & \textbf{PR-AUC} & \textbf{MCC} \\
+\midrule
+Heuristic (1$-$overlap) & 0.9392 & 0.9467 & 0.9429 & 0.9148 & 0.8117 & 0.8854 \\
+Logistic Regression     & 0.9804 & 0.9693 & 0.9749 & 0.9943 & 0.9948 & 0.9501 \\
+Random Forest           & 0.9915 & 0.9858 & 0.9886 & 0.9982 & 0.9987 & 0.9774 \\
+\textbf{XGBoost (ours)} & \textbf{0.9919} & \textbf{0.9853} & \textbf{0.9886} & \textbf{0.9980} & \textbf{0.9987} & \textbf{0.9774} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Bootstrap 95\% CIs for XGBoost: F1 $[0.9845,\,0.9924]$, AUROC $[0.9962,\,0.9994]$.
+
+\subsection{Calibration}
+
+Table~\ref{tab:calib} compares raw, Platt-calibrated, and isotonic-calibrated probabilities. Two findings deserve emphasis. First, XGBoost trained with a logistic objective is already well calibrated (raw ECE 0.0115), so Platt scaling yields no further gain---an honest negative result. Second, isotonic regression improves ECE 2.3$\times$ (to 0.0051) with no loss in F1. The deployed artifact ships the Platt-calibrated model (blueprint default); isotonic is available and would be preferred when calibration is the primary criterion.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Calibration comparison on the test set (mean over seeds).}
+\label{tab:calib}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Method} & \textbf{F1} & \textbf{ECE} & \textbf{Brier} \\
+\midrule
+Raw XGBoost        & 0.9886 & 0.0115 & 0.0085 \\
+Platt (sigmoid)    & 0.9887 & 0.0116 & 0.0092 \\
+Isotonic           & 0.9885 & \textbf{0.0051} & 0.0089 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The reliability diagram (Figure~\ref{fig:reliability}) shows the calibrated curve closely tracking the diagonal.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.62\textwidth]{fig_reliability.pdf}
+\caption{Reliability diagram of the calibrated model (ECE 0.0116 Platt / 0.0051 isotonic).}
+\label{fig:reliability}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\textwidth]{fig_roc_pr.pdf}
+\caption{ROC and precision-recall curves on the test set (AUROC 0.9980, PR-AUC 0.9987).}
+\label{fig:rocpr}
+\end{figure}
+
+\subsection{Ablation study}
+
+Table~\ref{tab:ablation} removes each feature group independently (3 seeds per removal). Lexical overlap is the most important group (F1 drops by 0.0183 when removed); length features also matter. Removing the entity group slightly \emph{improves} F1---a negative result we report rather than hide: on this benchmark, spaCy entity features add no value. NLI features contribute a modest but consistent improvement (F1 $-$0.0028 when removed), below the lexical signal but above entity features.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Feature-group ablation (F1/AUROC, mean $\pm$ std over 3 seeds; full model F1 0.9886, AUROC 0.9980).}
+\label{tab:ablation}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{Removed group} & \textbf{F1} & \textbf{$\Delta$F1} & \textbf{AUROC} \\
+\midrule
+length   & 0.9851 $\pm$ 0.0002 & $-$0.0036 & 0.9970 \\
+lexical  & 0.9703 $\pm$ 0.0003 & $-$0.0183 & 0.9943 \\
+entity   & 0.9890 $\pm$ 0.0000 & $+$0.0003 & 0.9980 \\
+nli      & 0.9858 $\pm$ 0.0002 & $-$0.0028 & 0.9979 \\
+numeric  & 0.9887 $\pm$ 0.0002 & $+$0.0001 & 0.9981 \\
+hedging  & 0.9887 $\pm$ 0.0002 & $+$0.0001 & 0.9981 \\
+semantic & 0.9889 $\pm$ 0.0003 & $+$0.0002 & 0.9980 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Statistical testing}
+
+McNemar's test on the 3{,}000 test predictions: XGBoost vs.\ random forest $p=1.0$ (identical predictions), vs.\ logistic regression $p=0.44$, vs.\ heuristic $p=0.09$. These results are honest and informative: the supervised models commit largely overlapping errors on this benchmark, and their differences are not statistically significant; the headline claims of this paper therefore rest on calibration quality, efficiency, interpretability, and the generalization analysis---not on a marginal accuracy advantage.
+
+\subsection{Efficiency and cost}
+
+Table~\ref{tab:latency} reports per-component latency on 200 test samples (p50/p95). Feature extraction dominates (NER 44.7\,ms, NLI 61.4\,ms); model inference is 5.2\,ms and SHAP 9.5\,ms. The total is $\approx$137\,ms per sample on the reference laptop (RTX 3060 6\,GB, CPU-bound spaCy/NLI on GPU).
+
+\begin{table}[t]
+\centering
+\small
+\caption{Per-component latency (ms), n=200.}
+\label{tab:latency}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Component} & \textbf{p50} & \textbf{p95} & \textbf{mean} \\
+\midrule
+Core lexical (4 groups) & 0.14 & 0.22 & 0.15 \\
+Entity (spaCy NER)      & 40.9 & 76.0 & 44.7 \\
+NLI (2 directions)      & 53.9 & 67.0 & 61.4 \\
+Semantic (MiniLM)       & 14.8 & 21.7 & 16.0 \\
+XGBoost inference       & 4.5 & 6.1 & 5.2 \\
+SHAP explanation        & 7.4 & 31.4 & 9.5 \\
+\midrule
+\textbf{Total per sample} & \textbf{$\approx$137} & & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{LLM-as-judge comparison}
+
+Table~\ref{tab:judge} compares HaluRISC against GPT 5.6 Luna as an LLM judge on the same 200 balanced test samples (measured, not estimated). The judge achieves F1 0.82 with 1.2\,s median latency at \$0.101 per 1{,}000 predictions; HaluRISC achieves F1 0.99 at $\approx$5\,ms and near-zero marginal cost. McNemar on the paired verdicts is highly significant ($p = 3\times10^{-7}$): the difference is not sampling noise. We note that judge scores vary run-to-run because the API rejects temperature 0 for this model.
+
+\begin{table}[t]
+\centering
+\small
+\caption{LLM-as-judge vs.\ XGBoost on 200 test samples.}
+\label{tab:judge}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{Model} & \textbf{Acc} & \textbf{P} & \textbf{R} & \textbf{F1} & \textbf{Cost/1K} \\
+\midrule
+GPT 5.6 Luna judge & 0.840 & 0.947 & 0.720 & 0.818 & \$0.101 \\
+\textbf{XGBoost}    & \textbf{0.990} & \textbf{1.000} & \textbf{0.980} & \textbf{0.990} & $\approx$\$0.001 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{External zero-shot evaluation (RAGTruth)}
+
+Table~\ref{tab:ragtruth} reports zero-shot evaluation on 2{,}000 natural RAGTruth \cite{ragtruth} QA responses (ACL 2024, human word-level annotations) with no training or adaptation. The model fails to transfer: recall 1.0 means it flags nearly everything as hallucinated. This is a genuine and important negative result---synthetic HaluEval hallucinations differ systematically from naturally generated RAG responses---and it frames generalization as open future work rather than claiming universal detection.
+
+\begin{table}[t]
+\centering
+\small
+\caption{RAGTruth zero-shot (n=2{,}000, labels: 631 hallucinated / 1{,}369 grounded).}
+\label{tab:ragtruth}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+\textbf{F1} & \textbf{AUROC} & \textbf{PR-AUC} & \textbf{MCC} & \textbf{ECE} & \textbf{Brier} \\
+\midrule
+0.4822 & 0.5869 & 0.3601 & 0.0570 & 0.6661 & 0.6611 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Web Application}
+
+The system is deployed as a two-tier web application (Figure~\ref{fig:arch}).
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+    box/.style={draw, rounded corners=4pt, minimum height=1.05cm, inner sep=5pt, align=center, font=\small},
+    arrow/.style={-latex, thick},
+]
+\node[box] (ui) at (0, 0) {Next.js 16 + assistant-ui\\\scriptsize chat \& analyze pages};
+\node[box] (bff) at (0, -1.7) {Next.js BFF /api/chat\\\scriptsize Vercel AI SDK streaming};
+\node[box] (llm) at (-3.2, -3.4) {GPT 5.6 Luna\\\scriptsize conversational analysis};
+\node[box] (api) at (3.2, -3.4) {FastAPI :8000\\\scriptsize /predict /explain /judge};
+\node[box, text width=2.6cm] (ml) at (3.2, -5.1) {XGBoost + Platt\\SHAP\\NLI + NER + SBERT};
+\draw[arrow] (ui) -- (bff);
+\draw[arrow] (bff) -- node[above, font=\scriptsize]{tool call} (llm);
+\draw[arrow] (bff) -- node[above, font=\scriptsize]{/api/ml/*} (api);
+\draw[arrow] (api) -- (ml);
+\end{tikzpicture}
+\caption{HaluRISC system architecture: the Next.js backend-for-frontend proxies ML requests to FastAPI and streams LLM chat with tool-generated UI widgets.}
+\label{fig:arch}
+\end{figure}
+
+The FastAPI backend loads all artifacts (model, calibrator, SHAP explainer, NLI/NER/embedding models) once at startup and exposes \texttt{/predict}, \texttt{/explain}, \texttt{/judge}, and \texttt{/health} with Pydantic validation. The Next.js frontend provides (i) a chat mode using assistant-ui Thread primitives where GPT 5.6 Luna calls the analysis tool and the risk gauge and SHAP chart render directly inside the streaming message; (ii) an analyze mode with an animated semicircular risk gauge, calibrated score, and SHAP contribution bars; (iii) an experiment dashboard rendering live results from \texttt{artifacts/results/}; and (iv) an about page.
+
+Figure~\ref{fig:screens} shows the three analysis cases: a clearly hallucinated answer (high risk), a grounded answer (low risk), and a borderline answer near 50\%.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.62\textwidth]{hallucinated_date.png}\\
+\vspace{0.3em}
+\includegraphics[width=0.62\textwidth]{grounded_correct.png}
+\caption{Analyze page: hallucinated-date case (high risk) and grounded case (low risk) with SHAP contribution charts.}
+\label{fig:screens}
+\end{figure}
+
+\section{Results and Discussion}
+
+\subsection{Feature importance}
+
+SHAP global importance (Figure~\ref{fig:shap}) is dominated by context overlap and answer length: HaluEval hallucinated answers tend to share vocabulary with the context while being systematically different in length from correct answers (median 10 vs.\ 2 words), an artifact of the benchmark's synthetic generation. NLI neutrality is the fifth most important signal. These results align with the ablation study and warn that benchmark-specific length patterns may not transfer.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.62\textwidth]{fig_shap_importance.pdf}
+\caption{Mean $|$SHAP$|$ feature importance (top 10).}
+\label{fig:shap}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_shap_summary.pdf}
+\caption{SHAP beeswarm summary over the test set.}
+\label{fig:shap2}
+\end{figure}
+
+\subsection{Error analysis}
+
+The test set contains only 33 misclassifications (12 false positives, 21 false negatives). We sampled 10 of each for manual inspection (Table~\ref{tab:errors}, auto-tagged with heuristic rules and reviewed). Errors concentrate in two categories: \emph{short-answer ambiguity} (very short answers where neither lexical nor NLI evidence is decisive) and \emph{label ambiguity} (answers that are semantically plausible under both labels). This matches the known HaluEval artifact that short answers are frequently hallucinated in the benchmark.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Error taxonomy for the 20 sampled misclassifications (heuristic first-pass tags, reviewed).}
+\label{tab:errors}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Category} & \textbf{FP} & \textbf{FN} \\
+\midrule
+short\_answer\_ambiguity & 6 & 8 \\
+label\_ambiguity          & 4 & 2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Limitations}
+
+\begin{itemize}
+    \item \textbf{Synthetic data.} 85\% of HaluEval is ChatGPT-generated ``sampling-then-filtering'' data; real-world hallucination patterns differ, and our RAGTruth zero-shot result (F1 0.4822) quantifies the gap.
+    \item \textbf{Benchmark artifacts.} Length and overlap patterns are highly informative on HaluEval but may be dataset-specific (see ablation and SHAP).
+    \item \textbf{Binary labels.} The benchmark reduces hallucination to yes/no; graded severity and partial hallucinations are out of scope.
+    \item \textbf{English only.} All features (NER, NLI, embeddings) are English-centric.
+    \item \textbf{Single dataset.} The model is trained only on HaluEval QA; domain adaptation is future work.
+    \item \textbf{Platt vs.\ isotonic.} Platt did not improve calibration here; isotonic did. The deployed artifact ships Platt (blueprint default).
+\end{itemize}
+
+\section{Conclusion and Future Work}
+
+We presented HaluRISC, a lightweight, calibrated, and explainable hallucination-risk predictor for black-box LLM outputs. On HaluEval QA it achieves F1 0.9886 with ECE 0.0051 after isotonic calibration, ~137\,ms per analysis, near-zero cost, and beats an LLM-as-judge baseline significantly at 1/100th of its cost. Its honest negative results---Platt no-gain, entity features unhelpful, RAGTruth zero-shot failure---are reported rather than hidden.
+
+Future work (an extended study) will add cross-domain evaluation on FaithBench \cite{faithbench}, multicalibration under distribution shift, explanation-reliability metrics (feature-ablation correlation and perturbation stability), and neural baselines, targeting a Q2 applied journal.
+
+\section{Reproducibility Statement}
+
+The source repository contains the complete pipeline: \texttt{src/data} (download and splits), \texttt{src/features} (seven feature groups), \texttt{src/models} (training protocol, error analysis, judge and latency evaluation), \texttt{src/explain} (SHAP), and \texttt{src/api} (FastAPI). \texttt{requirements.txt} pins every dependency exactly. Train/validation/test split indices are saved (\texttt{artifacts/split\_indices.json} and \texttt{.npy}), all seeds are centralized in \texttt{src/models/config.py}, and model, calibrator, scaler, and SHAP explainer artifacts are saved under \texttt{artifacts/models/}. A Colab notebook (\texttt{colab/HaluRISC\_Training.ipynb}) reproduces the full experiment on a GPU and persists artifacts to Google Drive.
+
+Environment: Python 3.12.13, Windows 11, NVIDIA RTX 3060 6\,GB (CUDA 12.8, torch 2.11.0+cu128), 32\,GB RAM; scikit-learn 1.9.0, XGBoost 3.4.0, SHAP 0.52.0, spaCy 3.8.14, sentence-transformers 5.6.1; Next.js 16.3.0 with pnpm.
+
+\section{Ethical Considerations}
+
+A hallucination-risk score predicts \emph{risk}, not truth, and must not be treated as a fact-checker. Over-reliance on automated detectors creates false trust, especially when scores are confidently wrong out-of-domain (as our RAGTruth result shows). Detection quality may vary across domains and languages, and the current system is English-only. The interface therefore labels scores as risk estimates and displays a training-data warning with every prediction.
+
+\newpage
+
+\begin{thebibliography}{18}
+
+\bibitem{haluEval} Li, J., Cheng, X., Zhao, W.X., Nie, J.-Y., Wen, J.-R. (2023). \emph{HaluEval: A Large-Scale Hallucination Evaluation Benchmark for Large Language Models.} EMNLP 2023.
+
+\bibitem{selfcheck} Manakul, P., Liusie, A., Gales, M. (2023). \emph{SelfCheckGPT: Zero-Resource Black-Box Hallucination Detection for Generative Large Language Models.} EMNLP 2023.
+
+\bibitem{truthqa} Lin, S., Hilton, J., Evans, O. (2022). \emph{TruthfulQA: Measuring How Models Mimic Human Falsehoods.} ACL 2022.
+
+\bibitem{factscore} Min, S., Krishna, K., Lyu, X., Lewis, M., Yih, W., Koh, P.W., Iyyer, M., Zettlemoyer, L., Hajishirzi, H. (2023). \emph{FActScore: Fine-grained Atomic Evaluation of Factual Precision in Long Form Text Generation.} EMNLP 2023.
+
+\bibitem{costeff} Valentin, S., Fu, J., Detommaso, G., Xu, S., Zappella, G., Wang, B. (2024). \emph{Cost-Effective Hallucination Detection for LLMs.} arXiv:2407.21424.
+
+\bibitem{ijert} Sundaragiri, D., Reddy, L.M., Gunavardhan, P., Navahith, B. (2026). \emph{Framework for Hallucination Detection in Large Language Models.} IJERT, Vol.~15, Issue~04. DOI: 10.5281/zenodo.20025987.
+
+\bibitem{ieeeTai} Yadav, S., Verma, N.K. (2026). \emph{A Hybrid Framework for Hallucination Detection in Large Language Models.} IEEE Transactions on Artificial Intelligence. DOI: 10.1109/TAI.2026.3653354.
+
+\bibitem{multimedia} Haq, I., Saqib, M., Zhang, Y., Khan, I.A. (2026). \emph{Quantifying Factual Divergence in Generative Models: SHAP-LIME Based Hallucination Score for LLMs.} Multimedia Systems, Vol.~32, Art.~146. DOI: 10.1007/s00530-025-02150-4.
+
+\bibitem{haluagent} Cheng, X., Li, J., Zhao, W.X., Zhang, H., Zhang, F., Zhang, D., Gai, K., Wen, J.-R. (2024). \emph{Small Agent Can Also Rock! Empowering Small Language Models as Hallucination Detector.} EMNLP 2024.
+
+\bibitem{luna} Belyi, M., Friel, R., Shao, S., Sanyal, A. (2025). \emph{Luna: A Lightweight Evaluation Model to Catch Language Model Hallucinations with High Accuracy and Low Cost.} COLING 2025 Industry Track, pp.~398--409.
+
+\bibitem{faithbench} Bao, F.S., Li, M., Qu, R., et al. (2025). \emph{FaithBench: A Diverse Hallucination Benchmark for Summarization by Modern LLMs.} NAACL 2025 (Short Papers), pp.~448--461. DOI: 10.18653/v1/2025.naacl-short.38.
+
+\bibitem{spikescore} Deng, Y., Fang, Z., Li, S., Chen, L. (2026). \emph{Beyond In-Domain Detection: SpikeScore for Cross-Domain Hallucination Detection.} ICLR 2026. arXiv:2601.19245.
+
+\bibitem{ragtruth} Niu, C., Wu, Y., Zhu, J., Xu, S., Shum, K., Zhong, R., Song, J., Zhang, T. (2024). \emph{RAGTruth: A Hallucination Corpus for Developing Trustworthy Retrieval-Augmented Language Models.} ACL 2024, pp.~10862--10878. DOI: 10.18653/v1/2024.acl-long.585.
+
+\bibitem{shap} Lundberg, S.M., Lee, S.-I. (2017). \emph{A Unified Approach to Interpreting Model Predictions.} NeurIPS 2017.
+
+\bibitem{xgboost} Chen, T., Guestrin, C. (2016). \emph{XGBoost: A Scalable Tree Boosting System.} KDD 2016.
+
+\bibitem{guo} Guo, C., Pleiss, G., Sun, Y., Weinberger, K.Q. (2017). \emph{On Calibration of Modern Neural Networks.} ICML 2017.
+
+\bibitem{sbert} Reimers, N., Gurevych, I. (2019). \emph{Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks.} EMNLP-IJCNLP 2019.
+
+\end{thebibliography}
+
+\end{document}

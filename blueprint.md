@@ -778,7 +778,7 @@ Do NOT fill the paper with UI screenshots. The web application is a demonstratio
 
 ---
 
-## A13. Course Paper Blueprint — 🔶 PARTIAL (proposal in report/proposal.tex; journal-style paper not yet written)
+## A13. Course Paper Blueprint — 🔶 PARTIAL (full draft compiled: report/out/paper.pdf, 12 pages, all real-data tables/figures; proofreading + final bibliography pass pending)
 
 ### Recommended course paper title
 

@@ -282,16 +282,19 @@ def main():
     X_test_s = scaler.transform(X_test)
 
     baseline_rows = {"lr": [], "rf": []}
+    baseline_preds = {"lr": [], "rf": []}
     for seed in SEEDS:
         lr = LogisticRegression(max_iter=2000, random_state=seed)
         lr.fit(X_train_s, y_train)
         p = lr.predict_proba(X_test_s)[:, 1]
         baseline_rows["lr"].append(classification_metrics(y_test, (p >= 0.5).astype(int), p))
+        baseline_preds["lr"].append((p >= 0.5).astype(int))
 
         rf = RandomForestClassifier(n_estimators=300, min_samples_leaf=5, n_jobs=-1, random_state=seed)
         rf.fit(X_train, y_train)
         p = rf.predict_proba(X_test)[:, 1]
         baseline_rows["rf"].append(classification_metrics(y_test, (p >= 0.5).astype(int), p))
+        baseline_preds["rf"].append((p >= 0.5).astype(int))
 
     # ---- 4. XGBoost per seed + calibration on val ----
     xgb_models = train_seed_models(X_train, y_train, X_val, y_val, X_test, best_params, pos_ratio)
@@ -305,7 +308,7 @@ def main():
     # sklearn >= 1.9 dropped CalibratedClassifierCV(cv="prefit"); manual Platt
     # (logistic regression on raw scores) and isotonic are equivalent and version-proof.
     calibrators = {}
-    calibration_results = {"platt": {}, "isotonic": {}}
+    calibration_results = {"raw": {}, "platt": {}, "isotonic": {}}
     for method in ["sigmoid", "isotonic"]:
         label = "platt" if method == "sigmoid" else "isotonic"
         row_metrics, row_ece, row_brier = [], [], []
@@ -335,18 +338,32 @@ def main():
         logger.info(f"{label} calibration: f1={calibration_results[label]['f1_mean']:.4f} "
                     f"ece={calibration_results[label]['ece_mean']:.4f} brier={calibration_results[label]['brier_mean']:.4f}")
 
+    # Uncalibrated reference (raw XGBoost probabilities) for the calibration-gain claim
+    raw_ece = [ece(y_test, r["y_prob"]) for r in xgb_models]
+    raw_brier = [brier_score_loss(y_test, r["y_prob"]) for r in xgb_models]
+    calibration_results["raw"] = {
+        "f1_mean": float(np.mean([m["f1"] for m in xgb_rows])),
+        "ece_mean": float(np.mean(raw_ece)),
+        "brier_mean": float(np.mean(raw_brier)),
+        "ece_all": [float(x) for x in raw_ece],
+        "brier_all": [float(x) for x in raw_brier],
+    }
+    logger.info(f"raw (uncalibrated): f1={calibration_results['raw']['f1_mean']:.4f} "
+                f"ece={calibration_results['raw']['ece_mean']:.4f} brier={calibration_results['raw']['brier_mean']:.4f}")
+
     # ---- 6. Statistics ----
-    # McNemar: XGBoost (seed 42) vs best baseline (RF seed 42)
-    rf_42 = RandomForestClassifier(n_estimators=300, min_samples_leaf=5, n_jobs=-1, random_state=42)
-    rf_42.fit(X_train, y_train)
-    rf_pred_42 = rf_42.predict(X_test)
+    # McNemar: XGBoost (seed 42) vs each baseline on the same test predictions
+    def mcnemar_p(pred_a, pred_b):
+        b = int(((pred_a == 0) & (pred_b == 1)).sum())
+        c = int(((pred_a == 1) & (pred_b == 0)).sum())
+        return float(mcnemar([[0, b], [c, 0]], exact=False, correction=True).pvalue)
+
     xgb_pred_42 = (xgb_models[0]["y_prob"] >= 0.5).astype(int)
-    table = np.array([
-        [(xgb_pred_42 == 1).sum(), ((xgb_pred_42 == 1) & (rf_pred_42 == 0)).sum()],
-        [((xgb_pred_42 == 0) & (rf_pred_42 == 1)).sum(), (xgb_pred_42 == 0).sum()],
-    ])
-    mcn = mcnemar([[table[1, 1], table[1, 0]], [table[0, 1], table[0, 0]]], exact=False, correction=True)
-    stats_tests = {"mcnemar_p_value": float(mcn.pvalue), "mcnemar_statistic": float(mcn.statistic)}
+    stats_tests = {
+        "mcnemar_p_value": mcnemar_p(xgb_pred_42, baseline_preds["rf"][0]),
+        "mcnemar_xgb_vs_lr_p": mcnemar_p(xgb_pred_42, baseline_preds["lr"][0]),
+        "mcnemar_xgb_vs_heuristic_p": mcnemar_p(xgb_pred_42, h_pred),
+    }
 
     boot = bootstrap_ci(y_test, (xgb_models[0]["y_prob"] >= 0.5).astype(int), xgb_models[0]["y_prob"])
     stats_tests["bootstrap_f1_ci"] = boot["f1_ci"]
