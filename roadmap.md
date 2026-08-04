@@ -316,7 +316,7 @@ npm run build  # builds Next.js static + server
 
 ---
 
-## 13. Phase 10 — Reproducibility & Paper Mapping — 🔶 PARTIAL (artifacts/tables/figures all produced; pending: citation verification, clean-clone test, paper write-up)
+## 13. Phase 10 — Reproducibility & Paper Mapping — 🔶 PARTIAL (artifacts/tables/figures all produced; citations verified live 2026-08-05; pending: clean-clone test, paper write-up)
 
 | Paper section | Artifact |
 |---|---|
@@ -338,8 +338,8 @@ npm run build  # builds Next.js static + server
 - [x] `requirements.txt` fully pinned (no `>=`, no un-pinned top-level packages)
 - [x] Split indices + seeds saved (`artifacts/split_indices.json` + `.npy`)
 - [x] `report/out/proposal.pdf` built from source
-- [ ] Every citation's DOI/URL verified live (2026 entries: ijert, ieeeTai, multimedia, spikescore)
-- [ ] README setup/run commands verified by a clean clone test (README still lists npm/Next 15 — needs refresh to pnpm/Next 16)
+- [x] Every citation's DOI/URL verified live (2026 entries verified 2026-08-05: ijert→Zenodo 20025988, ieeeTai→IEEE Xplore 11346950, multimedia→SpringerLink, spikescore→arXiv 2601.19245 + ICLR 2026 acceptance; also faithbench/ragtruth ACL Anthology, costeff arXiv 2407.21424, luna COLING 2025 dblp/Anthology)
+- [x] README setup/run commands current (pnpm/Next 16, pinned requirements incl. en-core-web-sm, real benchmark tables refreshed against artifacts/results/*)
 
 ---
 

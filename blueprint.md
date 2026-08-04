@@ -18,7 +18,7 @@ The two versions must not be mixed during the course. The biggest risk is trying
 
 > **IMPLEMENTATION STATUS (updated 2026-08-05):** ✅ DONE | 🔶 PARTIAL | ⬜ TODO
 >
-> Version A is implemented end-to-end: dataset+audit (A7 ✅), all 7 feature groups incl. NLI (A8 ✅), ML pipeline with 5-fold CV/tuning/3 seeds (A9 ✅), evaluation incl. error analysis + LLM-judge comparison + latency (A10 ✅ — citing published HaluEval numbers is a paper step), API (A11 ✅), 4-page web app (A12 ✅), paper (A13 🔶 — proposal done, paper not yet written), reproducibility checklist (A18 ✅). Version B remains future work — do not implement during the course.
+> Version A is implemented end-to-end: dataset+audit (A7 ✅), all 7 feature groups incl. NLI (A8 ✅), ML pipeline with 5-fold CV/tuning/3 seeds (A9 ✅), evaluation incl. error analysis + LLM-judge comparison + latency (A10 ✅ — citing published HaluEval numbers is a paper step), API (A11 ✅), 4-page web app (A12 ✅), paper (A13 🔶 — full draft compiled in report/out/paper.pdf, 12 pages with real-data tables/figures; proofreading + final bibliography pass pending), reproducibility checklist (A18 ✅). Version B remains future work — do not implement during the course.
 
 ---
 
@@ -1865,7 +1865,7 @@ The course version should deliver:
 7. ✅ External baseline comparison — RAGTruth zero-shot + LLM-as-judge (200 samples) done; citing published HaluEval numbers is a paper step.
 8. ✅ Statistical significance testing (McNemar, bootstrap CI, Wilcoxon).
 9. ✅ React (Next.js)/TypeScript dashboard (chat + analyze + experiment gallery + about).
-10. 🔶 Journal-style paper — pending (proposal exists in report/).
+10. 🔶 Journal-style paper — full draft compiled in report/out/paper.pdf (12 pages, all real-data tables/figures); proofreading + final bibliography pass pending.
 
 ## Final publication plan summary
 

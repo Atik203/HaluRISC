@@ -19,8 +19,8 @@
   - **📊 Analyze Mode**: Form-based evidence inspector (`/analyze`)
   - **📈 Dashboard**: Empirical benchmarks and cost comparisons (`/dashboard`)
   - **ℹ️ About**: Pipeline architecture and method overview (`/about`)
-- ⚡ **Lightweight & Fast**: ~140 ms per analysis (p50: 5 ms model inference + feature extraction, measured over 200 test samples).
-- 💰 **~100x Cheaper than LLM Judges**: measured $0.099/1K predictions with GPT 5.6 Luna as judge vs near-zero local cost; also ~200x faster (1.2 s vs ~5 ms per sample).
+- ⚡ **Lightweight & Fast**: ~125 ms per analysis (p50 total over 200 test samples; model inference alone 4.5 ms).
+- 💰 **~100x Cheaper than LLM Judges**: measured $0.101/1K predictions with GPT 5.6 Luna as judge vs near-zero local cost; also ~290x faster (1.29 s vs ~4.5 ms per sample).
 - 🔬 **Statistically Rigorous**: 20,000 samples (HaluEval QA), 70/15/15 stratified splits, 3-seed protocol (42/123/456), McNemar + bootstrap CIs, Platt vs isotonic calibration (ECE 0.0116/0.0051).
 
 ---
@@ -42,10 +42,10 @@ Mean over seeds 42/123/456 (real results from `artifacts/results/final_results.j
 
 | Model                    | Accuracy | Precision | Recall | F1     | Latency p50 | Cost / 1K |
 | ------------------------ | -------- | --------- | ------ | ------ | ----------- | --------- |
-| GPT 5.6 Luna judge       | 0.8500   | 0.9487    | 0.7400 | 0.8315 | 1,220 ms    | $0.099    |
+| GPT 5.6 Luna judge       | 0.8400   | 0.9474    | 0.7200 | 0.8182 | 1,293 ms    | $0.101    |
 | **XGBoost (ours)**       | **0.9900** | **1.0000** | **0.9800** | **0.9899** | ~5 ms   | ~$0.001 |
 
-Agreement between judge and XGBoost: 0.85.
+Agreement between judge and XGBoost: 0.84.
 
 ### External zero-shot validation (RAGTruth QA, 2,000 samples, no training)
 
@@ -88,7 +88,7 @@ differ from real-world generation, motivating domain adaptation (Version B direc
 ### Reproduced environment (for the paper's reproducibility statement)
 
 - Windows 11, Python 3.12.13, NVIDIA RTX 3060 6GB (CUDA 12.8, torch 2.11.0+cu128), 32 GB RAM
-- scikit-learn 1.9.0, xgboost 3.4.0, shap 0.52.0, spacy 3.8.14, sentence-transformers 5.6.1
+- scikit-learn 1.9.0, xgboost 3.4.0, shap 0.52.0, spacy 3.8.14 (en-core-web-sm 3.8.0), sentence-transformers 5.6.1
 
 ---
 
@@ -103,7 +103,7 @@ cd HaluRISC
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 
-# 3. Install Python dependencies
+# 3. Install Python dependencies (pinned, includes spaCy en_core_web_sm model)
 pip install -r requirements.txt
 
 # 4. Download HaluEval QA dataset (10,000 JSONL records)
@@ -198,7 +198,7 @@ HaluRISC/
 │   └── split_indices.json  # Saved 70/15/15 split indices
 └── web/                    # Next.js App Router frontend
     ├── app/                # /chat, /analyze, /dashboard, /about, /api/chat
-    ├── components/         # RiskGauge, ShapChart, NavBar
+    ├── components/         # RiskGauge, ShapChart, NavBar, ThemeToggle, assistant-ui/thread
     └── toolkit.tsx         # Generative UI toolkit definition
 ```
 
