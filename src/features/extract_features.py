@@ -132,14 +132,89 @@ def extract_all_core_features(df: pd.DataFrame) -> pd.DataFrame:
     logging.info(f"Successfully extracted {features_df.shape[1]} core features.")
     return result_df
 
+
+def load_heavy_models(nli_model_name: str | None = None) -> dict:
+    """Load NER + NLI + embedding models once (used by batch extraction and API)."""
+    import time
+
+    from src.features.entity_features import load_ner_model
+    from src.features.nli_features import load_nli_model
+    from src.features.semantic_features import load_embedding_model
+
+    models = {}
+    t0 = time.time()
+    models["nlp"] = load_ner_model()
+    logging.info(f"NER model loaded in {time.time() - t0:.1f}s")
+    t0 = time.time()
+    models["nli"], nli_name = load_nli_model(nli_model_name)
+    logging.info(f"NLI model ({nli_name}) loaded in {time.time() - t0:.1f}s")
+    t0 = time.time()
+    models["embedder"] = load_embedding_model()
+    logging.info(f"Embedding model loaded in {time.time() - t0:.1f}s")
+    return models
+
+
+def extract_all_features_single(question: str, context: str, answer: str, models: dict) -> dict:
+    """All 7 feature groups for one sample. Used by the FastAPI inference server."""
+    from src.features.entity_features import extract_entity_features
+    from src.features.nli_features import extract_nli_features
+    from src.features.semantic_features import extract_semantic_features
+
+    feats = {}
+    feats.update(extract_length_features(question, context, answer))
+    feats.update(extract_lexical_features(question, context, answer))
+    feats.update(extract_numeric_features(question, context, answer))
+    feats.update(extract_hedging_features(question, context, answer))
+    feats.update(extract_entity_features(question, context, answer, models["nlp"]))
+    feats.update(extract_nli_features(question, context, answer, models["nli"]))
+    feats.update(extract_semantic_features(question, context, answer, models["embedder"]))
+    return feats
+
+
+def extract_full_feature_set(df: pd.DataFrame, models: dict | None = None) -> pd.DataFrame:
+    """Extracts all 7 feature groups (core + entity + NLI + semantic) with per-group latency."""
+    import time
+
+    from src.features.entity_features import extract_entity_features_df
+    from src.features.nli_features import extract_nli_features_df
+    from src.features.semantic_features import extract_semantic_features_df
+
+    if models is None:
+        models = load_heavy_models()
+
+    result_df = extract_all_core_features(df)
+
+    t0 = time.time()
+    entity_df = extract_entity_features_df(df, models["nlp"])
+    logging.info(f"Entity features done in {time.time() - t0:.1f}s")
+
+    t0 = time.time()
+    nli_df = extract_nli_features_df(df, models["nli"])
+    logging.info(f"NLI features done in {time.time() - t0:.1f}s")
+
+    t0 = time.time()
+    semantic_df = extract_semantic_features_df(df, models["embedder"])
+    logging.info(f"Semantic features done in {time.time() - t0:.1f}s")
+
+    result_df = pd.concat([result_df, entity_df, nli_df, semantic_df], axis=1)
+    logging.info(f"Full feature matrix: {result_df.shape[1]} features total.")
+    return result_df
+
+
 if __name__ == "__main__":
-    parquet_path = os.path.join("data", "processed", "qa_clean.parquet")
-    output_path = os.path.join("data", "processed", "features_core.parquet")
+    import argparse
 
-    if not os.path.exists(parquet_path):
-        raise FileNotFoundError(f"{parquet_path} not found. Run src/data/prepare.py first.")
+    parser = argparse.ArgumentParser(description="HaluRISC full feature extraction")
+    parser.add_argument("--input", default=os.path.join("data", "processed", "qa_clean.parquet"))
+    parser.add_argument("--output", default=os.path.join("data", "processed", "features_full.parquet"))
+    parser.add_argument("--nli-model", default=None, help="Override NLI CrossEncoder checkpoint")
+    args = parser.parse_args()
 
-    df = pd.read_parquet(parquet_path)
-    features_df = extract_all_core_features(df)
-    features_df.to_parquet(output_path, index=False)
-    logging.info(f"Saved core feature matrix to {output_path}")
+    if not os.path.exists(args.input):
+        raise FileNotFoundError(f"{args.input} not found. Run src/data/prepare.py first.")
+
+    df = pd.read_parquet(args.input)
+    models = load_heavy_models(args.nli_model)
+    features_df = extract_full_feature_set(df, models)
+    features_df.to_parquet(args.output, index=False)
+    logging.info(f"Saved full feature matrix to {args.output}")

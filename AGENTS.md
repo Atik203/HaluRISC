@@ -91,7 +91,7 @@ assistant-ui follows the **shadcn/ui "Open Code" philosophy**:
 - **FastAPI (`src/api/main.py`):** Pure Python ML inference server on `http://127.0.0.1:8000`. Serves XGBoost predictions, feature extraction, SHAP explanations, and LLM-as-judge runs (`/predict`, `/explain`, `/judge`, `/health`).
 - **Boundary Rule:** the API LOADS artifacts (`artifacts/models/*`) and feature models at startup; it NEVER trains. All training happens offline via scripts in `src/models/`.
 - **Next.js Proxy:** All requests from frontend to FastAPI MUST route through `next.config.ts` rewrites (`/api/ml/:path*` → `http://127.0.0.1:8000/:path*`) to prevent CORS issues.
-- **Python ML Pipeline:** Python code MUST run in `.venv` (Python 3.12) with `numpy<2` compatibility for pandas/scipy/xgboost C-extensions.
+- **Python ML Pipeline:** Python code MUST run in `.venv` (Python 3.12). NumPy is at 2.4.6 (latest stable, 2026-era stack) — do NOT downgrade; `numpy<2` notes in older docs are stale. Torch is the CUDA 12.8 build (`2.11.0+cu128`) for the RTX 3060 (6 GB VRAM); keep it GPU-capable.
 
 ### Repo layout
 
@@ -132,7 +132,7 @@ HaluRISC/
 
 ### 5.1 Dependency Pinning Rule
 - `requirements.txt` MUST contain exact pins (`==`), never `>=`/`~=` (blueprint A18).
-- When adding a package, install the **latest stable version** that resolves against the installed stack (numpy<2), then pin the resolved version.
+- When adding a package, install the **latest stable version** that resolves against the installed stack, then pin the resolved version.
 - Installed versions in `.venv` take precedence over stale roadmap pins (e.g., scikit-learn 1.9, xgboost 3.4, pandas 3.0 are correct as installed — do NOT downgrade to older roadmap values).
 
 ---
