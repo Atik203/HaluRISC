@@ -7,3 +7,4 @@ See project root AGENTS.md for full details.
 2. **assistant-ui Documentation:** Follow https://www.assistant-ui.com/docs. Use modern `defineToolkit` + `"use generative"` directive.
 3. **Open-Code Customization:** `assistant-ui` components live in `components/assistant-ui/` (shadcn-style). Edit them directly in the repo.
 4. **Architecture:** Next.js App Router (BFF on port 3000) proxies `/api/ml/*` to FastAPI (Python ML on port 8000).
+5. **Environment Secrets:** Copy `.env.example` to `web/.env.local` for Next.js (`OPENAI_API_KEY`) and `.env` for root Python backend. Never commit real keys.

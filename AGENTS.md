@@ -108,3 +108,17 @@ assistant-ui follows the **shadcn/ui "Open Code" philosophy**:
 - **FastAPI (`src/api/`):** Pure Python ML inference server running on `http://127.0.0.1:8000`. Serves XGBoost predictions, NLI feature extraction, SHAP explanations, and LLM-as-judge runs (`/predict`, `/explain`, `/judge`).
 - **Next.js Proxy:** All requests from frontend to FastAPI MUST route through `next.config.ts` rewrites (`/api/ml/:path*` → `http://127.0.0.1:8000/:path*`) to prevent CORS issues.
 - **Python ML Pipeline:** Python code MUST use `.venv` (`python -m venv .venv`) with `numpy<2` compatibility for pandas/scipy/xgboost C-extensions.
+
+---
+
+## 5. Environment & Secrets Configuration (.env Placement)
+
+- **Template Reference File:** Root [**.env.example**](file:///d:/ML/HaluRISC/.env.example) contains all environment variable keys and descriptions.
+- **Next.js Frontend Environment:**
+  - **Location:** `web/.env.local`
+  - **Keys:** `OPENAI_API_KEY`, `OPENAI_MODEL`, `NEXT_PUBLIC_ML_API_URL`
+  - **Security Rule:** Server-only variables (`OPENAI_API_KEY`) must NEVER start with `NEXT_PUBLIC_`. They are strictly accessed in `app/api/chat/route.ts` (server side).
+- **FastAPI Python Backend Environment:**
+  - **Location:** Root `.env` or system environment variables loaded via `python-dotenv`.
+  - **Keys:** `FASTAPI_HOST`, `FASTAPI_PORT`, `OPENAI_API_KEY` (for `/judge`), `DEEPSEEK_API_KEY`.
+- **Git Security Rule:** Neither `.env` nor `.env.local` are ever committed to Git (`.gitignore` protects both).
