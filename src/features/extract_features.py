@@ -203,6 +203,10 @@ def extract_full_feature_set(df: pd.DataFrame, models: dict | None = None) -> pd
 
 if __name__ == "__main__":
     import argparse
+    import sys
+    from pathlib import Path
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
     parser = argparse.ArgumentParser(description="HaluRISC full feature extraction")
     parser.add_argument("--input", default=os.path.join("data", "processed", "qa_clean.parquet"))

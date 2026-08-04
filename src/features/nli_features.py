@@ -65,7 +65,7 @@ def extract_nli_features(question: str, context: str, answer: str, model) -> dic
     if not context.strip():
         return _neutral_row()
 
-    logits = model.predict([[context, answer], [answer, context]])
+    logits = model.predict([[context, answer], [answer, context]], apply_softmax=True)
     probs = logits if logits.shape[1] == 3 else None
     if probs is None:
         raise ValueError(f"Unexpected NLI output shape {logits.shape}; expected (n, 3)")
@@ -93,7 +93,7 @@ def extract_nli_features_df(df: pd.DataFrame, model, batch_size: int = 64) -> pd
         nonlocal batch_ctx_ans, batch_ans_ctx, batch_idx
         if not batch_idx:
             return
-        all_probs = model.predict(batch_ctx_ans + batch_ans_ctx, batch_size=batch_size)
+        all_probs = model.predict(batch_ctx_ans + batch_ans_ctx, batch_size=batch_size, apply_softmax=True)
         n = len(batch_idx)
         for k, idx in enumerate(batch_idx):
             p_ctx = {LABELS[i]: float(all_probs[k, i]) for i in range(3)}
