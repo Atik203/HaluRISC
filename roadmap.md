@@ -18,7 +18,8 @@
 | Tabular ML | scikit-learn | 1.7.x `[verified]` | LR, RF, CV, tuning, calibration, metrics |
 | Gradient boosting | XGBoost | 3.3.0 `[verified]` (PyPI, Jun 2026) | Final model; `XGBClassifier` scikit-learn API |
 | NLI model | HuggingFace `cross-encoder/nli-deberta-v3-base` | primary `[verified]` | SNLI+MultiNLI, outputs contradiction/entailment/neutral |
-| NLI fallback | `cross-encoder/nli-MiniLM2-L6` | if DeBERTa too slow | ~1/5 size of DeBERTa, ~90%+ of its accuracy |
+| NLI fallback | `cross-encoder/nli-MiniLM2-L6-H768` | if DeBERTa too slow | ~1/5 size of DeBERTa, ~90%+ of its accuracy |
+| Deep learning | PyTorch | 2.11.0+cu128 (CUDA 12.8 wheel via pytorch index, pinned in requirements.txt) | NLI CrossEncoder + SBERT embeddings; fp16 on GPU for the 6 GB RTX 3060 |
 | Embeddings | `sentence-transformers/all-MiniLM-L6-v2` | latest 4.x | Semantic similarity features |
 | NER | spaCy `en_core_web_sm` | spaCy 3.9 | Entity overlap features |
 | Explainability | SHAP | 0.46+ | `TreeExplainer` for XGBoost |
@@ -146,7 +147,7 @@ One module per group in `src/features/`. Output: a single DataFrame, cached to `
 - Run **both directions**: (context, answer) and (answer, context) → 6 probability features per sample.
 - Batch inference: `model.predict(pairs, batch_size=64)`, `show_progress_bar=True`.
 - 10K samples × 2 directions = 20K pairs; DeBERTa on CPU ≈ 1–2 hours **once**. Cache the outputs.
-- Fallback if download/speed is a problem: `cross-encoder/nli-MiniLM2-L6` (much smaller, ~15ms/pair).
+- Fallback if download/speed is a problem: `cross-encoder/nli-MiniLM2-L6-H768` (much smaller, ~15ms/pair).
 
 **Time each group** (lexical vs NLI vs semantic) — the latency breakdown feeds the paper's efficiency section.
 
@@ -231,7 +232,8 @@ POST /api/chat  {messages[]}  ← Vercel AI SDK streamText() + tool calling
 - FastAPI: validate inputs (answer required, max lengths, meaningful error messages).
 - FastAPI: CORS allows `http://localhost:3000` in dev.
 - FastAPI: LRU cache on NLI/embedding calls to keep demo snappy.
-- FastAPI: `uvicorn src.api.main:app --host 127.0.0.1 --port 8000 --reload`
+- FastAPI: `& .venv\Scripts\python.exe -m uvicorn src.api.main:app --host 127.0.0.1 --port 8000` (no `--reload` — uvicorn's file watcher restarts the server whenever repo files change).
+- FastAPI: GPU/stability config via root `.env` — `HALU_API_DEVICE=cuda|cpu` (default `cpu`; `cuda` auto-falls back to CPU if torch has no CUDA; models load in fp16 on CUDA to fit 6 GB VRAM) and `HALU_API_PRELOAD=0` to skip the startup preload of heavy models (spaCy/NLI/SBERT).
 - Next.js: `npm run dev` on port 3000; `next.config.ts` rewrites `/api/ml/*` → FastAPI.
 - OpenAI key stored in `web/.env.local` — never exposed to browser.
 
@@ -296,7 +298,7 @@ export default withAui(nextConfig);
 **Serving:**
 ```powershell
 # Development (2 terminals)
-uvicorn src.api.main:app --host 127.0.0.1 --port 8000 --reload  # FastAPI
+& .venv\Scripts\python.exe -m uvicorn src.api.main:app --host 127.0.0.1 --port 8000  # FastAPI (no --reload)
 npm run dev  # Next.js on http://localhost:3000
 
 # Production
@@ -347,7 +349,7 @@ npm run build  # builds Next.js static + server
 
 | Risk | Mitigation |
 |---|---|
-| NLI model download fails / too slow on CPU | Fallback `nli-MiniLM2-L6`; cache all NLI outputs |
+| NLI model download fails / too slow on CPU | Fallback `nli-MiniLM2-L6-H768`; cache all NLI outputs |
 | Feature extraction too slow | Batch everything, extract once to Parquet |
 | Class imbalance | `scale_pos_weight`; report PR-AUC alongside AUROC |
 | Overfitting | 5-fold CV + early stopping + 3 seeds |
@@ -361,10 +363,11 @@ npm run build  # builds Next.js static + server
 
 - HaluEval repo: `https://github.com/RUCAIBox/HaluEval` (raw: `.../main/data/qa_data.json`)
 - RAGTruth official: `https://github.com/ParticleMedia/RAGTruth` · HF mirror: `https://huggingface.co/datasets/wandb/RAGTruth-processed`
-- NLI: `https://huggingface.co/cross-encoder/nli-deberta-v3-base` · fallback `.../cross-encoder/nli-MiniLM2-L6`
+- NLI: `https://huggingface.co/cross-encoder/nli-deberta-v3-base` · fallback `.../cross-encoder/nli-MiniLM2-L6-H768`
 - Embeddings: `https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2`
 - XGBoost: `https://pypi.org/project/xgboost/` (3.3.0, Jun 2026) · scikit-learn: `https://scikit-learn.org`
 - FastAPI: `https://fastapi.tiangolo.com` · Pydantic v2: `https://docs.pydantic.dev`
 - shadcn/ui Vite install: `https://ui.shadcn.com/docs/installation/vite` · Tailwind v4: `https://tailwindcss.com`
 - spaCy: `https://spacy.io` · SHAP: `https://shap.readthedocs.io`
 - Reference paper (verified): RAGTruth — Niu et al., ACL 2024, DOI 10.18653/v1/2024.acl-long.585
+

@@ -127,7 +127,7 @@ HaluRISC/
   - **Security Rule:** Server-only variables (`OPENAI_API_KEY`) must NEVER start with `NEXT_PUBLIC_`. They are strictly accessed in `app/api/chat/route.ts` (server side).
 - **FastAPI Python Backend Environment:**
   - **Location:** Root `.env` or system environment variables loaded via `python-dotenv`.
-  - **Keys:** `FASTAPI_HOST`, `FASTAPI_PORT`, `FASTAPI_DEBUG`, `OPENAI_API_KEY` (for `/judge`), `OPENAI_MODEL`, `DEEPSEEK_API_KEY` (optional fallback judge).
+  - **Keys:** `FASTAPI_HOST`, `FASTAPI_PORT`, `FASTAPI_DEBUG`, `OPENAI_API_KEY` (for `/judge`), `OPENAI_MODEL`, `DEEPSEEK_API_KEY` (optional fallback judge), `HALU_API_DEVICE` (`cuda`|`cpu`, default `cpu`; `cuda` auto-falls back to CPU if torch has no CUDA, models load fp16 on CUDA), `HALU_API_PRELOAD` (default `1`; `0` skips the startup preload of heavy spaCy/NLI/SBERT models).
 - **Git Security Rule:** Neither `.env` nor `.env.local` are ever committed to Git (`.gitignore` protects both).
 
 ### 5.1 Dependency Pinning Rule
@@ -161,7 +161,7 @@ Python (from repo root, use the venv interpreter explicitly):
 
 ```powershell
 & .venv\Scripts\python.exe -m pytest tests -v            # tests
-& .venv\Scripts\python.exe -m uvicorn src.api.main:app --reload --port 8000   # API
+& .venv\Scripts\python.exe -m uvicorn src.api.main:app --port 8000   # API (no --reload; see §5 for HALU_API_DEVICE/HALU_API_PRELOAD)
 & .venv\Scripts\python.exe src\data\download.py          # dataset acquisition
 & .venv\Scripts\python.exe src\data\prepare.py           # splits
 & .venv\Scripts\python.exe src\features\extract_features.py   # feature matrix

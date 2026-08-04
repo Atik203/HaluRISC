@@ -445,7 +445,7 @@ NLI-based features are now **mandatory for Version A** (not deferred to Version 
 Use a lightweight NLI model to extract entailment/contradiction signals:
 
 - **Primary:** `cross-encoder/nli-deberta-v3-base` (HuggingFace, ~500MB, ~50ms per pair) — state-of-the-art NLI accuracy.
-- **Fallback (if too heavy):** `cross-encoder/nli-MiniLM2-L6` (<100MB, ~15ms per pair) — 90%+ of DeBERTa performance at 1/5 the size and latency.
+- **Fallback (if too heavy):** `cross-encoder/nli-MiniLM2-L6-H768` (<100MB, ~15ms per pair) — 90%+ of DeBERTa performance at 1/5 the size and latency.
 - **Extract 3 features per direction (6 total):**
   1. `nli_context_entails_answer` — probability that context entails the answer
   2. `nli_context_contradicts_answer` — probability that context contradicts the answer
@@ -675,6 +675,7 @@ flowchart LR
 - Pydantic request/response schema with **validation and meaningful error messages** for malformed input, missing fields, and excessively long text
 - CORS enabled for frontend (allow all in dev, restrict in any production deployment)
 - model loaded once at startup
+- heavy feature models (spaCy NER, NLI CrossEncoder, SBERT) preloaded at startup (skip with `HALU_API_PRELOAD=0`); GPU inference via `HALU_API_DEVICE=cuda` (default `cpu`, auto-fallback if torch lacks CUDA; fp16 on CUDA to fit 6 GB VRAM)
 
 ### Storage
 
@@ -923,7 +924,7 @@ Objectives:
 
 - implement length, lexical overlap, hedging regex, numeric consistency features
 - generate feature CSV from QA subset
-- set up NLI model (download and test `cross-encoder/nli-MiniLM2-L6`)
+- set up NLI model (download and test `cross-encoder/nli-MiniLM2-L6-H768`)
 
 Implementation deliverables:
 
@@ -1892,3 +1893,4 @@ The publication version should add:
 Yes, this project should be pursued. The correct approach is to treat the course version as a **paper-first applied ML project** with a working demo, and treat the publication version as a later extension focused on cross-domain robustness, calibration, and explanation reliability.
 
 The compound contribution — engineered evidence-consistency features + NLI + calibrated classical ML + explanation reliability + cross-domain evaluation + deployable artifact — is a legitimate research gap. Version A (course) is achievable with disciplined scope control. Version B (publication) is a realistic Q2 target (IEEE Access 70%+, Multimedia Systems 55%+) if all mandatory upgrades are implemented and differentiation from the Multimedia Systems 2026 SHAP+LIME paper is clearly articulated.
+

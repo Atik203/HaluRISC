@@ -6,7 +6,7 @@ Group 4 features (roadmap §6, mandatory per blueprint A8):
   nli_ans_entails_ctx, nli_ans_contradicts_ctx, nli_ans_neutral_ctx
 
 Primary model: cross-encoder/nli-deberta-v3-base (blueprint A8).
-Fallback if download fails: cross-encoder/nli-MiniLM2-L6.
+Fallback if download fails: cross-encoder/nli-MiniLM2-L6-H768.
 
 CrossEncoder output is a 3-class softmax in order
 [contradiction, entailment, neutral] (SNLI/MultiNLI schema).

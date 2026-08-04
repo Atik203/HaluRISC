@@ -83,7 +83,7 @@ differ from real-world generation, motivating domain adaptation (Version B direc
 - **Python 3.12** (in `.venv`, packages pinned in `requirements.txt`)
 - **Node.js 20+ & pnpm** (web app: Next.js 16 + Tailwind v4 + assistant-ui)
 - **OpenAI API Key** (for conversational chat & LLM judge baseline)
-- Optional GPU (CUDA, e.g. RTX 3060 6GB) for fast feature extraction/training — not required for inference
+- Optional NVIDIA GPU (CUDA 12.8, e.g. RTX 3060 6GB) — used for fast feature extraction/training **and** fast API inference (models load in fp16 on CUDA; set `HALU_API_DEVICE=cuda`, auto-falls back to CPU if torch lacks CUDA)
 
 ### Reproduced environment (for the paper's reproducibility statement)
 
@@ -133,7 +133,10 @@ python src/models/eval_efficiency.py
 python src/models/eval_llm_judge.py
 
 # 12. Start FastAPI inference backend server (Port 8000)
-python -m uvicorn src.api.main:app --host 127.0.0.1 --port 8000 --reload
+#   Root .env options: HALU_API_DEVICE=cuda|cpu (default cpu; cuda auto-falls back
+#   to cpu if torch has no CUDA), HALU_API_PRELOAD=0 (skip heavy-model preload at
+#   startup). Run WITHOUT --reload (uvicorn's file watcher restarts on file changes).
+& .venv\Scripts\python.exe -m uvicorn src.api.main:app --host 127.0.0.1 --port 8000
 ```
 
 ---
