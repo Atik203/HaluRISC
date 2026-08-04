@@ -4,6 +4,14 @@ This document specifies mandatory rules, design patterns, prompt caching optimiz
 
 ---
 
+## 0. Source of Truth (Read First)
+
+- **`blueprint.md`** — research design, scientific claims, scope. **Version A (course) is the ONLY active scope.** Do NOT implement Version B (publication) features during the course.
+- **`roadmap.md`** — phased implementation plan. Treat as guidance, NOT gospel: version numbers, URLs, and library claims in it can be stale. Always prefer the **latest stable versions actually available/installed** (check `.venv` and PyPI before pinning anything).
+- **`AGENTS.md`** (this file) — binding agent rules. On conflict with `roadmap.md`, this file and `blueprint.md` win.
+
+---
+
 ## 1. LLM Prompt Caching Maximization Protocol
 
 To minimize API latency and reduce LLM token costs by up to **90–98%** (e.g., DeepSeek v4 Flash cache hit at $0.0028/M tokens vs $0.14/M; GPT 5.6 Luna cached input at $0.02/M vs $0.20/M), all LLM integration code MUST adhere to the following rules:
@@ -59,36 +67,11 @@ When building or modifying the frontend chat interface, refer to these canonical
 - Use `defineToolkit` with the `"use generative"` directive in `app/toolkit.tsx`.
 - **Do NOT use deprecated APIs** (`makeAssistantToolUI`, `makeAssistantTool`).
 - Wrap Next.js config with `withAui()` plugin from `@assistant-ui/next`.
+- Toolkit `execute: externalTool()` runs server-side in `/api/chat`; `render` functions are client components and MUST receive a `result` matching the tool output schema.
 
-```tsx
-// app/toolkit.tsx — Modern Generative UI Pattern
-"use generative";
-import { defineToolkit, externalTool } from "@assistant-ui/react";
-import { z } from "zod";
-import { RiskGauge } from "@/components/risk-gauge";
-import { ShapChart } from "@/components/shap-chart";
-
-export default defineToolkit({
-  analyze_hallucination: {
-    description: "Analyze an answer for hallucination risk",
-    parameters: z.object({
-      question: z.string(),
-      context: z.string(),
-      answer: z.string(),
-    }),
-    execute: externalTool(), // Executed server-side in /api/chat route
-    render: ({ result, status }) => {
-      if (status.type === "running") return <LoadingSkeleton />;
-      return (
-        <div className="rounded-lg border bg-card p-4">
-          <RiskGauge score={result.prediction.calibrated_score} label={result.prediction.label} />
-          <ShapChart features={result.explanation.top_features} baseValue={result.explanation.base_value} />
-        </div>
-      );
-    },
-  },
-});
-```
+### 2.4 Thread UI Rule
+- The chat page MUST use the assistant-ui `Thread` primitives (`ThreadPrimitive.*` from `@assistant-ui/react`) wired to `/api/chat` via `useChatRuntime` + `AssistantRuntimeProvider`. Do not hand-roll a custom chat message loop that bypasses the streaming route.
+- Assistant-UI source lives in the repo (open-code philosophy): custom styled components go in `components/assistant-ui/`.
 
 ---
 
@@ -104,10 +87,34 @@ assistant-ui follows the **shadcn/ui "Open Code" philosophy**:
 
 ## 4. Codebase Architecture & Boundary Rules
 
-- **Next.js (`web/`):** Serves as the Backend-for-Frontend (BFF). Handles UI rendering, static pages, OpenAI API key security, and streaming (`/api/chat`).
-- **FastAPI (`src/api/`):** Pure Python ML inference server running on `http://127.0.0.1:8000`. Serves XGBoost predictions, NLI feature extraction, SHAP explanations, and LLM-as-judge runs (`/predict`, `/explain`, `/judge`).
+- **Next.js (`web/`):** Serves as the Backend-for-Frontend (BFF) on port 3000. Handles UI rendering, static pages, OpenAI API key security, and streaming (`/api/chat`).
+- **FastAPI (`src/api/main.py`):** Pure Python ML inference server on `http://127.0.0.1:8000`. Serves XGBoost predictions, feature extraction, SHAP explanations, and LLM-as-judge runs (`/predict`, `/explain`, `/judge`, `/health`).
+- **Boundary Rule:** the API LOADS artifacts (`artifacts/models/*`) and feature models at startup; it NEVER trains. All training happens offline via scripts in `src/models/`.
 - **Next.js Proxy:** All requests from frontend to FastAPI MUST route through `next.config.ts` rewrites (`/api/ml/:path*` → `http://127.0.0.1:8000/:path*`) to prevent CORS issues.
-- **Python ML Pipeline:** Python code MUST use `.venv` (`python -m venv .venv`) with `numpy<2` compatibility for pandas/scipy/xgboost C-extensions.
+- **Python ML Pipeline:** Python code MUST run in `.venv` (Python 3.12) with `numpy<2` compatibility for pandas/scipy/xgboost C-extensions.
+
+### Repo layout
+
+```
+HaluRISC/
+├── blueprint.md          # research source of truth (Version A active)
+├── roadmap.md            # implementation plan (guidance only)
+├── requirements.txt      # EXACT pins only (==)
+├── src/
+│   ├── data/             # download.py (HaluEval, RAGTruth), prepare.py (splits)
+│   ├── features/         # extract_features.py (core) + entity/nli/semantic modules
+│   ├── models/           # train_baselines.py, train_pipeline.py (full protocol)
+│   ├── explain/          # shap_analysis.py
+│   └── api/              # FastAPI app (main.py)
+├── web/                  # Next.js + assistant-ui frontend
+├── data/raw/             # gitignored raw datasets
+├── data/processed/       # parquet (cleaned data, feature matrices)
+├── artifacts/
+│   ├── models/           # joblib model, scaler, params.json (gitignored)
+│   ├── figures/          # all plots (PNG/PDF)
+│   └── results/          # metric tables (CSV/JSON)
+└── tests/                # pytest suites
+```
 
 ---
 
@@ -116,9 +123,65 @@ assistant-ui follows the **shadcn/ui "Open Code" philosophy**:
 - **Template Reference File:** Root [**.env.example**](file:///d:/ML/HaluRISC/.env.example) contains all environment variable keys and descriptions.
 - **Next.js Frontend Environment:**
   - **Location:** `web/.env.local`
-  - **Keys:** `OPENAI_API_KEY`, `OPENAI_MODEL`, `NEXT_PUBLIC_ML_API_URL`
+  - **Keys:** `OPENAI_API_KEY`, `OPENAI_MODEL`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_ML_API_URL`
   - **Security Rule:** Server-only variables (`OPENAI_API_KEY`) must NEVER start with `NEXT_PUBLIC_`. They are strictly accessed in `app/api/chat/route.ts` (server side).
 - **FastAPI Python Backend Environment:**
   - **Location:** Root `.env` or system environment variables loaded via `python-dotenv`.
-  - **Keys:** `FASTAPI_HOST`, `FASTAPI_PORT`, `OPENAI_API_KEY` (for `/judge`), `DEEPSEEK_API_KEY`.
+  - **Keys:** `FASTAPI_HOST`, `FASTAPI_PORT`, `FASTAPI_DEBUG`, `OPENAI_API_KEY` (for `/judge`), `OPENAI_MODEL`, `DEEPSEEK_API_KEY` (optional fallback judge).
 - **Git Security Rule:** Neither `.env` nor `.env.local` are ever committed to Git (`.gitignore` protects both).
+
+### 5.1 Dependency Pinning Rule
+- `requirements.txt` MUST contain exact pins (`==`), never `>=`/`~=` (blueprint A18).
+- When adding a package, install the **latest stable version** that resolves against the installed stack (numpy<2), then pin the resolved version.
+- Installed versions in `.venv` take precedence over stale roadmap pins (e.g., scikit-learn 1.9, xgboost 3.4, pandas 3.0 are correct as installed — do NOT downgrade to older roadmap values).
+
+---
+
+## 6. Mandatory ML Experiment Protocol (Version A)
+
+Grading-critical rules (blueprint A9–A10, roadmap Phases 4–5). All training scripts MUST follow these:
+
+- **Splits:** 70/15/15 stratified by label; split indices saved to `artifacts/split_indices.json` + `.npy`. Never re-split using only a seed.
+- **Cross-validation:** 5-fold stratified CV on train for tuning and model comparison.
+- **Hyperparameter tuning:** randomized search (30–50 iterations, 5-fold CV) for XGBoost over `max_depth`, `learning_rate`, `n_estimators`, `subsample`, `colsample_bytree`. Report best params.
+- **Seeds:** repeat every experiment with seeds **42, 123, 456** and report mean ± std. Single-seed results are not acceptable.
+- **Calibration:** fit the calibrator (Platt/sigmoid default) on the **validation** split only — never the test split. Compare Platt vs isotonic on test.
+- **Metrics:** Precision, Recall, F1, AUROC, PR-AUC, MCC + ECE, Brier score, reliability diagram.
+- **Statistics:** McNemar's test (XGBoost vs best baseline), bootstrap 95% CIs (1,000 resamples) for F1/AUROC, Wilcoxon signed-rank across seeds.
+- **Ablations:** remove each feature group one at a time (7 groups × 3 seeds), report F1/AUROC deltas.
+- **Artifacts:** every run MUST save model `.joblib`, scaler, params JSON, and result tables to `artifacts/`.
+- **External bar:** cite published HaluEval QA detection numbers; run zero-shot evaluation on the RAGTruth QA holdout.
+- **Heuristic baseline:** `1 - overlap_answer_context` (overlap threshold tuned on validation).
+
+---
+
+## 7. Verification Commands (run after relevant changes)
+
+Python (from repo root, use the venv interpreter explicitly):
+
+```powershell
+& .venv\Scripts\python.exe -m pytest tests -v            # tests
+& .venv\Scripts\python.exe -m uvicorn src.api.main:app --reload --port 8000   # API
+& .venv\Scripts\python.exe src\data\download.py          # dataset acquisition
+& .venv\Scripts\python.exe src\data\prepare.py           # splits
+& .venv\Scripts\python.exe src\features\extract_features.py   # feature matrix
+& .venv\Scripts\python.exe src\models\train_pipeline.py  # full experiment protocol
+```
+
+Web (from `web/`):
+
+```powershell
+npm run dev     # dev server on http://localhost:3000
+npm run build   # production build (must pass before finishing web work)
+npm run lint    # lint check
+```
+
+---
+
+## 8. Web Frontend Rules
+
+1. **Chat page** MUST use assistant-ui `Thread` primitives + `/api/chat` (Vercel AI SDK streaming). Never rebuild a custom chat loop.
+2. **`next.config.ts`** MUST wrap config with `withAui()` from `@assistant-ui/next` and keep the `/api/ml/:path*` → FastAPI rewrite.
+3. **No fabricated data:** dashboard/experiment numbers MUST come from `artifacts/results/*` (read via fs in a server component or generated JSON). Never hardcode fake metrics or model rows.
+4. **API contract:** frontend consumes `POST /api/ml/predict` → `{risk_score, calibrated_score, label, thresholds, latency_ms, model_version, feature_version, warning, features}` and `POST /api/ml/explain` → `{top_features[], base_value}`. Keep field names stable.
+5. **Theme:** dark theme, blue-violet accent gradients, `glass-panel`/`gradient-text` utility classes defined in `app/globals.css`.
