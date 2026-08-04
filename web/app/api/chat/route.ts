@@ -1,5 +1,5 @@
 import { openai } from "@ai-sdk/openai";
-import { isStepCount, streamText } from "ai";
+import { convertToModelMessages, isStepCount, streamText } from "ai";
 import { z } from "zod";
 
 export const runtime = "nodejs";
@@ -19,49 +19,55 @@ When a user asks you to check an answer for hallucination, you MUST:
 5. Ask for context/evidence if the user provides only an answer: risk prediction needs a
    question, a reference context, and the answer to be meaningful.`;
 
+const analyzeTool = {
+  description:
+    "Analyze an answer for hallucination risk using the HaluRISC ML model (calls FastAPI /predict + /explain)",
+  inputSchema: z.object({
+    question: z.string().describe("The question that was asked"),
+    context: z.string().describe("The reference context or evidence"),
+    answer: z.string().describe("The answer to analyze for hallucination"),
+  }),
+  execute: async ({ question, context, answer }: { question: string; context: string; answer: string }) => {
+    const backendUrl = process.env.NEXT_PUBLIC_ML_API_URL || "http://127.0.0.1:8000";
+
+    const [predRes, expRes] = await Promise.all([
+      fetch(`${backendUrl}/predict`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question, context, answer }),
+      }),
+      fetch(`${backendUrl}/explain`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question, context, answer }),
+      }),
+    ]);
+
+    const prediction = predRes.ok
+      ? ((await predRes.json()) as { error?: string; calibrated_score?: number; label?: string; latency_ms?: number })
+      : { error: `ML backend error: ${predRes.status} ${await predRes.text()}` };
+    const explanation = expRes.ok
+      ? ((await expRes.json()) as { top_features?: unknown; base_value?: unknown } | null)
+      : null;
+
+    return { prediction, explanation };
+  },
+};
+
 export async function POST(req: Request) {
   try {
     const { messages } = await req.json();
 
+    // AI SDK v7: the client sends UIMessages (parts-based); convert to model messages first.
+    const modelMessages = await convertToModelMessages(messages, {
+      tools: { analyze_hallucination: analyzeTool },
+    });
+
     const result = streamText({
       model: openai(process.env.OPENAI_MODEL || "gpt-5.6-luna"),
       system: SYSTEM_PROMPT,
-      messages,
-      tools: {
-        analyze_hallucination: {
-          description:
-            "Analyze an answer for hallucination risk using the HaluRISC ML model (calls FastAPI /predict + /explain)",
-          inputSchema: z.object({
-            question: z.string().describe("The question that was asked"),
-            context: z.string().describe("The reference context or evidence"),
-            answer: z.string().describe("The answer to analyze for hallucination"),
-          }),
-          execute: async ({ question, context, answer }) => {
-            const backendUrl =
-              process.env.NEXT_PUBLIC_ML_API_URL || "http://127.0.0.1:8000";
-
-            const [predRes, expRes] = await Promise.all([
-              fetch(`${backendUrl}/predict`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ question, context, answer }),
-              }),
-              fetch(`${backendUrl}/explain`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ question, context, answer }),
-              }),
-            ]);
-
-            const prediction = predRes.ok
-              ? ((await predRes.json()) as { error?: string; calibrated_score?: number; label?: string; latency_ms?: number })
-              : { error: `ML backend error: ${predRes.status} ${await predRes.text()}` };
-            const explanation = expRes.ok ? ((await expRes.json()) as { top_features?: unknown; base_value?: unknown } | null) : null;
-
-            return { prediction, explanation };
-          },
-        },
-      },
+      messages: modelMessages,
+      tools: { analyze_hallucination: analyzeTool },
       stopWhen: isStepCount(3),
     });
 

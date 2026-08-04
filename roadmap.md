@@ -4,6 +4,10 @@
 
 **Convention:** items marked `[verified 2026]` were checked against current web/PyPI info in July 2026.
 
+> **IMPLEMENTATION STATUS (updated 2026-08-05):** ✅ DONE | 🔶 PARTIAL | ⬜ TODO
+>
+> Phases 0–8 are **done** (the pipeline, API, and web app work end-to-end with real artifacts). Phase 9–10 remain for final packaging (Docker optional, demo rehearsal, paper). Known gaps: LLM-judge cost table (🔶), error-analysis taxonomy (🔶), explanation-reliability analysis (⬜), citation verification (⬜).
+
 ---
 
 ## 1. Tech Stack at a Glance
@@ -67,7 +71,7 @@ HaluRISC/
 
 ---
 
-## 3. Phase 0 — Environment Setup (Day 1)
+## 3. Phase 0 — Environment Setup (Day 1) — ✅ DONE (venv Python 3.12, pinned requirements.txt, pnpm + Next 16 + Tailwind v4 + AI SDK v7)
 
 1. Install Python 3.13 from [python.org](https://www.python.org/downloads/) (check: `python --version`).
 2. Create a virtual environment:
@@ -87,7 +91,7 @@ HaluRISC/
 
 ---
 
-## 4. Phase 1 — Data Acquisition (Week 1)
+## 4. Phase 1 — Data Acquisition (Week 1) — ✅ DONE (HaluEval QA downloaded; RAGTruth QA ~2K holdout cached; 50-sample manual audit saved)
 
 ### 4.1 HaluEval (primary, train/tune/test)
 
@@ -109,7 +113,7 @@ HaluRISC/
 
 ---
 
-## 5. Phase 2 — Preprocessing & Splits (Week 1–2)
+## 5. Phase 2 — Preprocessing & Splits (Week 1–2) — ✅ DONE (qa_clean.parquet, 70/15/15 stratified, split_indices.json + .npy saved)
 
 Rules (encode in `src/data/prepare.py`, cache to `data/processed/qa_clean.parquet`):
 
@@ -123,7 +127,7 @@ Rules (encode in `src/data/prepare.py`, cache to `data/processed/qa_clean.parque
 
 ---
 
-## 6. Phase 3 — Feature Extraction (Week 2–3)
+## 6. Phase 3 — Feature Extraction (Week 2–3) — ✅ DONE (all 7 groups, 26 features → features_full.parquet; per-group latency logged)
 
 One module per group in `src/features/`. Output: a single DataFrame, cached to `data/processed/features_qa.parquet` (extract once, reuse everywhere).
 
@@ -148,7 +152,7 @@ One module per group in `src/features/`. Output: a single DataFrame, cached to `
 
 ---
 
-## 7. Phase 4 — Modeling (Week 4)
+## 7. Phase 4 — Modeling (Week 4) — ✅ DONE (RandomizedSearchCV 5-fold 30 iters, LR/RF/heuristic baselines, XGBoost ×3 seeds, artifacts saved)
 
 `src/models/`:
 
@@ -171,7 +175,7 @@ One module per group in `src/features/`. Output: a single DataFrame, cached to `
 
 ---
 
-## 8. Phase 5 — Calibration & Evaluation (Week 4–5)
+## 8. Phase 5 — Calibration & Evaluation (Week 4–5) — ✅ DONE (Platt on val vs isotonic, ECE/Brier/reliability, McNemar, bootstrap CIs, Wilcoxon, 7-group ablations, RAGTruth zero-shot) · 🔶 PARTIAL: LLM-as-judge cost table (endpoint exists, judge run on a sample subset not yet executed)
 
 - **Calibration:** `CalibratedClassifierCV(estimator=best_xgb, method="sigmoid", cv="prefit")` fit on the **validation** set. Compare Platt (sigmoid) vs isotonic on the test set.
 - **Metrics:** Precision, Recall, F1, AUROC, PR-AUC, MCC (classification); **ECE**, **Brier score**, reliability diagram (calibration).
@@ -188,7 +192,7 @@ One module per group in `src/features/`. Output: a single DataFrame, cached to `
 
 ---
 
-## 9. Phase 6 — Explainability (Week 5)
+## 9. Phase 6 — Explainability (Week 5) — ✅ DONE (TreeExplainer global summary + 3 waterfall cases, figures + shap_summary.json) · ⬜ TODO: explanation-reliability analysis (feature-ablation correlation, optional)
 
 - `shap.TreeExplainer(xgb)` → `shap_values` on a test subsample (500–1,000 rows for speed).
 - **Global:** SHAP summary plot (beeswarm) + mean-|SHAP| bar chart.
@@ -198,7 +202,7 @@ One module per group in `src/features/`. Output: a single DataFrame, cached to `
 
 ---
 
-## 10. Phase 7 — Backend API (Week 6)
+## 10. Phase 7 — Backend API (Week 6) — ✅ DONE (/predict, /explain, /judge, /health; artifacts + NLI/NER/SBERT loaded at startup; Pydantic validation)
 
 `src/api/` — FastAPI + uvicorn, Pydantic v2 `[verified]`.
 
@@ -233,7 +237,7 @@ POST /api/chat  {messages[]}  ← Vercel AI SDK streamText() + tool calling
 
 ---
 
-## 11. Phase 8 — Frontend Dashboard (Week 7) — show-winning, judge-facing
+## 11. Phase 8 — Frontend Dashboard (Week 7) — ✅ DONE (assistant-ui Thread chat + generative UI widgets, analyze form, real-data dashboard, about page)
 
 **Framework: Next.js + assistant-ui** (the official recommended stack for AI chat UIs).
 
@@ -302,7 +306,7 @@ npm run build  # builds Next.js static + server
 
 ---
 
-## 12. Phase 9 — Integration, Demo & Delivery (Week 8)
+## 12. Phase 9 — Integration, Demo & Delivery (Week 8) — 🔶 PARTIAL (app runs end-to-end; pending: demo rehearsal script, backup video, optional Docker)
 
 - Build frontend, serve from FastAPI, run one-command demo.
 - Pre-bake 3 demo examples: clearly hallucinated, clearly correct, borderline — plus live input.
@@ -312,7 +316,7 @@ npm run build  # builds Next.js static + server
 
 ---
 
-## 13. Phase 10 — Reproducibility & Paper Mapping
+## 13. Phase 10 — Reproducibility & Paper Mapping — 🔶 PARTIAL (artifacts/tables/figures all produced; pending: citation verification, clean-clone test, paper write-up)
 
 | Paper section | Artifact |
 |---|---|
@@ -330,12 +334,12 @@ npm run build  # builds Next.js static + server
 - Confirm the two live claims behind the roadmap `[verified]` markers: XGBoost `3.3.0` and the `cross-encoder/nli-deberta-v3-base` model card still match before you install (PyPI/HF links in §15).
 
 **Roadmap completion checklist (Week 8, before submission):**
-- [ ] All `data/processed/*.parquet`, `artifacts/models/*`, `artifacts/results/*` produced and committed
-- [ ] `requirements.txt` fully pinned (no `>=`, no un-pinned top-level packages)
-- [ ] Split indices + seeds saved (not just a fixed seed)
-- [ ] `report/out/proposal.pdf` and paper PDF built from source
-- [ ] Every citation's DOI/URL verified live
-- [ ] README setup/run commands verified by a clean clone test (or documented as pending if skipped)
+- [x] All `data/processed/*.parquet`, `artifacts/models/*`, `artifacts/results/*` produced (gitignored by design — regenerable via `colab/HaluRISC_Training.ipynb` or locally)
+- [x] `requirements.txt` fully pinned (no `>=`, no un-pinned top-level packages)
+- [x] Split indices + seeds saved (`artifacts/split_indices.json` + `.npy`)
+- [x] `report/out/proposal.pdf` built from source
+- [ ] Every citation's DOI/URL verified live (2026 entries: ijert, ieeeTai, multimedia, spikescore)
+- [ ] README setup/run commands verified by a clean clone test (README still lists npm/Next 15 — needs refresh to pnpm/Next 16)
 
 ---
 

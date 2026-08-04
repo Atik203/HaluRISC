@@ -16,6 +16,10 @@ The two versions must not be mixed during the course. The biggest risk is trying
 
 > **Build a clean, defensible course project first. Then extend it into a stronger publication study.**
 
+> **IMPLEMENTATION STATUS (updated 2026-08-05):** ✅ DONE | 🔶 PARTIAL | ⬜ TODO
+>
+> Version A is implemented end-to-end: dataset+audit (A7 ✅), all 7 feature groups incl. NLI (A8 ✅), ML pipeline with 5-fold CV/tuning/3 seeds (A9 ✅), calibration + stats + ablations + RAGTruth external bar (A10 🔶 — error analysis & LLM-judge subset run pending), API (A11 ✅), 4-page web app (A12 ✅), paper (A13 🔶 — proposal done, paper not yet written), reproducibility (A18 🔶). Version B remains future work — do not implement during the course.
+
 ---
 
 ## Table of Contents
@@ -362,7 +366,7 @@ Never remove:
 
 ---
 
-## A7. Dataset Plan
+## A7. Dataset Plan — ✅ DONE
 
 ### Primary dataset
 
@@ -418,7 +422,7 @@ Before implementation, verify dataset license, citation format, redistribution t
 
 ---
 
-## A8. Feature Engineering Plan
+## A8. Feature Engineering Plan — ✅ DONE (7 groups, 26 features; NLI via cross-encoder/nli-deberta-v3-base)
 
 The course version must use a compact feature set. Do not create dozens of poorly justified features.
 
@@ -463,7 +467,7 @@ Use approximately **15–30 total features**. This is enough for a good paper an
 
 ---
 
-## A9. ML Pipeline
+## A9. ML Pipeline — ✅ DONE (XGBoost + Platt final model, F1 0.9886 / AUROC 0.9980 on test)
 
 ### Course workflow
 
@@ -558,7 +562,7 @@ For the paper, include:
 
 ---
 
-## A10. Evaluation Strategy
+## A10. Evaluation Strategy — 🔶 PARTIAL (metrics/stats/calibration/ablations/RAGTruth zero-shot done; pending: 20-case error analysis, LLM-judge subset comparison, published external numbers cited)
 
 ### Required metrics
 
@@ -641,7 +645,7 @@ This will strengthen the paper significantly.
 
 ---
 
-## A11. Course System Architecture
+## A11. Course System Architecture — ✅ DONE (/predict, /explain, /judge, /health; model+features loaded at startup)
 
 ### Architecture diagram
 
@@ -716,7 +720,7 @@ Returns backend status.
 
 ---
 
-## A12. Web Application for Course Demo
+## A12. Web Application for Course Demo — ✅ DONE (Chat w/ generative UI, Analyze, Dashboard with real artifacts data, About)
 
 ### App purpose
 
@@ -774,7 +778,7 @@ Do NOT fill the paper with UI screenshots. The web application is a demonstratio
 
 ---
 
-## A13. Course Paper Blueprint
+## A13. Course Paper Blueprint — 🔶 PARTIAL (proposal in report/proposal.tex; journal-style paper not yet written)
 
 ### Recommended course paper title
 
@@ -1135,31 +1139,22 @@ This is a strong and realistic ML course project if implemented as a **paper-fir
 
 ---
 
-## A18. Mandatory Reproducibility Checklist
+## A18. Mandatory Reproducibility Checklist — 🔶 PARTIAL (see checklist below; figures saved as PNG — PDF/SVG vector export pending)
 
 Before considering the course project complete, verify all items:
 
 ```
-[ ] requirements.txt or pyproject.toml with exact version pins (no >= or ~=)
-[ ] Saved model artifact (model_xgboost_calibrated.pkl or .joblib)
-[ ] Saved calibration layer (calibrator_platt.pkl)
-[ ] Saved SHAP explainer object (shap_explainer.pkl)
-[ ] Saved train/val/test split indices (split_indices.json)
-[ ] Feature extraction script with version pin (extract_features.py)
-[ ] All random seeds documented in a single config file (config.yaml or seeds.py)
-[ ] README.md with exact reproduction steps:
-    - pip install -r requirements.txt
-    - python download_datasets.py
-    - python extract_features.py
-    - python train_evaluate.py
-    - python run_api.py
-[ ] Hardware/software specification:
-    - Python version (e.g., 3.11.8)
-    - OS (Windows/Linux/macOS)
-    - CPU model / RAM
-    - Key library versions (xgboost, scikit-learn, shap, transformers, spacy)
-[ ] Saved figures in vector format (PDF/SVG) for paper inclusion
-[ ] Git repository with clean commit history and .gitignore
+[x] requirements.txt with exact version pins (no >= or ~=) — pinned 2026-08-05
+[x] Saved model artifact (model_xgboost_calibrated.joblib — raw XGBoost + Platt bundle)
+[x] Saved calibration layer (calibrator_platt.joblib)
+[ ] Saved SHAP explainer object (shap_explainer.pkl) — rebuilt at API startup; save to disk for full parity
+[x] Saved train/val/test split indices (split_indices.json + .npy)
+[x] Feature extraction script with version pin (src/features/*, FEATURE_VERSION in API)
+[~] All random seeds documented in a single config file — SEEDS = [42, 123, 456] in src/models/train_pipeline.py
+[~] README.md with exact reproduction steps — exists but lists npm/Next 15; refresh to pnpm/Next 16
+[x] Hardware/software specification — Python 3.12.13, Windows, RTX 3060 6GB, pinned libs (requirements.txt, params.json)
+[ ] Saved figures in vector format (PDF/SVG) for paper inclusion — PNG generated; PDF export pending
+[x] Git repository with clean commit history and .gitignore
 ```
 
 This checklist must be satisfied **before Week 8 presentation**. Reproducibility is a key grading criterion.
@@ -1861,16 +1856,16 @@ Do not attempt Version B during the course. Instead, design the codebase so Vers
 
 The course version should deliver:
 
-1. HaluEval-based experiment (with manual label audit and documented limitations).
-2. Compact engineered feature set (including mandatory NLI features).
-3. Heuristic baseline, Logistic Regression, Random Forest, and XGBoost comparison.
-4. 5-fold cross-validation + hyperparameter tuning + 3-seed reporting.
-5. XGBoost + Platt calibration final model.
-6. SHAP explanations + error analysis.
-7. External baseline comparison (SelfCheckGPT or published HaluEval baseline).
-8. Statistical significance testing (McNemar, bootstrap CI).
-9. React (Vite)/TypeScript dashboard (2 interactive pages + static experiment gallery).
-10. Journal-style paper with strong methodology, results, ablation, error analysis, and reproducibility statement.
+1. ✅ HaluEval-based experiment (with manual label audit and documented limitations).
+2. ✅ Compact engineered feature set (including mandatory NLI features).
+3. ✅ Heuristic baseline, Logistic Regression, Random Forest, and XGBoost comparison.
+4. ✅ 5-fold cross-validation + hyperparameter tuning + 3-seed reporting.
+5. ✅ XGBoost + Platt calibration final model.
+6. 🔶 SHAP explanations (done) + error analysis (pending).
+7. 🔶 External baseline comparison — RAGTruth zero-shot done; citing published HaluEval numbers pending.
+8. ✅ Statistical significance testing (McNemar, bootstrap CI, Wilcoxon).
+9. ✅ React (Next.js)/TypeScript dashboard (chat + analyze + experiment gallery + about).
+10. 🔶 Journal-style paper — pending (proposal exists in report/).
 
 ## Final publication plan summary
 
