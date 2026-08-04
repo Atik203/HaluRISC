@@ -17,6 +17,8 @@ import os
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
 import joblib
 import matplotlib
 
@@ -28,21 +30,16 @@ import pandas as pd
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("shap_analysis")
 
-ROOT = Path(__file__).resolve().parents[2]
-FEATURES_PATH = ROOT / "data" / "processed" / "features_full.parquet"
-FEATURES_FALLBACK = ROOT / "data" / "processed" / "features_core.parquet"
-MODELS_DIR = ROOT / "artifacts" / "models"
-RESULTS_DIR = ROOT / "artifacts" / "results"
-FIGURES_DIR = ROOT / "artifacts" / "figures"
+from src.models.config import FEATURES_FALLBACK, FEATURES_FULL, FIGURES_DIR, MODELS_DIR, QA_CLEAN, RESULTS_DIR, ROOT
 
 SHAP_SUBSAMPLE = 1000  # kept for reference; full test set is used (tree explainer is fast)
 N_TOP_FEATURES = 10
 
 
 def load_test_set():
-    path = FEATURES_PATH if FEATURES_PATH.exists() else FEATURES_FALLBACK
+    path = FEATURES_FULL if FEATURES_FULL.exists() else FEATURES_FALLBACK
     df = pd.read_parquet(path)
-    clean = pd.read_parquet(ROOT / "data" / "processed" / "qa_clean.parquet")
+    clean = pd.read_parquet(QA_CLEAN)
     text_cols = [c for c in ["question", "answer", "context"] if c in clean.columns]
     if text_cols:
         df = pd.concat([df, clean[text_cols]], axis=1)
@@ -61,7 +58,15 @@ def case_indexes(y_prob: np.ndarray) -> dict:
     return {"high_risk": idx_high, "low_risk": idx_low, "borderline": idx_border}
 
 
-def plot_roc_pr(y_test, y_prob, out: Path):
+def _save_fig(fig, name: str):
+    """Save a figure as PNG (dashboard) + PDF (paper, blueprint A18 vector format)."""
+    for ext in ("png", "pdf"):
+        fig.savefig(FIGURES_DIR / f"{name}.{ext}", dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    logger.info(f"Saved {name}.png/.pdf")
+
+
+def plot_roc_pr(y_test, y_prob, name: str):
     from sklearn.metrics import average_precision_score, precision_recall_curve, roc_auc_score, roc_curve
 
     fpr, tpr, _ = roc_curve(y_test, y_prob)
@@ -77,12 +82,10 @@ def plot_roc_pr(y_test, y_prob, out: Path):
     axes[1].set_xlabel("Recall")
     axes[1].set_ylabel("Precision")
     fig.tight_layout()
-    fig.savefig(out, dpi=150, bbox_inches="tight")
-    plt.close(fig)
-    logger.info(f"Saved {out.name}")
+    _save_fig(fig, name)
 
 
-def plot_reliability(y_test, y_prob, out: Path, n_bins: int = 10):
+def plot_reliability(y_test, y_prob, name: str, n_bins: int = 10):
     bins = np.linspace(0, 1, n_bins + 1)
     idxs = np.clip(np.searchsorted(bins, y_prob, side="right") - 1, 0, n_bins - 1)
     confs, accs, counts = [], [], []
@@ -112,9 +115,7 @@ def plot_reliability(y_test, y_prob, out: Path, n_bins: int = 10):
     ax.set_title(f"Reliability diagram\nECE={ece_val:.4f} | Brier={brier:.4f}")
     ax.legend()
     fig.tight_layout()
-    fig.savefig(out, dpi=150, bbox_inches="tight")
-    plt.close(fig)
-    logger.info(f"Saved {out.name}")
+    _save_fig(fig, name)
     return ece_val, brier
 
 
@@ -130,12 +131,13 @@ def main():
 
     # ---- Global SHAP (full test set; tree explainer is cheap) ----
     explainer = shap.TreeExplainer(raw)
+    joblib.dump(explainer, MODELS_DIR / "shap_explainer.joblib")  # A18: saved explainer artifact
+    logger.info("Saved shap_explainer.joblib")
     shap_values = explainer.shap_values(X_test)
 
     # Beeswarm summary
     shap.summary_plot(shap_values, X_test, feature_names=feature_cols, show=False, max_display=15)
-    plt.savefig(FIGURES_DIR / "fig_shap_summary.png", dpi=150, bbox_inches="tight")
-    plt.close()
+    _save_fig(plt.gcf(), "fig_shap_summary")
 
     # Mean |SHAP| bar
     mean_abs = np.mean(np.abs(shap_values), axis=0)
@@ -149,8 +151,7 @@ def main():
     ax.set_title("Mean |SHAP| feature importance")
     ax.set_xlabel("mean |SHAP value|")
     fig.tight_layout()
-    fig.savefig(FIGURES_DIR / "fig_shap_importance.png", dpi=150, bbox_inches="tight")
-    plt.close(fig)
+    _save_fig(fig, "fig_shap_importance")
 
     # ---- Local: 3 waterfall cases ----
     cases = case_indexes(y_prob)
@@ -166,8 +167,7 @@ def main():
             max_display=10,
             show=False,
         )
-        plt.savefig(FIGURES_DIR / f"fig_shap_waterfall_{label}.png", dpi=150, bbox_inches="tight")
-        plt.close()
+        _save_fig(plt.gcf(), f"fig_shap_waterfall_{label}")
         logger.info(f"Case '{label}': index={idx}, prob={y_prob[idx]:.4f}, true_label={y_test[idx]}")
         case_shap[label] = {
             "sample_id": str(test_df.iloc[idx]["sample_id"]),
@@ -178,8 +178,8 @@ def main():
         }
 
     # ---- Calibration & ranking figures ----
-    ece_val, brier_val = plot_reliability(y_test, y_prob, FIGURES_DIR / "fig_reliability.png")
-    plot_roc_pr(y_test, y_prob, FIGURES_DIR / "fig_roc_pr.png")
+    ece_val, brier_val = plot_reliability(y_test, y_prob, "fig_reliability")
+    plot_roc_pr(y_test, y_prob, "fig_roc_pr")
 
     # ---- Machine-readable summary for the dashboard ----
     summary = {

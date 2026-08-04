@@ -126,10 +126,18 @@ def load_artifacts():
     STATE["feature_cols"] = json.loads((MODELS_DIR / "feature_names.json").read_text())
 
     try:
-        import shap
+        import joblib
 
-        raw = STATE["model"]["raw"]
-        STATE["explainer"] = shap.TreeExplainer(raw)
+        explainer_path = MODELS_DIR / "shap_explainer.joblib"
+        if explainer_path.exists():
+            STATE["explainer"] = joblib.load(explainer_path)
+            logger.info("Loaded saved SHAP explainer")
+        else:
+            import shap
+
+            raw = STATE["model"]["raw"]
+            STATE["explainer"] = shap.TreeExplainer(raw)
+            logger.info("Built SHAP explainer from raw model")
     except Exception as e:
         logger.warning(f"SHAP explainer not loaded: {e}")
 

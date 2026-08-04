@@ -1,9 +1,10 @@
 # HaluRISC — Calibrated & Explainable Hallucination Risk Analyzer
 
 [![Python 3.12](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
-[![Next.js 15](https://img.shields.io/badge/Next.js-15-black.svg)](https://nextjs.org/)
+[![Next.js 16](https://img.shields.io/badge/Next.js-16-black.svg)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.141-green.svg)](https://fastapi.tiangolo.com/)
-[![assistant-ui](https://img.shields.io/badge/assistant--ui-0.7-violet.svg)](https://www.assistant-ui.com/)
+[![assistant-ui](https://img.shields.io/badge/assistant--ui-0.15-violet.svg)](https://www.assistant-ui.com/)
+[![Tailwind v4](https://img.shields.io/badge/Tailwind-v4-38bdf8.svg)](https://tailwindcss.com/)
 
 **HaluRISC** (Hallucination Risk Scoring and Calibration) is a lightweight, black-box machine learning framework for predicting hallucination risk in Large Language Model (LLM) outputs. It combines evidence-aware text features, calibrated tree ensembles (XGBoost), SHAP feature attributions, and a GPT 5.6 Luna-powered conversational AI chat interface built with **`assistant-ui`**.
 
@@ -18,21 +19,39 @@
   - **📊 Analyze Mode**: Form-based evidence inspector (`/analyze`)
   - **📈 Dashboard**: Empirical benchmarks and cost comparisons (`/dashboard`)
   - **ℹ️ About**: Pipeline architecture and method overview (`/about`)
-- ⚡ **Lightweight & Fast**: CPU inference in ~12 milliseconds per response.
-- 💰 **100x Cheaper than LLM Judges**: Evaluates 10,000 samples at near-zero incremental cost compared to ~$1.10 for pure LLM evaluation.
-- 🔬 **Statistically Rigorous**: Evaluated on 20,000 samples (HaluEval QA dataset) using 70/15/15 stratified splits, McNemar's test, and Platt scaling probability calibration.
+- ⚡ **Lightweight & Fast**: ~140 ms per analysis (p50: 5 ms model inference + feature extraction, measured over 200 test samples).
+- 💰 **~100x Cheaper than LLM Judges**: measured $0.099/1K predictions with GPT 5.6 Luna as judge vs near-zero local cost; also ~200x faster (1.2 s vs ~5 ms per sample).
+- 🔬 **Statistically Rigorous**: 20,000 samples (HaluEval QA), 70/15/15 stratified splits, 3-seed protocol (42/123/456), McNemar + bootstrap CIs, Platt vs isotonic calibration (ECE 0.0116/0.0051).
 
 ---
 
 ## 📊 Benchmark Results (HaluEval QA Holdout Test Set, N=3,000)
 
+Mean over seeds 42/123/456 (real results from `artifacts/results/final_results.json`):
+
 | Model Architecture              | Precision  | Recall     | F1-Score   | AUROC      | PR-AUC     | MCC        |
 | ------------------------------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- |
-| **Heuristic (Overlap)**         | 0.9392     | 0.9467     | 0.9429     | 0.9148     | 0.8117     | 0.8854     |
-| **Logistic Regression**         | 0.9789     | 0.9607     | 0.9697     | 0.9936     | 0.9934     | 0.9402     |
-| **Random Forest**               | 0.9880     | 0.9840     | 0.9860     | 0.9976     | 0.9983     | 0.9720     |
-| **XGBoost (Calibrated — Ours)** | **0.9899** | **0.9820** | **0.9859** | **0.9974** | **0.9982** | **0.9720** |
-| **GPT 5.6 Luna Judge Baseline** | 0.9450     | 0.9500     | 0.9470     | 0.9520     | 0.9400     | 0.8900     |
+| **Heuristic (1 - overlap)**     | 0.9392     | 0.9467     | 0.9429     | 0.9148     | 0.8117     | 0.8854     |
+| **Logistic Regression**         | 0.9804     | 0.9693     | 0.9749     | 0.9943     | 0.9948     | 0.9501     |
+| **Random Forest**               | 0.9915     | 0.9858     | 0.9886     | 0.9982     | 0.9987     | 0.9774     |
+| **XGBoost + Platt (ours)**      | **0.9919** | **0.9853** | **0.9886** | **0.9980** | **0.9987** | **0.9774** |
+
+**Calibration:** Platt ECE 0.0116 / Brier 0.0092 · Isotonic ECE 0.0051 / Brier 0.0089 (calibrators fit on validation only).
+
+### LLM-as-Judge comparison (200 test samples, measured)
+
+| Model                    | Accuracy | Precision | Recall | F1     | Latency p50 | Cost / 1K |
+| ------------------------ | -------- | --------- | ------ | ------ | ----------- | --------- |
+| GPT 5.6 Luna judge       | 0.8500   | 0.9487    | 0.7400 | 0.8315 | 1,220 ms    | $0.099    |
+| **XGBoost (ours)**       | **0.9900** | **1.0000** | **0.9800** | **0.9899** | ~5 ms   | ~$0.001 |
+
+Agreement between judge and XGBoost: 0.85.
+
+### External zero-shot validation (RAGTruth QA, 2,000 samples, no training)
+
+F1 0.4822 · AUROC 0.5869 — the HaluEval-trained model does **not** transfer to natural RAG responses
+(recall 1.0 = flags almost everything risky). This is an honest finding: synthetic HaluEval patterns
+differ from real-world generation, motivating domain adaptation (Version B direction).
 
 ---
 
@@ -61,9 +80,15 @@
 
 ### Prerequisites
 
-- **Python 3.12+**
-- **Node.js 18+ & npm**
+- **Python 3.12** (in `.venv`, packages pinned in `requirements.txt`)
+- **Node.js 20+ & pnpm** (web app: Next.js 16 + Tailwind v4 + assistant-ui)
 - **OpenAI API Key** (for conversational chat & LLM judge baseline)
+- Optional GPU (CUDA, e.g. RTX 3060 6GB) for fast feature extraction/training — not required for inference
+
+### Reproduced environment (for the paper's reproducibility statement)
+
+- Windows 11, Python 3.12.13, NVIDIA RTX 3060 6GB (CUDA 12.8, torch 2.11.0+cu128), 32 GB RAM
+- scikit-learn 1.9.0, xgboost 3.4.0, shap 0.52.0, spacy 3.8.14, sentence-transformers 5.6.1
 
 ---
 
@@ -87,13 +112,27 @@ python src/data/download.py
 # 5. Process binary dataset (20,000 rows) & generate 70/15/15 splits
 python src/data/prepare.py
 
-# 6. Extract core features (14 features)
+# 6. Extract full feature matrix (26 features, 7 groups — downloads NLI/SBERT/spaCy models)
 python src/features/extract_features.py
 
-# 7. Train & evaluate baseline ML models
-python src/models/train_baselines.py
+# 7. Full experiment protocol: tuning, 3 seeds, calibration, stats, ablations
+python src/models/train_pipeline.py
 
-# 8. Start FastAPI inference backend server (Port 8000)
+# 8. SHAP explanations + figures (PNG + PDF), saves shap_explainer.joblib
+python src/explain/shap_analysis.py
+
+# 9. RAGTruth zero-shot external validation
+python src/data/download_ragtruth.py
+python src/models/eval_ragtruth.py
+
+# 10. Error analysis (10 FP + 10 FN) and efficiency/latency analysis
+python src/models/error_analysis.py
+python src/models/eval_efficiency.py
+
+# 11. LLM-as-judge comparison (200 samples, ~$0.02 — optional, needs OPENAI_API_KEY in .env)
+python src/models/eval_llm_judge.py
+
+# 12. Start FastAPI inference backend server (Port 8000)
 python -m uvicorn src.api.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
@@ -105,15 +144,14 @@ python -m uvicorn src.api.main:app --host 127.0.0.1 --port 8000 --reload
 # Open a second terminal window
 cd web
 
-# Install Node dependencies
-npm install
+# Install Node dependencies (pnpm — do not use npm)
+pnpm install
 
 # Configure environment variables
 # Edit web/.env.local and add your OPENAI_API_KEY
-cp .env.local.example .env.local   # or edit existing .env.local
 
 # Run Next.js dev server (Port 3000)
-npm run dev
+pnpm run dev
 ```
 
 Open `http://localhost:3000` in your browser.
@@ -148,10 +186,12 @@ HaluRISC/
 │   ├── raw/halueval/       # Downloaded raw qa_data.json
 │   └── processed/          # Clean parquet dataset, audit 50 samples
 ├── src/
-│   ├── data/               # download.py, prepare.py
-│   ├── features/           # extract_features.py
-│   ├── models/             # train_baselines.py
-│   └── api/                # FastAPI main.py (/predict, /explain, /health)
+│   ├── data/               # download.py, prepare.py, download_ragtruth.py
+│   ├── features/           # extract_features.py + entity/nli/semantic modules
+│   ├── models/             # train_pipeline.py, config.py, error_analysis.py, eval_llm_judge.py, eval_efficiency.py
+│   ├── explain/            # shap_analysis.py
+│   └── api/                # FastAPI main.py (/predict, /explain, /judge, /health)
+├── colab/                  # HaluRISC_Training.ipynb + halurisc_src.zip bundle
 ├── artifacts/
 │   ├── models/             # Model artifacts and params
 │   ├── results/            # baseline_results.csv, JSON outputs

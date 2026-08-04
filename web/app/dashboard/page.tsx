@@ -68,6 +68,38 @@ interface ShapSummary {
   top_features?: Array<{ feature: string; mean_abs_shap: number }>;
 }
 
+interface LlmJudgeResults {
+  n_samples: number;
+  model: string;
+  judge: {
+    accuracy: number;
+    precision: number;
+    recall: number;
+    f1: number;
+    latency_ms_p50: number;
+    latency_ms_p95: number;
+  };
+  xgboost_on_same_subset: {
+    accuracy: number;
+    precision: number;
+    recall: number;
+    f1: number;
+  };
+  agreement_with_xgboost: number;
+  cost_usd: number;
+  cost_per_1000_usd: number;
+}
+
+interface ErrorAnalysis {
+  n_test: number;
+  n_false_positives: number;
+  n_false_negatives: number;
+  category_counts: {
+    false_positive: Record<string, number>;
+    false_negative: Record<string, number>;
+  };
+}
+
 function readJson<T>(name: string): T | null {
   const p = path.join(RESULTS_DIR, name);
   if (!fs.existsSync(p)) return null;
@@ -89,6 +121,8 @@ export default async function DashboardPage() {
   const results = readJson<FinalResults>("final_results.json");
   const ragtruth = readJson<RagTruthResults>("ragtruth_results.json");
   const shap = readJson<ShapSummary>("shap_summary.json");
+  const judge = readJson<LlmJudgeResults>("llm_judge_results.json");
+  const errors = readJson<ErrorAnalysis>("error_analysis.json");
 
   const modelRows = results
     ? (Object.entries(MODEL_LABELS)
@@ -329,6 +363,84 @@ export default async function DashboardPage() {
               <p className="text-xs text-muted-foreground mt-3">
                 {ragtruth ? `${ragtruth.n_samples} RAGTruth QA samples (label balance: ${JSON.stringify(ragtruth.label_distribution)})` : ""}
               </p>
+            </div>
+          </div>
+
+          {/* LLM Judge + Error Analysis */}
+          <div className="glass-panel p-6 rounded-2xl grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+              <h3 className="text-base font-bold gradient-text mb-3">🤖 LLM-as-Judge vs XGBoost (200 test samples)</h3>
+              {judge ? (
+                <>
+                  <table className="w-full text-left text-sm border-collapse">
+                    <thead>
+                      <tr className="border-b border-border text-xs text-muted-foreground">
+                        <th className="py-2 px-3 font-semibold">Model</th>
+                        <th className="py-2 px-3 font-semibold">Accuracy</th>
+                        <th className="py-2 px-3 font-semibold">Precision</th>
+                        <th className="py-2 px-3 font-semibold">Recall</th>
+                        <th className="py-2 px-3 font-semibold">F1</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b border-border/50">
+                        <td className="py-2 px-3">{judge.model} judge</td>
+                        <td className="py-2 px-3 font-mono">{judge.judge.accuracy.toFixed(3)}</td>
+                        <td className="py-2 px-3 font-mono">{judge.judge.precision.toFixed(3)}</td>
+                        <td className="py-2 px-3 font-mono">{judge.judge.recall.toFixed(3)}</td>
+                        <td className="py-2 px-3 font-mono">{judge.judge.f1.toFixed(3)}</td>
+                      </tr>
+                      <tr className="border-b border-border/50 bg-purple-950/20 font-semibold text-purple-300">
+                        <td className="py-2 px-3">XGBoost (ours)</td>
+                        <td className="py-2 px-3 font-mono">{judge.xgboost_on_same_subset.accuracy.toFixed(3)}</td>
+                        <td className="py-2 px-3 font-mono">{judge.xgboost_on_same_subset.precision.toFixed(3)}</td>
+                        <td className="py-2 px-3 font-mono">{judge.xgboost_on_same_subset.recall.toFixed(3)}</td>
+                        <td className="py-2 px-3 font-mono">{judge.xgboost_on_same_subset.f1.toFixed(3)}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <p className="text-xs text-muted-foreground mt-3">
+                    Agreement: {judge.agreement_with_xgboost.toFixed(3)} · Judge latency p50 {judge.judge.latency_ms_p50.toFixed(0)}ms vs
+                    XGBoost ~5ms · Judge cost ${judge.cost_per_1000_usd.toFixed(3)}/1K vs HaluRISC ~$0.001/1K (measured, {judge.model})
+                  </p>
+                </>
+              ) : (
+                <p className="text-xs text-muted-foreground">Run src/models/eval_llm_judge.py to populate (costs ~$0.02).</p>
+              )}
+            </div>
+            <div>
+              <h3 className="text-base font-bold gradient-text mb-3">🔍 Error Analysis (10 FP + 10 FN, auto-tagged)</h3>
+              {errors ? (
+                <>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Test misclassifications: {errors.n_false_positives} FP / {errors.n_false_negatives} FN of {errors.n_test} samples
+                    (F1 {results?.xgboost?.f1.toFixed(4)}).
+                  </p>
+                  <table className="w-full text-left text-sm border-collapse">
+                    <thead>
+                      <tr className="border-b border-border text-xs text-muted-foreground">
+                        <th className="py-2 px-3 font-semibold">Category</th>
+                        <th className="py-2 px-3 font-semibold">FP</th>
+                        <th className="py-2 px-3 font-semibold">FN</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {Object.keys({ ...errors.category_counts.false_positive, ...errors.category_counts.false_negative }).map((cat) => (
+                        <tr key={cat} className="border-b border-border/50">
+                          <td className="py-2 px-3">{cat}</td>
+                          <td className="py-2 px-3 font-mono">{errors.category_counts.false_positive[cat] ?? 0}</td>
+                          <td className="py-2 px-3 font-mono">{errors.category_counts.false_negative[cat] ?? 0}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <p className="text-xs text-muted-foreground mt-3">
+                    Categories are heuristic first-pass tags; review artifacts/results/error_analysis_cases.json before paper use.
+                  </p>
+                </>
+              ) : (
+                <p className="text-xs text-muted-foreground">Run src/models/error_analysis.py to populate.</p>
+              )}
             </div>
           </div>
         </>

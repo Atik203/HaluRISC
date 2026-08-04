@@ -22,6 +22,9 @@ import os
 import sys
 import time
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
@@ -48,17 +51,17 @@ from xgboost import XGBClassifier
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("train_pipeline")
 
-ROOT = Path(__file__).resolve().parents[2]
-FEATURES_PATH = ROOT / "data" / "processed" / "features_full.parquet"
-FEATURES_FALLBACK = ROOT / "data" / "processed" / "features_core.parquet"
-SPLIT_JSON = ROOT / "artifacts" / "split_indices.json"
-MODELS_DIR = ROOT / "artifacts" / "models"
-RESULTS_DIR = ROOT / "artifacts" / "results"
-FIGURES_DIR = ROOT / "artifacts" / "figures"
-
-SEEDS = [42, 123, 456]
-N_BOOTSTRAP = 1000
-BOOTSTRAP_SEED = 777
+from src.models.config import (
+    BOOTSTRAP_SEED,
+    FEATURES_FALLBACK,
+    FEATURES_FULL,
+    FIGURES_DIR,
+    MODELS_DIR,
+    N_BOOTSTRAP,
+    RESULTS_DIR,
+    ROOT,
+    SEEDS,
+)
 
 FEATURE_GROUPS: Dict[str, List[str]] = {
     "length": ["n_chars", "n_words", "n_sentences", "avg_word_len"],
@@ -145,7 +148,7 @@ def bootstrap_ci(y_true, y_pred, y_prob, n: int = N_BOOTSTRAP) -> dict:
 
 
 def load_data() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, List[str]]:
-    path = FEATURES_PATH if FEATURES_PATH.exists() else FEATURES_FALLBACK
+    path = FEATURES_FULL if FEATURES_FULL.exists() else FEATURES_FALLBACK
     logger.info(f"Loading features from {path.name}")
     df = pd.read_parquet(path)
     if "split" not in df.columns:
