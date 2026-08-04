@@ -48,7 +48,16 @@ def main():
     df = pd.read_parquet(RAGTRUTH_PATH).head(N_SAMPLES)
     logger.info(f"RAGTruth QA holdout: {len(df)} samples (label balance: {df['label'].value_counts().to_dict()})")
 
-    model = joblib.load(MODELS_DIR / "model_xgboost_calibrated.joblib")
+    bundle = joblib.load(MODELS_DIR / "model_xgboost_calibrated.joblib")
+    if isinstance(bundle, dict) and bundle.get("kind") == "xgb+platt":
+        raw, platt = bundle["model"], bundle["calibrator"]
+
+        def predict_proba(X):
+            p = raw.predict_proba(X)[:, 1]
+            return platt.predict_proba(p.reshape(-1, 1))
+
+    else:
+        predict_proba = bundle.predict_proba
     feature_cols = json.loads((MODELS_DIR / "feature_names.json").read_text())
     models = load_heavy_models()
 
@@ -59,7 +68,7 @@ def main():
     X = pd.DataFrame(rows)[feature_cols].values
     y = df["label"].values
 
-    y_prob = model.predict_proba(X)[:, 1]
+    y_prob = predict_proba(X)[:, 1]
     y_pred = (y_prob >= 0.5).astype(int)
 
     results = {

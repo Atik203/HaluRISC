@@ -389,7 +389,10 @@ def main():
     final_cal = calibrators[final_seed]
 
     joblib.dump(final_model, MODELS_DIR / "model_xgboost_raw.joblib")
-    joblib.dump(CalibratedXGBoost(final_model, calibrators[final_seed]), MODELS_DIR / "model_xgboost_calibrated.joblib")
+    joblib.dump(
+        {"kind": "xgb+platt", "model": final_model, "calibrator": calibrators[final_seed]},
+        MODELS_DIR / "model_xgboost_calibrated.joblib",
+    )
     joblib.dump(calibrators[final_seed], MODELS_DIR / "calibrator_platt.joblib")
     joblib.dump(scaler, MODELS_DIR / "scaler.joblib")
     with open(MODELS_DIR / "params.json", "w") as f:

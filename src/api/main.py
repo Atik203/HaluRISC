@@ -94,6 +94,22 @@ class JudgeResponse(BaseModel):
 # ----------------------------------------------------------------------------
 # Startup / artifact loading
 # ----------------------------------------------------------------------------
+def _load_calibrated_model():
+    """Load the xgb+platt artifact; predict_proba = platt(raw.predict_proba)."""
+    import joblib
+
+    bundle = joblib.load(MODELS_DIR / "model_xgboost_calibrated.joblib")
+    if isinstance(bundle, dict) and bundle.get("kind") == "xgb+platt":
+        raw, platt = bundle["model"], bundle["calibrator"]
+
+        def predict_proba(X):
+            p = raw.predict_proba(X)[:, 1]
+            return platt.predict_proba(p.reshape(-1, 1))
+
+        return {"raw": raw, "predict_proba": predict_proba}
+    return {"raw": bundle, "predict_proba": lambda X: bundle.predict_proba(X)}
+
+
 def load_artifacts():
     def _missing(name: str) -> bool:
         return not (MODELS_DIR / name).exists()
@@ -105,14 +121,14 @@ def load_artifacts():
 
     import joblib
 
-    STATE["model"] = joblib.load(MODELS_DIR / "model_xgboost_calibrated.joblib")
+    STATE["model"] = _load_calibrated_model()
     STATE["params"] = json.loads((MODELS_DIR / "params.json").read_text())
     STATE["feature_cols"] = json.loads((MODELS_DIR / "feature_names.json").read_text())
 
     try:
         import shap
 
-        raw = joblib.load(MODELS_DIR / "model_xgboost_raw.joblib")
+        raw = STATE["model"]["raw"]
         STATE["explainer"] = shap.TreeExplainer(raw)
     except Exception as e:
         logger.warning(f"SHAP explainer not loaded: {e}")
@@ -200,7 +216,7 @@ def predict_risk(req: AnalysisRequest):
     feats = _feature_vector(req)
     X = np.array([[feats[c] for c in STATE["feature_cols"]]], dtype=np.float64)
 
-    p = float(STATE["model"].predict_proba(X)[0, 1])
+    p = float(STATE["model"]["predict_proba"](X)[0, 1])
     p = min(0.999, max(0.001, p))
 
     thresholds = {"low": 0.30, "medium": 0.70, "high": 1.0}
