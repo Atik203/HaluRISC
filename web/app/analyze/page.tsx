@@ -12,6 +12,7 @@ export default function AnalyzePage() {
 
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const sampleScenarios = [
     {
@@ -37,6 +38,8 @@ export default function AnalyzePage() {
   const handleAnalyze = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setLoading(true);
+    setError(null);
+    setResult(null);
 
     try {
       const predRes = await fetch("/api/ml/predict", {
@@ -51,31 +54,20 @@ export default function AnalyzePage() {
         body: JSON.stringify({ question, context, answer }),
       });
 
-      let prediction = predRes.ok ? await predRes.json() : null;
-      let explanation = expRes.ok ? await expRes.json() : null;
-
-      if (!prediction) {
-        // Fallback demo result
-        prediction = {
-          calibrated_score: 0.88,
-          label: "high_risk",
-          latency_ms: 14,
-          model_version: "xgb-calibrated-v1.0",
-        };
-        explanation = {
-          top_features: [
-            { feature: "overlap_answer_context", value: 0.12, impact: 0.38 },
-            { feature: "novel_numbers", value: 2, impact: 0.28 },
-            { feature: "hedge_count", value: 0, impact: 0.12 },
-            { feature: "jaccard_ans_ctx", value: 0.08, impact: 0.10 },
-          ],
-          base_value: 0.5,
-        };
+      if (!predRes.ok) {
+        const detail = (await predRes.json().catch(() => null))?.detail;
+        setError(
+          detail || `ML backend error (${predRes.status}). Is uvicorn running on port 8000?`
+        );
+        return;
       }
 
+      const prediction = await predRes.json();
+      const explanation = expRes.ok ? await expRes.json() : null;
       setResult({ prediction, explanation });
     } catch (err) {
       console.error("API error:", err);
+      setError("Failed to reach the ML backend. Start it with: python -m uvicorn src.api.main:app --port 8000");
     } finally {
       setLoading(false);
     }
@@ -166,6 +158,14 @@ export default function AnalyzePage() {
 
         {/* Results Column */}
         <div className="space-y-6">
+          {error && (
+            <div className="glass-panel p-6 rounded-2xl border-l-4 border-l-red-500">
+              <h3 className="text-sm font-semibold text-red-400 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4" /> Analysis failed
+              </h3>
+              <p className="text-xs text-muted-foreground mt-2">{error}</p>
+            </div>
+          )}
           {result ? (
             <>
               <RiskGauge
