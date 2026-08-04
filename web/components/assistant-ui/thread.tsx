@@ -6,6 +6,7 @@ import {
   MessagePrimitive,
   ThreadPrimitive,
 } from "@assistant-ui/react";
+import { MarkdownText } from "@/components/assistant-ui/markdown-text";
 
 function UserMessage() {
   return (
@@ -26,8 +27,8 @@ function AssistantMessage() {
       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-violet-500/40 bg-violet-100 text-violet-700 dark:border-violet-500/30 dark:bg-violet-600/30 dark:text-violet-300">
         <Bot className="h-4 w-4" />
       </div>
-      <div className="max-w-2xl space-y-3 rounded-2xl rounded-tl-none border border-border bg-secondary/80 px-4 py-3 text-sm">
-        <MessagePrimitive.Content />
+      <div className="max-w-3xl min-w-0 w-full space-y-3 rounded-2xl rounded-tl-none border border-border bg-secondary/80 px-4 py-3 text-sm">
+        <MessagePrimitive.Content components={{ Text: MarkdownText }} />
       </div>
     </div>
   );
@@ -44,6 +45,19 @@ export function Thread() {
               Ask me to check an answer for hallucination risk. Include the question, a reference
               context, and the candidate answer.
             </p>
+            <div className="mt-2 flex max-w-md flex-wrap justify-center gap-2">
+              <ThreadPrimitive.Suggestions>
+                {({ suggestion }) => (
+                  <ThreadPrimitive.Suggestion
+                    prompt={suggestion.prompt}
+                    send
+                    className="rounded-full border border-border bg-secondary/80 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:bg-primary hover:text-primary-foreground"
+                  >
+                    {suggestion.label}
+                  </ThreadPrimitive.Suggestion>
+                )}
+              </ThreadPrimitive.Suggestions>
+            </div>
           </div>
         </ThreadPrimitive.Empty>
         <div className="space-y-4">

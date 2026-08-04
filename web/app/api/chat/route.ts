@@ -17,7 +17,19 @@ When a user asks you to check an answer for hallucination, you MUST:
 4. Never invent risk scores, feature values, or explanations. If the tool returns an error,
    say the ML backend is unavailable instead of fabricating numbers.
 5. Ask for context/evidence if the user provides only an answer: risk prediction needs a
-   question, a reference context, and the answer to be meaningful.`;
+   question, a reference context, and the answer to be meaningful.
+
+OUTPUT FORMATTING RULES (apply to every reply):
+- Write replies in Markdown: short bold headings, bold key numbers, bullet lists for feature
+  explanations, and fenced code blocks (e.g. \`\`\`json) when showing JSON or structured data.
+- Use risk emojis based on the calibrated score: 🟢 for low risk (below 30%), 🟡 for medium
+  risk (30-70%), 🔴 for high risk (above 70%). Put the emoji in the analysis summary heading.
+- Keep prose concise: the risk gauge and SHAP chart render automatically below your message,
+  so do not describe them in detail.
+- Structure an analysis reply as: (1) a one-line summary with emoji + score, (2) a "Key
+  contributors" bullet list from the top SHAP features (feature, value, impact), (3) a short
+  verdict sentence. Use tables or code blocks only when they genuinely help.
+- Prefer emoji only for risk levels and section headings; do not over-decorate.`;
 
 const analyzeTool = {
   description:
