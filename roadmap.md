@@ -1,6 +1,6 @@
 # HaluRISC — Detailed Implementation Roadmap
 
-**Goal:** Version A course project — HaluEval QA hallucination-risk classifier with calibrated scores, SHAP explanations, and a polished web dashboard, in ~8 weeks, CPU-only, no paid APIs.
+**Goal:** Version A course project — HaluEval QA hallucination-risk classifier with calibrated scores, SHAP explanations, a GPT 5.6 Luna-powered conversational AI interface (assistant-ui), and a show-winning web dashboard, in ~8 weeks. CPU-only ML + OpenAI API (existing credits) for chat and LLM-as-judge baseline.
 
 **Convention:** items marked `[verified 2026]` were checked against current web/PyPI info in July 2026.
 
@@ -20,9 +20,12 @@
 | Explainability | SHAP | 0.46+ | `TreeExplainer` for XGBoost |
 | Statistics | scipy + statsmodels | latest | Bootstrap CIs, McNemar's test |
 | Backend API | FastAPI + uvicorn | ≥0.130 (needs Python ≥3.10) `[verified]` | Pydantic v2 validation, ~50x faster validation than v1 |
-| Frontend | Vite + React 19 + TypeScript | Vite latest, React 19 `[verified]` | Standard, fast dev |
+| Frontend | Next.js (App Router) + React 19 + TypeScript | Next.js latest, React 19 `[verified]` | SSR, API routes, BFF layer for OpenAI + FastAPI proxy |
+| Chat UI | assistant-ui | `@assistant-ui/react` + `@assistant-ui/react-ai-sdk` | Production AI chat interface, streaming, Generative UI |
+| AI SDK | Vercel AI SDK | `ai` + `@ai-sdk/openai` | Streaming, tool calling, SSE plumbing for chat |
+| LLM API | GPT 5.6 Luna | `gpt-5.6-luna` (OpenAI, existing credits) | Conversational explanations + LLM-as-judge baseline |
 | Styling | Tailwind CSS v4 | v4 stable `[verified]` | Utility-first, shadcn/ui official support |
-| UI components | shadcn/ui | latest (Vite install path) `[verified]` | Professional components, judge-friendly polish |
+| UI components | shadcn/ui | latest (Next.js install path) `[verified]` | Professional components, judge-friendly polish |
 | Charts | Recharts + lucide-react | latest | Calibration curves, bars; custom SVG for risk gauge |
 | Data | pandas + numpy + pyarrow | latest | Feature matrix to Parquet, fast I/O |
 | Artifacts | joblib | latest | Save model, scaler, split indices |
@@ -181,7 +184,7 @@ One module per group in `src/features/`. Output: a single DataFrame, cached to `
 - **External comparison:**
   - Run the final calibrated model **zero-shot** on the RAGTruth QA holdout.
   - Cite published HaluEval QA detection numbers (SelfCheckGPT, IEEE TAI) as the external bar.
-- **Efficiency/cost:** measure per-sample latency (features + predict + SHAP) and estimate GPT-3.5-turbo-as-judge cost for 1,000 samples (API pricing page) — the paper's cost-argument table.
+- Efficiency/cost: measure per-sample latency (features + predict + SHAP) and compare against **GPT 5.6 Luna as LLM-as-judge** baseline. Luna pricing: $0.20/M input + $1.20/M output — estimated **~$1.10 total for 10,000 samples**. This is the paper's cost-argument table: HaluRISC at ~$0.001/prediction vs GPT judge at ~$0.10/prediction — **100x cheaper**.
 
 ---
 
@@ -201,50 +204,101 @@ One module per group in `src/features/`. Output: a single DataFrame, cached to `
 
 **Load everything once at startup** (lifespan context manager): XGBoost model, scaler (if LR needed), NLI CrossEncoder, embedding model, spaCy NER, SHAP explainer. Inference must stay under ~200ms.
 
-**Endpoints:**
+**FastAPI Endpoints (ML inference only):**
 
 ```
 POST /predict   {question, context?, answer, domain:"qa"} 
-                → {risk_score, label, calibrated_score, latency_ms}
+                → {risk_score, label, calibrated_score, latency_ms, features}
 POST /explain   {question, context?, answer}
                 → {shap_values[], feature_names[], base_value, top_features[]}
+POST /judge     {question, context, answer}
+                → {judgment, confidence, reasoning, model:"gpt-5.6-luna"}
 GET  /health    → {status:"ok", model:"xgb-calibrated", version:"A.1.0"}
 ```
 
-- Validate inputs (answer required, max lengths, meaningful error messages).
-- CORS: allow `http://localhost:5173` in dev.
-- Optional small LRU cache on NLI/embedding calls to keep live demo snappy.
-- Run: `uvicorn src.api.main:app --host 127.0.0.1 --port 8000 --reload`
+**Next.js API Route (BFF — NOT FastAPI):**
+
+```
+POST /api/chat  {messages[]}  ← Vercel AI SDK streamText() + tool calling
+                → SSE stream: GPT 5.6 Luna response with embedded tool results
+                   (internally calls FastAPI /predict + /explain for real ML data)
+```
+
+- FastAPI: validate inputs (answer required, max lengths, meaningful error messages).
+- FastAPI: CORS allows `http://localhost:3000` in dev.
+- FastAPI: LRU cache on NLI/embedding calls to keep demo snappy.
+- FastAPI: `uvicorn src.api.main:app --host 127.0.0.1 --port 8000 --reload`
+- Next.js: `npm run dev` on port 3000; `next.config.ts` rewrites `/api/ml/*` → FastAPI.
+- OpenAI key stored in `web/.env.local` — never exposed to browser.
 
 ---
 
-## 11. Phase 8 — Frontend Dashboard (Week 7) — judge-facing, polish is priority
+## 11. Phase 8 — Frontend Dashboard (Week 7) — show-winning, judge-facing
+
+**Framework: Next.js + assistant-ui** (the official recommended stack for AI chat UIs).
 
 Scaffold (`[verified 2026]` flow):
 
 ```powershell
-npm create vite@latest web -- --template react-ts
+# Step 1: Scaffold Next.js + assistant-ui in one command
+npx assistant-ui@latest create web
 cd web
-npm install
-npm install tailwindcss @tailwindcss/vite        # Tailwind v4
-npm install recharts lucide-react
-npx shadcn@latest init                            # Vite path is officially supported
-npx shadcn@latest add button card input textarea label tabs badge slider progress separator tooltip skeleton sonner
-npm install axios                                 # or fetch wrapper
+
+# Step 2: Install additional dependencies
+npm install recharts lucide-react zod
+npm install ai @ai-sdk/openai               # Vercel AI SDK + OpenAI provider
+
+# Step 3: Add shadcn/ui components
+npx shadcn@latest add card button input textarea label tabs badge progress separator tooltip skeleton sonner
+
+# Step 4: Add OPENAI_API_KEY to .env.local
+# OPENAI_API_KEY=sk-...
 ```
 
-**Pages:**
+**Key config files:**
 
-1. **Live Check (main page):** form (question, context, answer) → `POST /predict` + `/explain`.
-   - **Risk gauge:** custom **SVG semicircular arc gauge** (animated needle + color zones green/yellow/red) — this is the WOW moment for judges; Recharts `RadialBarChart` is the easy fallback.
+```typescript
+// next.config.ts — proxy /api/ml/* to FastAPI, enable Generative UI plugin
+import { withAui } from "@assistant-ui/next";
+const nextConfig = {
+  async rewrites() {
+    return [{ source: "/api/ml/:path*", destination: "http://127.0.0.1:8000/:path*" }];
+  },
+};
+export default withAui(nextConfig);
+```
+
+**4 Pages (priority order):**
+
+1. **💬 Chat Mode (THE SHOW-STOPPER — Page 1):** Full-screen `assistant-ui` Thread component powered by GPT 5.6 Luna + Generative UI.
+   - Streaming responses with animated typing indicator.
+   - `defineToolkit` with `"use generative"` directive: risk gauge + SHAP chart **rendered inside chat messages** as interactive React components.
+   - Suggestion pills: *"Check this answer for hallucination"*, *"Compare two answers"*, *"Why is this answer risky?"*
+   - Luna extracts Q/C/A, calls `/predict` + `/explain` via tool, explains XGBoost decisions in natural language.
+   - **WOW factor:** watching risk gauge animate to 92% and SHAP chart appear inside a streaming AI response.
+
+2. **📊 Analyze Mode (paper demonstration — Page 2):** Classic form (question, context, answer) → `POST /api/ml/predict` + `/api/ml/explain`.
+   - **Risk gauge:** custom **SVG semicircular arc gauge** (animated needle + color zones green/yellow/red).
    - Calibrated score readout, verdict badge ("Low / Medium / High risk"), latency line.
-   - **Feature contribution bars** (SHAP values from `/explain`), top-3 contributing features with plain-language labels ("Answer contradicts context → raises risk").
-2. **Experiment Summary (static gallery):** metric cards (F1, AUROC, ECE), model-comparison bar chart, calibration curve (Recharts `LineChart`), SHAP summary plot image, ablation table, RAGTruth generalization result.
-3. **About / Method:** pipeline diagram, dataset info, one-sentence limitation notes.
+   - SHAP top-5 feature contribution bars with plain-language labels.
+   - 4 pre-baked example buttons (clearly hallucinated, correct, borderline, entity-mismatch).
 
-**UI/UX rules (judge attention):** one accent color; consistent spacing; loading skeletons; error toasts (`sonner`); responsive-ish layout; dark mode optional (shadcn makes it cheap). Keep the risk gauge + explanation panel above the fold on the demo machine.
+3. **📈 Dashboard (experiment gallery — Page 3):** Model comparison table, calibration curve, ablation results, SHAP summary plot image, ROC/PR curves, **LLM vs XGBoost cost/accuracy comparison card**.
 
-**Serving:** `npm run build` → FastAPI serves `web/dist` via `StaticFiles` → one URL demo (`http://127.0.0.1:8000`).
+4. **ℹ️ About / Method (Page 4):** Animated pipeline diagram, feature group cards, team info.
+
+**UI/UX Design:** Dark theme default; blue-violet accent gradient; glassmorphism cards; micro-animations on all interactions; Geist font (from assistant-ui scaffold); loading skeletons; error toasts (`sonner`). Risk gauge is the centerpiece visual on both Chat and Analyze pages.
+
+**Serving:**
+```powershell
+# Development (2 terminals)
+uvicorn src.api.main:app --host 127.0.0.1 --port 8000 --reload  # FastAPI
+npm run dev  # Next.js on http://localhost:3000
+
+# Production
+npm run build  # builds Next.js static + server
+# Run both as separate processes or use Docker multi-stage build
+```
 
 ---
 

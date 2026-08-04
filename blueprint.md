@@ -660,11 +660,10 @@ flowchart LR
 
 ### Frontend
 
-Use what you already know:
-
-- **React (Vite) + TypeScript** — strongly preferred over Next.js. Next.js adds SSR and file-based routing that is unnecessary for a single-page dashboard. Vite is faster to develop and deploy.
-- Tailwind CSS if comfortable (or plain CSS to minimize tooling overhead).
-- **Recharts** for charts (React-native, lighter than Plotly). Use Plotly only if you need specific plot types Recharts cannot handle.
+- **Next.js (App Router) + TypeScript + assistant-ui** — uses Next.js API routes as a Backend-for-Frontend (BFF) layer to securely manage OpenAI API calls (GPT 5.6 Luna) and proxy ML requests to FastAPI (`/api/ml/*` → `http://127.0.0.1:8000`).
+- **assistant-ui** (`@assistant-ui/react` + `@assistant-ui/react-ai-sdk`) for production streaming chat components and Generative UI (`defineToolkit` + `"use generative"`).
+- **Tailwind CSS v4 + shadcn/ui** for styling and UI components.
+- **Recharts + custom SVG** for interactive charts and the animated semicircular risk gauge.
 
 ### Backend
 
@@ -723,38 +722,36 @@ Returns backend status.
 
 The app should demonstrate the research idea, not merely output a prediction.
 
-### Required pages (in priority order; build only what time allows)
+### Required pages (in priority order)
 
-#### 1. Analyze Page (Must have)
+#### 1. Chat Mode (Must have — Show-Stopper Page 1)
 
-- question input
-- context input
-- answer input
-- analyze button
-- 3-4 sample example buttons (pre-computed examples for demo)
+- Powered by `assistant-ui` Thread component and GPT 5.6 Luna
+- Natural language chat: users type questions or ask to analyze answers
+- Generative UI: risk gauge and SHAP chart rendered directly inside chat messages
+- Luna explains XGBoost predictions in plain English backed by real SHAP feature contributions
 
-#### 2. Result Panel (Must have)
+#### 2. Analyze Mode (Must have — Paper Demo Page 2)
 
-- risk gauge (low / medium / high)
-- calibrated probability (numeric)
-- label: low / medium / high risk
-- latency (ms)
-- top SHAP features (bar chart, top 5)
+- Question, context, answer input form
+- Animated SVG semicircular risk gauge (low / medium / high)
+- Calibrated probability readout + latency display
+- SHAP top-5 feature contribution bar chart
+- 4 sample example buttons for presentation testing
 
-#### 3. Experiment Summary Page (Strongly recommended)
+#### 3. Experiment Summary Page (Page 3)
 
-- model comparison table
-- confusion matrix image
-- ROC/PR/calibration plots (static images)
-- ablation summary table
+- Model comparison table (Heuristic, LR, RF, XGBoost, GPT 5.6 Luna judge)
+- Interactive calibration curves and reliability diagrams
+- Confusion matrix heatmap and ROC/PR curves
+- Feature group ablation summary table
+- **LLM vs XGBoost cost & efficiency comparison card**
 
-#### 4. Explanation Dashboard (Optional — build only if time permits)
+#### 4. About / Method Page (Page 4)
 
-- SHAP bar chart
-- feature-value table
-- simple natural-language explanation
-
-**Frontend simplification rule:** If Week 7 time is tight, pages 3-4 can be **static image galleries** (plots generated in Python and embedded as images), not interactive charts. This is acceptable for a course project.
+- Animated pipeline diagram
+- Feature group reference cards
+- Limitation notes and dataset information
 
 ### Demo scenario
 
@@ -1116,7 +1113,7 @@ Do not include:
 9. Claims of universal truth detection.
 10. Claims of state-of-the-art performance unless proven.
 11. Claims of being the "first" to use SHAP for hallucination detection (the Multimedia Systems 2026 paper already did this).
-12. Next.js (use Vite + React instead — simpler, faster to develop).
+12. Production SaaS features (e.g., payments, user authentication, multi-tenant databases) — focus strictly on the AI chat UI, risk prediction pipeline, and research paper deliverables.
 
 ---
 

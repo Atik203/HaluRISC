@@ -1,0 +1,41 @@
+# Python
+.venv/
+venv/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Data (large files)
+data/raw/
+data/processed/*.parquet
+!data/processed/.gitkeep
+
+# Models & Artifacts
+artifacts/models/*
+!artifacts/models/.gitkeep
+artifacts/figures/*
+!artifacts/figures/.gitkeep
+artifacts/results/*
+!artifacts/results/.gitkeep
+
+# Environment & Keys
+.env
+.env.local
+.env.*.local
+
+# Node / Next.js
+web/node_modules/
+web/.next/
+web/out/
+web/build/
+web/.vercel/
+web/*.log
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.tmp
