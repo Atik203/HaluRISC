@@ -46,7 +46,7 @@ export function RiskGauge({ score, label, latencyMs }: RiskGaugeProps) {
           <path
             d="M 20 100 A 80 80 0 0 1 180 100"
             fill="none"
-            stroke="rgba(255, 255, 255, 0.1)"
+            stroke="var(--gauge-track)"
             strokeWidth="16"
             strokeLinecap="round"
           />
@@ -61,7 +61,7 @@ export function RiskGauge({ score, label, latencyMs }: RiskGaugeProps) {
           />
 
           {/* Center Pivot */}
-          <circle cx="100" cy="100" r="8" fill="#ffffff" />
+          <circle cx="100" cy="100" r="8" fill="var(--gauge-needle)" />
 
           {/* Animated Needle */}
           <g transform={`rotate(${needleAngle}, 100, 100)`} className="transition-transform duration-1000 ease-out">
@@ -70,7 +70,7 @@ export function RiskGauge({ score, label, latencyMs }: RiskGaugeProps) {
               y1="100"
               x2="100"
               y2="30"
-              stroke="#ffffff"
+              stroke="var(--gauge-needle)"
               strokeWidth="4"
               strokeLinecap="round"
             />

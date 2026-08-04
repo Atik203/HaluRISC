@@ -13,7 +13,7 @@ function UserMessage() {
       <div className="max-w-2xl rounded-2xl rounded-tr-none bg-primary px-4 py-3 text-sm text-primary-foreground">
         <MessagePrimitive.Content />
       </div>
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-indigo-500/30 bg-indigo-600/30 text-indigo-300">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-indigo-500/40 bg-indigo-100 text-indigo-700 dark:border-indigo-500/30 dark:bg-indigo-600/30 dark:text-indigo-300">
         <User className="h-4 w-4" />
       </div>
     </div>
@@ -23,7 +23,7 @@ function UserMessage() {
 function AssistantMessage() {
   return (
     <div className="flex items-start gap-3">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-violet-500/30 bg-violet-600/30 text-violet-300">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-violet-500/40 bg-violet-100 text-violet-700 dark:border-violet-500/30 dark:bg-violet-600/30 dark:text-violet-300">
         <Bot className="h-4 w-4" />
       </div>
       <div className="max-w-2xl space-y-3 rounded-2xl rounded-tl-none border border-border bg-secondary/80 px-4 py-3 text-sm">

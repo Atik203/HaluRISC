@@ -72,24 +72,25 @@ export function ShapChart({ features, baseValue }: ShapChartProps) {
             layout="vertical"
             margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
           >
-            <XAxis type="number" stroke="#888888" fontSize={11} />
+            <XAxis type="number" stroke="var(--muted-foreground)" fontSize={11} />
             <YAxis
               type="category"
               dataKey="name"
-              stroke="#888888"
+              stroke="var(--muted-foreground)"
               fontSize={11}
               tickLine={false}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#18181b",
-                borderColor: "#27272a",
+                backgroundColor: "var(--popover)",
+                borderColor: "var(--border)",
+                color: "var(--popover-foreground)",
                 borderRadius: "8px",
                 fontSize: "12px",
               }}
               formatter={(val: number | string) => [`Impact: ${val}`, "SHAP Value"]}
             />
-            <ReferenceLine x={0} stroke="#3f3f46" strokeDasharray="3 3" />
+            <ReferenceLine x={0} stroke="var(--muted-foreground)" strokeOpacity={0.4} strokeDasharray="3 3" />
             <Bar dataKey="impact" radius={[4, 4, 4, 4]}>
               {data.map((entry, index) => (
                 <Cell

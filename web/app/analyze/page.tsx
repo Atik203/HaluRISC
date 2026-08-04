@@ -112,7 +112,7 @@ export default function AnalyzePage() {
       <div className="glass-panel p-6 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold gradient-text flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-purple-400" /> 📊 Analyze Mode — Form & Evidence Inspector
+            <Sparkles className="w-6 h-6 text-violet-600 dark:text-purple-400" /> 📊 Analyze Mode — Form & Evidence Inspector
           </h1>
           <p className="text-xs text-muted-foreground mt-1">
             Directly test the XGBoost risk model with question, context, and candidate answer
@@ -193,7 +193,7 @@ export default function AnalyzePage() {
         <div className="space-y-6">
           {error && (
             <div className="glass-panel p-6 rounded-2xl border-l-4 border-l-red-500">
-              <h3 className="text-sm font-semibold text-red-400 flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-red-600 dark:text-red-400 flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4" /> Analysis failed
               </h3>
               <p className="text-xs text-muted-foreground mt-2">{error}</p>

@@ -9,7 +9,7 @@ export default function AboutPage() {
       {/* Banner */}
       <div className="glass-panel p-6 rounded-2xl">
         <h1 className="text-2xl font-bold gradient-text flex items-center gap-2">
-          <Info className="w-6 h-6 text-purple-400" /> About HaluRISC Framework
+          <Info className="w-6 h-6 text-violet-600 dark:text-purple-400" /> About HaluRISC Framework
         </h1>
         <p className="text-xs text-muted-foreground mt-1">
           Calibrated, explainable hallucination risk prediction for black-box LLM outputs
@@ -19,7 +19,7 @@ export default function AboutPage() {
       {/* Methodology Section */}
       <div className="glass-panel p-6 rounded-2xl space-y-4">
         <h2 className="text-base font-bold flex items-center gap-2">
-          <Layers className="w-5 h-5 text-indigo-400" /> Pipeline Architecture
+          <Layers className="w-5 h-5 text-indigo-600 dark:text-indigo-400" /> Pipeline Architecture
         </h2>
         <p className="text-xs text-muted-foreground leading-relaxed">
           HaluRISC evaluates candidate LLM answers against provided context without inspecting model weights or activations.
@@ -28,19 +28,19 @@ export default function AboutPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
           <div className="bg-secondary/40 p-4 rounded-xl border border-border">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-purple-300 mb-1">1. Feature Extraction</h4>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-300 mb-1">1. Feature Extraction</h4>
             <p className="text-xs text-muted-foreground">14+ lightweight text features measuring grounding, numeric novelty, and uncertainty.</p>
           </div>
           <div className="bg-secondary/40 p-4 rounded-xl border border-border">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-300 mb-1">2. Calibrated XGBoost</h4>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 mb-1">2. Calibrated XGBoost</h4>
             <p className="text-xs text-muted-foreground">XGBoost classifier with Platt scaling for trustworthy calibrated risk probabilities.</p>
           </div>
           <div className="bg-secondary/40 p-4 rounded-xl border border-border">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-blue-300 mb-1">3. SHAP Explanations</h4>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300 mb-1">3. SHAP Explanations</h4>
             <p className="text-xs text-muted-foreground">TreeExplainer attributions identifying specific features raising or lowering risk.</p>
           </div>
           <div className="bg-secondary/40 p-4 rounded-xl border border-border">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-amber-300 mb-1">4. Conversational AI UI</h4>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300 mb-1">4. Conversational AI UI</h4>
             <p className="text-xs text-muted-foreground">Next.js + assistant-ui + GPT 5.6 Luna for natural-language explanations with Generative UI.</p>
           </div>
         </div>
@@ -49,7 +49,7 @@ export default function AboutPage() {
       {/* Tech Stack List */}
       <div className="glass-panel p-6 rounded-2xl space-y-3">
         <h2 className="text-base font-bold flex items-center gap-2">
-          <Cpu className="w-5 h-5 text-purple-400" /> Core Tech Stack
+          <Cpu className="w-5 h-5 text-violet-600 dark:text-purple-400" /> Core Tech Stack
         </h2>
         <div className="flex flex-wrap gap-2 text-xs">
           {["Next.js App Router", "assistant-ui", "Vercel AI SDK", "GPT 5.6 Luna", "FastAPI", "scikit-learn 1.7", "XGBoost 3.3.0", "SHAP", "Recharts", "Tailwind CSS v4"].map((tech, i) => (

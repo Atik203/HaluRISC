@@ -141,7 +141,7 @@ export default async function DashboardPage() {
       <div className="glass-panel p-6 rounded-2xl flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold gradient-text flex items-center gap-2">
-            <LayoutDashboard className="w-6 h-6 text-purple-400" /> 📈 Experiment Dashboard & Benchmarks
+            <LayoutDashboard className="w-6 h-6 text-violet-600 dark:text-purple-400" /> 📈 Experiment Dashboard & Benchmarks
           </h1>
           <p className="text-xs text-muted-foreground mt-1">
             Live results loaded from artifacts/results/ — no hardcoded numbers
@@ -164,7 +164,7 @@ export default async function DashboardPage() {
           {/* KPI Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="glass-panel p-5 rounded-2xl border-l-4 border-l-purple-500 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-violet-600 dark:text-purple-400 flex items-center justify-center">
                 <Award className="w-5 h-5" />
               </div>
               <div>
@@ -175,7 +175,7 @@ export default async function DashboardPage() {
               </div>
             </div>
             <div className="glass-panel p-5 rounded-2xl border-l-4 border-l-emerald-500 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                 <TrendingUp className="w-5 h-5" />
               </div>
               <div>
@@ -186,7 +186,7 @@ export default async function DashboardPage() {
               </div>
             </div>
             <div className="glass-panel p-5 rounded-2xl border-l-4 border-l-blue-500 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
                 <Zap className="w-5 h-5" />
               </div>
               <div>
@@ -195,7 +195,7 @@ export default async function DashboardPage() {
               </div>
             </div>
             <div className="glass-panel p-5 rounded-2xl border-l-4 border-l-amber-500 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center">
                 <DollarSign className="w-5 h-5" />
               </div>
               <div>
@@ -228,7 +228,7 @@ export default async function DashboardPage() {
                     <tr
                       key={m.key}
                       className={`border-b border-border/50 hover:bg-secondary/40 transition-colors ${
-                        m.key === "xgboost" ? "bg-purple-950/20 font-semibold text-purple-300" : ""
+                        m.key === "xgboost" ? "bg-purple-500/10 font-semibold text-purple-700 dark:bg-purple-950/20 dark:text-purple-300" : ""
                       }`}
                     >
                       <td className="py-3 px-4">{m.label}</td>
@@ -294,7 +294,7 @@ export default async function DashboardPage() {
                     <li key={f.feature} className="flex items-center gap-3 text-xs">
                       <span className="w-6 text-muted-foreground font-mono">{i + 1}</span>
                       <span className="flex-1 truncate">{f.feature}</span>
-                      <span className="font-mono text-purple-300">{f.mean_abs_shap.toFixed(4)}</span>
+                      <span className="font-mono text-purple-700 dark:text-purple-300">{f.mean_abs_shap.toFixed(4)}</span>
                     </li>
                   ))}
                 </ul>
@@ -331,7 +331,7 @@ export default async function DashboardPage() {
                           <td className="py-2 px-3 font-mono">
                             {row.f1_mean.toFixed(4)} ± {row.f1_std.toFixed(4)}
                           </td>
-                          <td className={`py-2 px-3 font-mono ${delta > 0.01 ? "text-red-400" : "text-emerald-400"}`}>
+                          <td className={`py-2 px-3 font-mono ${delta > 0.01 ? "text-red-600 dark:text-red-400" : "text-emerald-600 dark:text-emerald-400"}`}>
                             {delta >= 0 ? "+" : ""}
                             {delta.toFixed(4)}
                           </td>
@@ -390,7 +390,7 @@ export default async function DashboardPage() {
                         <td className="py-2 px-3 font-mono">{judge.judge.recall.toFixed(3)}</td>
                         <td className="py-2 px-3 font-mono">{judge.judge.f1.toFixed(3)}</td>
                       </tr>
-                      <tr className="border-b border-border/50 bg-purple-950/20 font-semibold text-purple-300">
+                      <tr className="border-b border-border/50 bg-purple-500/10 font-semibold text-purple-700 dark:bg-purple-950/20 dark:text-purple-300">
                         <td className="py-2 px-3">XGBoost (ours)</td>
                         <td className="py-2 px-3 font-mono">{judge.xgboost_on_same_subset.accuracy.toFixed(3)}</td>
                         <td className="py-2 px-3 font-mono">{judge.xgboost_on_same_subset.precision.toFixed(3)}</td>
