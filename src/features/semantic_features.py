@@ -34,14 +34,15 @@ def _safe_device(device: Optional[str]) -> Optional[str]:
     return device
 
 
-def load_embedding_model(device: Optional[str] = None):
+def load_embedding_model(device: Optional[str] = None, model_kwargs: Optional[dict] = None):
     """Load the SBERT embedding model (lazy, cached at call site).
 
     device=None -> library default (GPU if available); set "cpu" for stability.
+    model_kwargs -> extra kwargs for the model loader (e.g. torch_dtype=float16).
     """
     from sentence_transformers import SentenceTransformer
 
-    return SentenceTransformer(EMBEDDING_MODEL, device=_safe_device(device))
+    return SentenceTransformer(EMBEDDING_MODEL, device=_safe_device(device), model_kwargs=model_kwargs)
 
 
 def _cosine(a: np.ndarray, b: np.ndarray) -> float:

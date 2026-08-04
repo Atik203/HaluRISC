@@ -136,9 +136,19 @@ def extract_all_core_features(df: pd.DataFrame) -> pd.DataFrame:
 def load_heavy_models(nli_model_name: str | None = None, device: str | None = None) -> dict:
     """Load NER + NLI + embedding models once (used by batch extraction and API).
 
-    device=None -> library default; pass "cpu" for API stability (no VRAM OOM).
+    device=None -> library default; pass "cpu" for stability (no VRAM OOM).
+    On CUDA, models are loaded in float16 to halve VRAM and reduce OOM risk
+    on small GPUs (RTX 3060 6 GB).
     """
     import time
+
+    import torch
+
+    if device == "cuda" and torch.cuda.is_available():
+        model_kwargs = {"torch_dtype": torch.float16}
+        torch.cuda.empty_cache()
+    else:
+        model_kwargs = None
 
     from src.features.entity_features import load_ner_model
     from src.features.nli_features import load_nli_model
@@ -149,11 +159,13 @@ def load_heavy_models(nli_model_name: str | None = None, device: str | None = No
     models["nlp"] = load_ner_model()
     logging.info(f"NER model loaded in {time.time() - t0:.1f}s")
     t0 = time.time()
-    models["nli"], nli_name = load_nli_model(nli_model_name, device=device)
+    models["nli"], nli_name = load_nli_model(nli_model_name, device=device, model_kwargs=model_kwargs)
     logging.info(f"NLI model ({nli_name}) loaded in {time.time() - t0:.1f}s")
     t0 = time.time()
-    models["embedder"] = load_embedding_model(device=device)
+    models["embedder"] = load_embedding_model(device=device, model_kwargs=model_kwargs)
     logging.info(f"Embedding model loaded in {time.time() - t0:.1f}s")
+    if model_kwargs is not None:
+        torch.cuda.empty_cache()
     return models
 
 

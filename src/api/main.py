@@ -34,6 +34,12 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+# Must be set before any CUDA context is created (model preload below).
+# expandable_segments fights VRAM fragmentation on small GPUs (RTX 3060 6 GB);
+# TOKENIZERS_PARALLELISM=false avoids tokenizer thread deadlocks on Windows.
+os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
+os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("halurisc_api")
 
@@ -52,6 +58,11 @@ FEATURE_VERSION = "course-v1.0"
 # on first request only if startup failed. The lock prevents concurrent
 # double-loading, which previously caused memory spikes and process exits.
 FEATURE_MODEL_LOAD_LOCK = threading.Lock()
+
+# sentence-transformers is not fully thread-safe and concurrent CUDA inference
+# from uvicorn's threadpool crashed the process (silent exit). All GPU feature
+# extraction is serialized through this lock.
+INFERENCE_LOCK = threading.Lock()
 
 STATE = {"model": None, "explainer": None, "feature_models": None, "feature_cols": None, "params": None}
 
@@ -223,7 +234,8 @@ def _feature_vector(req: AnalysisRequest) -> Dict[str, float]:
         models = load_feature_models()
     except Exception as e:
         raise HTTPException(status_code=503, detail=f"Feature models unavailable: {e}")
-    feats = extract_all_features_single(req.question or "", req.context or "", req.answer, models)
+    with INFERENCE_LOCK:
+        feats = extract_all_features_single(req.question or "", req.context or "", req.answer, models)
     missing = [c for c in STATE["feature_cols"] if c not in feats]
     if missing:
         raise HTTPException(status_code=500, detail=f"Feature extractor missing columns: {missing}")

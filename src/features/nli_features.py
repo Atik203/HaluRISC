@@ -47,10 +47,11 @@ def _safe_device(device: Optional[str]) -> Optional[str]:
     return device
 
 
-def load_nli_model(model_name: Optional[str] = None, device: Optional[str] = None):
+def load_nli_model(model_name: Optional[str] = None, device: Optional[str] = None, model_kwargs: Optional[dict] = None):
     """Load the NLI CrossEncoder (falls back to MiniLM2 on failure).
 
     device=None -> library default (GPU if available); set "cpu" for stability.
+    model_kwargs -> extra kwargs for the model loader (e.g. torch_dtype=float16).
     """
     from sentence_transformers import CrossEncoder
 
@@ -58,13 +59,13 @@ def load_nli_model(model_name: Optional[str] = None, device: Optional[str] = Non
     chosen = model_name or os.environ.get(NLI_MODEL_ENV, NLI_MODEL_PRIMARY)
     try:
         logger.info(f"Loading NLI CrossEncoder: {chosen} (device={device or 'auto'}) ...")
-        model = CrossEncoder(chosen, device=device)
+        model = CrossEncoder(chosen, device=device, model_kwargs=model_kwargs)
         logger.info("NLI CrossEncoder loaded.")
         return model, chosen
     except Exception as e:
         if chosen != NLI_MODEL_FALLBACK:
             logger.warning(f"NLI model {chosen} failed ({e}); falling back to {NLI_MODEL_FALLBACK}")
-            return load_nli_model(NLI_MODEL_FALLBACK, device=device)
+            return load_nli_model(NLI_MODEL_FALLBACK, device=device, model_kwargs=model_kwargs)
         raise
 
 
