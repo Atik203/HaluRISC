@@ -33,9 +33,15 @@ interface AnalysisResult {
 }
 
 export default function AnalyzePage() {
-  const [question, setQuestion] = useState("Who discovered penicillin?");
-  const [context, setContext] = useState("Penicillin was discovered by Alexander Fleming in 1928.");
-  const [answer, setAnswer] = useState("Penicillin was discovered by Louis Pasteur in 1945.");
+  const [question, setQuestion] = useState(
+    "Are both The New Pornographers and Kings of Leon American rock bands?"
+  );
+  const [context, setContext] = useState(
+    "The New Pornographers is a Canadian indie rock band; Kings of Leon is an American rock band."
+  );
+  const [answer, setAnswer] = useState(
+    "Yes, both The New Pornographers and Kings of Leon are now American rock bands."
+  );
 
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
@@ -43,22 +49,22 @@ export default function AnalyzePage() {
 
   const sampleScenarios = [
     {
-      title: "Hallucinated Entity & Date",
-      q: "Who discovered penicillin?",
-      c: "Penicillin was discovered by Alexander Fleming in 1928.",
-      a: "Louis Pasteur discovered penicillin in 1945.",
+      title: "Hallucinated Date",
+      q: "By how many days per decade has the melt season lengthened in the shallowest of the world's major oceans?",
+      c: "It has been established that the region is at its warmest for at least 40,000 years and the Arctic-wide melt season has lengthened at a rate of 5 days per decade (from 1979 to 2013), dominated by a later autumn freezeup. The Arctic Ocean is the smallest and shallowest of the world's five major oceans.",
+      a: "The Arctic Ocean melt season has lengthened by 10 days per decade.",
     },
     {
       title: "Grounded & Correct",
-      q: "What is the capital of France?",
-      c: "Paris is the capital and most populous city of France.",
-      a: "Paris is the capital of France.",
+      q: "Are both The New Pornographers and Kings of Leon American rock bands?",
+      c: "The New Pornographers is a Canadian indie rock band; Kings of Leon is an American rock band.",
+      a: "Yes, both The New Pornographers and Kings of Leon are now American rock bands.",
     },
     {
-      title: "Borderline Case",
-      q: "When did the Apollo 11 moon landing occur?",
-      c: "Apollo 11 landed on the Moon on July 20, 1969.",
-      a: "The Apollo mission landed humans on the Moon in the late 1960s.",
+      title: "Borderline / Ambiguous",
+      q: "This catlike alien space pirate is arch enemies to Space Ghost. What is his name?",
+      c: "Featuring songs and skits by Space Ghost and his arch enemies Zorak and Brak. Brak is a fictional character and supervillain on the 1966 Hanna-Barbera animated series \"Space Ghost\", portrayed as a catlike alien space pirate trying to conquer the galaxy.",
+      a: "Brak",
     },
   ];
 
