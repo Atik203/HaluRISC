@@ -176,6 +176,13 @@ npm run build   # production build (must pass before finishing web work)
 npm run lint    # lint check
 ```
 
+### 7.1 Colab Training Workflow (optional, for heavy compute)
+
+- `colab/HaluRISC_Training.ipynb` runs the full pipeline (features → tuning → calibration → SHAP → RAGTruth) on a Colab GPU and saves a `halurisc_artifacts_<date>.zip` to Google Drive.
+- Upload `colab/halurisc_src.zip` (regenerated with `Compress-Archive` from `src/`, `requirements.txt`, `colab/`) when the notebook asks.
+- After training, download the Drive zip and unzip **at the repo root** so `artifacts/*` and `data/processed/features_full.parquet` land in place. The API and web dashboard then load the real artifacts.
+- Keep `src/` scripts Colab-compatible: paths must be repo-root-relative, no hardcoded absolute Windows paths, no reliance on the local `.venv` at import time.
+
 ---
 
 ## 8. Web Frontend Rules

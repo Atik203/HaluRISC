@@ -39,3 +39,6 @@ web/*.log
 .DS_Store
 Thumbs.db
 *.tmp
+
+# Colab bundle (regenerable)
+colab/*.zip
