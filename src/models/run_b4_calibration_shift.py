@@ -355,6 +355,7 @@ def main():
         cal_metrics["halueval_test"][method] = mean_std_rows(rows)
         logger.info(f"halueval_test [{method}]: ece={cal_metrics['halueval_test'][method]['ece_mean']:.4f} "
                     f"brier={cal_metrics['halueval_test'][method]['brier_mean']:.4f}")
+    logger.info("B4: HaluEval test source calibration done")
 
     # ---- 2. External subsets (source calibration applied) ----
     for name, sub in subsets.items():
@@ -372,6 +373,7 @@ def main():
             cal_metrics[name][method] = mean_std_rows(rows)
             logger.info(f"{name} [{method}]: ece={cal_metrics[name][method]['ece_mean']:.4f} "
                         f"brier={cal_metrics[name][method]['brier_mean']:.4f}")
+    logger.info("B4: external subset metrics done")
 
     # ---- 3. Target calibration (RAGTruth QA train -> QA test) ----
     qa_cal = rag[(rag["task"] == "qa") & (rag["official_split"] == "train")]
@@ -416,29 +418,32 @@ def main():
         for method in ("raw", "platt", "isotonic")
     }
 
-    # ---- 6. Per-sample calibrated predictions (seed 42) ----
+    # ---- 6. Per-sample calibrated predictions (seed 42, vectorized) ----
     pred_rows = []
     for name, sub in subsets.items():
         if sub is None or len(sub) == 0:
             continue
         idx = external["sample_id"].isin(set(sub["sample_id"])).values
         sub_df = external[idx].reset_index(drop=True)
+        labels = sub_df["label"].values
         for method in ("raw", "platt", "isotonic"):
             p = calibrated(sub_df["score_42"].values, method, 42)
-            for pos, r in sub_df.iterrows():
-                pred_rows.append({"sample_id": r["sample_id"], "source_dataset": r["source_dataset"],
-                                  "subset": name, "method": method, "label": int(r["label"]),
-                                  "score": round(float(p[pos]), 6),
-                                  "pred": int(p[pos] >= MODEL_THRESHOLD)})
+            n = len(sub_df)
+            pred_rows.extend([
+                {"sample_id": sid, "source_dataset": ds, "subset": name, "method": method,
+                 "label": int(lab), "score": round(float(sc), 6), "pred": int(sc >= MODEL_THRESHOLD)}
+                for sid, ds, lab, sc in zip(sub_df["sample_id"], sub_df["source_dataset"], labels, p)
+            ])
+    logger.info("B4: per-sample calibrated predictions done")
     hal_test_rows = []
     for method in ("raw", "platt", "isotonic"):
         p = calibrated(s42_test, method, 42)
-        for i in range(len(hal_test_df)):
-            hal_test_rows.append({"sample_id": hal_test_df.loc[i, "sample_id"],
-                                  "source_dataset": "halueval", "subset": "halueval_test",
-                                  "method": method, "label": int(y_test[i]),
-                                  "score": round(float(p[i]), 6),
-                                  "pred": int(p[i] >= MODEL_THRESHOLD)})
+        hal_test_rows.extend([
+            {"sample_id": hal_test_df.loc[i, "sample_id"], "source_dataset": "halueval",
+             "subset": "halueval_test", "method": method, "label": int(y_test[i]),
+             "score": round(float(p[i]), 6), "pred": int(p[i] >= MODEL_THRESHOLD)}
+            for i in range(len(hal_test_df))
+        ])
     pred_df = pd.DataFrame(pred_rows + hal_test_rows)
 
     # ---- 7. Save artifacts ----
