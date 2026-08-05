@@ -86,18 +86,27 @@ TUNING_GRID = {
 
 
 def xgb_device() -> str:
-    """cuda if available else cpu (XGBoost 3.4 device parameter)."""
+    """Device for XGBoost: cuda if available else cpu (XGBoost 3.4 device parameter).
+
+    HALU_XGB_DEVICE=cuda|cpu|auto overrides. CUDA-trained boosters do not
+    port across platforms (Colab Linux vs local Windows wheels), so Colab runs
+    should set HALU_XGB_DEVICE=cpu to produce locally loadable artifacts.
+    """
+    override = os.environ.get("HALU_XGB_DEVICE", "auto")
+    if override in ("cuda", "cpu"):
+        return override
     try:
         import xgboost as xgb
 
-        if xgb.__version__.split(".")[0] >= "3":
-            try:
-                import torch
+        if not xgb.build_info().get("USE_CUDA"):
+            return "cpu"
+        try:
+            import torch
 
-                if torch.cuda.is_available():
-                    return "cuda"
-            except ImportError:
-                pass
+            if torch.cuda.is_available():
+                return "cuda"
+        except ImportError:
+            pass
     except ImportError:
         pass
     return "cpu"

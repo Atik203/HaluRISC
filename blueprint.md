@@ -16,9 +16,9 @@ The two versions must not be mixed during the course. The biggest risk is trying
 
 > **Build a clean, defensible course project first. Then extend it into a stronger publication study.**
 
-> **IMPLEMENTATION STATUS (updated 2026-08-05):** ✅ DONE | 🔶 PARTIAL | ⬜ TODO
+> **IMPLEMENTATION STATUS (updated 2026-08-06):** ✅ DONE | 🔶 PARTIAL | ⬜ TODO
 >
-> Version A is implementation-complete but not yet integrity-complete. The current row-level split allows the two answers belonging to one HaluEval question to cross train/validation/test boundaries; an audit found 4,682 of 10,000 source questions spanning multiple splits. Therefore the current headline metrics are provisional. Version A must first pass the grouped-split repair, manual audit, corrected rerun, paper-claim review, and clean verification gate. Only after those results are pushed to `version-A` may Version B work begin on `version-B`. The current paper draft remains partial.
+> Version A integrity repair is complete: group-aware split by `item_idx` is leakage-free (0 groups spanning splits), and all corrected artifacts were regenerated (XGBoost F1 0.9842 / AUROC 0.9982, calibration ECE raw 0.0122 / Platt 0.0101 / isotonic 0.0071, RAGTruth zero-shot F1 0.4819, LLM-judge F1 0.84 vs XGBoost 0.985, per-seed metrics, manifest). API and pytest verified; Colab notebook/zip produce portable artifacts (HALU_XGB_DEVICE=cpu). Remaining for final: manual 50-sample audit review, manual error-case review, paper claim updates (A13), web lint/build/clean-clone verification, and pushing the final state to `version-A`. Version B stays locked until that push.
 
 ---
 
@@ -366,7 +366,7 @@ Never remove:
 
 ---
 
-## A7. Dataset Plan — 🔶 INTEGRITY REPAIR REQUIRED
+## A7. Dataset Plan — ✅ GROUPED SPLIT DONE, MANUAL AUDIT PENDING
 
 ### Primary dataset
 
@@ -469,7 +469,7 @@ Use approximately **15–30 total features**. This is enough for a good paper an
 
 ---
 
-## A9. ML Pipeline — 🔶 IMPLEMENTED, CORRECTED RERUN REQUIRED
+## A9. ML Pipeline — ✅ CORRECTED RERUN DONE (XGBoost F1 0.9842 / AUROC 0.9982 on leakage-free test)
 
 ### Course workflow
 
@@ -566,7 +566,7 @@ For the paper, include:
 
 ---
 
-## A10. Evaluation Strategy — 🔶 IMPLEMENTED, CORRECTED EVIDENCE REQUIRED
+## A10. Evaluation Strategy — ✅ CORRECTED EVIDENCE PRODUCED (manual error-case review pending)
 
 ### Required metrics
 
@@ -1172,8 +1172,8 @@ Before considering the course project complete, verify all items:
 [x] Saved calibration layer (calibrator_platt.joblib)
 [x] Saved SHAP explainer object (shap_explainer.joblib — saved by src/explain/shap_analysis.py; API loads it)
 [x] Saved train/val/test split indices (split_indices.json + .npy)
-[ ] Group-aware split verified: no `item_idx` appears in more than one partition
-[ ] Completed manual audit saved as `data/processed/audit_50_samples.json`
+[x] Group-aware split verified: no `item_idx` appears in more than one partition (leakage-free report saved 2026-08-06)
+[ ] Completed manual audit saved as `data/processed/audit_50_samples.json` (auto-sampled file exists; human review pending)
 [x] Feature extraction script with version pin (src/features/*, FEATURE_VERSION in API)
 [x] All random seeds documented in a single config file (src/models/config.py — SEEDS = [42, 123, 456])
 [x] README.md with exact reproduction steps (pnpm/Next 16 commands, real benchmark tables, hardware spec)

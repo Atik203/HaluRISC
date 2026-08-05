@@ -4,9 +4,9 @@
 
 **Convention:** items marked `[verified 2026]` were checked against current web/PyPI info in July 2026.
 
-> **IMPLEMENTATION STATUS (updated 2026-08-05):** ✅ DONE | 🔶 PARTIAL | ⬜ TODO
+> **IMPLEMENTATION STATUS (updated 2026-08-06):** ✅ DONE | 🔶 PARTIAL | ⬜ TODO
 >
-> Version A is implementation-complete but not evidence-complete. The current row-level HaluEval split leaks paired answers from the same source question across partitions, so current metrics and dependent artifacts are provisional. Version A must pass the integrity repair, manual audit, corrected Colab rerun, paper-claim review, live API/UI verification, and clean-clone gate before the final state is pushed to `version-A`. Version B work is locked until that push; afterward this roadmap continues with the publication phases on `version-B`.
+> Version A integrity repair is complete: leakage-free group split, corrected artifacts (XGBoost F1 0.9842 / AUROC 0.9982), per-seed metrics, manifest, LLM-judge, API + pytest verified, and the Colab zip now produces portable models (HALU_XGB_DEVICE=cpu). Remaining: manual 50-sample audit review, manual error-case review, paper claim updates, web lint/build + clean-clone verification, and pushing the final state to `version-A`. Version B is locked until that push.
 
 ### Operating rule
 
@@ -123,7 +123,7 @@ HaluRISC/
 
 ---
 
-## 5. Phase 2 — Preprocessing & Splits (Week 1–2) — 🔶 CORRECTED GROUP SPLIT REQUIRED
+## 5. Phase 2 — Preprocessing & Splits (Week 1–2) — ✅ CORRECTED GROUP SPLIT DONE (leakage-free)
 
 Rules (encode in `src/data/prepare.py`, cache to `data/processed/qa_clean.parquet`):
 
@@ -164,7 +164,7 @@ One module per group in `src/features/`. Output: a single DataFrame, cached to `
 
 ---
 
-## 7. Phase 4 — Modeling (Week 4) — 🔶 IMPLEMENTED, CORRECTED RERUN REQUIRED
+## 7. Phase 4 — Modeling (Week 4) — ✅ CORRECTED RERUN DONE
 
 `src/models/`:
 
@@ -187,7 +187,7 @@ One module per group in `src/features/`. Output: a single DataFrame, cached to `
 
 ---
 
-## 8. Phase 5 — Calibration & Evaluation (Week 4–5) — 🔶 IMPLEMENTED, CORRECTED EVIDENCE REQUIRED
+## 8. Phase 5 — Calibration & Evaluation (Week 4–5) — ✅ CORRECTED EVIDENCE PRODUCED (manual error-case review pending)
 
 - **Calibration:** `CalibratedClassifierCV(estimator=best_xgb, method="sigmoid", cv="prefit")` fit on the **validation** set. Compare Platt (sigmoid) vs isotonic on the test set.
 - **Metrics:** Precision, Recall, F1, AUROC, PR-AUC, MCC (classification); **ECE**, **Brier score**, reliability diagram (calibration).

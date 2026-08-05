@@ -248,7 +248,7 @@ if __name__ == "__main__":
         "nli_model": models.get("nli_name"),
         "device": str(getattr(models.get("nli"), "device", "unknown")),
         "batch_size": args.batch_size,
-        "extracted_at": pd.Timestamp.utcnow().isoformat(),
+        "extracted_at": pd.Timestamp.now("UTC").isoformat(),
     }
     os.makedirs(os.path.join("data", "processed"), exist_ok=True)
     with open(os.path.join("data", "processed", "nli_model_used.json"), "w") as f:

@@ -29,21 +29,21 @@
 
 Mean over seeds 42/123/456 (real results from `artifacts/results/final_results.json`):
 
-| Model Architecture              | Precision  | Recall     | F1-Score   | AUROC      | PR-AUC     | MCC        |
-| ------------------------------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- |
-| **Heuristic (1 - overlap)**     | 0.9392     | 0.9467     | 0.9429     | 0.9148     | 0.8117     | 0.8854     |
-| **Logistic Regression**         | 0.9804     | 0.9693     | 0.9749     | 0.9943     | 0.9948     | 0.9501     |
-| **Random Forest**               | 0.9915     | 0.9858     | 0.9886     | 0.9982     | 0.9987     | 0.9774     |
-| **XGBoost + Platt (ours)**      | **0.9919** | **0.9853** | **0.9886** | **0.9980** | **0.9987** | **0.9774** |
+| Model Architecture          | Precision  | Recall     | F1-Score   | AUROC      | PR-AUC     | MCC        |
+| --------------------------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- |
+| **Heuristic (1 - overlap)** | 0.9392     | 0.9467     | 0.9429     | 0.9148     | 0.8117     | 0.8854     |
+| **Logistic Regression**     | 0.9804     | 0.9693     | 0.9749     | 0.9943     | 0.9948     | 0.9501     |
+| **Random Forest**           | 0.9915     | 0.9858     | 0.9886     | 0.9982     | 0.9987     | 0.9774     |
+| **XGBoost + Platt (ours)**  | **0.9919** | **0.9853** | **0.9886** | **0.9980** | **0.9987** | **0.9774** |
 
 **Calibration:** Platt ECE 0.0116 / Brier 0.0092 · Isotonic ECE 0.0051 / Brier 0.0089 (calibrators fit on validation only).
 
 ### LLM-as-Judge comparison (200 test samples, measured)
 
-| Model                    | Accuracy | Precision | Recall | F1     | Latency p50 | Cost / 1K |
-| ------------------------ | -------- | --------- | ------ | ------ | ----------- | --------- |
-| GPT 5.6 Luna judge       | 0.8400   | 0.9474    | 0.7200 | 0.8182 | 1,293 ms    | $0.101    |
-| **XGBoost (ours)**       | **0.9900** | **1.0000** | **0.9800** | **0.9899** | ~5 ms   | ~$0.001 |
+| Model              | Accuracy   | Precision  | Recall     | F1         | Latency p50 | Cost / 1K |
+| ------------------ | ---------- | ---------- | ---------- | ---------- | ----------- | --------- |
+| GPT 5.6 Luna judge | 0.8400     | 0.9474     | 0.7200     | 0.8182     | 1,293 ms    | $0.101    |
+| **XGBoost (ours)** | **0.9900** | **1.0000** | **0.9800** | **0.9899** | ~5 ms       | ~$0.001   |
 
 Agreement between judge and XGBoost: 0.84.
 
@@ -96,7 +96,7 @@ differ from real-world generation, motivating domain adaptation (Version B direc
 
 ```powershell
 # 1. Clone the repository
-git clone https://github.com/Atik203/HaluLens.git
+git clone https://github.com/Atik203/HaluRISC.git
 cd HaluRISC
 
 # 2. Activate virtual environment (or create one)
@@ -165,7 +165,7 @@ Open `http://localhost:3000` in your browser.
 
 Run the **full training pipeline** (feature extraction → XGBoost tuning → calibration → SHAP → RAGTruth validation) on Google Colab with a GPU, then download the artifacts back into this repo:
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1aTlrAcIx5FqAaDiYzsLTiMxbMVw1RsRR?usp=sharing)
+[![Open In Colab](https://colab.research.google.com/drive/124wjKFVDyZkDNIjs1WgHW8N7vO7XyY6G?usp=sharing)
 
 1. Open the notebook (viewable by anyone with the link), select **GPU → T4** as the runtime.
 2. Run cells in order; cell 3 prompts for `colab/halurisc_src.zip` (from this repo).
