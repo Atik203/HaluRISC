@@ -112,6 +112,27 @@ def main():
     split_report = read_json(ARTIFACTS_DIR / "split_integrity_report.json")
     nli_used = read_json(DATA_PROCESSED / "nli_model_used.json")
 
+    def sha_or_none(rel_path: Path):
+        return sha256(rel_path) if rel_path.exists() else None
+
+    b_paths = {
+        "b2_run_config.json": RESULTS_DIR / "b2" / "b2_run_config.json",
+        "b2_model_comparison.json": RESULTS_DIR / "b2" / "b2_model_comparison.json",
+        "b2_predictions.parquet": RESULTS_DIR / "b2" / "b2_predictions.parquet",
+        "b2_xgboost_seed_42.joblib": MODELS_DIR / "b2" / "xgboost_seed_42.joblib",
+        "b3_predictions.parquet": RESULTS_DIR / "b3" / "b3_predictions.parquet",
+        "b3_dataset_metrics.json": RESULTS_DIR / "b3" / "b3_dataset_metrics.json",
+        "b3_bootstrap_cis.json": RESULTS_DIR / "b3" / "b3_bootstrap_cis.json",
+        "b3_run_config.json": RESULTS_DIR / "b3" / "b3_run_config.json",
+        "b4_predictions.parquet": RESULTS_DIR / "b4" / "b4_predictions.parquet",
+        "b4_calibration_metrics.json": RESULTS_DIR / "b4" / "b4_calibration_metrics.json",
+        "b4_target_calibration.json": RESULTS_DIR / "b4" / "b4_target_calibration.json",
+        "b4_calibrator_platt_source_seed_42.joblib": MODELS_DIR / "b4" / "calibrator_platt_source_seed_42.joblib",
+        "b4_calibrator_isotonic_source_seed_42.joblib": MODELS_DIR / "b4" / "calibrator_isotonic_source_seed_42.joblib",
+        "unified_records.parquet": DATA_PROCESSED / "unified_records.parquet",
+        "b3_external_features.parquet": DATA_PROCESSED / "b3_external_features.parquet",
+    }
+
     manifest = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "git_commit": git_commit(),
@@ -129,6 +150,7 @@ def main():
             "split_indices.json": sha256(SHA_FILES[4]),
             "split_integrity_report.json": sha256(SHA_FILES[5]),
         },
+        "b_artifacts_sha256": {name: sha_or_none(p) for name, p in b_paths.items()},
         "versions": versions(),
         "hardware": hardware(),
         "artifacts": sorted(

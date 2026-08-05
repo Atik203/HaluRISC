@@ -196,3 +196,17 @@ def test_error_case_sampling_schema():
             "source_group_id", "span_annotations"} <= set(cases[0])
     assert set(c["group"] for c in cases) <= {"false_positive", "false_negative",
                                               "high_conf_correct", "high_conf_incorrect"}
+
+
+def test_error_cases_redact_faithbench_text():
+    df = make_unified(n_groups=25)
+    fb = df[df["source_dataset"] == "faithbench"].reset_index(drop=True)
+    rng = np.random.default_rng(2)
+    proba = rng.random(len(fb))
+    preds = (proba >= 0.5).astype(int)
+    cases = sample_error_cases(fb, proba, preds, cap=20)
+    assert len(cases) > 0
+    for c in cases:
+        assert c["source_dataset"] == "faithbench"
+        assert c["context"] == "" and c["answer"] == "" and c["question"] == ""
+        assert c.get("text_redacted", "").startswith("FaithBench is CC BY-NC-SA")

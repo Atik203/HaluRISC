@@ -148,8 +148,15 @@ def load_b2_models() -> dict:
 
 
 def extract_or_load_external_features(df: pd.DataFrame, feature_cols: list, device: str, batch_size: int, skip_features: bool = False) -> pd.DataFrame:
-    """Extract the 26 B2 features on external rows (cached; cache keyed by input hash)."""
+    """Extract the 26 B2 features on external rows (cached; cache keyed by input hash).
+
+    The cache stores sample_id + metadata + features ONLY — raw question/context/
+    answer text is dropped so that FaithBench (CC BY-NC-SA) text never leaves the
+    Colab VM inside the packaged artifact zip.
+    """
     input_sha = sha256(UNIFIED)
+    cache_meta_cols = ["source_dataset", "source_group_id", "task", "domain",
+                       "official_split", "quality", "generator_model", "label"]
 
     if skip_features:
         if not FEATURES_CACHE.exists():
@@ -177,7 +184,8 @@ def extract_or_load_external_features(df: pd.DataFrame, feature_cols: list, devi
     missing = merged[feature_cols].isna().any(axis=1)
     if missing.any():
         raise ValueError(f"{int(missing.sum())} rows missing extracted features")
-    merged.to_parquet(FEATURES_CACHE, index=False)
+    cache_df = merged[["sample_id"] + cache_meta_cols + feature_cols]
+    cache_df.to_parquet(FEATURES_CACHE, index=False)
     FEATURES_CACHE_META.write_text(json.dumps({
         "input_sha256": input_sha,
         "n_rows": int(len(merged)),
@@ -185,8 +193,9 @@ def extract_or_load_external_features(df: pd.DataFrame, feature_cols: list, devi
         "extracted_at_utc": pd.Timestamp.now("UTC").isoformat(),
         "device": device,
         "batch_size": batch_size,
+        "note": "Raw question/context/answer text is NOT cached (FaithBench CC BY-NC-SA never leaves the VM).",
     }, indent=2))
-    logger.info(f"Cached external features to {FEATURES_CACHE}")
+    logger.info(f"Cached external features (metadata + features only) to {FEATURES_CACHE}")
     return merged
 
 
@@ -337,14 +346,19 @@ def sample_error_cases(df: pd.DataFrame, proba, preds, cap: int = 10) -> list:
         chosen = rng.choice(idx, size=min(cap, len(idx)), replace=False)
         for i in chosen:
             r = df.iloc[i]
-            cases.append({
+            case = {
                 "group": name, "sample_id": r["sample_id"], "source_dataset": r["source_dataset"],
                 "task": r["task"], "domain": r["domain"], "generator_model": r["generator_model"],
                 "question": str(r["question"])[:500], "context": str(r["context"])[:2000],
                 "answer": str(r["answer"])[:2000], "label": int(y[i]),
                 "prediction": int(preds[i]), "raw_score": round(float(proba[i]), 4),
                 "span_annotations": r["span_annotations"][:2000], "source_group_id": r["source_group_id"],
-            })
+            }
+            if r["source_dataset"] == "faithbench":
+                # CC BY-NC-SA: raw FaithBench text must not leave the Colab VM.
+                case.update({"question": "", "context": "", "answer": "", "span_annotations": "",
+                             "text_redacted": "FaithBench is CC BY-NC-SA; join locally via sample_id if review is needed."})
+            cases.append(case)
     return cases
 
 

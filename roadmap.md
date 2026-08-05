@@ -478,8 +478,20 @@ isotonic reported for comparison. Outputs:
 (pure-sklearn calibrators — portable, no CUDA booster serialization; B4 adds
 no heavy feature extraction, runs on CPU). Notebook cells 7g/7h added;
 `colab/halurisc_src.zip` regenerated. **Run order in Colab: 7b (B2) -> 7d (B1)
--> 7e (B3) -> 7g (B4).** Local execution is possible only after B3 artifacts
-are downloaded from the Colab run.
+-> 7e (B3) -> 7g (B4) -> 7i (artifact verification) -> 13 (manifest) -> 15
+(package).** Local execution is possible only after B3 artifacts are
+downloaded from the Colab run.
+
+Pre-Colab audit fixes (2026-08-06): (1) `b3_external_features.parquet` cache
+and `b3_error_cases.json` no longer carry raw external text — FaithBench
+(CC BY-NC-SA) text never leaves the Colab VM; (2) saved B4 target calibrators
+are now fit on the exact filtered calibration frame (overlap-removed) that
+produced the metrics; (3) single-class subgroups are flagged descriptive-only
+instead of crashing slope/intercept fitting; (4) `src/models/verify_artifacts.py`
+(cell 7i) loads every B2/B3/B4 artifact and predicts before packaging,
+preventing the historical post-download loading error; (5)
+`colab/build_src_zip.py` rebuilds the source zip without `__pycache__`/`.pyc`;
+(6) `make_manifest.py` now hashes B2/B3/B4 artifacts and unified records.
 
 Environment: Colab Pro.
 

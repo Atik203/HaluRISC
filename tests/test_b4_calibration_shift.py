@@ -104,8 +104,9 @@ def test_target_calibration_group_disjointness():
     df = _make_external_scores()
     cal_df = df[df["official_split"] == "train"]
     test_df = df[df["official_split"] == "test"]
-    out = target_calibration_experiment(cal_df, test_df)
+    out, cal_clean = target_calibration_experiment(cal_df, test_df)
     assert out["overlapping_groups_removed"] == 0  # groups are split-exclusive here
+    assert len(cal_clean) == len(cal_df)  # no filtering needed
     for method in ("platt", "isotonic"):
         assert "ece_mean" in out["methods"][method]
         assert 0.0 <= out["methods"][method]["ece_mean"] <= 1.0
@@ -115,8 +116,17 @@ def test_target_calibration_removes_overlap_groups():
     df = _make_external_scores(n_groups=15)
     cal_df = pd.concat([df[df["official_split"] == "train"], df[df["official_split"] == "test"].head(2)])
     test_df = df[df["official_split"] == "test"]
-    out = target_calibration_experiment(cal_df, test_df)
+    out, cal_clean = target_calibration_experiment(cal_df, test_df)
     assert out["overlapping_groups_removed"] == 2
+    assert set(cal_clean["source_group_id"]) & set(test_df["source_group_id"]) == set()
+
+
+def test_single_class_metrics_do_not_crash():
+    y = np.zeros(50, dtype=int)
+    p = np.random.default_rng(0).random(50)
+    m = calibration_metrics(y, p)
+    assert m["slope"] is None and m["intercept"] is None
+    assert 0.0 <= m["ece"] <= 1.0
 
 
 def test_subgroup_minimum_rules():

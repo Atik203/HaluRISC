@@ -161,11 +161,18 @@ def adaptive_ece(y, p, n_bins: int = 10) -> float:
 
 
 def calibration_slope_intercept(y, p) -> tuple:
-    """Logistic regression of y on logit(p): slope and intercept."""
-    p = np.clip(np.asarray(p), 1e-6, 1 - 1e-6)
+    """Logistic regression of y on logit(p): slope and intercept.
+
+    Returns (None, None) when y is single-class (degenerate subgroup).
+    """
+    y = np.asarray(y)
+    p = np.asarray(p)
+    if len(np.unique(y)) < 2:
+        return None, None
+    p = np.clip(p, 1e-6, 1 - 1e-6)
     logit = np.log(p) - np.log1p(-p)
     lr = LogisticRegression(max_iter=5000)
-    lr.fit(logit.reshape(-1, 1), np.asarray(y))
+    lr.fit(logit.reshape(-1, 1), y)
     return float(lr.coef_[0][0]), float(lr.intercept_[0])
 
 
@@ -264,10 +271,12 @@ def evaluate_subsets(subsets: dict, external: pd.DataFrame, halueval_test: dict,
     return {}
 
 
-def target_calibration_experiment(cal_df: pd.DataFrame, test_df: pd.DataFrame) -> dict:
+def target_calibration_experiment(cal_df: pd.DataFrame, test_df: pd.DataFrame) -> tuple:
     """Fit target calibrators on cal_df (RAGTruth QA train), evaluate on test_df.
 
-    Removes source groups that span calibration/test; asserts disjointness.
+    Removes source groups that span calibration/test. Returns
+    (results_dict, filtered_cal_df) so callers save calibrators fit on the
+    EXACT same (filtered) calibration frame that produced the metrics.
     """
     overlap = set(cal_df["source_group_id"]) & set(test_df["source_group_id"])
     if overlap:
@@ -290,7 +299,7 @@ def target_calibration_experiment(cal_df: pd.DataFrame, test_df: pd.DataFrame) -
         out["methods"][method] = mean_std_rows(rows)
         logger.info(f"target [{method}]: ece={out['methods'][method]['ece_mean']:.4f} "
                     f"brier={out['methods'][method]['brier_mean']:.4f}")
-    return out
+    return out, cal_df.reset_index(drop=True)
 
 
 def main():
@@ -367,7 +376,7 @@ def main():
     # ---- 3. Target calibration (RAGTruth QA train -> QA test) ----
     qa_cal = rag[(rag["task"] == "qa") & (rag["official_split"] == "train")]
     qa_test = rag[(rag["task"] == "qa") & (rag["official_split"] == "test")]
-    target = target_calibration_experiment(qa_cal, qa_test)
+    target, qa_cal_clean = target_calibration_experiment(qa_cal, qa_test)
     # target vs source on the same QA test set
     target["methods"]["source_platt_reference"] = cal_metrics["ragtruth_qa_test"]["platt"]
     target["methods"]["source_isotonic_reference"] = cal_metrics["ragtruth_qa_test"]["isotonic"]
@@ -447,11 +456,11 @@ def main():
 
     for method, seed in (("platt", 42), ("isotonic", 42)):
         joblib.dump(calibrators[method][seed], B4_MODELS / f"calibrator_{method}_source_seed_{seed}.joblib")
-    qa_cal_s42 = qa_cal["score_42"].values
+    qa_cal_s42 = qa_cal_clean["score_42"].values
     for method in ("platt", "isotonic"):
-        cal = fit_calibrator(method, qa_cal_s42, qa_cal["label"].values)
+        cal = fit_calibrator(method, qa_cal_s42, qa_cal_clean["label"].values)
         joblib.dump(cal, B4_MODELS / f"calibrator_{method}_target_ragtruth_qa_seed_42.joblib")
-    logger.info(f"Saved calibrators to {B4_MODELS}")
+    logger.info(f"Saved calibrators to {B4_MODELS} (target calibrators fit on filtered calibration frame)")
 
     config = {
         "schema": "b4-config-v1",
@@ -513,6 +522,11 @@ def subgroup_calibration(df: pd.DataFrame, dimension: str, calibrators: dict, n_
                          "reason": "below minimum (rows<100 or groups<20)"})
             continue
         y_sub = y[work.index.isin(sub.index)]
+        if len(np.unique(y_sub)) < 2:
+            rows.append({"dimension": dimension, "subgroup": str(key), "n_rows": int(len(sub)),
+                         "n_groups": int(n_groups), "reported": False,
+                         "reason": "degenerate single-class subgroup (pooled aggregate is reported instead)"})
+            continue
         entry = {"dimension": dimension, "subgroup": str(key), "n_rows": int(len(sub)),
                  "n_groups": int(n_groups), "reported": True}
         for method in ("platt", "isotonic"):
