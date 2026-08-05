@@ -611,4 +611,18 @@ def make_figures(cal_metrics: dict, subgroup_rows: list, reliability: dict):
 
 
 if __name__ == "__main__":
-    main()
+    import traceback
+
+    try:
+        main()
+    except Exception:
+        import datetime
+
+        msg = traceback.format_exc()
+        print("B4 CRASHED - full traceback below:\n" + msg)
+        B4_RESULTS.mkdir(parents=True, exist_ok=True)
+        (B4_RESULTS / "b4_crash.log").write_text(
+            datetime.datetime.now(datetime.timezone.utc).isoformat() + "\n" + msg,
+            encoding="utf-8",
+        )
+        raise

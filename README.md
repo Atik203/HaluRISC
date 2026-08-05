@@ -191,6 +191,22 @@ Outputs (all gitignored, regenerable):
 Determinism is guaranteed: rerunning step 15 produces byte-identical parquet
 and an identical content fingerprint.
 
+### Colab runtime: use L4 (22.5 GB VRAM / 54 GB RAM)
+
+- **L4 is strongly recommended** — the free T4 can crash under the combined
+  B2–B4 workload (B4 in particular needs headroom after B3's heavy run).
+- Every heavy phase **checkpoints to `Drive/halurisc_cache/`** immediately
+  after finishing (B2 models/results, B3 features + results + figures, B4
+  artifacts). Restore cells (`7b.0`, `7d.5`, `7d.6`, `7g.0`) verify hashes
+  before reuse, so a crashed session **resumes from Drive without redoing
+  completed phases**: restart runtime → cells 1–5 → 5b → 6/6b → 7d → restore
+  cells → continue from the crashed cell.
+- All cached artifacts are CPU-portable (XGBoost trained with
+  `HALU_XGB_DEVICE=cpu`; B4 calibrators are pure sklearn) — no cross-platform
+  loading errors after download. Cell 7i (`verify_artifacts.py`) proves every
+  artifact loads and predicts before packaging; run it again locally after
+  unzipping.
+
 ### 2. Frontend Setup (Next.js + assistant-ui)
 
 ```powershell

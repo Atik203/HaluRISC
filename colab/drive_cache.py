@@ -75,3 +75,50 @@ def cache_key_matches(meta: dict, unified_parquet_path) -> bool:
         return meta["input_sha256"] == sha256_file(unified_parquet_path)
     except OSError:
         return False
+
+
+def restore_config_hash(config_json_path, key: str, file_path) -> bool:
+    """Generic: cached run-config records input hashes; restore only when they match.
+
+    key is the dotted path into the config, e.g. "inputs.features_full.parquet"
+    or "unified_parquet_sha256". Returns False on any mismatch/missing file.
+    """
+    import json
+
+    try:
+        cfg = json.loads(Path(config_json_path).read_text(encoding="utf-8"))
+        node = cfg
+        for part in key.split("."):
+            if not isinstance(node, dict) or part not in node:
+                return False
+            node = node[part]
+        return node == sha256_file(file_path)
+    except (OSError, ValueError, TypeError):
+        return False
+
+
+def b2_restore_valid(b2_config_path, features_path) -> bool:
+    """B2 artifacts are reusable when the cached run consumed THIS features_full.parquet."""
+    return restore_config_hash(b2_config_path, "inputs.features_full.parquet", features_path)
+
+
+def b3_restore_valid(b3_config_path, unified_path, b2_models_dir) -> bool:
+    """B3 results are reusable when unified parquet AND B2 models match the cached run."""
+    import json
+
+    try:
+        cfg = json.loads(Path(b3_config_path).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return False
+    if cfg.get("unified_parquet_sha256") != sha256_file(unified_path):
+        return False
+    hashes = cfg.get("b2_model_hashes") or {}
+    return all(
+        hashes.get(f"seed_{s}") == sha256_file(Path(b2_models_dir) / f"xgboost_seed_{s}.joblib")
+        for s in (42, 123, 456)
+    )
+
+
+def b4_restore_valid(b4_config_path, b3_predictions_path) -> bool:
+    """B4 artifacts are reusable when they were produced from THIS b3 predictions file."""
+    return restore_config_hash(b4_config_path, "inputs.b3_predictions.parquet", b3_predictions_path)
