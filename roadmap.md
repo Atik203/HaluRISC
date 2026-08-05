@@ -6,7 +6,7 @@
 
 > **IMPLEMENTATION STATUS (updated 2026-08-06):** ✅ DONE | 🔶 PARTIAL | ⬜ TODO
 >
-> Version A integrity repair is complete: leakage-free group split, corrected artifacts (XGBoost F1 0.9842 / AUROC 0.9982), per-seed metrics, manifest, LLM-judge, API + pytest verified, and the Colab zip now produces portable models (HALU_XGB_DEVICE=cpu). Remaining: manual 50-sample audit review, manual error-case review, paper claim updates, web lint/build + clean-clone verification, and pushing the final state to `version-A`. Version B is locked until that push.
+> Version A integrity repair is complete: leakage-free group split, corrected artifacts (XGBoost F1 0.9842 / AUROC 0.9982), per-seed metrics, manifest, LLM-judge, API + pytest verified, and the Colab zip now produces portable models (HALU_XGB_DEVICE=cpu). Version A is frozen on `version-A`; Version B work runs on `version-B` and B1 (unified dataset layer) is complete. Remaining: B2 corrected baselines and shortcut controls next.
 
 ### Operating rule
 
@@ -384,7 +384,18 @@ Environment: Colab Pro for the rerun; local machine for verification.
 
 Exit condition: no cross-split source groups, completed audit, corrected artifacts, verified paper claims, and all required local checks passing.
 
-### B1 — Unified data schema
+### B1 — Unified data schema — ✅ DONE (2026-08-06)
+
+Status: canonical schema (`src/data/schema.py`), label mappings
+(`src/data/mappings.py`), dataset registry/license manifest
+(`src/data/registry.py`), official RAGTruth + FaithBench downloaders, and
+`src/data/prepare_unified.py` are implemented; 32 new unit tests pass; the
+local run produces 38,540 canonical rows (HaluEval 20,000 / RAGTruth 17,790 /
+FaithBench 750) with byte-identical deterministic output. Mapping report:
+`artifacts/results/dataset_mapping_report.json`; license manifest:
+`artifacts/results/dataset_license_manifest.json`. RAGTruth counts match the
+ACL 2024 paper exactly (17,790 responses, 2,965 sources, 7,664 hallucinated,
+14,289 spans).
 
 Environment: Colab Pro for downloads and preprocessing; local machine for schema tests.
 

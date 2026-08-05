@@ -141,6 +141,39 @@ python src/models/eval_llm_judge.py
 
 ---
 
+### Version B — Unified dataset layer (B1)
+
+Canonical, lossless schema for HaluEval + RAGTruth (official) + FaithBench
+(roadmap §14 B1). Version A preprocessing (`prepare.py`) is untouched; B1 adds
+adapter modules. FaithBench (CC BY-NC-SA) is never bundled — raw files stay
+under gitignored `data/raw/`; only hashes, citations, and license notes ship.
+
+```powershell
+# 13. Download official RAGTruth (response.jsonl + source_info.jsonl, lossless spans/tasks)
+& .venv\Scripts\python.exe src\data\download_ragtruth.py
+
+# 14. Download FaithBench annotation batches (batch_1..16, no batch 13)
+& .venv\Scripts\python.exe src\data\download_faithbench.py
+
+# 15. Build canonical unified records + mapping report + license manifest
+& .venv\Scripts\python.exe src\data\prepare_unified.py
+```
+
+Outputs (all gitignored, regenerable):
+
+- `data/processed/unified_records.parquet` — 38,540 rows: HaluEval 20,000
+  (10,000 groups, grouped 70/15/15 split), RAGTruth 17,790 (2,965 `source_id`
+  groups, spans/quality/task/model/split preserved), FaithBench 750
+  (15 batches, worst-severity label mapping).
+- `artifacts/results/dataset_mapping_report.json` + `.csv` — counts, label
+  distributions, span types, exclusions, FaithBench label sensitivity,
+  raw-file SHA-256 hashes.
+- `artifacts/results/dataset_license_manifest.json` — licenses, revisions,
+  grouping rules, citations.
+
+Determinism is guaranteed: rerunning step 15 produces byte-identical parquet
+and an identical content fingerprint.
+
 ### 2. Frontend Setup (Next.js + assistant-ui)
 
 ```powershell
