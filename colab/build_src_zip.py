@@ -21,6 +21,7 @@ PARTS = [
     ROOT / "requirements.txt",
     ROOT / "colab" / "HaluRISC_Training.ipynb",
     ROOT / "colab" / "requirements-colab.txt",
+    ROOT / "colab" / "drive_cache.py",
 ]
 EXCLUDE_DIRS = {"__pycache__", ".ipynb_checkpoints", ".pytest_cache"}
 

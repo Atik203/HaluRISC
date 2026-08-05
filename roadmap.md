@@ -492,6 +492,14 @@ instead of crashing slope/intercept fitting; (4) `src/models/verify_artifacts.py
 preventing the historical post-download loading error; (5)
 `colab/build_src_zip.py` rebuilds the source zip without `__pycache__`/`.pyc`;
 (6) `make_manifest.py` now hashes B2/B3/B4 artifacts and unified records.
+(7) **Drive caching of deterministic heavy artifacts** (new cells 5b/6b/7d.5,
+`colab/drive_cache.py`): `features_full.parquet` and the B3 external-feature
+cache are stored in `Drive/halurisc_cache/` and restored on later sessions
+after verification — HaluEval features are checked against the freshly built
+`qa_clean.parquet` (rows/sample_ids/labels/splits/leakage), the B3 cache only
+when its unified-parquet hash matches; mismatches automatically fall back to
+full extraction. Cell 6 (5–10 min) and B3 extraction (~15–40 min) are skipped
+on repeat runs.
 
 Environment: Colab Pro.
 
