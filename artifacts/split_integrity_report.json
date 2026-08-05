@@ -1,0 +1,22 @@
+{
+  "split": "group_by_item_idx",
+  "seed": 42,
+  "n_groups_total": 10000,
+  "n_groups_per_split": {
+    "test": 1500,
+    "train": 7000,
+    "val": 1500
+  },
+  "n_rows_per_split": {
+    "test": 3000,
+    "train": 14000,
+    "val": 3000
+  },
+  "label_mean_per_split": {
+    "test": 0.5,
+    "train": 0.5,
+    "val": 0.5
+  },
+  "groups_spanning_multiple_splits": 0,
+  "leakage_free": true
+}

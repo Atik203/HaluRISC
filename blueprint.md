@@ -16,9 +16,9 @@ The two versions must not be mixed during the course. The biggest risk is trying
 
 > **Build a clean, defensible course project first. Then extend it into a stronger publication study.**
 
-> **IMPLEMENTATION STATUS (updated 2026-08-05):** ✅ DONE | 🔶 PARTIAL | ⬜ TODO
+> **IMPLEMENTATION STATUS (updated 2026-08-06):** ✅ DONE | 🔶 PARTIAL | ⬜ TODO
 >
-> Version A is implemented end-to-end: dataset+audit (A7 ✅), all 7 feature groups incl. NLI (A8 ✅), ML pipeline with 5-fold CV/tuning/3 seeds (A9 ✅), evaluation incl. error analysis + LLM-judge comparison + latency (A10 ✅ — citing published HaluEval numbers is a paper step), API (A11 ✅), 4-page web app (A12 ✅), paper (A13 🔶 — full draft compiled in report/out/paper.pdf, 12 pages with real-data tables/figures; proofreading + final bibliography pass pending), reproducibility checklist (A18 ✅). Version B remains future work — do not implement during the course.
+> Version A integrity repair is complete: group-aware split by `item_idx` is leakage-free (0 groups spanning splits), and all corrected artifacts were regenerated (XGBoost F1 0.9842 / AUROC 0.9982, calibration ECE raw 0.0122 / Platt 0.0101 / isotonic 0.0071, RAGTruth zero-shot F1 0.4819, LLM-judge F1 0.84 vs XGBoost 0.985, per-seed metrics, manifest). API and pytest verified; Colab notebook/zip produce portable artifacts (HALU_XGB_DEVICE=cpu). Remaining for final: manual 50-sample audit review, manual error-case review, paper claim updates (A13), web lint/build/clean-clone verification, and pushing the final state to `version-A`. Version B stays locked until that push.
 
 ---
 
@@ -115,9 +115,9 @@ The corrected idea remains valuable because it is practical, measurable, explain
 | Target                           | Is the contribution sufficient? | Critical Verdict                                                                 | How to improve without making it impossible                                             |
 | -------------------------------- | ------------------------------- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | Undergraduate ML course          | Yes (Strong)                    | Strong if mandatory upgrades (NLI, 5-fold CV, 3 seeds, external baseline) done.  | Keep scope focused; add NLI features; parallel paper writing.                            |
-| IEEE Access                      | Yes (Extended version)          | Good fit: comparative study + cross-domain + calibration. 70%+ probability.      | Add RAGTruth, multicalibration, explanation metrics, Docker artifact.                    |
+| IEEE Access                      | Candidate after evidence gate  | Applications-oriented venue; assess scope and current quartile at submission.    | Add corrected cross-domain results, calibration, explanation metrics, artifact.           |
 | Multimedia Systems (Springer)    | Possible (after extension)      | Must differentiate from existing SHAP+LIME paper (2026) in same venue.           | Emphasize explanation reliability metrics (FAC, PSI), not just SHAP visualization.      |
-| Expert Systems with Applications | Possible (after strong results)  | Needs strong applied framing + excellent cross-domain results. 45-55% probability. | Emphasize risk triage, explanation reliability, and real deployment constraints.        |
+| Expert Systems with Applications | Candidate after strong results  | Requires strong applied framing and defensible external evaluation.                | Emphasize risk triage, explanation reliability, and deployment constraints.                |
 | ACL Findings                     | Borderline/weak                 | Needs stronger NLP contribution than engineered features + XGBoost.              | Add evidence-conditioned analysis, cross-domain transfer, and deeper error taxonomy.    |
 | EMNLP Findings                   | Borderline/weak                 | Similar to ACL; benchmark-only applied system is likely insufficient.            | Add new benchmark insight, annotation analysis, or explanation-faithfulness study.      |
 
@@ -366,7 +366,7 @@ Never remove:
 
 ---
 
-## A7. Dataset Plan — ✅ DONE
+## A7. Dataset Plan — ✅ GROUPED SPLIT DONE, MANUAL AUDIT PENDING
 
 ### Primary dataset
 
@@ -388,11 +388,13 @@ HaluEval is the best available dataset for the course, but it has known weakness
 2. **Self-reinforcement risk.** ChatGPT generates AND filters the hallucinated samples, creating a potential circular artifact — the benchmark may reward systems that recognize ChatGPT-specific hallucination patterns rather than general hallucination patterns.
 3. **Binary classification oversimplification.** "Is this answer hallucinated? Yes/No" ignores graded severity, partial hallucination, and ambiguity. Real deployment needs risk scores, not binary flags — which is exactly what HaluRISC provides.
 4. **Generated with early-2023 ChatGPT.** RLHF, model architectures, and hallucination patterns have evolved significantly since.
-5. **No license file.** The GitHub repo lacks a LICENSE — a minor reproducibility concern.
+5. **License and provenance.** The official HaluEval repository currently states an MIT License. Retain attribution, citation, and the exact source revision in the reproducibility manifest.
 6. **Conflates factuality with hallucination.** HalluLens (ACL 2025) notes the benchmark tests consistency with Wikipedia, not consistency with model training data — blurring the line between factually wrong and hallucinated.
 
 **Required actions:**
 - Manually inspect 50 random HaluEval samples (Week 1) to verify label quality before committing to the dataset.
+- Split by the original question/group identifier (`item_idx`) so the correct and hallucinated variants never cross train/validation/test boundaries.
+- Save a split-integrity report proving that every source question belongs to exactly one partition.
 - Add a dedicated "Dataset Limitations" subsection in the course paper discussing these issues.
 - Do NOT claim the model generalizes to real-world LLM outputs based on HaluEval results alone. Frame results as "performance on HaluEval benchmark" not "general hallucination detection performance."
 
@@ -411,10 +413,10 @@ Do not try to build a universal detector across all domains in the course versio
 
 | Dataset     |                         Size | Advantages                                               | Disadvantages                                 | Licensing                                | Course Suitability                                   |
 | ----------- | ---------------------------: | -------------------------------------------------------- | --------------------------------------------- | ---------------------------------------- | ---------------------------------------------------- |
-| HaluEval    |                        Large | Directly relevant; benchmark-style; enough training data | May contain artifacts; may not generalize     | Verify original repo/license and cite    | Best primary choice                                  |
-| TruthfulQA  |                        Small | Tests truthful answering; useful external reference      | Not ideal for supervised large-scale training | Public research dataset; verify license  | Optional discussion or extension                     |
-| RAGTruth    | Medium/large depending split | Better for evidence-grounded hallucination               | More complex; may take longer to process      | Verify terms before redistribution       | Better for publication extension                     |
-| Custom data |                     Flexible | Can match demo scenario                                  | Labeling cost and reliability issues          | Must document generation/labeling rights | Not recommended for course except tiny demo-only set |
+| HaluEval    |                        Large | Directly relevant; benchmark-style; enough training data | May contain artifacts; may not generalize     | MIT; cite official repository             | Best primary choice                                  |
+| TruthfulQA  |                        Small | Tests truthful answering; useful external reference      | Not ideal for supervised large-scale training | Verify license before use                 | Optional discussion or extension                     |
+| RAGTruth    | Medium/large depending split | Better for evidence-grounded hallucination               | More complex; may take longer to process      | MIT; cite official repository              | Better for publication extension                     |
+| Custom data |                     Flexible | Can match demo scenario                                  | Labeling cost and reliability issues          | Must document generation/labeling rights  | Not recommended for course except tiny demo-only set |
 
 ### Licensing rule
 
@@ -467,7 +469,7 @@ Use approximately **15–30 total features**. This is enough for a good paper an
 
 ---
 
-## A9. ML Pipeline — ✅ DONE (XGBoost + Platt final model, F1 0.9886 / AUROC 0.9980 on test)
+## A9. ML Pipeline — ✅ CORRECTED RERUN DONE (XGBoost F1 0.9842 / AUROC 0.9982 on leakage-free test)
 
 ### Course workflow
 
@@ -504,8 +506,10 @@ Recommended:
 - validation: 15%
 - test: 15%
 
-Use stratification by label. If official splits are available and clean, use official splits.
-**Save split indices to disk** for exact reproducibility (not just fixed seed).
+Use group-aware stratification by `item_idx`: assign each original question to exactly one partition, then place both answer variants in that partition. If official splits are available and clean, use official splits.
+**Save split indices and group identifiers to disk** for exact reproducibility (not just a fixed seed). Add an automated assertion that no group appears in more than one split.
+
+The existing row-level split is invalid for final reporting because paired correct/hallucinated answers from the same question cross partition boundaries. All A9 metrics and downstream artifacts must be regenerated after this repair.
 
 ### Cross-validation
 
@@ -562,7 +566,7 @@ For the paper, include:
 
 ---
 
-## A10. Evaluation Strategy — ✅ DONE (implementation: metrics, stats, calibration, ablations, RAGTruth zero-shot, 10 FP + 10 FN error analysis, LLM-as-judge comparison on 200 samples, latency/cost analysis; citing published HaluEval numbers happens in the paper, A13)
+## A10. Evaluation Strategy — ✅ CORRECTED EVIDENCE PRODUCED (manual error-case review pending)
 
 ### Required metrics
 
@@ -592,6 +596,7 @@ Efficiency:
 - **Cost comparison:** Estimated GPT-3.5-turbo API cost for evaluating the same 1,000 samples via LLM-as-a-judge (for efficiency advocacy)
 - model artifact size
 - runtime memory usage during API inference
+- total latency p50 and p95, including feature extraction and explanation
 
 Statistical testing (Mandatory):
 
@@ -615,6 +620,7 @@ Compare against at least one external reference point so readers can calibrate w
 
 - **SelfCheckGPT-NLI performance** on the same HaluEval QA subset. Use published numbers if available, or re-implement the NLI-based variant (requires multiple LLM generations — expensive, so run on a 200-sample test subset only).
 - **Alternative:** Cite the best published HaluEval QA detection F1/AUROC from the benchmark leaderboard or recent papers (e.g., IEEE TAI 2026 hybrid framework, IJERT 2026, Luna/COLING 2025).
+- Add answer-only, context-only, lexical/TF-IDF, and overlap controls to quantify benchmark shortcuts before interpreting the XGBoost result.
 - This comparison takes ~2 hours and dramatically improves paper credibility. Without it, readers cannot tell if F1=0.78 is good or bad.
 
 ### Ablation studies
@@ -645,7 +651,7 @@ This will strengthen the paper significantly.
 
 ---
 
-## A11. Course System Architecture — ✅ DONE (/predict, /explain, /judge, /health; model+features loaded at startup)
+## A11. Course System Architecture — 🔶 IMPLEMENTED, LIVE VERIFICATION PENDING (/predict, /explain, /judge, /health)
 
 ### Architecture diagram
 
@@ -721,7 +727,7 @@ Returns backend status.
 
 ---
 
-## A12. Web Application for Course Demo — ✅ DONE (Chat w/ generative UI, Analyze, Dashboard with real artifacts data, About)
+## A12. Web Application for Course Demo — 🔶 IMPLEMENTED, DEMO HARDENING PENDING
 
 ### App purpose
 
@@ -779,7 +785,7 @@ Do NOT fill the paper with UI screenshots. The web application is a demonstratio
 
 ---
 
-## A13. Course Paper Blueprint — 🔶 PARTIAL (full draft compiled: report/out/paper.pdf, 12 pages, all real-data tables/figures; proofreading + final bibliography pass pending)
+## A13. Course Paper Blueprint — 🔶 PARTIAL (draft compiled; corrected data, audit evidence, claim review, proofreading, and bibliography still pending)
 
 ### Recommended course paper title
 
@@ -894,6 +900,21 @@ Because the course paper is more important, finish these before over-polishing U
 ## A14. 8-Week Roadmap (Revised)
 
 **Critical rule: Paper writing is a parallel track every week, not a Week 8 sprint.** Each week has both implementation deliverables AND paper writing deliverables.
+
+### Current completion gate before Version B
+
+The original eight-week implementation is present, but Version A is not considered final until these gates pass:
+
+1. Repair the HaluEval split to be group-aware by `item_idx` and verify zero cross-split group overlap.
+2. Manually review 50 unique source questions and save the completed audit file.
+3. Regenerate features, models, calibration, statistics, ablations, SHAP, error analysis, latency, and RAGTruth artifacts.
+4. Add answer-only/context-only/lexical shortcut controls and record the actual NLI checkpoint.
+5. Manually verify the sampled FP/FN cases and correct the heuristic error categories.
+6. Run the required Python tests, live API smoke test, `pnpm run lint`, `pnpm run build`, and a clean-clone reproduction test.
+7. Rewrite the course paper so every numerical, manual-review, calibration, and generalization claim matches the corrected artifacts.
+8. Commit and push the final Version A state to `version-A` before starting any Version B experiment.
+
+Version B is explicitly locked until this gate is complete. The existing Colab notebook remains the execution vehicle for heavy training; its cells will be updated after the grouped-split and evaluation scripts are repaired.
 
 ### Week 1 — Literature, Dataset Setup, and Manual Audit
 
@@ -1095,6 +1116,7 @@ Mitigation: record backup demo video/screenshots; prioritize paper quality over 
 | Research       | Weak novelty                              | High   | Emphasize compound contribution (features + calibration + SHAP + demo + NLI). |
 | Dataset        | HaluEval synthetic artifacts inflate perf | High   | Discuss honestly in Limitations; manually audit 50 samples first.     |
 | Dataset        | HaluEval labels incorrect for 10%+ samples| Medium | Manual audit in Week 1; flag and exclude clearly mislabeled samples.  |
+| Research       | Paired answers cross train/validation/test | Critical | Group by `item_idx`, assert zero overlap, and rerun all experiments. |
 | Implementation | API/frontend delay                        | Medium | Build with mock JSON first; reduce to 2 pages if needed.              |
 | Novelty        | Reviewers see "XGBoost + SHAP only"       | High   | Frame as compound system; differentiate from Multimedia Systems 2026 paper. |
 | Novelty        | IJERT (2026) pre-covers feature combo     | Medium | Cite and differentiate via hedging features, calibration, and cross-domain. |
@@ -1122,7 +1144,7 @@ Do not include:
 
 ---
 
-## A17. Course Final Verdict
+## A17. Course Final Verdict — 🔶 FINAL INTEGRITY GATE PENDING
 
 | Dimension                        | Score / 10 |
 | -------------------------------- | ---------: |
@@ -1136,11 +1158,11 @@ Do not include:
 
 ### Course verdict
 
-This is a strong and realistic ML course project if implemented as a **paper-first calibrated hallucination-risk prediction system** with a focused dataset, compact feature set (including mandatory NLI), clean experiments with 3-seed reporting and statistical tests, SHAP explanations with reliability analysis, and a polished but scope-controlled web demo. The compound contribution — engineered evidence-consistency features + NLI + calibration + SHAP + deployable demo — exceeds typical undergraduate course project expectations.
+This is a strong and realistic ML course project at the implementation level. The final academic verdict is pending the grouped-split repair and corrected evidence package. After that repair, it can be presented as a **paper-first calibrated hallucination-risk prediction system** with a focused dataset, compact feature set, clean experiments, statistical tests, SHAP explanations, and a polished demo. Do not use the current leaked-split headline metrics as final claims.
 
 ---
 
-## A18. Mandatory Reproducibility Checklist — ✅ DONE (all items below verified)
+## A18. Mandatory Reproducibility Checklist — 🔶 GATE PENDING
 
 Before considering the course project complete, verify all items:
 
@@ -1150,15 +1172,20 @@ Before considering the course project complete, verify all items:
 [x] Saved calibration layer (calibrator_platt.joblib)
 [x] Saved SHAP explainer object (shap_explainer.joblib — saved by src/explain/shap_analysis.py; API loads it)
 [x] Saved train/val/test split indices (split_indices.json + .npy)
+[x] Group-aware split verified: no `item_idx` appears in more than one partition (leakage-free report saved 2026-08-06)
+[ ] Completed manual audit saved as `data/processed/audit_50_samples.json` (auto-sampled file exists; human review pending)
 [x] Feature extraction script with version pin (src/features/*, FEATURE_VERSION in API)
 [x] All random seeds documented in a single config file (src/models/config.py — SEEDS = [42, 123, 456])
 [x] README.md with exact reproduction steps (pnpm/Next 16 commands, real benchmark tables, hardware spec)
 [x] Hardware/software specification — Python 3.12.13, Windows 11, RTX 3060 6GB (CUDA 12.8), pinned libs (requirements.txt, params.json)
 [x] Saved figures in vector format (PDF + PNG) for paper inclusion
 [x] Git repository with clean commit history and .gitignore
+[ ] Live API integration test with artifact-backed `/predict` and `/explain`
+[ ] `pnpm run lint` and `pnpm run build` pass on the current checkout
+[ ] Clean-clone reproduction test passes
 ```
 
-This checklist must be satisfied **before Week 8 presentation**. Reproducibility is a key grading criterion.
+This checklist must be satisfied **before Version A is pushed as final and before Version B begins**. Existing artifacts remain provisional until the corrected split and all dependent artifacts are regenerated.
 
 ---
 
@@ -1166,7 +1193,9 @@ This checklist must be satisfied **before Week 8 presentation**. Reproducibility
 
 Extend the course project into a stronger applied research study suitable for a decent Q2-level journal.
 
-The publication version must move beyond “we trained XGBoost on HaluEval.” That alone is not enough.
+**Sequencing rule:** Version B begins only after Version A passes the integrity gate in A14/A18 and the corrected Version A commit is pushed to `version-A`. The `version-B` branch is reserved for post-repair publication work; it must not silently replace or mix with the course baseline.
+
+The publication version must move beyond “we trained XGBoost on HaluEval.” That alone is not enough. Current Version A metrics are provisional until the group-aware split is rerun.
 
 The extended version should focus on:
 
@@ -1191,14 +1220,14 @@ This is stronger than the course question because it tests generalization and ex
 The publication version should claim the following contributions:
 
 1. A cross-domain black-box hallucination-risk framework using engineered evidence-aware features and NLI signals.
-2. **Multicalibration** analysis (Platt, isotonic, and embedding-based cluster calibration) across in-domain and out-of-domain datasets, following the AWS Cost-Effective framework (Valentin et al., 2024).
+2. Calibration analysis (Platt, isotonic, and carefully defined subgroup calibration) across in-domain and out-of-domain datasets, informed by Valentin et al. (2024). Embedding-cluster calibration is optional and must use minimum group sizes and a pooled fallback.
 3. Feature-group ablation, feature interaction testing (2-way and 3-way combinations), and **explanation faithfulness analysis** with quantitative metrics.
 4. Comparison against classical baselines + at least one neural/semantic baseline (e.g., DeBERTa-NLI classifier, Luna/COLING 2025).
 5. An open-source reproducible web-based artifact with Dockerized backend and automated experiment scripts.
 
-### What makes this Q2-journal-worthy?
+### What may make this publication-worthy?
 
-The publication strength comes from the **compound contribution**: rigorous cross-domain evaluation, multicalibration analysis, explanation faithfulness metrics, practical deployability, and honest limitations. The field has no published paper combining all five. Position as an **applied, reproducible, calibration-aware hallucination-risk framework** — not SOTA.
+The publication strength should come from the **compound evidence**: leakage-controlled cross-domain evaluation, calibration analysis, explanation faithfulness metrics, practical deployability, and honest limitations. Do not claim to be the first paper combining these elements or guarantee a journal quartile. Position the work as an **applied, reproducible, calibration-aware hallucination-risk framework** — not SOTA.
 
 ---
 
@@ -1210,8 +1239,8 @@ The publication strength comes from the **compound contribution**: rigorous cros
 | Novelty                    |          8 | Explanation reliability testing is genuinely novel. Cross-domain + calibration for classical ML is underexplored.    |
 | Practicality               |          9 | Highly practical and deployable; 2-4 orders of magnitude cheaper than LLM-based methods.                             |
 | Engineering Complexity     |          7 | More complex due to multiple datasets, explanation metrics, and reproducibility requirements.                        |
-| Research Complexity        |          8 | Strong: robustness, multicalibration, explanation faithfulness, feature interaction analysis.                        |
-| Publication Potential      |          8 | Realistic for Q2 applied venues (IEEE Access 70%+, Multimedia Systems 55%+).                                         |
+| Research Complexity        |          8 | Strong: robustness, subgroup calibration, explanation faithfulness, and feature interaction analysis.                 |
+| Publication Potential      |          8 | Conditional on corrected leakage-free results and complete external evaluation.                                      |
 | Implementation Risk        |          6 | Dataset alignment and cross-domain evaluation are non-trivial; explanation metrics need careful design.              |
 | Scalability                |          8 | Lightweight inference remains scalable.                                                                              |
 | Reproducibility            |          9 | Strong if Dockerized with automated scripts and exact version pins.                                                  |
@@ -1275,35 +1304,38 @@ Why this is stronger:
 
 ### Secondary datasets (use at least two)
 
-1. **RAGTruth (ACL 2024)** — **Mandatory primary external dataset.** 18K naturally generated RAG responses with word-level span annotations and hallucination type labels. Diverse LLM sources (GPT-3.5, GPT-4, Llama-2, Mistral). Much stronger than HaluEval for real-world generalization testing. ~1 week preprocessing.
-2. **FaithBench (NAACL 2025)** — **Strong supplementary.** Human-annotated hallucinations from 10 modern LLMs. Focused on challenging cases where SOTA detectors disagree. Key finding: best detectors near 50% accuracy — significant room for improvement.
-3. **HalluLens benchmark (ACL 2025)** — **Optional.** Clear intrinsic/extrinsic taxonomy with dynamic test generation to prevent data leakage. Useful for fine-grained hallucination type analysis.
+1. **RAGTruth (ACL 2024)** — **Mandatory primary external dataset.** Nearly 18K naturally generated RAG responses with case-level and word-level annotations. Use the QA portion first, preserve official splits where possible, and group by `source_id` because one source can produce multiple responses. The official repository is MIT-licensed; do not assume the local 2K cache is the complete benchmark.
+2. **FaithBench (NAACL 2025)** — **Strong supplementary stress test.** Human-annotated difficult summarization cases from 10 modern LLMs across 8 families. Map source text to context and summary to answer, document label mapping, and respect the repository's CC BY-NC-SA terms. Do not bundle the dataset in the artifact.
+3. **HalluLens benchmark (ACL 2025)** — **Optional.** It uses a clear intrinsic/extrinsic taxonomy and dynamically generates evaluation data to reduce leakage. It requires an additional generation/inference workflow and is not a direct replacement for evidence-grounded QA. The repository is primarily CC BY-NC; use only if licensing and compute are acceptable.
 4. **TruthfulQA** — **Downgraded.** 817 questions, partially saturated, measures factuality not hallucination. Use only as an optional discussion point, not as a primary external evaluation.
 
 ### Dataset comparison for publication
 
 | Dataset     | Role                              | Advantage                                | Limitation                                     | Priority |
 | ----------- | --------------------------------- | ---------------------------------------- | ---------------------------------------------- | -------- |
-| HaluEval    | Training/in-domain test           | Large; well-known benchmark             | Synthetic (85%); binary; stale                 | Primary  |
-| RAGTruth    | External evidence-grounded test   | Natural responses; word-level spans     | RAG-specific; more complex preprocessing       | **Mandatory** |
-| FaithBench  | Challenging case stress test      | Modern LLMs; human-annotated; difficult | Small-ish dataset; detector-disagreement focus | Strong   |
-| HalluLens   | Fine-grained taxonomy evaluation  | Dynamic generation; prevents leakage    | Newer; less established                        | Optional |
-| TruthfulQA  | Discussion only                   | Standard benchmark                      | Saturated; small; measures factuality          | Optional |
+| HaluEval    | Training/in-domain test           | Large; well-known benchmark             | Synthetic (85%); binary; benchmark artifacts  | Primary  |
+| RAGTruth    | External evidence-grounded test   | Natural responses; word-level spans     | RAG-specific; source-group preprocessing       | **Mandatory** |
+| FaithBench  | Challenging summarization stress  | Modern LLMs; human-annotated; difficult | CC BY-NC-SA; task/label mapping required      | Strong   |
+| HalluLens   | Dynamic taxonomy evaluation       | Intrinsic/extrinsic tasks; leakage controls | CC BY-NC; extra generation workflow        | Optional |
+| TruthfulQA  | Discussion only                   | Standard benchmark                      | Small; factuality rather than evidence support | Optional |
 
 ### Recommended publication dataset setup
 
-- **Train:** HaluEval QA subset.
-- **Validate:** Held-out HaluEval validation split.
-- **In-domain test:** HaluEval test split.
-- **Primary external test:** RAGTruth (zero-shot or lightly adapted).
-- **Stress test:** FaithBench (challenging cases, modern LLMs).
-- **Optional discussion:** TruthfulQA, HalluLens.
+- **Train:** leakage-controlled HaluEval QA group split.
+- **Validate:** held-out HaluEval validation groups for tuning and calibration.
+- **In-domain test:** locked HaluEval test groups.
+- **Primary external test:** RAGTruth QA, zero-shot first; target calibration is a separate explicitly labeled experiment.
+- **Stress test:** FaithBench summarization with a pre-registered label mapping.
+- **Optional discussion:** TruthfulQA, HalluLens, or the 2026 TRIVIA+ preprint.
+- **Distribution rule:** never fit preprocessing, thresholds, calibrators, or model parameters on an external test set.
 
 ---
 
 ## B8. Extended Feature Engineering
 
 The publication version can extend the course features, but every new feature must be justified and ablated.
+
+Do not expand the feature set before the corrected Version A baseline is established. First add artifact-control baselines (answer-only, context-only, lexical/TF-IDF, and overlap controls). Only then consider one evidence-coverage extension, such as sentence-level support/contradiction aggregation, and retain it only if it improves out-of-domain behavior with a documented ablation.
 
 **Note: NLI features have been moved to Version A (mandatory).** The publication version builds on top of the already strong course feature set.
 
@@ -1319,14 +1351,15 @@ The publication version can extend the course features, but every new feature mu
 
 **Caveat on evidence graph features (EGC, 2026):** Graph structural features show systematic reversal across model families — they work for Llama-2 but reverse for GPT-4/Mistral. Use cautiously and test on the specific LLM generating your answers.
 
-### Multicalibration methodology (from Valentin et al., 2024)
+### Calibration-under-shift methodology (informed by Valentin et al., 2024)
 
-Standard Platt/isotonic calibration fits a single calibrator. Multicalibration:
-1. Cluster inputs by semantic embedding (use Sentence-BERT to embed context+question+answer).
-2. Fit per-cluster calibrators.
-3. Report per-cluster ECE and overall weighted ECE.
+Standard Platt/isotonic calibration fits a single calibrator. Version B must first report subgroup calibration without assuming that per-cluster calibrators will improve results:
+1. Define subgroups before test evaluation: dataset, task, context length, answer length, and generator model when available.
+2. Fit calibration only on the designated calibration data.
+3. Report subgroup ECE, Brier, NLL, calibration slope/intercept, sample counts, and worst-group results.
+4. Treat embedding-cluster calibrators as an optional exploratory analysis with minimum group size and a pooled fallback.
 
-This significantly improves calibration under distribution shift and is a strong publication differentiator.
+This tests calibration under distribution shift without creating statistically unstable tiny calibrators.
 
 ### Publication feature discipline
 
@@ -1363,6 +1396,16 @@ flowchart TD
     Explain --> Artifact[Open-Source Artifact / Dashboard]
 ```
 
+### Publication execution order
+
+1. Freeze the corrected Version A group split and baseline.
+2. Build a unified schema for HaluEval, RAGTruth, and FaithBench.
+3. Run the HaluEval in-domain experiment with artifact-control baselines.
+4. Run zero-shot RAGTruth and FaithBench transfer evaluations.
+5. Fit and compare calibration methods using only permitted calibration data.
+6. Run explanation faithfulness and perturbation experiments.
+7. Freeze artifacts, build the reproducible dashboard, and write the manuscript from the frozen manifest.
+
 ### Models to compare
 
 Minimum:
@@ -1385,6 +1428,7 @@ Compare:
 - uncalibrated model
 - Platt scaling
 - isotonic regression
+- subgroup calibration diagnostics with minimum sample-count rules
 
 Report:
 
@@ -1403,6 +1447,8 @@ Add tests such as:
 
 This helps avoid the criticism that SHAP is only decorative.
 
+Do not use arbitrary pass thresholds for FAC or PSI. Report the measured correlations, stability distributions, confidence intervals, and failure examples.
+
 ---
 
 ## B10. Publication Evaluation Strategy
@@ -1411,7 +1457,7 @@ This helps avoid the criticism that SHAP is only decorative.
 
 1. In-domain classification performance.
 2. Out-of-domain generalization (RAGTruth, FaithBench).
-3. Calibration analysis (Platt, isotonic, multicalibration).
+3. Calibration under shift (Platt, isotonic, and subgroup calibration diagnostics).
 4. Ablation studies (single group removal + 2-way interactions).
 5. **Explanation reliability** (quantitative metrics).
 6. Latency and deployment cost.
@@ -1422,15 +1468,15 @@ These quantitative metrics test whether SHAP explanations are trustworthy — ad
 
 1. **Feature Ablation Correlation (FAC):**
    - Rank features by SHAP importance.
-   - Remove each feature one at a time, retrain model, measure performance drop.
+    - Remove each feature or feature group one at a time, retrain or refit under the pre-registered protocol, and measure performance and probability changes.
    - Compute Spearman correlation between SHAP rank and actual impact rank.
-   - High FAC (>0.7) = SHAP explanations are faithful to model behavior.
+    - Report the observed correlation and confidence interval; do not treat 0.7 as a universal pass threshold.
 
 2. **Perturbation Stability Index (PSI):**
-   - For 100 test samples, perturb answer text with synonyms and paraphrases.
+    - For a pre-registered test subset, apply controlled entity, number, support-sentence, and paraphrase perturbations.
    - Compute SHAP explanations for original and perturbed versions.
    - Measure Jaccard similarity of top-5 features before and after perturbation.
-   - High PSI (>0.8) = explanations are stable under minor input changes.
+    - Report the observed stability distribution and qualitative failure cases; do not treat 0.8 as a universal pass threshold.
 
 3. **SHAP-Ablation Alignment:**
    - Compare SHAP global feature importance ranking with ablation study ranking.
@@ -1466,6 +1512,13 @@ Efficiency:
 - memory footprint
 - model size
 - CPU inference time
+
+### Artifact-control and human-review requirements
+
+- Include answer-only, context-only, lexical/TF-IDF, and overlap controls to identify benchmark shortcuts.
+- Manually review a stratified sample of in-domain and external errors.
+- Have two reviewers assess explanation plausibility on a small sample and record disagreements.
+- Preserve dataset licenses, source revisions, split hashes, model checkpoints, and experiment configuration.
 
 Statistical testing:
 
@@ -1511,6 +1564,8 @@ The publication architecture is similar to the course version but with added rig
 - public demo or recorded demo video
 - README with exact reproduction steps (copy-paste runnable)
 - **requirements.txt with hash-pinned dependencies** (e.g., `pip freeze --require-hashes`)
+
+Heavy experiments run in Colab Pro. The local RTX 3060 6 GB / 32 GB RAM machine is the supported inference, UI, profiling, and demo environment. Keep one API worker, CUDA fp16, bounded inputs, and no reload watcher. A CPU Docker path is preferred for portability; CUDA is an optional local acceleration path.
 
 Do not overbuild a SaaS platform. The artifact should support the research paper, not become a product.
 
@@ -1603,15 +1658,35 @@ Do not overbuild a SaaS platform. The artifact should support the research paper
 
 ---
 
-## B13. Post-Course Roadmap
+## B13. Post-Course Roadmap — EXECUTION ORDER
 
-### Month 1 After Course — Dataset Expansion
+### Gate 0 — Finish Version A before Version B
 
 Objectives:
 
-- add one external dataset
-- build unified schema
-- run zero-shot transfer evaluation
+- repair the `item_idx` group split;
+- manually complete the 50-sample audit;
+- rerun all dependent artifacts in Colab Pro;
+- correct the course paper and push the final commit to `version-A`.
+
+Deliverables:
+
+- leakage report with zero cross-split groups;
+- corrected metrics and artifacts;
+- completed audit and reviewed error cases;
+- paper claims matched to artifacts;
+- clean test/build/API verification.
+
+Version B work must remain blocked until this gate is complete.
+
+### Month 1 After Version A — Dataset and Baseline Repair
+
+Objectives:
+
+- build the unified HaluEval/RAGTruth/FaithBench schema
+- preserve source groups and official splits
+- add artifact-control baselines
+- run corrected in-domain and external pilot evaluations
 
 Deliverables:
 
@@ -1622,12 +1697,13 @@ Risks:
 
 - label mismatch
 
-### Month 2 — Calibration and Robustness
+### Month 2 — Cross-Domain Robustness and Calibration
 
 Objectives:
 
-- compare Platt vs isotonic calibration
-- analyze in-domain vs out-of-domain reliability
+- compare raw, Platt, and isotonic calibration
+- analyze dataset/task/context-length subgroup reliability
+- report zero-shot versus target-adapted calibration separately
 
 Deliverables:
 
@@ -1639,12 +1715,13 @@ Risks:
 
 - calibration may degrade OOD
 
-### Month 3 — Explanation Reliability
+### Month 3 — Explanation Reliability and Failure Analysis
 
 Objectives:
 
-- run perturbation tests
-- compare SHAP with ablation importance
+- run feature/group ablation alignment
+- run controlled perturbation stability tests
+- complete two-reviewer explanation and error analysis
 
 Deliverables:
 
@@ -1655,13 +1732,14 @@ Risks:
 
 - SHAP explanations may not align cleanly with ablation
 
-### Month 4 — Journal Manuscript and Artifact
+### Month 4 — Journal Manuscript, UI, and Artifact
 
 Objectives:
 
-- polish manuscript
-- containerize code
-- prepare GitHub repository
+- polish manuscript from the frozen artifact manifest
+- build a CPU-compatible container and optional CUDA local path
+- upgrade the research dashboard and demo mode
+- prepare GitHub repository and backup video
 
 Deliverables:
 
@@ -1685,10 +1763,15 @@ Risks:
 | Evaluation  | OOD performance drops sharply               | Report honestly; use it as motivation for calibration/domain adaptation.                   |
 | Novelty     | Reviewers say SHAP + XGBoost is standard    | Make SHAP only one part; focus on calibrated evidence-aware risk under distribution shift. |
 | Publication | Q2 venue asks for stronger experiments      | Add one stronger baseline and a reproducibility artifact.                                  |
+| Methodology | Paired-answer or source-level leakage      | Group HaluEval by `item_idx`, RAGTruth by `source_id`, and publish overlap checks.          |
+| Benchmark   | Surface shortcuts inflate scores           | Include answer-only, context-only, lexical, TF-IDF, and overlap controls.                  |
+| Licensing   | External datasets cannot be redistributed  | Ship download scripts, hashes, citations, and license notes; do not bundle restricted data. |
+| Compute     | Full experiments exceed laptop resources   | Run extraction/training/faithfulness studies in Colab Pro; use laptop for inference/UI.    |
+| Claims      | Calibration or explanation claims overreach | Pre-register selection rules and report negative results and confidence intervals.         |
 
 ---
 
-## B15. Publication Final Verdict
+## B15. Publication Final Verdict — PROVISIONAL UNTIL EVIDENCE GATES PASS
 
 | Dimension                          | Score / 10 |
 | ---------------------------------- | ---------: |
@@ -1702,16 +1785,16 @@ Risks:
 
 ### Publication verdict
 
-The project can become a strong Q2-level journal paper if the post-course version adds cross-domain evaluation (RAGTruth + FaithBench), multicalibration analysis, explanation faithfulness metrics (FAC, PSI), and a reproducible Dockerized artifact. The compound contribution — engineered features + NLI + calibrated classical ML + explanation reliability + cross-domain + deployable — has no complete published instance. Position as an **applied, reproducible, calibration-aware hallucination-risk framework**.
+The project may become a strong applied journal paper if the post-course version first repairs the Version A leakage, then demonstrates cross-domain evaluation (RAGTruth and optionally FaithBench), calibration under shift, explanation reliability, and a reproducible artifact. Do not claim guaranteed Q2 acceptance or an unprecedented combination. Position the work as an **applied, reproducible, calibration-aware hallucination-risk framework** and let the corrected evidence determine the final venue.
 
 ### Venue targeting (updated)
 
-| Venue | Probability | Key Requirement |
+| Venue | Status | Key Requirement |
 |-------|-------------|-----------------|
-| IEEE Access | **70-80%** | Standard comparative study + cross-domain + calibration bar |
-| Multimedia Systems | **55-65%** | Must differentiate from existing SHAP+LIME paper (2026) by emphasizing explanation reliability |
-| Expert Systems with Applications | **45-55%** | Needs strong applied framing and excellent results on RAGTruth + FaithBench |
-| Applied Soft Computing | **50-60%** | Ensemble angle; needs soft computing framing |
+| IEEE Access | Candidate after evidence gate | Standard comparative study + cross-domain + calibration bar |
+| Multimedia Systems | Candidate after evidence gate | Must differentiate from existing SHAP+LIME paper (2026) by emphasizing explanation reliability |
+| Expert Systems with Applications | Candidate after strong results | Needs strong applied framing and excellent results on RAGTruth + FaithBench |
+| Applied Soft Computing | Candidate after evidence gate | Ensemble angle; needs soft computing framing |
 
 ---
 
@@ -1804,12 +1887,12 @@ Below is a **high-confidence starter bibliography** made of widely cited, publis
 11. **HaluEval benchmark paper (2023)** — _“HaluEval: A Large-Scale Hallucination Evaluation Benchmark for Large Language Models”_.  
     Why it matters: primary benchmark family for this project; verify the exact bibliographic entry from the official paper page or ACL/ArXiv record before finalizing the bibliography.
 
-12. **RAGTruth benchmark paper (2024)** — _“RAGTruth: A Hallucination Benchmark for Retrieval-Augmented Generation”_ - ACL 2024.  
+12. **RAGTruth benchmark paper (2024)** — _“RAGTruth: A Hallucination Corpus for Developing Trustworthy Retrieval-Augmented Language Models”_ - ACL 2024.
     Why it matters: primary external dataset for Version B. Word-level span annotations, natural responses from GPT-3.5, GPT-4, Llama-2, Mistral.
 
 
-13. **Valentin et al. (2024)** - "Cost-Effective Hallucination Detection for LLMs" - arXiv:2407.21424 (AWS AI Labs).  
-    Why it matters: calibration framework (Platt, isotonic, multicalibration, ECE). Directly relevant.
+13. **Valentin et al. (2024)** - "Cost-Effective Hallucination Detection for LLMs" - arXiv:2407.21424 (Amazon-affiliated research).
+     Why it matters: calibrated hallucination scores, conditional attributes, multi-scoring, and cost-aware evaluation. Directly relevant.
 
 14. **Cheng et al. (2024)** - "Small Agent Can Also Rock! Empowering Small Language Models as Hallucination Detector" - EMNLP 2024.  
     Why it matters: small LLMs (7B) match GPT-4 for hallucination detection; cost/performance baseline.
@@ -1820,7 +1903,7 @@ Below is a **high-confidence starter bibliography** made of widely cited, publis
 16. **Bang et al. (2025)** - "HalluLens: LLM Hallucination Benchmark" - ACL 2025.  
     Why it matters: intrinsic/extrinsic taxonomy; critiques HaluEval. **Note: the "HalluLens" benchmark (double "l") is a distinct external work — not to be confused with this project, HaluRISC.**
 
-17. **Sanchez et al. (2025)** - "FaithBench: A Challenging Hallucination Benchmark" - NAACL 2025.  
+17. **Bao et al. (2025)** - "FaithBench: A Diverse Hallucination Benchmark for Summarization by Modern LLMs" - NAACL 2025.
     Why it matters: human-annotated from 10 modern LLMs; strong stress test for Version B.
 
 18. **Kang et al. (2025)** - "Uncertainty Quantification for Hallucination Detection in Large Language Models: Foundations, Methodology, and Future Directions" - arXiv:2510.12040 (Kang, Bakman, Yaldiz, Buyukates, Avestimehr; USC/Birmingham), submitted 14 Oct 2025.  
@@ -1849,37 +1932,35 @@ Below is a **high-confidence starter bibliography** made of widely cited, publis
 
 ## What to do now
 
-For the course, implement **Version A only**.
-
-Do not attempt Version B during the course. Instead, design the codebase so Version B can be added later.
+Finish the Version A integrity gate first. Do not start Version B experiments until the corrected Version A artifacts and paper are pushed to `version-A`. Then switch to `version-B` for the publication roadmap in B13 and roadmap.md §14.
 
 ## Final course plan summary
 
-The course version should deliver:
+The course version should deliver after the integrity rerun:
 
-1. ✅ HaluEval-based experiment (with manual label audit and documented limitations).
-2. ✅ Compact engineered feature set (including mandatory NLI features).
-3. ✅ Heuristic baseline, Logistic Regression, Random Forest, and XGBoost comparison.
-4. ✅ 5-fold cross-validation + hyperparameter tuning + 3-seed reporting.
-5. ✅ XGBoost + Platt calibration final model.
-6. ✅ SHAP explanations + error analysis (10 FP + 10 FN taxonomy, auto-tagged for review).
-7. ✅ External baseline comparison — RAGTruth zero-shot + LLM-as-judge (200 samples) done; citing published HaluEval numbers is a paper step.
-8. ✅ Statistical significance testing (McNemar, bootstrap CI, Wilcoxon).
-9. ✅ React (Next.js)/TypeScript dashboard (chat + analyze + experiment gallery + about).
-10. 🔶 Journal-style paper — full draft compiled in report/out/paper.pdf (12 pages, all real-data tables/figures); proofreading + final bibliography pass pending.
+1. 🔶 HaluEval-based experiment with grouped split, manual label audit, and documented limitations.
+2. ✅ Compact engineered feature set including mandatory NLI features.
+3. 🔶 Heuristic, shortcut-control, Logistic Regression, Random Forest, and XGBoost comparison.
+4. 🔶 5-fold cross-validation, hyperparameter tuning, and 3-seed reporting on corrected partitions.
+5. 🔶 XGBoost calibration comparison with a pre-registered deployment choice.
+6. 🔶 SHAP explanations plus manually reviewed FP/FN analysis.
+7. 🔶 RAGTruth zero-shot and LLM-as-judge comparisons regenerated from corrected artifacts.
+8. 🔶 Statistical significance testing and corrected confidence intervals.
+9. 🔶 Next.js/TypeScript dashboard verified with real corrected artifacts.
+10. 🔶 Journal-style paper updated from the corrected data and final bibliography.
 
 ## Final publication plan summary
 
-The publication version should add:
+The publication version should add after Version A is frozen:
 
 1. External dataset testing (RAGTruth mandatory, FaithBench strong, HalluLens optional).
 2. Cross-domain robustness analysis.
-3. Multicalibration (Platt + isotonic + embedding-based cluster calibration).
-4. Explanation reliability metrics (FAC, PSI, SHAP-ablation alignment).
+3. Calibration under shift (Platt + isotonic + subgroup calibration; embedding clusters optional).
+4. Explanation reliability metrics (ablation alignment, controlled perturbation stability, human plausibility review).
 5. Neural/semantic baseline comparison (DeBERTa-NLI or Luna/COLING 2025).
 6. Feature interaction analysis (2-way and 3-way combinations).
 7. Reproducible Dockerized artifact with experiment scripts.
-8. Systematic error taxonomy (100+ samples, quantitative breakdown).
+8. Systematic, manually reviewed error taxonomy with quantitative breakdown.
 
 ## Overall scores
 
@@ -1892,5 +1973,5 @@ The publication version should add:
 
 Yes, this project should be pursued. The correct approach is to treat the course version as a **paper-first applied ML project** with a working demo, and treat the publication version as a later extension focused on cross-domain robustness, calibration, and explanation reliability.
 
-The compound contribution — engineered evidence-consistency features + NLI + calibrated classical ML + explanation reliability + cross-domain evaluation + deployable artifact — is a legitimate research gap. Version A (course) is achievable with disciplined scope control. Version B (publication) is a realistic Q2 target (IEEE Access 70%+, Multimedia Systems 55%+) if all mandatory upgrades are implemented and differentiation from the Multimedia Systems 2026 SHAP+LIME paper is clearly articulated.
+The compound contribution — engineered evidence-consistency features + NLI + calibrated classical ML + explanation reliability + cross-domain evaluation + deployable artifact — is a defensible applied research direction only if the corrected evidence supports it. Version A must be repaired and frozen first. Version B is a candidate applied-journal study; venue choice and quartile claims must wait until the final results and submission-time scope checks.
 
