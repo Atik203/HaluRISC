@@ -206,6 +206,10 @@ and an identical content fingerprint.
   loading errors after download. Cell 7i (`verify_artifacts.py`) proves every
   artifact loads and predicts before packaging; run it again locally after
   unzipping.
+- If you also run the optional Version A cell 7, cell 7.0 restores its
+  hash-matched root artifacts and cell 7 checkpoints them immediately to
+  `halurisc_cache/version_a/`. The old cells 8–12 are legacy Version A
+  analyses and are not required for B2–B4; skip them for the publication run.
 
 ### 2. Frontend Setup (Next.js + assistant-ui)
 

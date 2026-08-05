@@ -10,9 +10,12 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from colab.drive_cache import (  # noqa: E402
+    b3_feature_cache_safe,
+    b3_results_safe,
     cache_key_matches,
     read_cache_meta,
     sha256_file,
+    version_a_restore_valid,
     verify_halueval_features,
 )
 
@@ -96,3 +99,47 @@ def test_read_cache_meta(tmp_path):
     p.write_text('{"input_sha256": "x"}')
     assert read_cache_meta(str(p)) == {"input_sha256": "x"}
     assert read_cache_meta(str(tmp_path / "nope.json")) == {}
+
+
+def test_version_a_restore_validates_inputs_and_artifacts(tmp_path):
+    features = tmp_path / "features.parquet"
+    qa = tmp_path / "qa.parquet"
+    split = tmp_path / "split.json"
+    features.write_bytes(b"features")
+    qa.write_bytes(b"qa")
+    split.write_bytes(b"split")
+    cache = tmp_path / "version_a"
+    (cache / "models").mkdir(parents=True)
+    (cache / "models" / "params.json").write_text("{}")
+    marker = cache / "marker.json"
+    import json
+
+    marker.write_text(json.dumps({
+        "inputs": {
+            "features_full.parquet": sha256_file(features),
+            "qa_clean.parquet": sha256_file(qa),
+            "split_integrity_report.json": sha256_file(split),
+        },
+        "artifacts": ["models/params.json"],
+    }))
+    assert version_a_restore_valid(marker, features, qa, split, cache) is True
+    features.write_bytes(b"changed")
+    assert version_a_restore_valid(marker, features, qa, split, cache) is False
+
+
+def test_b3_feature_cache_rejects_raw_text(tmp_path):
+    safe = pd.DataFrame({"sample_id": ["x"], "n_chars": [1.0]})
+    unsafe = safe.assign(context=["restricted text"])
+    safe_path, unsafe_path = tmp_path / "safe.parquet", tmp_path / "unsafe.parquet"
+    safe.to_parquet(safe_path)
+    unsafe.to_parquet(unsafe_path)
+    assert b3_feature_cache_safe(safe_path) is True
+    assert b3_feature_cache_safe(unsafe_path) is False
+
+
+def test_b3_results_reject_unredacted_faithbench(tmp_path):
+    p = tmp_path / "b3_error_cases.json"
+    p.write_text('[{"source_dataset":"faithbench","context":"raw"}]')
+    assert b3_results_safe(tmp_path) is False
+    p.write_text('[{"source_dataset":"faithbench","context":"","answer":"","question":"","span_annotations":""}]')
+    assert b3_results_safe(tmp_path) is True

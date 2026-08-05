@@ -70,6 +70,16 @@ def main() -> int:
             assert (p >= 0.0).all() and (p <= 1.0).all(), "probabilities out of [0,1]"
         check(f"B2 xgboost_seed_{seed} loads and predicts", _load_predict)
 
+    for name in ("model_xgboost_raw.joblib", "model_xgboost_calibrated.joblib"):
+        path = MODELS_DIR / name
+        if path.exists():
+            def _load_version_a(path=path):
+                bundle = joblib.load(path)
+                model = bundle["model"] if isinstance(bundle, dict) and "model" in bundle else bundle
+                p = model.predict_proba(sample[feature_cols].values)[:, 1]
+                assert (p >= 0.0).all() and (p <= 1.0).all(), "Version A probabilities out of [0,1]"
+            check(f"Version A {name} loads and predicts", _load_version_a)
+
     def _check_b2_parquet():
         preds = pd.read_parquet(B2_RESULTS / "b2_predictions.parquet")
         assert {"sample_id", "model", "score", "pred", "label"} <= set(preds.columns)
@@ -82,6 +92,12 @@ def main() -> int:
         assert {"xgboost_seed_42", "xgboost_seed_123", "xgboost_seed_456"} <= set(preds["model"])
         json.loads((B3_RESULTS / "b3_dataset_metrics.json").read_text())
         json.loads((B3_RESULTS / "b3_bootstrap_cis.json").read_text())
+        error_path = B3_RESULTS / "b3_error_cases.json"
+        if error_path.exists():
+            for case in json.loads(error_path.read_text()):
+                if case.get("source_dataset") == "faithbench":
+                    assert not any(case.get(k, "") for k in ("question", "context", "answer", "span_annotations")), \
+                        "unredacted FaithBench text in B3 error cases"
     check("B3 predictions + reports", _check_b3)
 
     for name in ("calibrator_platt_source_seed_42.joblib",

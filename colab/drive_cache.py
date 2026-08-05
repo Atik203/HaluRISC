@@ -110,15 +110,64 @@ def b3_restore_valid(b3_config_path, unified_path, b2_models_dir) -> bool:
         cfg = json.loads(Path(b3_config_path).read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return False
-    if cfg.get("unified_parquet_sha256") != sha256_file(unified_path):
+    try:
+        if cfg.get("unified_parquet_sha256") != sha256_file(unified_path):
+            return False
+        hashes = cfg.get("b2_model_hashes") or {}
+        return all(
+            hashes.get(f"seed_{s}") == sha256_file(Path(b2_models_dir) / f"xgboost_seed_{s}.joblib")
+            for s in (42, 123, 456)
+        )
+    except OSError:
         return False
-    hashes = cfg.get("b2_model_hashes") or {}
-    return all(
-        hashes.get(f"seed_{s}") == sha256_file(Path(b2_models_dir) / f"xgboost_seed_{s}.joblib")
-        for s in (42, 123, 456)
-    )
 
 
 def b4_restore_valid(b4_config_path, b3_predictions_path) -> bool:
     """B4 artifacts are reusable when they were produced from THIS b3 predictions file."""
     return restore_config_hash(b4_config_path, "inputs.b3_predictions.parquet", b3_predictions_path)
+
+
+def version_a_restore_valid(marker_path, features_path, qa_path, split_report_path, cache_dir) -> bool:
+    """Validate the cached root Version A artifacts against current inputs."""
+    try:
+        marker = json.loads(Path(marker_path).read_text(encoding="utf-8"))
+        expected = {
+            "features_full.parquet": sha256_file(features_path),
+            "qa_clean.parquet": sha256_file(qa_path),
+            "split_integrity_report.json": sha256_file(split_report_path),
+        }
+        if marker.get("inputs") != expected:
+            return False
+        return all((Path(cache_dir) / rel).exists() for rel in marker.get("artifacts", []))
+    except (OSError, ValueError, TypeError):
+        return False
+
+
+def b3_feature_cache_safe(cache_path) -> bool:
+    """Reject old B3 caches that accidentally contain raw external text."""
+    try:
+        import pandas as pd
+
+        columns = set(pd.read_parquet(cache_path, columns=None).columns)
+        forbidden = {"question", "context", "answer", "span_annotations"}
+        return not (columns & forbidden) and "sample_id" in columns
+    except (OSError, ValueError, ImportError):
+        return False
+
+
+def b3_results_safe(results_dir) -> bool:
+    """Reject cached B3 error cases containing unredacted FaithBench text."""
+    import json
+
+    error_path = Path(results_dir) / "b3_error_cases.json"
+    if not error_path.exists():
+        return True
+    try:
+        cases = json.loads(error_path.read_text(encoding="utf-8"))
+        for case in cases:
+            if case.get("source_dataset") == "faithbench":
+                if any(case.get(field, "") for field in ("question", "context", "answer", "span_annotations")):
+                    return False
+        return True
+    except (OSError, ValueError, TypeError):
+        return False

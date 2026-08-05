@@ -500,16 +500,20 @@ after verification — HaluEval features are checked against the freshly built
 when its unified-parquet hash matches; mismatches automatically fall back to
 full extraction. Cell 6 (5–10 min) and B3 extraction (~15–40 min) are skipped
 on repeat runs.
-(8) **Full checkpoint/resume (L4-ready)**: every heavy phase now checkpoints
-to `Drive/halurisc_cache/` immediately after finishing — B2 (7b.5), B3
-features (7e), B3 results+figures (7e), B4 artifacts (7g). Restore cells
-`7b.0` / `7d.5` / `7d.6` / `7g.0` verify stored run-config hashes
+(8) **Full checkpoint/resume (L4-ready)**: Version A cell 7 (when selected)
+now checkpoints root artifacts under `version_a/`; every B heavy phase also
+checkpoints to `Drive/halurisc_cache/` immediately after finishing — B2
+(7b.5), B3 features (7e), B3 results+figures (7e), B4 artifacts (7g).
+Restore cells `7.0` / `7b.0` / `7d.5` / `7d.6` / `7g.0` verify stored run-config hashes
 (features/unified/B2-model/b3-predictions) before restoring, so a crashed
 runtime resumes from Drive without redoing completed phases. B4 writes
 `b4_crash.log` with a full traceback on failure, its per-sample export is
 vectorized (~5 s end-to-end locally, adversarial-tested), and the
 CRASH-RECOVERY markdown cell documents the resume sequence. Colab runtime
 recommendation: **L4 (22.5 GB VRAM / 54 GB RAM)** to avoid free-T4 crashes.
+The old cells 8–12 remain optional Version A analyses and are outside the
+B2–B4 resume path; skip them for the publication run unless those legacy
+outputs are specifically required.
 
 Environment: Colab Pro.
 
