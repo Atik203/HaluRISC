@@ -189,7 +189,12 @@ def heuristic_baseline(val_df: pd.DataFrame, test_df: pd.DataFrame, col: str = "
     return test_preds, test_probs, {"threshold": float(best_thresh), "val_f1": float(best_f1)}
 
 
-def make_xgb(params: dict, seed: int, scale_pos_weight: float) -> XGBClassifier:
+def make_xgb(params: dict, seed: int, scale_pos_weight: float, early_stopping: bool = False) -> XGBClassifier:
+    """XGBoost 3.x: early_stopping_rounds is a CONSTRUCTOR kwarg and requires eval_set in fit().
+
+    Set early_stopping=True only for fits that pass eval_set (seed models, ablations);
+    keep it off for tuning/CV fits that have no validation set.
+    """
     base = dict(
         objective="binary:logistic",
         eval_metric="logloss",
@@ -199,6 +204,8 @@ def make_xgb(params: dict, seed: int, scale_pos_weight: float) -> XGBClassifier:
         scale_pos_weight=scale_pos_weight,
         random_state=seed,
     )
+    if early_stopping:
+        base["early_stopping_rounds"] = 30
     base.update(params)
     return XGBClassifier(**base)
 
@@ -223,8 +230,8 @@ def train_seed_models(
     """Train XGBoost for each seed with early stopping on validation."""
     results = []
     for seed in SEEDS:
-        xgb = make_xgb(params, seed, scale_pos_weight)
-        xgb.fit(X_train, y_train, eval_set=[(X_val, y_val)], early_stopping_rounds=30, verbose=False)
+        xgb = make_xgb(params, seed, scale_pos_weight, early_stopping=True)
+        xgb.fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=False)
         y_prob = xgb.predict_proba(X_test)[:, 1]
         results.append({"seed": seed, "model": xgb, "y_prob": y_prob})
     return results
@@ -395,8 +402,8 @@ def main():
         Xa_train, Xa_test = train_df[kept].values, test_df[kept].values
         f1s, aucs = [], []
         for seed in SEEDS:
-            m = make_xgb(best_params, seed, pos_ratio)
-            m.fit(Xa_train, y_train, eval_set=[(val_df[kept].values, y_val)], early_stopping_rounds=30, verbose=False)
+            m = make_xgb(best_params, seed, pos_ratio, early_stopping=True)
+            m.fit(Xa_train, y_train, eval_set=[(val_df[kept].values, y_val)], verbose=False)
             p = m.predict_proba(Xa_test)[:, 1]
             f1s.append(f1_score(y_test, (p >= 0.5).astype(int), zero_division=0))
             aucs.append(roc_auc_score(y_test, p))
