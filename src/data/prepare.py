@@ -1,7 +1,8 @@
 """
 Data preparation script for HaluRISC.
 Parses qa_data.json (JSONL) into a binary classification dataset (two rows per entry: correct & hallucinated),
-performs stratified train/val/test split (70/15/15), saves split indices and clean dataset.
+performs a GROUP-AWARE train/val/test split (70/15/15) so that both answer variants of one original question
+stay in the same partition, saves split indices, a leakage report, and an auto-sampled audit file.
 """
 
 import os
@@ -20,6 +21,10 @@ PROCESSED_PARQUET = os.path.join(PROCESSED_DIR, "qa_clean.parquet")
 AUDIT_JSON = os.path.join(PROCESSED_DIR, "audit_50_samples.json")
 SPLIT_INDICES_NPY = os.path.join(ARTIFACTS_DIR, "split_indices.npy")
 SPLIT_INDICES_JSON = os.path.join(ARTIFACTS_DIR, "split_indices.json")
+SPLIT_REPORT_JSON = os.path.join(ARTIFACTS_DIR, "split_integrity_report.json")
+
+SPLIT_SEED = 42
+
 
 def load_and_parse_raw_data(raw_path: str = RAW_DATA_PATH) -> pd.DataFrame:
     """Loads HaluEval QA JSONL and expands into 2 rows per question (correct=0, hallucinated=1)."""
@@ -34,7 +39,7 @@ def load_and_parse_raw_data(raw_path: str = RAW_DATA_PATH) -> pd.DataFrame:
 
     logging.info(f"Loaded {len(raw_items)} raw QA items.")
     rows = []
-    
+
     for idx, item in enumerate(raw_items):
         question = item.get("question", "").strip()
         context = item.get("knowledge", "").strip()
@@ -69,37 +74,82 @@ def load_and_parse_raw_data(raw_path: str = RAW_DATA_PATH) -> pd.DataFrame:
     logging.info(f"Created dataset with {len(df)} rows ({df['label'].value_counts().to_dict()}).")
     return df
 
+
+def build_integrity_report(df: pd.DataFrame) -> dict:
+    """Leakage report: every item_idx (source question) must map to exactly one split."""
+    per = df.groupby("item_idx")["split"].nunique()
+    cross = int((per > 1).sum())
+    report = {
+        "split": "group_by_item_idx",
+        "seed": SPLIT_SEED,
+        "n_groups_total": int(per.size),
+        "n_groups_per_split": {str(k): int(v) for k, v in df.groupby("split")["item_idx"].nunique().to_dict().items()},
+        "n_rows_per_split": {str(k): int(v) for k, v in df.groupby("split").size().to_dict().items()},
+        "label_mean_per_split": {str(k): round(float(v), 4) for k, v in df.groupby("split")["label"].mean().to_dict().items()},
+        "groups_spanning_multiple_splits": cross,
+        "leakage_free": cross == 0,
+    }
+    if cross > 0:
+        raise AssertionError(f"Group leakage detected: {cross} item_idx values span multiple splits")
+    return report
+
+
+def group_split_by_item(df: pd.DataFrame, test_size: float = 0.30, val_share: float = 0.5, seed: int = SPLIT_SEED):
+    """Group-aware 70/15/15 split: each original question (item_idx) goes to exactly one partition.
+
+    Returns (df_with_split_column, integrity_report).
+    """
+    grp = (
+        df.groupby("item_idx", sort=False)
+        .agg(label=("label", "max"), n_rows=("label", "size"))
+        .reset_index()
+    )
+    strat = grp["label"] if grp["label"].nunique() > 1 else None
+    train_g, temp_g = train_test_split(grp, test_size=test_size, random_state=seed, stratify=strat)
+    strat_t = temp_g["label"] if temp_g["label"].nunique() > 1 else None
+    val_g, test_g = train_test_split(temp_g, test_size=val_share, random_state=seed, stratify=strat_t)
+
+    split_of: dict = {}
+    for g, name in ((train_g, "train"), (val_g, "val"), (test_g, "test")):
+        for i in g["item_idx"]:
+            split_of[int(i)] = name
+
+    out = df.copy()
+    out["split"] = out["item_idx"].map(split_of)
+    report = build_integrity_report(out)
+    logging.info(
+        f"Group split: train {len(train_g)} / val {len(val_g)} / test {len(test_g)} groups; "
+        f"leakage_free={report['leakage_free']}"
+    )
+    return out, report
+
+
 def prepare_splits_and_save(df: pd.DataFrame):
-    """Performs stratified train (70%), val (15%), test (15%) split and saves artifacts."""
+    """Performs the group-aware train/val/test split and saves all artifacts."""
     os.makedirs(PROCESSED_DIR, exist_ok=True)
     os.makedirs(ARTIFACTS_DIR, exist_ok=True)
 
-    # 70% train, 30% temp
-    train_df, temp_df = train_test_split(
-        df, test_size=0.30, random_state=42, stratify=df["label"]
-    )
-    # 15% val, 15% test from temp
-    val_df, test_df = train_test_split(
-        temp_df, test_size=0.50, random_state=42, stratify=temp_df["label"]
-    )
-
-    df.loc[train_df.index, "split"] = "train"
-    df.loc[val_df.index, "split"] = "val"
-    df.loc[test_df.index, "split"] = "test"
+    df, report = group_split_by_item(df, seed=SPLIT_SEED)
 
     # Save processed dataset to Parquet
     df.to_parquet(PROCESSED_PARQUET, index=False)
     logging.info(f"Saved processed dataset to {PROCESSED_PARQUET}")
 
-    # Save split indices
+    # Save split indices + group ids (exact reproducibility)
     split_indices = {
-        "train": train_df.index.tolist(),
-        "val": val_df.index.tolist(),
-        "test": test_df.index.tolist(),
-        "seed": 42,
-        "n_train": len(train_df),
-        "n_val": len(val_df),
-        "n_test": len(test_df)
+        "split": "group_by_item_idx",
+        "train": df.index[df["split"] == "train"].tolist(),
+        "val": df.index[df["split"] == "val"].tolist(),
+        "test": df.index[df["split"] == "test"].tolist(),
+        "group_ids": {
+            "train": sorted(df.loc[df["split"] == "train", "item_idx"].unique().tolist()),
+            "val": sorted(df.loc[df["split"] == "val", "item_idx"].unique().tolist()),
+            "test": sorted(df.loc[df["split"] == "test", "item_idx"].unique().tolist()),
+        },
+        "seed": SPLIT_SEED,
+        "n_train": int((df["split"] == "train").sum()),
+        "n_val": int((df["split"] == "val").sum()),
+        "n_test": int((df["split"] == "test").sum()),
     }
 
     with open(SPLIT_INDICES_JSON, "w") as f:
@@ -108,11 +158,16 @@ def prepare_splits_and_save(df: pd.DataFrame):
     np.save(SPLIT_INDICES_NPY, split_indices, allow_pickle=True)
     logging.info(f"Saved split indices to {SPLIT_INDICES_JSON} and {SPLIT_INDICES_NPY}")
 
-    # Sample 50 random rows for manual audit
-    audit_samples = df.sample(n=min(50, len(df)), random_state=42).to_dict(orient="records")
+    with open(SPLIT_REPORT_JSON, "w") as f:
+        json.dump(report, f, indent=2)
+    logging.info(f"Saved split integrity report to {SPLIT_REPORT_JSON}")
+
+    # Sample 50 rows for the MANUAL audit (labels must be reviewed by a human before the paper)
+    audit_samples = df.sample(n=min(50, len(df)), random_state=SPLIT_SEED).to_dict(orient="records")
     with open(AUDIT_JSON, "w") as f:
         json.dump(audit_samples, f, indent=2)
-    logging.info(f"Saved 50 audit samples to {AUDIT_JSON}")
+    logging.info(f"Saved 50 auto-sampled audit rows to {AUDIT_JSON} (manual review required)")
+
 
 if __name__ == "__main__":
     df = load_and_parse_raw_data()

@@ -159,8 +159,8 @@ def load_heavy_models(nli_model_name: str | None = None, device: str | None = No
     models["nlp"] = load_ner_model()
     logging.info(f"NER model loaded in {time.time() - t0:.1f}s")
     t0 = time.time()
-    models["nli"], nli_name = load_nli_model(nli_model_name, device=device, model_kwargs=model_kwargs)
-    logging.info(f"NLI model ({nli_name}) loaded in {time.time() - t0:.1f}s")
+    models["nli"], models["nli_name"] = load_nli_model(nli_model_name, device=device, model_kwargs=model_kwargs)
+    logging.info(f"NLI model ({models['nli_name']}) loaded in {time.time() - t0:.1f}s")
     t0 = time.time()
     models["embedder"] = load_embedding_model(device=device, model_kwargs=model_kwargs)
     logging.info(f"Embedding model loaded in {time.time() - t0:.1f}s")
@@ -237,3 +237,14 @@ if __name__ == "__main__":
     features_df = extract_full_feature_set(df, models)
     features_df.to_parquet(args.output, index=False)
     logging.info(f"Saved full feature matrix to {args.output}")
+
+    # Record which NLI checkpoint was actually used (provenance for params.json/manifest)
+    nli_used = {
+        "nli_model": models.get("nli_name"),
+        "device": str(getattr(models.get("nli"), "device", "unknown")),
+        "extracted_at": pd.Timestamp.utcnow().isoformat(),
+    }
+    os.makedirs(os.path.join("data", "processed"), exist_ok=True)
+    with open(os.path.join("data", "processed", "nli_model_used.json"), "w") as f:
+        json.dump(nli_used, f, indent=2)
+    logging.info(f"Recorded NLI provenance: {nli_used['nli_model']}")
