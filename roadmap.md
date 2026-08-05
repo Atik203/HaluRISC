@@ -409,7 +409,19 @@ Environment: Colab Pro for downloads and preprocessing; local machine for schema
 
 Exit condition: every dataset has a documented schema, label definition, source-group rule, license record, and reproducible preprocessing script.
 
-### B2 — Corrected baseline and artifact controls
+### B2 — Corrected baseline and artifact controls — ✅ DONE (2026-08-06, local GPU run)
+
+Status: `src/models/run_b2_baselines.py` implements all nine baselines
+(majority, overlap heuristic, TF-IDF all/answer/context, NLI-only, LR, RF,
+tuned XGBoost) with grouped 5-fold CV tuning keyed by `item_idx`,
+train-only TF-IDF fitting, validation-only thresholds (0.5 models / tuned
+overlap), seeds 42/123/456, per-seed predictions and confusion matrices,
+McNemar/bootstrap/Wilcoxon, and the leakage-removal impact report. 7 new
+unit tests; full local run ~7 min on RTX 3060. Artifacts:
+`artifacts/results/b2/` + `artifacts/models/b2/`. Key result: XGBoost
+F1 0.9857 / AUROC 0.9980; answer-only TF-IDF control reaches 0.9224
+(answer-style shortcut), context-only has zero signal; leakage removal
+costs only Δ−0.003 F1 vs the historical leaky 0.9886.
 
 Environment: Colab Pro.
 

@@ -21,37 +21,54 @@
   - **ℹ️ About**: Pipeline architecture and method overview (`/about`)
 - ⚡ **Lightweight & Fast**: ~125 ms per analysis (p50 total over 200 test samples; model inference alone 4.5 ms).
 - 💰 **~100x Cheaper than LLM Judges**: measured $0.101/1K predictions with GPT 5.6 Luna as judge vs near-zero local cost; also ~290x faster (1.29 s vs ~4.5 ms per sample).
-- 🔬 **Statistically Rigorous**: 20,000 samples (HaluEval QA), 70/15/15 stratified splits, 3-seed protocol (42/123/456), McNemar + bootstrap CIs, Platt vs isotonic calibration (ECE 0.0116/0.0051).
+- 🔬 **Statistically Rigorous**: 20,000 samples (HaluEval QA), grouped 70/15/15 splits (leakage-free), 3-seed protocol (42/123/456), grouped 5-fold CV tuning, McNemar + bootstrap CIs, calibration ECE raw 0.0122 / Platt 0.0101 / isotonic 0.0071 (corrected).
 
 ---
 
 ## 📊 Benchmark Results (HaluEval QA Holdout Test Set, N=3,000)
 
-Mean over seeds 42/123/456 (real results from `artifacts/results/final_results.json`):
+Corrected leakage-free grouped split; mean over seeds 42/123/456
+(real results from `artifacts/results/b2/b2_model_comparison.json`):
 
 | Model Architecture          | Precision  | Recall     | F1-Score   | AUROC      | PR-AUC     | MCC        |
 | --------------------------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- |
-| **Heuristic (1 - overlap)** | 0.9392     | 0.9467     | 0.9429     | 0.9148     | 0.8117     | 0.8854     |
-| **Logistic Regression**     | 0.9804     | 0.9693     | 0.9749     | 0.9943     | 0.9948     | 0.9501     |
-| **Random Forest**           | 0.9915     | 0.9858     | 0.9886     | 0.9982     | 0.9987     | 0.9774     |
-| **XGBoost + Platt (ours)**  | **0.9919** | **0.9853** | **0.9886** | **0.9980** | **0.9987** | **0.9774** |
+| **Majority (all 0)**        | 0.0000     | 0.0000     | 0.0000     | n/a        | n/a        | 0.0000     |
+| **Heuristic (1 - overlap)** | 0.9473     | 0.9233     | 0.9352     | 0.9132     | 0.8196     | 0.8723     |
+| **TF-IDF (Q+C+A)**          | 0.6403     | 0.5660     | 0.6008     | 0.6753     | 0.6785     | 0.2497     |
+| **TF-IDF (answer only)**    | 0.9550     | 0.8920     | 0.9224     | 0.9696     | 0.9665     | 0.8519     |
+| **TF-IDF (context only)**   | 0.5000     | 1.0000     | 0.6667     | n/a        | n/a        | 0.0000     |
+| **NLI-only**                | 0.6479     | 0.6967     | 0.6714     | 0.7178     | 0.7533     | 0.3189     |
+| **Logistic Regression**     | 0.9768     | 0.9553     | 0.9660     | 0.9932     | 0.9900     | 0.9329     |
+| **Random Forest**           | 0.9890     | 0.9789     | 0.9839     | 0.9981     | 0.9984     | 0.9681     |
+| **XGBoost (ours)**          | **0.9935** | **0.9780** | **0.9857** | **0.9980** | **0.9984** | **0.9717** |
 
-**Calibration:** Platt ECE 0.0116 / Brier 0.0092 · Isotonic ECE 0.0051 / Brier 0.0089 (calibrators fit on validation only).
+**Artifact controls (B2):** answer-only TF-IDF already reaches F1 0.9224 — a
+large part of the HaluEval signal is answer-style surface text. Context-only
+has zero signal (paired answers share context, F1 0.6667 = always-positive).
+NLI-only is weak (0.6714). The full evidence-aware model (XGBoost 0.9857)
+adds a significant margin over all controls (McNemar p < 1e-5 vs answer-only).
+Uncalibrated XGBoost ECE 0.0065 (formal calibration comparison: B4).
+
+**Leakage-removal impact (B2):** historical row-level-split F1 0.9886 →
+corrected grouped split + grouped-CV tuning F1 0.9857 (Δ −0.003; AUROC
+unchanged at 0.9980). The corrected Version A reference (row-CV tuning) was
+F1 0.9842. Details: `artifacts/results/b2/b2_leakage_comparison.json`.
 
 ### LLM-as-Judge comparison (200 test samples, measured)
 
 | Model              | Accuracy   | Precision  | Recall     | F1         | Latency p50 | Cost / 1K |
 | ------------------ | ---------- | ---------- | ---------- | ---------- | ----------- | --------- |
-| GPT 5.6 Luna judge | 0.8400     | 0.9474     | 0.7200     | 0.8182     | 1,293 ms    | $0.101    |
-| **XGBoost (ours)** | **0.9900** | **1.0000** | **0.9800** | **0.9899** | ~5 ms       | ~$0.001   |
+| GPT 5.6 Luna judge | 0.8600     | 0.9737     | 0.7400     | 0.8409     | 1,310 ms    | $0.105    |
+| **XGBoost (ours)** | **0.9850** | **0.9802** | **0.9900** | **0.9851** | ~5 ms       | ~$0.001   |
 
-Agreement between judge and XGBoost: 0.84.
+Agreement between judge and XGBoost: 0.845 (McNemar p = 1.6e-05).
 
 ### External zero-shot validation (RAGTruth QA, 2,000 samples, no training)
 
-F1 0.4822 · AUROC 0.5869 — the HaluEval-trained model does **not** transfer to natural RAG responses
-(recall 1.0 = flags almost everything risky). This is an honest finding: synthetic HaluEval patterns
-differ from real-world generation, motivating domain adaptation (Version B direction).
+F1 0.4819 · AUROC 0.5797 · ECE 0.6651 — the HaluEval-trained model does
+**not** transfer to natural RAG responses (recall 1.0 = flags almost everything
+risky). This is an honest finding: synthetic HaluEval patterns differ from
+real-world generation, motivating cross-domain adaptation (Version B B3).
 
 ---
 
