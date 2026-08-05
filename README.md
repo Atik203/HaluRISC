@@ -208,8 +208,10 @@ and an identical content fingerprint.
   unzipping.
 - If you also run the optional Version A cell 7, cell 7.0 restores its
   hash-matched root artifacts and cell 7 checkpoints them immediately to
-  `halurisc_cache/version_a/`. The old cells 8–12 are legacy Version A
-  analyses and are not required for B2–B4; skip them for the publication run.
+  `halurisc_cache/version_a/`. Cell 8.0 restores the legacy analyses
+  (cells 8–12, SHAP/RAGTruth/error/latency/LLM-judge) and cell 12.5
+  checkpoints them; each legacy cell also skips when its outputs already
+  exist. L4 tuning: cells 6 and 7e extract features with `--batch-size 512`.
 
 ### 2. Frontend Setup (Next.js + assistant-ui)
 
