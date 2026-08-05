@@ -88,6 +88,13 @@ interface LlmJudgeResults {
   agreement_with_xgboost: number;
   cost_usd: number;
   cost_per_1000_usd: number;
+  mcnemar_p?: number;
+}
+
+interface LatencyAnalysis {
+  n_samples: number;
+  total_per_sample_ms?: { p50?: number };
+  cost_per_1000_usd?: { halurisc_local?: number; llm_judge_estimate?: number };
 }
 
 interface ErrorAnalysis {
@@ -123,6 +130,13 @@ export default async function DashboardPage() {
   const shap = readJson<ShapSummary>("shap_summary.json");
   const judge = readJson<LlmJudgeResults>("llm_judge_results.json");
   const errors = readJson<ErrorAnalysis>("error_analysis.json");
+  const latency = readJson<LatencyAnalysis>("latency_analysis.json");
+
+  // Cost ratio computed from measured artifacts, never hardcoded
+  const haluriscCost = latency?.cost_per_1000_usd?.halurisc_local;
+  const judgeCost = judge?.cost_per_1000_usd ?? latency?.cost_per_1000_usd?.llm_judge_estimate;
+  const costRatio = haluriscCost && judgeCost ? Math.round(judgeCost / haluriscCost) : null;
+  const xgbLatencyP50 = latency?.total_per_sample_ms?.p50;
 
   const modelRows = results
     ? (Object.entries(MODEL_LABELS)
@@ -199,8 +213,8 @@ export default async function DashboardPage() {
                 <DollarSign className="w-5 h-5" />
               </div>
               <div>
-                <div className="text-2xl font-extrabold">100x</div>
-                <div className="text-xs text-muted-foreground">Cheaper than LLM Judge</div>
+                <div className="text-2xl font-extrabold">{costRatio ? `${costRatio}x` : "—"}</div>
+                <div className="text-xs text-muted-foreground">Cheaper than LLM Judge (from measured artifacts)</div>
               </div>
             </div>
           </div>
@@ -401,7 +415,8 @@ export default async function DashboardPage() {
                   </table>
                   <p className="text-xs text-muted-foreground mt-3">
                     Agreement: {judge.agreement_with_xgboost.toFixed(3)} · Judge latency p50 {judge.judge.latency_ms_p50.toFixed(0)}ms vs
-                    XGBoost ~5ms · Judge cost ${judge.cost_per_1000_usd.toFixed(3)}/1K vs HaluRISC ~$0.001/1K (measured, {judge.model})
+                    HaluRISC p50 {xgbLatencyP50 ? `${xgbLatencyP50.toFixed(0)}ms` : "—"} · Judge cost ${judge.cost_per_1000_usd.toFixed(3)}/1K vs
+                    HaluRISC {haluriscCost ? `$${haluriscCost.toFixed(3)}/1K` : "—"} (measured, {judge.model})
                   </p>
                 </>
               ) : (

@@ -1,0 +1,452 @@
+[
+  {
+    "sample_id": "q_5325_correct",
+    "item_idx": 5325,
+    "question": "Are Prevention and Drum! both American magazines?",
+    "context": "Prevention is an American healthy lifestyle magazine, started in 1950, and published by Rodale Press in Emmaus, Pennsylvania, in the United States.DRUM!",
+    "answer": "yes",
+    "label": 0,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_1020_hallucinated",
+    "item_idx": 1020,
+    "question": "The 2007 FIFA U-20 World Cup was the sixteenth edition of the FIFA U-20 World Cup (formerly called FIFA World Youth Championship), hosted by Canada held during which span of dates, Argentine player Sergio Ag\u00fcero was given the FIFA U-20 Golden Shoe?",
+    "context": "The 2007 FIFA U-20 World Cup was the sixteenth edition of the FIFA U-20 World Cup (formerly called FIFA World Youth Championship), hosted by Canada from 30 June to 22 July 2007.Sergio Leonel \"Kun\" Ag\u00fcero (] ; born 2 June 1988) is an Argentine professional footballer who plays as a striker for Premier League club Manchester City and the Argentina national team.",
+    "answer": "The 2007 FIFA U-20 World Cup was held from 30 June to 22 July 2007, and Sergio Ag\u00fcero was given the FIFA U-20 Golden Shoe on the first day.",
+    "label": 1,
+    "split": "test"
+  },
+  {
+    "sample_id": "q_4334_correct",
+    "item_idx": 4334,
+    "question": "Which actor from the 2001 movie Kiss Kiss was the voice actor for J.A.R.V.I.S in Iron Man?",
+    "context": "It features Stellan Skarsg\u00e5rd, Chris Penn, and Paul Bettany. He is known for his voice role as J.A.R.V.I.S. and the Vision in the Marvel Cinematic Universe, specifically the films \"Iron Man\" (2008), \"Iron Man 2\" (2010), \"The Avengers\" (2012), \"Iron Man 3\" (2013), \"\" (2015) and \"\" (2016), for which he garnered praise.",
+    "answer": "Paul Bettany",
+    "label": 0,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_557_correct",
+    "item_idx": 557,
+    "question": "WHo is a Grammy winning American musician of Armenian descent, Armen Nalbandian or Arto Tun\u00e7boyac\u0131yan?",
+    "context": "Armen Nalbandian (born April 6, 1978 in Manchester, England) is a jazz pianist, composer, author, and activist from Los Angeles, California, known for his multidisciplinary collaborations in visual and fine art.Arto Tun\u00e7boyac\u0131yan (Armenian: \u0531\u0580\u057f\u0578 \u0539\u0578\u0582\u0576\u057b\u0562\u0578\u0575\u0561\u057b\u0575\u0561\u0576 ) (born 4 August 1957 in Istanbul) is a Grammy winning American musician of Armenian descent.",
+    "answer": "Arto Tun\u00e7boyac\u0131yan",
+    "label": 0,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_6951_correct",
+    "item_idx": 6951,
+    "question": "Who is younger, Thomaz Koch or Sherwood Stewart?",
+    "context": "Thomaz Koch (born May 11, 1945 in Porto Alegre), is a left-handed former tennis player from Brazil, who was a quarter-finalist at the French Open, Wimbledon and the U.S. National Championships.Sherwood Stewart (born June 6, 1946, in Goose Creek, Texas, United States) played amateur and professional tennis in the 1970s and 1980s.",
+    "answer": "Sherwood Stewart",
+    "label": 0,
+    "split": "test"
+  },
+  {
+    "sample_id": "q_5981_hallucinated",
+    "item_idx": 5981,
+    "question": "What Northern Irish comic stars in the 2017 film Jawbone with Johnny Harris, Ray Winstone, and Ian McShane?",
+    "context": "The film stars Johnny Harris, Ray Winstone, Ian McShane, Michael Smiley, Luke J.I. Smith and Anna Wilson-Hall.Michael Smiley (born 1963) is a Northern Irish comic and actor who lives in London.",
+    "answer": "Northern Irish comic, Michael Smiley stars in the 2017 film Jawbone with an impressive cast.",
+    "label": 1,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_5536_correct",
+    "item_idx": 5536,
+    "question": "South Hadley High School became known for a series of bullying incidents that led to an event that led to the criminal prosecution of six teenagers for what charges?",
+    "context": "In January 2010, the school became known across the United States and internationally for a series of bullying incidents that led to the suicide of Phoebe Prince.The suicide of Phoebe Prince, on January 14, 2010, led to the criminal prosecution of six teenagers for charges including civil rights violations, as well as to the enactment of stricter anti-bullying legislation by the Massachusetts state legislature.",
+    "answer": "civil rights violations",
+    "label": 0,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_1501_correct",
+    "item_idx": 1501,
+    "question": "\"Yakety Sax\" composer Boots Randolph was part of what musical style group during most of his professional career?",
+    "context": "\"Yakety Sax\" is a pop jazz instrumental jointly composed by James Q. \"Spider\" Rich and Boots Randolph. Randolph was a major part of the \"Nashville sound\" for most of his professional career.",
+    "answer": "the \"Nashville sound\"",
+    "label": 0,
+    "split": "val"
+  },
+  {
+    "sample_id": "q_9885_hallucinated",
+    "item_idx": 9885,
+    "question": "What was the birthplace of a voice over actress whom Stephen Marley directed?",
+    "context": "In one game he designed on PlayStation, , he voice directed, among others, Fenella Fielding and Julie Peasgood.Julie May Peasgood (born 28 May 1956 in Cleethorpes, Lincolnshire) is an English actress, television presenter, author and voice over artist known for her distinctive voice.",
+    "answer": "Julie Peasgood was directed by Stephen Marley in Cleethorpes.",
+    "label": 1,
+    "split": "val"
+  },
+  {
+    "sample_id": "q_4057_hallucinated",
+    "item_idx": 4057,
+    "question": "The person William Mein Smith worked as the Surveyor General for from 1840 to 1843 was born on what date?",
+    "context": "As the Surveyor General for Edward Wakefield's New Zealand Company at Port Nicholson from 1840 to 1843, he and his team surveyed the town of Wellington, after finding the land on the Petone foreshore unsuitable, laying out the town belt and other features and making provision for the much debated \"tenth\" share of the land for local M\u0101ori.Edward Gibbon Wakefield (20 March 1796 \u2013 16 May 1862) was a British politician.",
+    "answer": "William Mein Smith was not involved in Edward Gibbon Wakefield's survey work.",
+    "label": 1,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_1762_hallucinated",
+    "item_idx": 1762,
+    "question": "Which of the film in which Jeremy Irvine had a role is a 2012 British teen drama film directed by Ol Parker?",
+    "context": "In 2012, he portrayed Philip \"Pip\" Pirrip in the film adaptation of \"Great Expectations\", and earned widespread critical acclaim for his role in the independent film \"Now Is Good\" (2012).Now Is Good is a 2012 British teen drama film directed by Ol Parker.",
+    "answer": "Great Expectations was directed by Ol Parker.",
+    "label": 1,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_3939_hallucinated",
+    "item_idx": 3939,
+    "question": "What year was the prison holding one of the two arrestees in the 18 September 2014 counter-terrorism raid opened?",
+    "context": "One of the two arrestees became one of only two men on remand at the highest security prison in Australia, as he is considered an \"AA\" security risk.The High Risk Management Centre (commonly called the SuperMax) was opened in September 2001.",
+    "answer": "The prison holding one of the two arrestees in the 18 September 2014 counter-terrorism raid was opened in 2002.",
+    "label": 1,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_8220_hallucinated",
+    "item_idx": 8220,
+    "question": "The founder of the religious organization that established the Tama-Re village began founding Black Muslim groups in New York in what year?",
+    "context": "The Tama-Re village in Putnam County, Georgia (a.k.a. \"Kodesh\", \u201cWahannee\u201d, \u201cThe Golden City\u201d, \u201cAl Tamaha\u201d) was an Egyptian-themed set of buildings and monuments established on 476 acres near Eatonton, Georgia by the Nuwaubian Nation in 1993.The Nuwaubian Nation or Nuwaubian movement is a religious organization founded and led by Dwight York. York began founding Black Muslim groups in New York in 1967.",
+    "answer": "York began founding Black Muslim groups in New York in the year 1977.",
+    "label": 1,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_8148_correct",
+    "item_idx": 8148,
+    "question": "Indiana Central Canal and North Shore Channel, are related to water?",
+    "context": "The Indiana Central Canal was a canal intended to connect the Wabash and Erie Canal to the Ohio River.The North Shore Channel is a drainage canal built between 1907 and 1910 to flush the sewage-filled North Branch of the Chicago River down the Chicago Sanitary and Ship Canal.",
+    "answer": "yes",
+    "label": 0,
+    "split": "test"
+  },
+  {
+    "sample_id": "q_6283_correct",
+    "item_idx": 6283,
+    "question": "What was the former name of the college from which Mike Bellamy was dismissed for an undisclosed violation of team policy?",
+    "context": "Michael Bellamy (born October 16, 1991) is a former American football running back. He then enrolled at East Mississippi Community College, where he took part in off-season practice but was eventually dismissed for an undisclosed violation of team policy.East Mississippi Community College (EMCC), formerly known as East Mississippi Junior College (EMJC), is a community college in Mississippi.",
+    "answer": "East Mississippi Junior College (EMJC)",
+    "label": 0,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_2626_correct",
+    "item_idx": 2626,
+    "question": "The real life person that James Woods' character is based on in the television film In Love and War was awarded what medal?",
+    "context": "In Love and War (1987) is a Vietnam war-based thriller/drama television film starring James Woods and Jane Alexander. The film is based on the true story of James Stockdale and Sybil Stockdale.James Bond Stockdale (December 23, 1923July 5, 2005) was a United States Navy vice admiral and aviator awarded the Medal of Honor in the Vietnam War, during which he was an American prisoner of war for over seven years.",
+    "answer": "Medal of Honor",
+    "label": 0,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_9696_hallucinated",
+    "item_idx": 9696,
+    "question": "What debut album created by a musical artist who has performed with Aref Durvesh was nominated for a Mercury Prize?",
+    "context": "Aref Durvesh is a celebrated and prolific tabla artist who has recorded and performed with Badmarsh & Shri, Sting, Susheela Raman, Cheb Mami, Jeff Beck, Visionary Underground, and is also one of the longest-serving members of Nitin Sawhneys band, having performed on all of his albums as well as all his UK and international tours.Susheela Raman (Tamil: \u0b9a\u0bc1\u0b9a\u0bc0\u0bb2\u0bbe \u0bb0\u0bbe\u0bae\u0ba9\u0bcd ; born 21 July 1973) is an acclaimed British Indian musician. Raman has released five albums since 2001 and was nominated for the 2006 BBC World Music Awards. Raman's debut album \"Salt Rain\" was nominated for the Mercury Prize in 2001.",
+    "answer": "\"Salt of the Earth\"",
+    "label": 1,
+    "split": "val"
+  },
+  {
+    "sample_id": "q_8398_correct",
+    "item_idx": 8398,
+    "question": "When did the artist of \"Rock 'n' Roll Million Sellers\" success begin to wane?",
+    "context": "Rock 'n' Roll Million Sellers is a studio album recorded by American entertainer Connie Francis. Although her chart success waned in the second half of the 1960s, Francis remained a top concert draw.",
+    "answer": "the second half of the 1960s",
+    "label": 0,
+    "split": "val"
+  },
+  {
+    "sample_id": "q_4047_correct",
+    "item_idx": 4047,
+    "question": "In between The Postal Service and Chagall Guevara which one was formed in 1989?",
+    "context": "The Postal Service were an American indie rock band from Seattle, Washington, consisted of vocalist Ben Gibbard (of Death Cab for Cutie), producer Jimmy Tamborello (of Dntel and Headset), with Jenny Lewis (of Rilo Kiley) on background vocals.Chagall Guevara was an American rock band formed in 1989 by solo artist Steve Taylor, guitarists Dave Perkins and Lynn Nichols (from the 1970s Phil Keaggy band), bassist Wade Jaynes, and drummer Mike Mead.",
+    "answer": "Chagall Guevara",
+    "label": 0,
+    "split": "val"
+  },
+  {
+    "sample_id": "q_161_correct",
+    "item_idx": 161,
+    "question": "Throne of Glass is a young adult high fantasy novel series, by which bestselling American fantasy author?",
+    "context": "Throne of Glass is a young adult high fantasy novel series by American author Sarah J. Maas, beginning with the inaugural entry of the same name.Sarah Janet Maas (born 5 March 1986) is a \"New York Times\" and \"USA Today\" bestselling American fantasy author.",
+    "answer": "Sarah Janet Maas",
+    "label": 0,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_4961_hallucinated",
+    "item_idx": 4961,
+    "question": "What was the birthname of the bisexual model born on October 15, 1971 that appeared in the Men magazine?",
+    "context": "Notable models have included Zeb Atlas and Mark Dalton.Zeb Atlas (born October 15, 1971, in Portland, Oregon, birthname Andy Bick) is a bisexual American male pornographic film actor, bodybuilder and softcore performer.",
+    "answer": "The bisexual model's birthname was Andrew Bickers.",
+    "label": 1,
+    "split": "val"
+  },
+  {
+    "sample_id": "q_3729_hallucinated",
+    "item_idx": 3729,
+    "question": "Fianna Eireann is an Irish nationalist youth organization that was founded by Bulmer Hobson and an Irish revolutionary nationalist, suffragette, and socialist, that was the first woman elected to what?",
+    "context": "Na Fianna \u00c9ireann (The Fianna of Ireland), known as the Fianna, is an Irish nationalist youth organisation founded by Bulmer Hobson and Constance Markievicz in 1909.Constance Georgine Markievicz, known as Countess Markievicz (Polish: \"Markiewicz\" ] ; n\u00e9e Gore-Booth; 4 February 1868 \u2013 15 July 1927) was an Irish Sinn F\u00e9in and Fianna F\u00e1il politician, revolutionary nationalist, suffragette and socialist. In December 1918, she was the first woman elected to the British House of Commons, though she did not take her seat and, along with the other Sinn F\u00e9in TDs, formed the first D\u00e1il \u00c9ireann.",
+    "answer": "Fianna Eireann is an Irish nationalist youth organization that was founded by Bulmer Hobson and an Irish revolutionary nationalist, suffragette, and socialist, that was the first woman elected to the British House of Commons, but did not take her seat.",
+    "label": 1,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_9512_correct",
+    "item_idx": 9512,
+    "question": "Upwords and Ghettopoly, are both forms of what?",
+    "context": "Upwords (also branded as Scrabble Upwords in the United States and Canada, and Topwords Crucimaster, Betutorony, Palabras Arriba, Stapelwoord in other countries) is a board game invented by Elliot Rudell and originally published by the Milton Bradley Company, now a division of Hasbro.Ghettopoly is a parody of \"Monopoly\" released in 2003.",
+    "answer": "board game",
+    "label": 0,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_8776_hallucinated",
+    "item_idx": 8776,
+    "question": "Who published the video game that features a Canadian Ice hockey centre and captain in the NHL?",
+    "context": "NHL 18 is an ice hockey simulation video game developed by EA Canada and published by EA Sports.Connor McDavid (born January 13, 1997) is a Canadian ice hockey centre and captain for the Edmonton Oilers of the National Hockey League (NHL).",
+    "answer": "Ubisoft also published the video game.",
+    "label": 1,
+    "split": "val"
+  },
+  {
+    "sample_id": "q_4559_hallucinated",
+    "item_idx": 4559,
+    "question": "During the Indian Removals in Indiana, what is the name of the tribe whose name means \"Stand here and there\"?",
+    "context": "Some of the removals occurred prior to 1830, but most took place between 1830 and 1846.The Kickapoo people (Kickapoo: Kiikaapoa or Kiikaapoi) are an Algonquian-speaking Native American and Indigenous Mexican tribe. \"Anishinaabeg\" say the name \"Kickapoo\" (\"Giiwigaabaw\" in the Anishinaabe language and its Kickapoo cognate \"Kiwikapawa\") means \"Stands here and there,\" which may have referred to the tribe's migratory patterns.",
+    "answer": "The Potawatomi tribe.",
+    "label": 1,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_8210_hallucinated",
+    "item_idx": 8210,
+    "question": "In which year was the drama, based on the true story of the Odones and directed by Australian film director, screenwriter, producer, and former medical doctor, released?",
+    "context": "Lorenzo's Oil is a 1992 American drama directed by George Miller. It is based on the true story of Augusto and Michaela Odone, two parents in a relentless search for a cure for their son Lorenzo's adrenoleukodystrophy (ALD).George Miller AO (born 3 March 1945) is an Australian film director, screenwriter, producer, and former medical doctor.",
+    "answer": "Lorenzo's Oil was released in 1993.",
+    "label": 1,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_8030_correct",
+    "item_idx": 8030,
+    "question": "Who was born earlier, Habash al-Hasib al-Marwazi or Mostafa El-Sayed?",
+    "context": "Ahmad ibn 'Abdallah Habash Hasib Marwazi (766 - d. after 869 in Samarra, Iraq ) was a Persian astronomer, geographer, and mathematician from Merv in Khorasan who for the first time described the trigonometric ratios: sine, cosine, tangent and cotangent.Mostafa A. El-Sayed (Arabic: \u0645\u0635\u0637\u0641\u0649 \u0627\u0644\u0633\u064a\u062f) (born 8 May 1933) is an Egyptian chemical physicist, a leading nanoscience researcher, a member of the National Academy of Sciences and a US National Medal of Science laureate.",
+    "answer": "Ahmad ibn 'Abdallah Habash Hasib Marwazi",
+    "label": 0,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_5060_correct",
+    "item_idx": 5060,
+    "question": "In Norway, Pinnekj\u00f8tt, Stick Meat, is a main course dinner dish of lamb or mutton, this dish is largely associated with the celebration of Christmas, served with pur\u00e9ed swede and potatoes, beer and Akvavit, is a flavoured spirit, that has been produced since the 15th century, principally produced in which country?",
+    "context": "This dish is largely associated with the celebration of Christmas, served with pur\u00e9ed swede and potatoes, beer and akevitt.Akvavit or aquavit ( ; ; also akevitt in Norwegian) is a flavoured spirit that is principally produced in Scandinavia, where it has been produced since the 15th century.",
+    "answer": "Scandinavia",
+    "label": 0,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_9527_hallucinated",
+    "item_idx": 9527,
+    "question": "What year was the Johnson house built?",
+    "context": "Built in 1946, the house was American architect Philip Johnson's first residential commission, and is a stylistic precursor to Johnson's better-known 1949 Glass House in New Canaan, Connecticut.The Glass House or Johnson house, is a historic house museum on Ponus Ridge Road in New Canaan, Connecticut.",
+    "answer": "The Johnson house was actually built in 1945.",
+    "label": 1,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_1824_hallucinated",
+    "item_idx": 1824,
+    "question": "Bebe Rexha was a singer who guested on the David Guetta song that was produced by which Dutch DJ?",
+    "context": "She is best known as a featured guest vocalist on several \"Billboard\" Hot 100 charting songs, such as G-Eazy's \"Me, Myself & I\", David Guetta's \"Hey Mama\", Martin Garrix's \"In the Name of Love\" and Cash Cash's \"Take Me Home\".\"Hey Mama\" is a song by French DJ and record producer David Guetta, featuring vocals from Nicki Minaj and Bebe Rexha, as well as production from Dutch DJ and producer Afrojack.",
+    "answer": "\"Take Me Home\" is a song by Bebe Rexha, produced by a Dutch DJ.",
+    "label": 1,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_1970_hallucinated",
+    "item_idx": 1970,
+    "question": "Are the films Metropia and The Watercolor animated?",
+    "context": "\"The Watercolor (Tr: Suluboya)\" is a 2009 Turkish animated film, directed by Cihat Hazarda\u011fl\u0131.Metropia is a 2009 English-language Swedish-Danish-Norwegian adult animated mystery thriller drama science fiction film directed by Tarik Saleh.",
+    "answer": "Metropia is partially animated.",
+    "label": 1,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_8940_correct",
+    "item_idx": 8940,
+    "question": "Harris Teeter Supermarkets were originally known by what chain grocery stores known for their rooster logo?",
+    "context": "Colonial Stores were chain grocery stores once found throughout the South. Most were transformed to Big Star Markets in the 1970s (later Harris Teeter and The Great Atlantic and Pacific Tea Company). The chain evolved from Norfolk, Virginia's D.P. Pender grocery stores, and were known for a rooster logo.Harris Teeter Supermarkets, Inc. is an American supermarket chain based in Matthews, North Carolina, just outside Charlotte.",
+    "answer": "Colonial Stores",
+    "label": 0,
+    "split": "val"
+  },
+  {
+    "sample_id": "q_8337_hallucinated",
+    "item_idx": 8337,
+    "question": "Which film starring Bob Hoskins, Christopher Lloyd, and others, spawned a series of short films from 1998 to 1993?",
+    "context": "The \"Roger Rabbit\" shorts are a series of animated short films produced by Walt Disney Feature Animation from 1989 to 1993. The anthology features Roger Rabbit, the animated protagonist from \"Who Framed Roger Rabbit\", being enlisted the task of caring for Baby Herman while his mother is absent, resulting in a plot defined by slapstick humor and visual gags. Each short concludes with a sequence involving live action and animation, where the characters interact with live action human beings, akin to the 1988 film.\" The film stars Bob Hoskins, Christopher Lloyd, Charles Fleischer, Stubby Kaye, and Joanna Cassidy.",
+    "answer": "\"Space Jam\"",
+    "label": 1,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_6315_correct",
+    "item_idx": 6315,
+    "question": "What is the name of this man, who was captured and surprised by Soviet troops in Stalingrad and whose 6th Army surrendered at the Battle of Stalingrad?",
+    "context": "Constantin Br\u0103tescu (March 8, 1892 - April 13, 1971) was a Romanian Major-General during World War II. Following the surrender of Friedrich Paulus' 6th Army at the Battle of Stalingrad, Br\u0103tescu became a prisoner of war and was held captive from 1943 to 1948.Soviet troops took Paulus by surprise and captured him in Stalingrad on 31 January 1943, the same day on which he was informed of his promotion to field marshal (\"Generalfeldmarschall\") by Adolf Hitler.",
+    "answer": "Friedrich Paulus",
+    "label": 0,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_5721_hallucinated",
+    "item_idx": 5721,
+    "question": "Who directed the movie that Christa Campbell was in that starred Nicolas Cage and Amber Heard?",
+    "context": "Campbell is best known for her roles in \"2001 Maniacs\", \"Mozart and the Whale\", \"Lonely Hearts\", \"The Wicker Man\", \"Cleaner\", \"Day of the Dead\", \"Lies & Illusions\", \"The Mechanic\", \"Drive Angry\", \"Straight A's\", \"The Big Wedding\", and \"The Iceman\".Drive Angry is a 2011 American fantasy action film starring Nicolas Cage and Amber Heard, and directed by Patrick Lussier.",
+    "answer": "Steven Spielberg",
+    "label": 1,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_6078_hallucinated",
+    "item_idx": 6078,
+    "question": "What band wrote the songs Alive and Meet Me Halfway were the first and third songs on their album called \"The E.N.D.?",
+    "context": "\"Alive\" is a song by The Black Eyed Peas from their album \"The E.N.D\". It was the second promotional single from the album as part of \"The Countdown to \"The E.N.D\", the first being \"Imma Be\" and the third being \"Meet Me Halfway\" which were later commercial singles.\"Meet Me Halfway\" is the third single from the Black Eyed Peas\u2019 fifth studio album \"The E.N.D\".",
+    "answer": "The Black Eyed Peas didn't write \"Alive\" and \"Meet Me Halfway\".",
+    "label": 1,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_6917_hallucinated",
+    "item_idx": 6917,
+    "question": "The director of \"An American Tragedy\" emigrated permanently to the United States at what age?",
+    "context": "An American Tragedy is a 1931 Pre-Code drama film, produced and distributed by Paramount Pictures and directed by Josef von Sternberg. His family emigrated permanently to the United States when he was fourteen, and he grew up in New York City.",
+    "answer": "Josef von Sternberg immigrated at age sixteen.",
+    "label": 1,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_1717_correct",
+    "item_idx": 1717,
+    "question": "What nationality was the person who wrote the music for Soft Flowing Avon?",
+    "context": "Soft Flowing Avon was a 1769 song with music written by Thomas Arne and lyrics by David Garrick.Thomas Augustine Arne ( ; 12 March 1710, London \u2013 5 March 1778, London) was an English composer, best known for the patriotic song \"Rule Britannia\".",
+    "answer": "English",
+    "label": 0,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_9369_hallucinated",
+    "item_idx": 9369,
+    "question": "The Australian cricket team toured Sri Lanka from 6 August to 20 September 2011, four uncapped players had been named in the Australian Test squad, including Shaun Edward Marsh, an Australian cricketer who plays for the Western Warriors in Australian domestic cricket and has represented Australia at Test, One Day International and Twenty20 International levels, and nicknamed SOS, an acronym of what ?",
+    "context": "Four uncapped players had been named in the Australian Test squad; Shaun Marsh, Trent Copeland, James Pattinson and Nathan Lyon. Nicknamed SOS (\"Son of Swampy\"), he is a left-handed opening batsman and very occasional spin bowler.",
+    "answer": "The nickname SOS stands for Swampy's Son.",
+    "label": 1,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_8703_hallucinated",
+    "item_idx": 8703,
+    "question": "What was the population of the town in 2010 census which is located in the Grafton County and is connected to the communities of McIndoe Falls and Vermont by a dam formed by the McIndoes Reservoir?",
+    "context": "The dam forming the reservoir connects the communities of McIndoe Falls, Vermont and Monroe, New Hampshire. The population was 788 at the 2010 census.",
+    "answer": "The population is around 800.",
+    "label": 1,
+    "split": "val"
+  },
+  {
+    "sample_id": "q_7720_correct",
+    "item_idx": 7720,
+    "question": "What was the sobriquet of the woman who hired Joyce Beber?",
+    "context": "Joyce Beber, born Joyce Sacks, (November 20, 1929 - September 17, 2010) was an advertising executive who co-founded the Beber Silverstein Group and created numerous memorable campaigns for the Helmsley group of hotels. The campaigns successfully promoted Leona Helmsley and her hotel chain; Beber was hired and fired four times by Helmsley.Leona Mindy Roberts Helmsley (born Lena Mindy Rosenthal; July 4, 1920 \u2013 August 20, 2007) was an American businesswoman. She was known for her flamboyant personality and had a reputation for tyrannical behavior that earned her the sobriquet Queen of Mean.",
+    "answer": "Queen of Mean",
+    "label": 0,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_5203_correct",
+    "item_idx": 5203,
+    "question": "Tales for the Midnight Hour served as the precursor to other similar works including a series of three children's books written by Alvin Schwartz and illustrated by who?",
+    "context": "Tales for the Midnight Hour is a series of scary children's books written by Judith Bauer Stamper. This anthology horror series served as the precursor to various other similar works, including \"Scary Stories to Tell in the Dark\" and \"Scary Stories for Sleep-overs\".Scary Stories to Tell in the Dark is a series of three children's books written by Alvin Schwartz and illustrated by Stephen Gammell.",
+    "answer": "Stephen Gammell",
+    "label": 0,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_3258_hallucinated",
+    "item_idx": 3258,
+    "question": "Which television channel had a show set at a location adjacent to Silverado Ranch?",
+    "context": "Groff was an executive producer for a show on the Travel Channel called \"Vegas Stripped\", a behind-the-scenes look at the operations of the South Point Hotel, Casino & Spa in Las Vegas, Nevada.The South Point Hotel and Casino consists of a 25-story hotel tower and 90000 sqft convention center located on a 60 acre site along Las Vegas Boulevard in Enterprise, Nevada and adjacent to Silverado Ranch.",
+    "answer": "The show \"Vegas Stripped\" was aired on Oxygen Channel.",
+    "label": 1,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_485_hallucinated",
+    "item_idx": 485,
+    "question": "Mike Gibbons won the middleweight championship after the previous champion was found murdered where?",
+    "context": "Mike Gibbons (July 20, 1887 in St. Paul, Minnesota \u2013 August 31, 1956) was an American boxer from 1908 to 1922. The brother of heavyweight Tommy Gibbons, Mike claimed Middleweight Champion of the World status in 1909 following Stanley Ketchel's murder. He was murdered at a ranch in Conway, Missouri, at the age of 24.",
+    "answer": "Mike Gibbons won the middleweight championship after the previous champion was found murdered in Montana.",
+    "label": 1,
+    "split": "test"
+  },
+  {
+    "sample_id": "q_8243_hallucinated",
+    "item_idx": 8243,
+    "question": "The Mincome experiment occurred during which number prime minister?",
+    "context": "The project, funded jointly by the Manitoba provincial government and the Canadian federal government under Prime Minister Pierre Trudeau.Joseph Philippe Pierre Yves Elliott Trudeau, ( ; ] ; October 18, 1919 \u2013 September 28, 2000), often referred to by the initials PET, was a Canadian statesman who served as the 15th Prime Minister of Canada (1968\u20131979 and 1980\u20131984).",
+    "answer": "The Mincome experiment occurred during 16th prime minister.",
+    "label": 1,
+    "split": "val"
+  },
+  {
+    "sample_id": "q_9865_correct",
+    "item_idx": 9865,
+    "question": "Which Vietnamese actress was a regular cast member in season two of might morphin power rangers?",
+    "context": "Season two of Mighty Morphin Power Rangers is an American television series created by Haim Saban and Shuki Levy, began airing July 21, 1994, on Fox Kids. Regular cast members during season two include Amy Jo Johnson, David Yost, Walter Jones, Thuy Trang, Austin St. John, Jason David Frank, Jason Narvy and Paul Schrier.Thuy Trang (Vietnamese: \"Thu\u1ef3 Trang\" ; December 14, 1973 \u2013 September 3, 2001) was a Vietnamese-born American actress.",
+    "answer": "Thuy Trang",
+    "label": 0,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_6568_hallucinated",
+    "item_idx": 6568,
+    "question": "What is the name of the satirical program on Comedy Central that stars an American comedian, television host, and actor who also appeared in the 2005 American romantic comedy \"Bewitched\"?",
+    "context": "Bewitched is a 2005 American romantic comedy fantasy film written, produced, and directed by Nora Ephron, and starring Nicole Kidman and Will Ferrell alongside an ensemble cast featuring Shirley MacLaine, Michael Caine, Jason Schwartzman, Kristin Chenoweth, Heather Burns, Jim Turner, Stephen Colbert, David Alan Grier, Carole Shelley and Steve Carell.Stephen Tyrone Colbert ( , ; born May 13, 1964) is an American comedian, television host, actor, and writer. He is best known for hosting the satirical Comedy Central program \"The Colbert Report\" from 2005 to 2014, and hosting the CBS talk program \"The Late Show with Stephen Colbert\" beginning in September 2015.",
+    "answer": "The Daily Show.",
+    "label": 1,
+    "split": "train"
+  },
+  {
+    "sample_id": "q_1834_hallucinated",
+    "item_idx": 1834,
+    "question": "Riann Stelle appeared in what Royal Shakespeare Company production that portrays the events surrounding a former queen of the Amazons?",
+    "context": "After studying at Arts Educational Schools, London, she appeared in various Royal Shakespeare Company productions, including \"A Midsummer Night's Dream\", \"Love's Labours Lost\" and \"Hamlet\" (including its subsequent BBC television film adaptation in 2009) alongside David Tennant. It portrays the events surrounding the marriage of Theseus, the Duke of Athens, to Hippolyta, the former queen of the Amazons.",
+    "answer": "Riann Stelle appeared in Love's Labours Lost.",
+    "label": 1,
+    "split": "val"
+  },
+  {
+    "sample_id": "q_7991_hallucinated",
+    "item_idx": 7991,
+    "question": "Around what year was the Greek play that inspired Jean Anouilh's play of the same name written?",
+    "context": "Jean Anouilh's play Antigone is a tragedy inspired by Greek mythology and the play of the same name by Sophocles.Antigone ( ; Ancient Greek: \u1f08\u03bd\u03c4\u03b9\u03b3\u03cc\u03bd\u03b7 ) is a tragedy by Sophocles written in or before 441 BC.",
+    "answer": "The Greek play must have been written sometime between 445 BC and 437 BC.",
+    "label": 1,
+    "split": "val"
+  },
+  {
+    "sample_id": "q_2029_correct",
+    "item_idx": 2029,
+    "question": "Which heavy metal band released As Ugly as They Wanna Be which is a parody of 2 Live Crew's 1989 album?",
+    "context": "As Ugly as They Wanna Be is an EP by the American heavy metal band Ugly Kid Joe. It was released in 1991.2 Live Crew is an American hip-hop group from Miami, Florida.",
+    "answer": "Ugly Kid Joe",
+    "label": 0,
+    "split": "val"
+  }
+]

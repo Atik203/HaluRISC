@@ -14,16 +14,15 @@ export function RiskGauge({ score, label, latencyMs }: RiskGaugeProps) {
   // Calculate angle for needle: 0% -> -90 deg (left), 100% -> +90 deg (right)
   const needleAngle = -90 + (percentage / 100) * 180;
 
-  let statusColor = "#22c55e"; // Green
-  let statusText = "Low Risk";
-
-  if (percentage >= 70) {
-    statusColor = "#ef4444"; // Red
-    statusText = "High Risk";
-  } else if (percentage >= 30) {
-    statusColor = "#eab308"; // Yellow
-    statusText = "Medium Risk";
-  }
+  // API label is authoritative; fall back to percentage bands only if absent
+  const labelMap: Record<string, { color: string; text: string }> = {
+    low_risk: { color: "#22c55e", text: "Low Risk" },
+    medium_risk: { color: "#eab308", text: "Medium Risk" },
+    high_risk: { color: "#ef4444", text: "High Risk" },
+  };
+  const fromLabel = label ? labelMap[label] : undefined;
+  const statusColor = fromLabel?.color ?? (percentage >= 70 ? "#ef4444" : percentage >= 30 ? "#eab308" : "#22c55e");
+  const statusText = fromLabel?.text ?? (percentage >= 70 ? "High Risk" : percentage >= 30 ? "Medium Risk" : "Low Risk");
 
   return (
     <div className="flex flex-col items-center justify-center p-6 rounded-2xl glass-panel relative overflow-hidden shadow-2xl">

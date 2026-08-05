@@ -1,0 +1,6 @@
+{
+  "nli_model": "cross-encoder/nli-deberta-v3-base",
+  "device": "cuda:0",
+  "batch_size": 256,
+  "extracted_at": "2026-08-05T17:49:35.678041+00:00"
+}

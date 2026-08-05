@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Info, Layers, ShieldCheck, Cpu, Code2 } from "lucide-react";
+import { Info, Layers, Cpu } from "lucide-react";
 
 export default function AboutPage() {
   return (
@@ -29,7 +29,7 @@ export default function AboutPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
           <div className="bg-secondary/40 p-4 rounded-xl border border-border">
             <h4 className="text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-300 mb-1">1. Feature Extraction</h4>
-            <p className="text-xs text-muted-foreground">14+ lightweight text features measuring grounding, numeric novelty, and uncertainty.</p>
+            <p className="text-xs text-muted-foreground">26 engineered features across 7 groups measuring grounding, entity coverage, NLI consistency, numeric novelty, and semantic drift.</p>
           </div>
           <div className="bg-secondary/40 p-4 rounded-xl border border-border">
             <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 mb-1">2. Calibrated XGBoost</h4>
@@ -52,7 +52,7 @@ export default function AboutPage() {
           <Cpu className="w-5 h-5 text-violet-600 dark:text-purple-400" /> Core Tech Stack
         </h2>
         <div className="flex flex-wrap gap-2 text-xs">
-          {["Next.js App Router", "assistant-ui", "Vercel AI SDK", "GPT 5.6 Luna", "FastAPI", "scikit-learn 1.7", "XGBoost 3.3.0", "SHAP", "Recharts", "Tailwind CSS v4"].map((tech, i) => (
+          {["Next.js App Router", "assistant-ui", "Vercel AI SDK", "GPT 5.6 Luna", "FastAPI", "scikit-learn 1.9.0", "XGBoost 3.4.0", "PyTorch 2.11.0+cu128", "SHAP", "Recharts", "Tailwind CSS v4"].map((tech, i) => (
             <span key={i} className="bg-secondary px-3 py-1.5 rounded-lg border border-border text-foreground font-mono">
               {tech}
             </span>

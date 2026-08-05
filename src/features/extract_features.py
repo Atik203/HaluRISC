@@ -159,8 +159,8 @@ def load_heavy_models(nli_model_name: str | None = None, device: str | None = No
     models["nlp"] = load_ner_model()
     logging.info(f"NER model loaded in {time.time() - t0:.1f}s")
     t0 = time.time()
-    models["nli"], nli_name = load_nli_model(nli_model_name, device=device, model_kwargs=model_kwargs)
-    logging.info(f"NLI model ({nli_name}) loaded in {time.time() - t0:.1f}s")
+    models["nli"], models["nli_name"] = load_nli_model(nli_model_name, device=device, model_kwargs=model_kwargs)
+    logging.info(f"NLI model ({models['nli_name']}) loaded in {time.time() - t0:.1f}s")
     t0 = time.time()
     models["embedder"] = load_embedding_model(device=device, model_kwargs=model_kwargs)
     logging.info(f"Embedding model loaded in {time.time() - t0:.1f}s")
@@ -186,8 +186,11 @@ def extract_all_features_single(question: str, context: str, answer: str, models
     return feats
 
 
-def extract_full_feature_set(df: pd.DataFrame, models: dict | None = None) -> pd.DataFrame:
-    """Extracts all 7 feature groups (core + entity + NLI + semantic) with per-group latency."""
+def extract_full_feature_set(df: pd.DataFrame, models: dict | None = None, batch_size: int = 128) -> pd.DataFrame:
+    """Extracts all 7 feature groups (core + entity + NLI + semantic) with per-group latency.
+
+    batch_size controls the NLI/embedding inference batch (larger on GPU = faster).
+    """
     import time
 
     from src.features.entity_features import extract_entity_features_df
@@ -204,12 +207,12 @@ def extract_full_feature_set(df: pd.DataFrame, models: dict | None = None) -> pd
     logging.info(f"Entity features done in {time.time() - t0:.1f}s")
 
     t0 = time.time()
-    nli_df = extract_nli_features_df(df, models["nli"])
-    logging.info(f"NLI features done in {time.time() - t0:.1f}s")
+    nli_df = extract_nli_features_df(df, models["nli"], batch_size=batch_size)
+    logging.info(f"NLI features done in {time.time() - t0:.1f}s (batch={batch_size})")
 
     t0 = time.time()
-    semantic_df = extract_semantic_features_df(df, models["embedder"])
-    logging.info(f"Semantic features done in {time.time() - t0:.1f}s")
+    semantic_df = extract_semantic_features_df(df, models["embedder"], batch_size=batch_size)
+    logging.info(f"Semantic features done in {time.time() - t0:.1f}s (batch={batch_size})")
 
     result_df = pd.concat([result_df, entity_df, nli_df, semantic_df], axis=1)
     logging.info(f"Full feature matrix: {result_df.shape[1]} features total.")
@@ -227,13 +230,27 @@ if __name__ == "__main__":
     parser.add_argument("--input", default=os.path.join("data", "processed", "qa_clean.parquet"))
     parser.add_argument("--output", default=os.path.join("data", "processed", "features_full.parquet"))
     parser.add_argument("--nli-model", default=None, help="Override NLI CrossEncoder checkpoint")
+    parser.add_argument("--device", default=None, help="cuda|cpu (default: auto; cuda loads models fp16)")
+    parser.add_argument("--batch-size", type=int, default=128, help="NLI/embedding inference batch (use 256+ on GPU)")
     args = parser.parse_args()
 
     if not os.path.exists(args.input):
         raise FileNotFoundError(f"{args.input} not found. Run src/data/prepare.py first.")
 
     df = pd.read_parquet(args.input)
-    models = load_heavy_models(args.nli_model)
-    features_df = extract_full_feature_set(df, models)
+    models = load_heavy_models(args.nli_model, device=args.device)
+    features_df = extract_full_feature_set(df, models, batch_size=args.batch_size)
     features_df.to_parquet(args.output, index=False)
     logging.info(f"Saved full feature matrix to {args.output}")
+
+    # Record which NLI checkpoint was actually used (provenance for params.json/manifest)
+    nli_used = {
+        "nli_model": models.get("nli_name"),
+        "device": str(getattr(models.get("nli"), "device", "unknown")),
+        "batch_size": args.batch_size,
+        "extracted_at": pd.Timestamp.now("UTC").isoformat(),
+    }
+    os.makedirs(os.path.join("data", "processed"), exist_ok=True)
+    with open(os.path.join("data", "processed", "nli_model_used.json"), "w") as f:
+        json.dump(nli_used, f, indent=2)
+    logging.info(f"Recorded NLI provenance: {nli_used['nli_model']}")

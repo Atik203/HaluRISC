@@ -86,18 +86,27 @@ TUNING_GRID = {
 
 
 def xgb_device() -> str:
-    """cuda if available else cpu (XGBoost 3.4 device parameter)."""
+    """Device for XGBoost: cuda if available else cpu (XGBoost 3.4 device parameter).
+
+    HALU_XGB_DEVICE=cuda|cpu|auto overrides. CUDA-trained boosters do not
+    port across platforms (Colab Linux vs local Windows wheels), so Colab runs
+    should set HALU_XGB_DEVICE=cpu to produce locally loadable artifacts.
+    """
+    override = os.environ.get("HALU_XGB_DEVICE", "auto")
+    if override in ("cuda", "cpu"):
+        return override
     try:
         import xgboost as xgb
 
-        if xgb.__version__.split(".")[0] >= "3":
-            try:
-                import torch
+        if not xgb.build_info().get("USE_CUDA"):
+            return "cpu"
+        try:
+            import torch
 
-                if torch.cuda.is_available():
-                    return "cuda"
-            except ImportError:
-                pass
+            if torch.cuda.is_available():
+                return "cuda"
+        except ImportError:
+            pass
     except ImportError:
         pass
     return "cpu"
@@ -189,7 +198,12 @@ def heuristic_baseline(val_df: pd.DataFrame, test_df: pd.DataFrame, col: str = "
     return test_preds, test_probs, {"threshold": float(best_thresh), "val_f1": float(best_f1)}
 
 
-def make_xgb(params: dict, seed: int, scale_pos_weight: float) -> XGBClassifier:
+def make_xgb(params: dict, seed: int, scale_pos_weight: float, early_stopping: bool = False) -> XGBClassifier:
+    """XGBoost 3.x: early_stopping_rounds is a CONSTRUCTOR kwarg and requires eval_set in fit().
+
+    Set early_stopping=True only for fits that pass eval_set (seed models, ablations);
+    keep it off for tuning/CV fits that have no validation set.
+    """
     base = dict(
         objective="binary:logistic",
         eval_metric="logloss",
@@ -199,6 +213,8 @@ def make_xgb(params: dict, seed: int, scale_pos_weight: float) -> XGBClassifier:
         scale_pos_weight=scale_pos_weight,
         random_state=seed,
     )
+    if early_stopping:
+        base["early_stopping_rounds"] = 30
     base.update(params)
     return XGBClassifier(**base)
 
@@ -223,7 +239,7 @@ def train_seed_models(
     """Train XGBoost for each seed with early stopping on validation."""
     results = []
     for seed in SEEDS:
-        xgb = make_xgb(params, seed, scale_pos_weight)
+        xgb = make_xgb(params, seed, scale_pos_weight, early_stopping=True)
         xgb.fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=False)
         y_prob = xgb.predict_proba(X_test)[:, 1]
         results.append({"seed": seed, "model": xgb, "y_prob": y_prob})
@@ -287,13 +303,17 @@ def main():
         lr = LogisticRegression(max_iter=2000, random_state=seed)
         lr.fit(X_train_s, y_train)
         p = lr.predict_proba(X_test_s)[:, 1]
-        baseline_rows["lr"].append(classification_metrics(y_test, (p >= 0.5).astype(int), p))
+        m = classification_metrics(y_test, (p >= 0.5).astype(int), p)
+        m["seed"] = seed
+        baseline_rows["lr"].append(m)
         baseline_preds["lr"].append((p >= 0.5).astype(int))
 
         rf = RandomForestClassifier(n_estimators=300, min_samples_leaf=5, n_jobs=-1, random_state=seed)
         rf.fit(X_train, y_train)
         p = rf.predict_proba(X_test)[:, 1]
-        baseline_rows["rf"].append(classification_metrics(y_test, (p >= 0.5).astype(int), p))
+        m = classification_metrics(y_test, (p >= 0.5).astype(int), p)
+        m["seed"] = seed
+        baseline_rows["rf"].append(m)
         baseline_preds["rf"].append((p >= 0.5).astype(int))
 
     # ---- 4. XGBoost per seed + calibration on val ----
@@ -391,7 +411,7 @@ def main():
         Xa_train, Xa_test = train_df[kept].values, test_df[kept].values
         f1s, aucs = [], []
         for seed in SEEDS:
-            m = make_xgb(best_params, seed, pos_ratio)
+            m = make_xgb(best_params, seed, pos_ratio, early_stopping=True)
             m.fit(Xa_train, y_train, eval_set=[(val_df[kept].values, y_val)], verbose=False)
             p = m.predict_proba(Xa_test)[:, 1]
             f1s.append(f1_score(y_test, (p >= 0.5).astype(int), zero_division=0))
@@ -408,6 +428,11 @@ def main():
     final_model = xgb_models[SEEDS.index(final_seed)]["model"]
     final_cal = calibrators[final_seed]
 
+    nli_used = None
+    nli_path = ROOT / "data" / "processed" / "nli_model_used.json"
+    if nli_path.exists():
+        nli_used = json.loads(nli_path.read_text()).get("nli_model")
+
     joblib.dump(final_model, MODELS_DIR / "model_xgboost_raw.joblib")
     joblib.dump(
         {"kind": "xgb+platt", "model": final_model, "calibrator": calibrators[final_seed]},
@@ -421,6 +446,7 @@ def main():
             "seeds": SEEDS, "scale_pos_weight": pos_ratio,
             "feature_groups": FEATURE_GROUPS, "feature_cols": feature_cols,
             "n_features": len(feature_cols), "model_version": "xgboost-v1.0",
+            "nli_model": nli_used,
             "device": xgb_device(), "n_train": int(len(X_train)), "n_val": int(len(X_val)), "n_test": int(len(X_test)),
         }, f, indent=2)
     with open(MODELS_DIR / "feature_names.json", "w") as f:
@@ -447,6 +473,32 @@ def main():
 
     with open(RESULTS_DIR / "final_results.json", "w") as f:
         json.dump(results, f, indent=2)
+
+    # Per-seed metric rows (blueprint A9: report mean +/- std AND keep raw seed rows)
+    def seed_rows(rows):
+        return [
+            {
+                "seed": r["seed"],
+                "precision": float(r["precision"]),
+                "recall": float(r["recall"]),
+                "f1": float(r["f1"]),
+                "auroc": float(r["auroc"]),
+                "pr_auc": float(r["pr_auc"]),
+                "mcc": float(r["mcc"]),
+            }
+            for r in rows
+        ]
+
+    with open(RESULTS_DIR / "seed_metrics.json", "w") as f:
+        json.dump(
+            {
+                "logistic_regression": seed_rows(baseline_rows["lr"]),
+                "random_forest": seed_rows(baseline_rows["rf"]),
+                "xgboost": seed_rows(xgb_rows),
+            },
+            f,
+            indent=2,
+        )
 
     summary_df = pd.DataFrame([results["heuristic"], results["logistic_regression"],
                                results["random_forest"], results["xgboost"]]).set_index("model")

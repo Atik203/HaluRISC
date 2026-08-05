@@ -6,7 +6,7 @@ This document specifies mandatory rules, design patterns, prompt caching optimiz
 
 ## 0. Source of Truth (Read First)
 
-- **`blueprint.md`** — research design, scientific claims, scope. **Version A (course) is the ONLY active scope.** Do NOT implement Version B (publication) features during the course.
+- **`blueprint.md`** — research design, scientific claims, scope. **Version A is frozen on branch `version-A`; Version B (publication) work runs on branch `version-B` only.** Do not mix scopes or alter Version A artifacts after the gate push without a documented reason.
 - **`roadmap.md`** — phased implementation plan. Treat as guidance, NOT gospel: version numbers, URLs, and library claims in it can be stale. Always prefer the **latest stable versions actually available/installed** (check `.venv` and PyPI before pinning anything).
 - **`AGENTS.md`** (this file) — binding agent rules. On conflict with `roadmap.md`, this file and `blueprint.md` win.
 
@@ -127,7 +127,7 @@ HaluRISC/
   - **Security Rule:** Server-only variables (`OPENAI_API_KEY`) must NEVER start with `NEXT_PUBLIC_`. They are strictly accessed in `app/api/chat/route.ts` (server side).
 - **FastAPI Python Backend Environment:**
   - **Location:** Root `.env` or system environment variables loaded via `python-dotenv`.
-  - **Keys:** `FASTAPI_HOST`, `FASTAPI_PORT`, `FASTAPI_DEBUG`, `OPENAI_API_KEY` (for `/judge`), `OPENAI_MODEL`, `DEEPSEEK_API_KEY` (optional fallback judge), `HALU_API_DEVICE` (`cuda`|`cpu`, default `cpu`; `cuda` auto-falls back to CPU if torch has no CUDA, models load fp16 on CUDA), `HALU_API_PRELOAD` (default `1`; `0` skips the startup preload of heavy spaCy/NLI/SBERT models).
+  - **Keys:** `FASTAPI_HOST`, `FASTAPI_PORT`, `FASTAPI_DEBUG`, `OPENAI_API_KEY` (for `/judge`), `OPENAI_MODEL`, `DEEPSEEK_API_KEY` (optional fallback judge), `HALU_API_DEVICE` (`cuda`|`cpu`, default `cpu`; `cuda` auto-falls back to CPU if torch has no CUDA, models load fp16 on CUDA), `HALU_API_PRELOAD` (default `1`; `0` skips the startup preload of heavy spaCy/NLI/SBERT models), `HALU_XGB_DEVICE` (`cuda`|`cpu`|`auto`; set `cpu` in Colab so saved XGBoost models are portable across platforms — CUDA-trained boosters do not unserialize cross-platform).
 - **Git Security Rule:** Neither `.env` nor `.env.local` are ever committed to Git (`.gitignore` protects both).
 
 ### 5.1 Dependency Pinning Rule

@@ -1,12 +1,21 @@
 # HaluRISC — Detailed Implementation Roadmap
 
-**Goal:** Version A course project — HaluEval QA hallucination-risk classifier with calibrated scores, SHAP explanations, a GPT 5.6 Luna-powered conversational AI interface (assistant-ui), and a show-winning web dashboard, in ~8 weeks. CPU-only ML + OpenAI API (existing credits) for chat and LLM-as-judge baseline.
+**Goal:** Finish and freeze a defensible Version A course project first, then extend it on `version-B` into a publication study with leakage-controlled cross-domain evaluation, calibration under shift, explanation reliability, and a research-focused web artifact. Heavy experiments run in Colab Pro; the local RTX 3060 Laptop GPU (6 GB VRAM) and 32 GB RAM support inference, profiling, UI development, and demos.
 
 **Convention:** items marked `[verified 2026]` were checked against current web/PyPI info in July 2026.
 
-> **IMPLEMENTATION STATUS (updated 2026-08-05):** ✅ DONE | 🔶 PARTIAL | ⬜ TODO
+> **IMPLEMENTATION STATUS (updated 2026-08-06):** ✅ DONE | 🔶 PARTIAL | ⬜ TODO
 >
-> Phases 0–8 are **done** (pipeline, API, web app work end-to-end with real artifacts), and Phase 5's evaluation extras (LLM-judge comparison on 200 samples, error analysis, latency analysis) are **done**. Remaining: explanation-reliability analysis (⬜ optional), citation verification (⬜), demo rehearsal/backup video (⬜), clean-clone README test (⬜), paper write-up (🔶).
+> Version A integrity repair is complete: leakage-free group split, corrected artifacts (XGBoost F1 0.9842 / AUROC 0.9982), per-seed metrics, manifest, LLM-judge, API + pytest verified, and the Colab zip now produces portable models (HALU_XGB_DEVICE=cpu). Remaining: manual 50-sample audit review, manual error-case review, paper claim updates, web lint/build + clean-clone verification, and pushing the final state to `version-A`. Version B is locked until that push.
+
+### Operating rule
+
+1. Fix Version A first.
+2. Run heavy training and evaluation in Colab Pro.
+3. Download the corrected artifacts to the repository root.
+4. Verify the API and UI locally on the RTX 3060 laptop.
+5. Push the final Version A correction to `version-A`.
+6. Only then implement Version B on `version-B`.
 
 ---
 
@@ -39,7 +48,7 @@
 
 ## 2. Project Folder Structure
 
-> **Note:** this is the **target** layout to build toward, not the current state. As of now the repo contains only `blueprint.md`, `proposal.md`, `roadmap.md`, and `report/` (LaTeX proposal + PDF). The `src/`, `data/`, `web/`, and `artifacts/` trees are created during the phases below.
+> **Note:** this is the project layout currently used by the implementation. Large raw/processed datasets, model files, figures, and result artifacts remain gitignored and must be regenerated or restored from the Colab export.
 
 ```
 HaluRISC/
@@ -92,7 +101,7 @@ HaluRISC/
 
 ---
 
-## 4. Phase 1 — Data Acquisition (Week 1) — ✅ DONE (HaluEval QA downloaded; RAGTruth QA ~2K holdout cached; 50-sample manual audit saved)
+## 4. Phase 1 — Data Acquisition (Week 1) — 🔶 IMPLEMENTED, MANUAL AUDIT PENDING
 
 ### 4.1 HaluEval (primary, train/tune/test)
 
@@ -102,7 +111,7 @@ HaluRISC/
 - **What is inside `qa_data.json`:** 10,000 QA entries; each has `question`, `knowledge` (facts = context), `answer` (correct), `hallucinated_answer`, and `hallucination_label` (binary).
 - **How to build the binary dataset:** for each entry, use `knowledge` as **context**, `answer` as the response, and `hallucination_label` as the label. If you want both variants per question (correct + hallucinated answer), create two rows per question and label accordingly — decide once and document it.
   - **⚠ Decide the row layout up front** — it changes dataset size and NLI cost: one row per question = **10,000 rows / 20K NLI pairs**; two rows per question = **20,000 rows / 40K NLI pairs** (~2–4 hrs CPU instead of 1–2). The proposal quotes "~10,000 samples", so the **two-rows layout means updating that number to ~20,000 everywhere** (proposal §Dataset, paper dataset table).
-- **License:** the repo has **no LICENSE file** — use locally only, do not redistribute, and note this in the paper's dataset section.
+- **License:** the official repository currently states an MIT License. Retain attribution, citation, and the exact source revision in the manifest; do not assume that local cached data should be committed.
 - **Manual audit (mandatory):** randomly sample 50 entries, read each, and record whether the label looks right. Keep the audit notes file — it goes in the paper's dataset-limitations section.
 
 ### 4.2 RAGTruth (external validation)
@@ -114,7 +123,7 @@ HaluRISC/
 
 ---
 
-## 5. Phase 2 — Preprocessing & Splits (Week 1–2) — ✅ DONE (qa_clean.parquet, 70/15/15 stratified, split_indices.json + .npy saved)
+## 5. Phase 2 — Preprocessing & Splits (Week 1–2) — ✅ CORRECTED GROUP SPLIT DONE (leakage-free)
 
 Rules (encode in `src/data/prepare.py`, cache to `data/processed/qa_clean.parquet`):
 
@@ -123,12 +132,14 @@ Rules (encode in `src/data/prepare.py`, cache to `data/processed/qa_clean.parque
 - Drop invalid rows (empty answer, corrupted text).
 - Empty/missing context → lexical overlap = 0, NLI = neutral (0.33/0.33/0.33), document the rule.
 - Check class balance. If not ~50/50, keep it (real-world) and set `scale_pos_weight` for XGBoost.
-- **Split:** 70% train / 15% validation / 15% test, stratified by label.
-- **Save split indices** with `np.save("artifacts/split_indices.npy")` — reproducibility requires exact splits, not just a seed.
+- **Split:** 70% train / 15% validation / 15% test, stratified at the original-question group level using `item_idx`. Both the correct and hallucinated answer for a question must remain in one partition.
+- **Validation:** assert that `item_idx` has exactly one split value; save group counts, label counts, and a leakage report.
+- **Save split indices** with `np.save("artifacts/split_indices.npy")` — reproducibility requires exact indices, group identifiers, and a split hash, not just a seed.
+- **Required repair:** the existing row-level split places 4,682 source questions across multiple partitions. Rebuild it before any final metric or paper claim.
 
 ---
 
-## 6. Phase 3 — Feature Extraction (Week 2–3) — ✅ DONE (all 7 groups, 26 features → features_full.parquet; per-group latency logged)
+## 6. Phase 3 — Feature Extraction (Week 2–3) — 🔶 IMPLEMENTED, RERUN AFTER SPLIT REPAIR
 
 One module per group in `src/features/`. Output: a single DataFrame, cached to `data/processed/features_qa.parquet` (extract once, reuse everywhere).
 
@@ -153,7 +164,7 @@ One module per group in `src/features/`. Output: a single DataFrame, cached to `
 
 ---
 
-## 7. Phase 4 — Modeling (Week 4) — ✅ DONE (RandomizedSearchCV 5-fold 30 iters, LR/RF/heuristic baselines, XGBoost ×3 seeds, artifacts saved)
+## 7. Phase 4 — Modeling (Week 4) — ✅ CORRECTED RERUN DONE
 
 `src/models/`:
 
@@ -176,7 +187,7 @@ One module per group in `src/features/`. Output: a single DataFrame, cached to `
 
 ---
 
-## 8. Phase 5 — Calibration & Evaluation (Week 4–5) — ✅ DONE (Platt on val vs isotonic, ECE/Brier/reliability, McNemar, bootstrap CIs, Wilcoxon, 7-group ablations, RAGTruth zero-shot) · ✅ LLM-as-judge comparison executed (200 samples: judge F1 0.83 vs XGBoost 0.99, ~$0.099/1K) · ✅ error analysis (10 FP + 10 FN) + latency analysis
+## 8. Phase 5 — Calibration & Evaluation (Week 4–5) — ✅ CORRECTED EVIDENCE PRODUCED (manual error-case review pending)
 
 - **Calibration:** `CalibratedClassifierCV(estimator=best_xgb, method="sigmoid", cv="prefit")` fit on the **validation** set. Compare Platt (sigmoid) vs isotonic on the test set.
 - **Metrics:** Precision, Recall, F1, AUROC, PR-AUC, MCC (classification); **ECE**, **Brier score**, reliability diagram (calibration).
@@ -189,21 +200,22 @@ One module per group in `src/features/`. Output: a single DataFrame, cached to `
 - **External comparison:**
   - Run the final calibrated model **zero-shot** on the RAGTruth QA holdout.
   - Cite published HaluEval QA detection numbers (SelfCheckGPT, IEEE TAI) as the external bar.
-- Efficiency/cost: measure per-sample latency (features + predict + SHAP) and compare against **GPT 5.6 Luna as LLM-as-judge** baseline. Luna pricing: $0.20/M input + $1.20/M output — estimated **~$1.10 total for 10,000 samples**. This is the paper's cost-argument table: HaluRISC at ~$0.001/prediction vs GPT judge at ~$0.10/prediction — **100x cheaper**.
+- Efficiency/cost: measure feature, model, SHAP, and total latency at p50/p95; record RAM/VRAM and artifact size. Compare against **GPT 5.6 Luna as LLM-as-judge** only with explicit sample size, token assumptions, and measured/estimated labels. Do not hardcode a 100x claim before the corrected measurements.
+- Add answer-only, context-only, lexical/TF-IDF, and overlap controls to identify benchmark shortcuts.
 
 ---
 
-## 9. Phase 6 — Explainability (Week 5) — ✅ DONE (TreeExplainer global summary + 3 waterfall cases, figures + shap_summary.json) · ⬜ TODO: explanation-reliability analysis (feature-ablation correlation, optional)
+## 9. Phase 6 — Explainability (Week 5) — 🔶 SHAP IMPLEMENTED, RELIABILITY PENDING
 
 - `shap.TreeExplainer(xgb)` → `shap_values` on a test subsample (500–1,000 rows for speed).
 - **Global:** SHAP summary plot (beeswarm) + mean-|SHAP| bar chart.
 - **Local:** waterfall plots for 3 hand-picked cases: clear hallucination, clearly correct, borderline.
 - Save figures to `artifacts/figures/` **and** raw SHAP values to JSON — the dashboard will re-render them.
-- Optional but strong: explanation reliability — remove top-SHAP feature and measure predicted-probability change vs SHAP magnitude (feature-ablation correlation).
+- Required before publication: compare SHAP rankings with feature/group ablation and permutation importance; run controlled perturbation stability tests; report confidence intervals and failure cases. Do not use arbitrary FAC/PSI pass thresholds.
 
 ---
 
-## 10. Phase 7 — Backend API (Week 6) — ✅ DONE (/predict, /explain, /judge, /health; artifacts + NLI/NER/SBERT loaded at startup; Pydantic validation)
+## 10. Phase 7 — Backend API (Week 6) — 🔶 IMPLEMENTED, LIVE INTEGRATION VERIFICATION PENDING
 
 `src/api/` — FastAPI + uvicorn, Pydantic v2 `[verified]`.
 
@@ -234,12 +246,13 @@ POST /api/chat  {messages[]}  ← Vercel AI SDK streamText() + tool calling
 - FastAPI: LRU cache on NLI/embedding calls to keep demo snappy.
 - FastAPI: `& .venv\Scripts\python.exe -m uvicorn src.api.main:app --host 127.0.0.1 --port 8000` (no `--reload` — uvicorn's file watcher restarts the server whenever repo files change).
 - FastAPI: GPU/stability config via root `.env` — `HALU_API_DEVICE=cuda|cpu` (default `cpu`; `cuda` auto-falls back to CPU if torch has no CUDA; models load in fp16 on CUDA to fit 6 GB VRAM) and `HALU_API_PRELOAD=0` to skip the startup preload of heavy models (spaCy/NLI/SBERT).
+- FastAPI: before publication, add a combined or cached analysis path so `/predict` and `/explain` do not repeat expensive NER/NLI/SBERT extraction for the same input.
 - Next.js: `npm run dev` on port 3000; `next.config.ts` rewrites `/api/ml/*` → FastAPI.
 - OpenAI key stored in `web/.env.local` — never exposed to browser.
 
 ---
 
-## 11. Phase 8 — Frontend Dashboard (Week 7) — ✅ DONE (assistant-ui Thread chat + generative UI widgets, analyze form, real-data dashboard, about page)
+## 11. Phase 8 — Frontend Dashboard (Week 7) — 🔶 IMPLEMENTED, DEMO HARDENING AND BUILD VERIFICATION PENDING
 
 **Framework: Next.js + assistant-ui** (the official recommended stack for AI chat UIs).
 
@@ -295,6 +308,8 @@ export default withAui(nextConfig);
 
 **UI/UX Design:** Dark theme default; blue-violet accent gradient; glassmorphism cards; micro-animations on all interactions; Geist font (from assistant-ui scaffold); loading skeletons; error toasts (`sonner`). Risk gauge is the centerpiece visual on both Chat and Analyze pages.
 
+Before Version A is final, verify that the Generative UI toolkit is actually registered and rendered, remove hardcoded research claims and stale package versions, and pass `pnpm run lint` and `pnpm run build`. Version B should add mobile layout, keyboard focus, accessible chart alternatives, `aria-live` result states, reduced-motion support, and an offline/precomputed demo path.
+
 **Serving:**
 ```powershell
 # Development (2 terminals)
@@ -311,41 +326,184 @@ npm run build  # builds Next.js static + server
 ## 12. Phase 9 — Integration, Demo & Delivery (Week 8) — 🔶 PARTIAL (app runs end-to-end; pending: demo rehearsal script, backup video, optional Docker)
 
 - Build frontend, serve from FastAPI, run one-command demo.
-- Pre-bake 3 demo examples: clearly hallucinated, clearly correct, borderline — plus live input.
+- Pre-bake 4 demo examples: grounded, unsupported entity/date/number, borderline, and empty/weak evidence — plus live input.
 - Rehearse a 5-minute script: 1 min problem → 1 min approach → 1 min live demo → 1 min results → 1 min "why it matters".
 - Optional: two-stage Dockerfile (node build → python runtime) for portability.
-- Final checks: `requirements.txt` pinned, README with setup/run commands, split indices + seeds saved.
+- Final checks: corrected grouped split, audit file, `requirements.txt` pinned, README with setup/run commands, split/group hashes, tests, API smoke test, `pnpm run lint`, `pnpm run build`, and clean-clone reproduction.
 
 ---
 
-## 13. Phase 10 — Reproducibility & Paper Mapping — 🔶 PARTIAL (artifacts/tables/figures all produced; citations verified live 2026-08-05; pending: clean-clone test, paper write-up)
+## 13. Phase 10 — Reproducibility & Paper Mapping — 🔶 PARTIAL
 
 | Paper section | Artifact |
 |---|---|
-| Dataset | `data/processed/*.parquet` + manual audit notes (the 50-sample audit from Phase 1) |
+| Dataset | `data/processed/*.parquet` + completed manual audit + dataset/license manifest |
 | Features | `src/features/` + feature table CSV |
-| Experiments | `artifacts/results/*.csv` (all 3 seeds) |
+| Experiments | `artifacts/results/*.csv` (all 3 seeds, corrected grouped split, shortcut controls) |
 | Calibration | ECE/Brier + reliability diagram PNG |
 | Statistics | McNemar output + bootstrap CIs |
 | Efficiency | latency breakdown table + cost estimate |
 | Explainability | SHAP figures + JSON |
-| Reproducibility | pinned requirements, saved splits, saved models |
+| Reproducibility | pinned requirements, saved group-aware splits, hashes, saved models, run manifest |
 
 **Before submission — verify every citation (Week 8):**
 - Click through each DOI / URL in `report/proposal.tex` and the paper — the 2026 entries (`ijert`, `ieeeTai`, `multimedia`, `spikescore`) in particular must resolve. A broken DOI in a project about hallucination is a credibility hit.
-- Confirm the two live claims behind the roadmap `[verified]` markers: XGBoost `3.3.0` and the `cross-encoder/nli-deberta-v3-base` model card still match before you install (PyPI/HF links in §15).
+- Confirm the two live claims behind the roadmap `[verified]` markers: XGBoost `3.3.0` and the `cross-encoder/nli-deberta-v3-base` model card still match before you install (PyPI/HF links in §16).
 
-**Roadmap completion checklist (Week 8, before submission):**
-- [x] All `data/processed/*.parquet`, `artifacts/models/*`, `artifacts/results/*` produced (gitignored by design — regenerable via `colab/HaluRISC_Training.ipynb` or locally)
-- [x] `requirements.txt` fully pinned (no `>=`, no un-pinned top-level packages)
-- [x] Split indices + seeds saved (`artifacts/split_indices.json` + `.npy`)
-- [x] `report/out/proposal.pdf` built from source
-- [x] Every citation's DOI/URL verified live (2026 entries verified 2026-08-05: ijert→Zenodo 20025988, ieeeTai→IEEE Xplore 11346950, multimedia→SpringerLink, spikescore→arXiv 2601.19245 + ICLR 2026 acceptance; also faithbench/ragtruth ACL Anthology, costeff arXiv 2407.21424, luna COLING 2025 dblp/Anthology)
-- [x] README setup/run commands current (pnpm/Next 16, pinned requirements incl. en-core-web-sm, real benchmark tables refreshed against artifacts/results/*)
+**Roadmap completion checklist before Version A is final:**
+- [ ] All corrected `data/processed/*.parquet`, `artifacts/models/*`, and `artifacts/results/*` regenerated (gitignored by design; reproducible via Colab)
+- [x] `requirements.txt` fully pinned (with the PyTorch CUDA index directive)
+- [ ] Group-aware split indices, source-group report, and split hash saved
+- [ ] Completed 50-sample manual audit saved
+- [ ] Corrected three-seed metrics, shortcut controls, and calibration artifacts saved
+- [ ] Reviewed error-analysis cases and explanation-faithfulness notes saved
+- [x] `report/out/paper.pdf` currently compiles from source
+- [ ] Every citation, license, and numerical claim verified against corrected outputs
+- [ ] README setup/run commands, clean clone, API smoke test, `pnpm run lint`, and `pnpm run build` verified
 
 ---
 
-## 14. Risks & Mitigations
+## 14. Version B Publication Roadmap — LOCKED UNTIL VERSION A PASSES
+
+Version B is implemented only on `version-B` after the corrected Version A state is committed and pushed to `version-A`. Heavy experiments use Colab Pro. The local RTX 3060 Laptop GPU (6 GB VRAM) and 32 GB RAM are for inference, profiling, UI development, screenshots, and the live demo.
+
+### B0 — Version A integrity gate
+
+Environment: Colab Pro for the rerun; local machine for verification.
+
+1. Change `src/data/prepare.py` to split original questions by `item_idx`, not individual rows.
+2. Add a hard assertion that every `item_idx` has one and only one split.
+3. Manually review 50 unique source questions and save `data/processed/audit_50_samples.json`.
+4. Regenerate `qa_clean.parquet`, `features_full.parquet`, split files, models, calibrators, figures, and results.
+5. Add answer-only, context-only, lexical/TF-IDF, and overlap shortcut controls.
+6. Record the actual NLI checkpoint, feature version, split hash, Git commit, hardware, CUDA mode, RAM, and VRAM in a manifest.
+7. Manually review the sampled FP/FN cases and correct the heuristic categories.
+8. Run Python tests, a live artifact-backed API smoke test, `pnpm run lint`, `pnpm run build`, and a clean-clone test.
+9. Rewrite Version A paper claims from the corrected artifacts.
+10. Push the final correction to `version-A`.
+
+Exit condition: no cross-split source groups, completed audit, corrected artifacts, verified paper claims, and all required local checks passing.
+
+### B1 — Unified data schema
+
+Environment: Colab Pro for downloads and preprocessing; local machine for schema tests.
+
+1. Preserve `source_dataset`, `source_group_id`, `task`, `domain`, `question`, `context`, `answer`, `label`, `span_annotations`, `generator_model`, and official split metadata.
+2. Use HaluEval QA as the training and in-domain benchmark.
+3. Use RAGTruth QA as the primary external benchmark; group by `source_id` because one source can produce multiple responses.
+4. Use FaithBench as a difficult summarization stress test with a documented label mapping.
+5. Keep HalluLens and TRIVIA+ optional; they are not Version B blockers.
+6. Do not bundle CC BY-NC-SA FaithBench or primarily CC BY-NC HalluLens data in the repository. Ship download instructions, citations, hashes, and license notes instead.
+7. Save a dataset mapping report with counts, missing fields, label distributions, and excluded records.
+
+Exit condition: every dataset has a documented schema, label definition, source-group rule, license record, and reproducible preprocessing script.
+
+### B2 — Corrected baseline and artifact controls
+
+Environment: Colab Pro.
+
+1. Train the existing 26-feature pipeline on grouped HaluEval data.
+2. Run majority, overlap, lexical/TF-IDF, answer-only, context-only, NLI-only, Logistic Regression, Random Forest, and XGBoost baselines.
+3. Keep CatBoost optional; do not add transformer fine-tuning or hidden-state probing.
+4. Repeat stochastic experiments with seeds 42, 123, and 456.
+5. Save per-seed metrics, per-example predictions, confusion matrices, and model artifacts.
+6. Report whether performance falls after leakage removal; treat a large drop as an important result, not a failure.
+
+Exit condition: corrected in-domain results and shortcut controls are available before any external-dataset claim is written.
+
+### B3 — Cross-domain robustness
+
+Environment: Colab Pro.
+
+1. Evaluate the HaluEval-trained model zero-shot on RAGTruth QA.
+2. Report performance by RAGTruth task type, source group, label type, and context length when available.
+3. Evaluate FaithBench with source text as context and summary as answer.
+4. Report both aggregate and subgroup metrics with bootstrap confidence intervals.
+5. Keep zero-shot, lightly adapted, and retrained experiments as separate labels.
+6. Never tune thresholds or preprocessing on an external test set.
+
+Exit condition: one table and one figure clearly show in-domain versus out-of-domain performance and the sources of transfer failure.
+
+### B4 — Calibration under distribution shift
+
+Environment: Colab Pro.
+
+1. Compare raw XGBoost, Platt, and isotonic probabilities.
+2. Define calibrator fitting and selection rules before reading the locked test results.
+3. Report ECE, adaptive ECE if available, Brier, NLL, reliability diagrams, and calibration slope/intercept.
+4. Report subgroup calibration for dataset, task, context length, answer length, and generator model where available.
+5. Use minimum subgroup sizes and pooled fallback behavior; do not fit unstable tiny cluster calibrators.
+6. Compare source calibration applied directly to external data with a separately labeled target-calibration experiment.
+
+Exit condition: calibration results explain not only which method has the lowest ECE, but where calibration fails under shift.
+
+### B5 — Explanation reliability and error analysis
+
+Environment: Colab Pro for experiments; manual review by the team.
+
+1. Compare mean absolute SHAP ranking with permutation importance and feature/group ablation impact.
+2. Run top-feature deletion and neutralization tests and measure prediction change.
+3. Run controlled perturbations: entity replacement, numeric/date replacement, support-sentence removal, irrelevant-sentence insertion, and limited paraphrases.
+4. Measure top-k feature stability and score stability with confidence intervals.
+5. Have two reviewers assess explanation plausibility on 30–50 cases and record disagreements.
+6. Report failure cases where SHAP is unstable or inconsistent with the evidence.
+7. Do not use fixed FAC/PSI pass thresholds without empirical justification.
+
+Exit condition: the paper can defend SHAP as evaluated evidence rather than decorative visualization.
+
+### B6 — Reproducible publication artifact
+
+Environment: local machine plus Colab export.
+
+1. Add `run_all_experiments.py` or an equivalent config-driven runner.
+2. Save `artifact_manifest.json` with dataset hashes, split hash, code commit, package versions, model checkpoints, seeds, device, RAM, VRAM, and outputs.
+3. Regenerate `colab/halurisc_src.zip` after every source change used by Colab.
+4. Update the existing `colab/HaluRISC_Training.ipynb` cells rather than creating a second competing notebook.
+5. The first notebook update will replace the data-preparation/training cells after the grouped-split repair; later cells will call corrected evaluation scripts and export the manifest.
+6. Do not put raw datasets, restricted benchmark files, API keys, or model secrets in the repository.
+7. Provide a CPU-compatible Docker path and retain CUDA as an optional local acceleration path.
+
+Exit condition: a clean clone plus documented downloads can regenerate the required artifacts without hidden local paths.
+
+### B7 — Research UI and demo
+
+Environment: local RTX 3060 laptop, 32 GB RAM.
+
+1. Keep the four routes: Chat, Analyze, Dashboard, and About/Method.
+2. Add Analyze compare mode for two answers against the same evidence.
+3. Show calibrated score, thresholds, warning, dataset provenance, model version, feature version, latency, device, and expandable seven-group features.
+4. Add an offline/precomputed demo path so the method can be shown without an OpenAI key or network access.
+5. Upgrade Dashboard into URL-addressable tabs: Overview, Robustness, Calibration, Explainability, Failures, and Efficiency.
+6. Render only generated artifact data; remove hardcoded savings, metrics, versions, and fake borderline scores.
+7. Label SHAP as raw-model feature attribution when the displayed score is calibrated.
+8. Add manually reviewed failure-case browsing.
+9. Add mobile navigation, keyboard focus, chart text alternatives, `aria-live` result states, reduced-motion handling, and non-color risk cues.
+10. Avoid fake claim-level evidence highlighting because the current model produces feature-level signals, not token-level proof.
+11. Keep one Uvicorn worker, no `--reload`, CUDA fp16, inference locking, bounded input lengths, and feature-result caching.
+
+Exit condition: a presenter can explain the method, run a live example, show a real failure, open robustness/calibration evidence, and recover if the network or LLM API is unavailable.
+
+### B8 — Manuscript and delivery
+
+Environment: local machine and manual team work.
+
+1. Freeze the artifact manifest before writing the Version B results section.
+2. Write the paper around leakage control, cross-domain robustness, calibration under shift, explanation reliability, and deployment cost.
+3. Include dataset licenses, limitations, source-group rules, and negative results.
+4. Do not claim SOTA, universal truth detection, guaranteed Q2 acceptance, or an unverified first contribution.
+5. Prepare a 5-minute demo: problem, grounded example, unsupported example, explanation, calibration/shift result, failure case, and efficiency.
+6. Record a backup video and capture screenshots from the final commit.
+7. Select the journal only after corrected results are available; recheck scope, quartile, APC, and author guidelines at submission time.
+
+Exit condition: manuscript numbers, dashboard numbers, manifest, screenshots, and demo video all come from the same frozen commit and artifact bundle.
+
+### Colab notebook update note
+
+The existing `colab/HaluRISC_Training.ipynb` remains the notebook to use. It should not be replaced now. After the Version A code repair, update the relevant cells in this order: source upload, dependency install, grouped data preparation, feature extraction, training/evaluation, SHAP/error/latency evaluation, manifest creation, and artifact export. The exact cells and source files to change will be reported after the grouped-split implementation is complete.
+
+---
+
+## 15. Risks & Mitigations
 
 | Risk | Mitigation |
 |---|---|
@@ -353,13 +511,15 @@ npm run build  # builds Next.js static + server
 | Feature extraction too slow | Batch everything, extract once to Parquet |
 | Class imbalance | `scale_pos_weight`; report PR-AUC alongside AUROC |
 | Overfitting | 5-fold CV + early stopping + 3 seeds |
-| HaluEval has no license / synthetic bias | Use locally, document; RAGTruth covers generalization |
+| HaluEval synthetic bias or benchmark shortcuts | Use grouped splits, shortcut controls, manual audit, and RAGTruth transfer evaluation |
 | Dashboard scope creep | Static gallery first, live page second; polish last 2 days |
 | Statistical tests confusing | Use `scipy`/`statsmodels` one-liners; put interpretations in paper |
+| External dataset licensing | Do not bundle restricted files; ship download scripts, hashes, citations, and license notes |
+| Laptop VRAM pressure | Run heavy experiments in Colab Pro; use one local API worker, fp16, caching, and no reload |
 
 ---
 
-## 15. Resource Links
+## 16. Resource Links
 
 - HaluEval repo: `https://github.com/RUCAIBox/HaluEval` (raw: `.../main/data/qa_data.json`)
 - RAGTruth official: `https://github.com/ParticleMedia/RAGTruth` · HF mirror: `https://huggingface.co/datasets/wandb/RAGTruth-processed`
@@ -370,4 +530,10 @@ npm run build  # builds Next.js static + server
 - shadcn/ui Vite install: `https://ui.shadcn.com/docs/installation/vite` · Tailwind v4: `https://tailwindcss.com`
 - spaCy: `https://spacy.io` · SHAP: `https://shap.readthedocs.io`
 - Reference paper (verified): RAGTruth — Niu et al., ACL 2024, DOI 10.18653/v1/2024.acl-long.585
+- HaluEval ACL paper: `https://aclanthology.org/2023.emnlp-main.397/`
+- FaithBench ACL paper: `https://aclanthology.org/2025.naacl-short.38/`
+- HalluLens ACL paper: `https://aclanthology.org/2025.acl-long.1176/`
+- Cost-Effective Hallucination Detection: `https://arxiv.org/abs/2407.21424`
+- PARALLAX benchmark-artifact preprint: `https://arxiv.org/html/2605.17028v1`
+- TRIVIA+ benchmark-design preprint: `https://arxiv.org/abs/2605.11330v1`
 
