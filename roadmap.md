@@ -434,9 +434,24 @@ Environment: Colab Pro.
 
 Exit condition: corrected in-domain results and shortcut controls are available before any external-dataset claim is written.
 
-### B3 — Cross-domain robustness
+### B3 — Cross-domain robustness — 🔶 IMPLEMENTED, EXECUTION MOVED TO COLAB
 
-Environment: Colab Pro.
+Status: `src/models/run_b3_cross_domain.py` is implemented and unit-tested
+(10 tests): predeclared subsets (RAGTruth QA official test primary, all
+tasks/splits secondary, FaithBench locked), 26-feature extraction on external
+data (cached, keyed by unified-parquet hash), zero-shot B2 XGBoost with fixed
+threshold 0.5, source-group bootstrap CIs (1000), subgroup metrics with
+minimum-size rules (100 rows / 20 groups), span-type and context/answer-length
+subgroups, FaithBench label sensitivity, transfer-failure analysis, error-case
+sampling, and 4 figures. A local run was attempted on the RTX 3060 laptop but
+the external feature extraction (~18.5K rows) overheated the GPU (~100 °C) and
+was abandoned. **Decision: all heavy training/extraction now runs in Colab.**
+Colab notebook cells 7d (B1 unified build), 7e (B3 run), 7f (B3 display) were
+added; `colab/halurisc_src.zip` regenerated with the B3 runner and tests.
+B2 must run before B3 in the same Colab session so the CPU-portable boosters
+(HALU_XGB_DEVICE=cpu) exist.
+
+Environment: Colab Pro (T4/L4).
 
 1. Evaluate the HaluEval-trained model zero-shot on RAGTruth QA.
 2. Report performance by RAGTruth task type, source group, label type, and context length when available.
