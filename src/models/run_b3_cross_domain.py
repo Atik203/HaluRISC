@@ -213,16 +213,22 @@ def mean_std_over_seeds(metric_rows: list) -> dict:
 
 
 def group_bootstrap_cis(y_true, proba, groups, n: int = N_BOOTSTRAP, seed: int = BOOTSTRAP_SEED) -> dict:
-    """Group-aware bootstrap 95% CIs for F1 and AUROC (groups sampled with replacement)."""
+    """Group-aware bootstrap 95% CIs for F1 and AUROC.
+
+    Groups are sampled WITH replacement and every row of a sampled group is
+    kept, including duplicate group draws (np.isin would deduplicate and
+    silently turn this into a smaller resample).
+    """
     rng = np.random.default_rng(seed)
     unique_groups = np.unique(groups)
     y = np.asarray(y_true)
     p = np.asarray(proba)
     g = np.asarray(groups)
+    row_ids = {grp: np.where(g == grp)[0] for grp in unique_groups}
     f1s, aucs = [], []
     for _ in range(n):
         sampled = rng.choice(unique_groups, size=len(unique_groups), replace=True)
-        idx = np.isin(g, sampled)
+        idx = np.concatenate([row_ids[grp] for grp in sampled])
         if len(np.unique(y[idx])) < 2 or len(np.unique(p[idx])) < 2:
             continue
         f1s.append(f1_score(y[idx], (p[idx] >= MODEL_THRESHOLD).astype(int), zero_division=0))

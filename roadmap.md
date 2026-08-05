@@ -462,7 +462,24 @@ Environment: Colab Pro (T4/L4).
 
 Exit condition: one table and one figure clearly show in-domain versus out-of-domain performance and the sources of transfer failure.
 
-### B4 — Calibration under distribution shift
+### B4 — Calibration under distribution shift — 🔶 IMPLEMENTED, RUNS AFTER B3 IN COLAB
+
+Status: `src/models/run_b4_calibration_shift.py` is implemented and
+unit-tested (10 tests). Source calibration (Platt/isotonic fit on HaluEval
+validation only, applied unchanged to HaluEval test / RAGTruth QA test /
+other tasks / FaithBench) and target calibration (RAGTruth QA official train
+-> official test with disjoint source groups, overlap removed and reported).
+Metrics: ECE, adaptive ECE, Brier, NLL, calibration slope/intercept,
+reliability curves, F1/AUROC at fixed 0.5. Subgroup calibration with minimum
+sizes (100 rows / 20 groups) for task/split/domain/model/quality/context/
+answer bins. Selection rule predeclared: Platt is the deployable default;
+isotonic reported for comparison. Outputs:
+`artifacts/results/b4/` + `artifacts/figures/b4/` + `artifacts/models/b4/`
+(pure-sklearn calibrators — portable, no CUDA booster serialization; B4 adds
+no heavy feature extraction, runs on CPU). Notebook cells 7g/7h added;
+`colab/halurisc_src.zip` regenerated. **Run order in Colab: 7b (B2) -> 7d (B1)
+-> 7e (B3) -> 7g (B4).** Local execution is possible only after B3 artifacts
+are downloaded from the Colab run.
 
 Environment: Colab Pro.
 
