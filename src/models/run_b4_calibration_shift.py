@@ -20,15 +20,20 @@ Rules enforced here:
     smaller groups are pooled into the aggregate (no tiny calibrators).
   - All produced artifacts are pure sklearn (portable across platforms);
     no CUDA-trained boosters are saved here.
+  - Crash-resilient: each heavy stage checkpoints to artifacts/results/b4/_stages/
+    and `--resume` (default) reloads them, so a Colab kernel kill (OOM/quota)
+    costs seconds instead of a full rerun.
+  - Memory-bounded: unified-parquet text is NEVER materialized; word counts
+    are streamed row-group by row-group (pyarrow iter_batches).
 
 Inputs (must exist):
   artifacts/results/b3/b3_predictions.parquet  (external per-seed raw scores)
   artifacts/models/b2/xgboost_seed_*.joblib    (B2 models, CPU-portable in Colab)
   data/processed/features_full.parquet         (HaluEval val/test features)
-  data/processed/unified_records.parquet       (context/answer text for bins)
+  data/processed/unified_records.parquet       (context/answer word counts, streamed)
 
 Run (repo root, .venv or Colab after B3):
-  python src/models/run_b4_calibration_shift.py
+  python src/models/run_b4_calibration_shift.py [--n-bins 10] [--resume|--no-resume]
 """
 
 import argparse
@@ -108,7 +113,10 @@ def sha256(path: Path) -> str:
 
 
 def word_bin(text: str, bins) -> str:
-    n = len(str(text).split())
+    return count_bin(len(str(text).split()), bins)
+
+
+def count_bin(n: int, bins) -> str:
     for name, lo, hi in bins:
         if hi is None:
             if n >= lo:
@@ -250,16 +258,88 @@ def load_external_predictions() -> pd.DataFrame:
     for seed in SEEDS:
         sub = preds[preds["model"] == f"xgboost_seed_{seed}"][["sample_id", "score"]]
         wide = wide.merge(sub.rename(columns={"score": f"score_{seed}"}), on="sample_id", how="left")
+    # Duplicated b3 rows (older runs) cascade into a cross-product; collapse to
+    # one row per sample. Exact duplicates carry identical scores, so metrics
+    # are unchanged - this only fixes n_rows.
+    wide = wide.drop_duplicates(subset=["sample_id"]).reset_index(drop=True)
+    assert len(wide) == wide["sample_id"].nunique(), "external frame still has duplicate sample_ids"
     return wide
 
 
-def merge_text_for_bins(df: pd.DataFrame) -> pd.DataFrame:
+def word_counts_from_unified() -> pd.DataFrame:
+    """Stream the unified parquet row groups -> per-sample word counts.
+
+    Raw question/context/answer text is NEVER materialized in full: pyarrow
+    iter_batches keeps peak memory bounded (~1 batch), which prevents the
+    Colab OOM kills seen with a full-frame text read.
+    """
+    import pyarrow.parquet as pq
+
     if not UNIFIED.exists():
         raise FileNotFoundError(f"{UNIFIED} not found. Run src/data/prepare_unified.py first.")
-    uni = pd.read_parquet(UNIFIED)[["sample_id", "context", "answer", "question"]]
-    out = df.merge(uni, on="sample_id", how="left")
-    assert out["context"].notna().all(), "text merge failed"
+    pf = pq.ParquetFile(UNIFIED)
+    parts = []
+    for batch in pf.iter_batches(columns=["sample_id", "context", "answer"], batch_size=512):
+        t = batch.to_pandas()
+        parts.append(pd.DataFrame({
+            "sample_id": t["sample_id"].values,
+            "context_words": t["context"].map(lambda x: len(str(x).split())).values,
+            "answer_words": t["answer"].map(lambda x: len(str(x).split())).values,
+        }))
+    out = pd.concat(parts, ignore_index=True)
+    logger.info(f"Streamed word counts for {len(out)} unified rows (no raw text materialized)")
     return out
+
+
+def merge_word_counts(df: pd.DataFrame) -> pd.DataFrame:
+    """Join per-sample word counts onto the external frame (bounded memory)."""
+    wc = word_counts_from_unified()
+    out = df.merge(wc, on="sample_id", how="left")
+    assert out["context_words"].notna().all(), "word count merge failed"
+    return out
+
+
+# --------------------------------------------------------------------------
+# Stage checkpoints (crash-resilient resume; Colab kernel kills are common)
+# --------------------------------------------------------------------------
+
+def _stages_dir() -> Path:
+    d = B4_RESULTS / "_stages"
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
+def _save_stage(name: str, obj) -> None:
+    d = _stages_dir()
+    if isinstance(obj, pd.DataFrame):
+        obj.to_parquet(d / f"{name}.parquet", index=False)
+    else:
+        (d / f"{name}.json").write_text(json.dumps(obj, indent=1), encoding="utf-8")
+
+
+def _load_stage(name: str):
+    d = _stages_dir()
+    pp = d / f"{name}.parquet"
+    if pp.exists():
+        return pd.read_parquet(pp)
+    pj = d / f"{name}.json"
+    if pj.exists():
+        return json.loads(pj.read_text(encoding="utf-8"))
+    return None
+
+
+def _stages_valid(b3_hash: str) -> bool:
+    """Stage cache is reusable only when b3 predictions hash matches."""
+    meta = _load_stage("meta")
+    return isinstance(meta, dict) and meta.get("b3_predictions_sha256") == b3_hash
+
+
+def _rss() -> float:
+    try:
+        import psutil
+        return round(psutil.Process().memory_info().rss / 2**30, 2)
+    except Exception:
+        return float("nan")
 
 
 # --------------------------------------------------------------------------
@@ -305,23 +385,58 @@ def target_calibration_experiment(cal_df: pd.DataFrame, test_df: pd.DataFrame) -
 def main():
     parser = argparse.ArgumentParser(description="B4 calibration under distribution shift")
     parser.add_argument("--n-bins", type=int, default=10)
+    parser.add_argument("--resume", action=argparse.BooleanOptionalAction, default=True,
+                        help="resume from stage checkpoints after a crash (default: on)")
     args = parser.parse_args()
 
     os.makedirs(B4_RESULTS, exist_ok=True)
     os.makedirs(B4_MODELS, exist_ok=True)
     os.makedirs(B4_FIGURES, exist_ok=True)
 
-    # ---- inputs ----
+    b3_hash = sha256(B3_PREDICTIONS)
+    resume_ok = args.resume and _stages_valid(b3_hash)
+    if not resume_ok:
+        import shutil as _shutil
+        _shutil.rmtree(_stages_dir(), ignore_errors=True)  # stale stages poison later loads
+    logger.info("B4 %s (b3 predictions %s.., RSS=%.2f GB)",
+                "resuming from stage checkpoints" if resume_ok else "running from scratch",
+                b3_hash[:12], _rss())
+
+    # ---- stage 1: per-seed raw probs + external frame (memory-bounded) ----
+    probs = _load_stage("probs") if resume_ok else None
+    if probs is None:
+        features = load_halueval_features()
+        feature_cols = list(json.loads((B2_RESULTS_DIR / "b2_run_config.json").read_text())["feature_cols"])
+        hal = halueval_probs_per_seed(features, feature_cols)
+        probs = {"feature_cols": feature_cols,
+                 "val": {str(s): [float(x) for x in hal["val"][s]] for s in SEEDS},
+                 "test": {str(s): [float(x) for x in hal["test"][s]] for s in SEEDS}}
+        external = merge_word_counts(load_external_predictions())
+        _save_stage("probs", probs)
+        _save_stage("external_wide", external)
+        _save_stage("meta", {"b3_predictions_sha256": b3_hash})
+        logger.info("Stage 1 done (per-seed probs + external frame), RSS=%.2f GB", _rss())
+    else:
+        external = _load_stage("external_wide")
+        logger.info("Stage 1 loaded from checkpoint, RSS=%.2f GB", _rss())
+
+    hal = {k: {int(s): np.asarray(v, dtype=float) for s, v in probs[k].items()} for k in ("val", "test")}
     features = load_halueval_features()
-    feature_cols, b2_cfg = (lambda cfg: (list(cfg["feature_cols"]), cfg))(
-        json.loads((B2_RESULTS_DIR / "b2_run_config.json").read_text()))
-    hal = halueval_probs_per_seed(features, feature_cols)
     hal_val_labels = features[features["split"] == "val"]["label"].values
     hal_test_labels = features[features["split"] == "test"]["label"].values
     hal_test_df = features[features["split"] == "test"].reset_index(drop=True)
+    del features
 
-    external = load_external_predictions()
-    external = merge_text_for_bins(external)
+    # ---- source calibration (fit on HaluEval val only, per seed; cheap refit) ----
+    calibrators = {"platt": {}, "isotonic": {}}
+    for seed in SEEDS:
+        for method in ("platt", "isotonic"):
+            calibrators[method][seed] = fit_calibrator(method, hal["val"][seed], hal_val_labels)
+
+    def calibrated(scores: np.ndarray, method: str, seed: int) -> np.ndarray:
+        if method == "raw":
+            return scores
+        return apply_calibrator(method, calibrators[method][seed], scores)
 
     # ---- subsets ----
     rag = external[external["source_dataset"] == "ragtruth"]
@@ -334,119 +449,136 @@ def main():
         "faithbench": external[external["source_dataset"] == "faithbench"],
     }
 
-    # ---- source calibration (fit on HaluEval val only, per seed) ----
-    calibrators = {"platt": {}, "isotonic": {}}
-    for seed in SEEDS:
-        for method in ("platt", "isotonic"):
-            calibrators[method][seed] = fit_calibrator(method, hal["val"][seed], hal_val_labels)
-
-    def calibrated(scores: np.ndarray, method: str, seed: int) -> np.ndarray:
-        if method == "raw":
-            return scores
-        return apply_calibrator(method, calibrators[method][seed], scores)
-
-    # ---- 1. HaluEval test (source calibration) ----
-    cal_metrics = {"halueval_test": {}}
-    for method in ("raw", "platt", "isotonic"):
-        rows = []
-        for seed in SEEDS:
-            p = calibrated(hal["test"][seed], method, seed)
-            rows.append(calibration_metrics(hal_test_labels, p))
-        cal_metrics["halueval_test"][method] = mean_std_rows(rows)
-        logger.info(f"halueval_test [{method}]: ece={cal_metrics['halueval_test'][method]['ece_mean']:.4f} "
-                    f"brier={cal_metrics['halueval_test'][method]['brier_mean']:.4f}")
-    logger.info("B4: HaluEval test source calibration done")
-
-    # ---- 2. External subsets (source calibration applied) ----
-    for name, sub in subsets.items():
-        if sub is None or len(sub) == 0:
-            continue
-        idx = external["sample_id"].isin(set(sub["sample_id"])).values
-        sub_df = external[idx]
-        y = sub_df["label"].values
-        cal_metrics[name] = {}
+    # ---- stage 2: HaluEval test + external subset metrics ----
+    cal_metrics = _load_stage("cal_metrics")
+    if cal_metrics is None:
+        cal_metrics = {"halueval_test": {}}
         for method in ("raw", "platt", "isotonic"):
-            rows = []
-            for seed in SEEDS:
-                p = calibrated(sub_df[f"score_{seed}"].values, method, seed)
-                rows.append(calibration_metrics(y, p))
-            cal_metrics[name][method] = mean_std_rows(rows)
-            logger.info(f"{name} [{method}]: ece={cal_metrics[name][method]['ece_mean']:.4f} "
-                        f"brier={cal_metrics[name][method]['brier_mean']:.4f}")
-    logger.info("B4: external subset metrics done")
+            rows = [calibration_metrics(hal_test_labels, calibrated(hal["test"][seed], method, seed))
+                    for seed in SEEDS]
+            cal_metrics["halueval_test"][method] = mean_std_rows(rows)
+            logger.info(f"halueval_test [{method}]: ece={cal_metrics['halueval_test'][method]['ece_mean']:.4f} "
+                        f"brier={cal_metrics['halueval_test'][method]['brier_mean']:.4f}")
+        logger.info("B4: HaluEval test source calibration done")
+        for name, sub in subsets.items():
+            if sub is None or len(sub) == 0:
+                continue
+            idx = external["sample_id"].isin(set(sub["sample_id"])).values
+            sub_df = external[idx]
+            y = sub_df["label"].values
+            cal_metrics[name] = {}
+            for method in ("raw", "platt", "isotonic"):
+                rows = [calibration_metrics(y, calibrated(sub_df[f"score_{seed}"].values, method, seed))
+                        for seed in SEEDS]
+                cal_metrics[name][method] = mean_std_rows(rows)
+                logger.info(f"{name} [{method}]: ece={cal_metrics[name][method]['ece_mean']:.4f} "
+                            f"brier={cal_metrics[name][method]['brier_mean']:.4f}")
+        logger.info("B4: external subset metrics done")
+        _save_stage("cal_metrics", cal_metrics)
+        logger.info("Stage 2 done (calibration metrics), RSS=%.2f GB", _rss())
+    else:
+        logger.info("Stage 2 loaded from checkpoint, RSS=%.2f GB", _rss())
 
-    # ---- 3. Target calibration (RAGTruth QA train -> QA test) ----
-    qa_cal = rag[(rag["task"] == "qa") & (rag["official_split"] == "train")]
-    qa_test = rag[(rag["task"] == "qa") & (rag["official_split"] == "test")]
-    target, qa_cal_clean = target_calibration_experiment(qa_cal, qa_test)
-    # target vs source on the same QA test set
-    target["methods"]["source_platt_reference"] = cal_metrics["ragtruth_qa_test"]["platt"]
-    target["methods"]["source_isotonic_reference"] = cal_metrics["ragtruth_qa_test"]["isotonic"]
-    target["methods"]["raw_reference"] = cal_metrics["ragtruth_qa_test"]["raw"]
+    # ---- stage 3: target calibration (RAGTruth QA train -> QA test) ----
+    target = _load_stage("target_calibration")
+    qa_cal_clean = _load_stage("qa_cal_clean")
+    if target is None or qa_cal_clean is None:
+        qa_cal = rag[(rag["task"] == "qa") & (rag["official_split"] == "train")]
+        qa_test = rag[(rag["task"] == "qa") & (rag["official_split"] == "test")]
+        target, qa_cal_clean = target_calibration_experiment(qa_cal, qa_test)
+        # target vs source on the same QA test set
+        target["methods"]["source_platt_reference"] = cal_metrics["ragtruth_qa_test"]["platt"]
+        target["methods"]["source_isotonic_reference"] = cal_metrics["ragtruth_qa_test"]["isotonic"]
+        target["methods"]["raw_reference"] = cal_metrics["ragtruth_qa_test"]["raw"]
+        _save_stage("target_calibration", target)
+        _save_stage("qa_cal_clean", qa_cal_clean)
+        logger.info("Stage 3 done (target calibration), RSS=%.2f GB", _rss())
+    else:
+        logger.info("Stage 3 loaded from checkpoint, RSS=%.2f GB", _rss())
 
-    # ---- 4. Subgroup calibration (seed 42, source-calibrated) ----
-    subgroup_rows = []
-    rag_idx = external["source_dataset"] == "ragtruth"
-    rag_df = external[rag_idx].reset_index(drop=True)
-    for dim, col in (("task", "task"), ("official_split", "official_split"), ("domain", "domain"),
-                     ("generator_model", "generator_model"), ("quality", "quality")):
-        subgroup_rows += subgroup_calibration(rag_df, dim, calibrators, args.n_bins)
-    subgroup_rows += subgroup_calibration(rag_df, "context_length", calibrators, args.n_bins,
-                                          bin_fn=lambda t: word_bin(t, CONTEXT_WORD_BINS))
-    subgroup_rows += subgroup_calibration(rag_df, "answer_length", calibrators, args.n_bins,
-                                          bin_fn=lambda t: word_bin(t, ANSWER_WORD_BINS))
-    fb_df = external[external["source_dataset"] == "faithbench"].reset_index(drop=True)
-    subgroup_rows += subgroup_calibration(fb_df, "generator_model", calibrators, args.n_bins)
+    # ---- stage 4: subgroup calibration (seed 42, source-calibrated) ----
+    subgroup_rows = _load_stage("subgroup_rows")
+    if subgroup_rows is None:
+        subgroup_rows = []
+        rag_idx = external["source_dataset"] == "ragtruth"
+        rag_df = external[rag_idx].reset_index(drop=True)
+        for dim, col in (("task", "task"), ("official_split", "official_split"), ("domain", "domain"),
+                         ("generator_model", "generator_model"), ("quality", "quality")):
+            subgroup_rows += subgroup_calibration(rag_df, dim, calibrators, args.n_bins)
+        subgroup_rows += subgroup_calibration(rag_df, "context_length", calibrators, args.n_bins,
+                                              bin_col="context_words",
+                                              bin_fn=lambda n: count_bin(n, CONTEXT_WORD_BINS))
+        subgroup_rows += subgroup_calibration(rag_df, "answer_length", calibrators, args.n_bins,
+                                              bin_col="answer_words",
+                                              bin_fn=lambda n: count_bin(n, ANSWER_WORD_BINS))
+        fb_df = external[external["source_dataset"] == "faithbench"].reset_index(drop=True)
+        subgroup_rows += subgroup_calibration(fb_df, "generator_model", calibrators, args.n_bins)
+        _save_stage("subgroup_rows", subgroup_rows)
+        logger.info("Stage 4 done (subgroup calibration), RSS=%.2f GB", _rss())
+    else:
+        logger.info("Stage 4 loaded from checkpoint, RSS=%.2f GB", _rss())
 
-    # ---- 5. Reliability curves (seed 42) ----
-    reliability = {}
-    for name, sub in subsets.items():
-        if sub is None or len(sub) == 0:
-            continue
-        idx = external["sample_id"].isin(set(sub["sample_id"])).values
-        sub_df = external[idx]
-        y = sub_df["label"].values
-        s42 = sub_df["score_42"].values
-        reliability[name] = {
-            method: reliability_curve(y, calibrated(s42, method, 42), args.n_bins)
-            for method in ("raw", "platt", "isotonic")
-        }
+    # ---- stage 5: reliability curves (seed 42) ----
     y_test = hal_test_labels
     s42_test = hal["test"][42]
-    reliability["halueval_test"] = {
-        method: reliability_curve(y_test, calibrated(s42_test, method, 42), args.n_bins)
-        for method in ("raw", "platt", "isotonic")
-    }
+    reliability = _load_stage("reliability")
+    if reliability is None:
+        reliability = {}
+        for name, sub in subsets.items():
+            if sub is None or len(sub) == 0:
+                continue
+            idx = external["sample_id"].isin(set(sub["sample_id"])).values
+            sub_df = external[idx]
+            y = sub_df["label"].values
+            s42 = sub_df["score_42"].values
+            reliability[name] = {
+                method: reliability_curve(y, calibrated(s42, method, 42), args.n_bins)
+                for method in ("raw", "platt", "isotonic")
+            }
+        reliability["halueval_test"] = {
+            method: reliability_curve(y_test, calibrated(s42_test, method, 42), args.n_bins)
+            for method in ("raw", "platt", "isotonic")
+        }
+        _save_stage("reliability", reliability)
+        logger.info("Stage 5 done (reliability curves), RSS=%.2f GB", _rss())
+    else:
+        logger.info("Stage 5 loaded from checkpoint, RSS=%.2f GB", _rss())
 
-    # ---- 6. Per-sample calibrated predictions (seed 42, vectorized) ----
-    pred_rows = []
-    for name, sub in subsets.items():
-        if sub is None or len(sub) == 0:
-            continue
-        idx = external["sample_id"].isin(set(sub["sample_id"])).values
-        sub_df = external[idx].reset_index(drop=True)
-        labels = sub_df["label"].values
+    # ---- stage 6: per-sample calibrated predictions (seed 42, vectorized) ----
+    pred_df = _load_stage("pred_df")
+    if pred_df is None:
+        pred_rows = []
+        for name, sub in subsets.items():
+            if sub is None or len(sub) == 0:
+                continue
+            idx = external["sample_id"].isin(set(sub["sample_id"])).values
+            sub_df = external[idx].reset_index(drop=True)
+            labels = sub_df["label"].values
+            for method in ("raw", "platt", "isotonic"):
+                p = calibrated(sub_df["score_42"].values, method, 42)
+                n = len(sub_df)
+                pred_rows.extend([
+                    {"sample_id": sid, "source_dataset": ds, "subset": name, "method": method,
+                     "label": int(lab), "score": round(float(sc), 6), "pred": int(sc >= MODEL_THRESHOLD)}
+                    for sid, ds, lab, sc in zip(sub_df["sample_id"], sub_df["source_dataset"], labels, p)
+                ])
+        logger.info("B4: per-sample calibrated predictions done")
+        hal_test_rows = []
         for method in ("raw", "platt", "isotonic"):
-            p = calibrated(sub_df["score_42"].values, method, 42)
-            n = len(sub_df)
-            pred_rows.extend([
-                {"sample_id": sid, "source_dataset": ds, "subset": name, "method": method,
-                 "label": int(lab), "score": round(float(sc), 6), "pred": int(sc >= MODEL_THRESHOLD)}
-                for sid, ds, lab, sc in zip(sub_df["sample_id"], sub_df["source_dataset"], labels, p)
+            p = calibrated(s42_test, method, 42)
+            hal_test_rows.extend([
+                {"sample_id": hal_test_df.loc[i, "sample_id"], "source_dataset": "halueval",
+                 "subset": "halueval_test", "method": method, "label": int(y_test[i]),
+                 "score": round(float(p[i]), 6), "pred": int(p[i] >= MODEL_THRESHOLD)}
+                for i in range(len(hal_test_df))
             ])
-    logger.info("B4: per-sample calibrated predictions done")
-    hal_test_rows = []
-    for method in ("raw", "platt", "isotonic"):
-        p = calibrated(s42_test, method, 42)
-        hal_test_rows.extend([
-            {"sample_id": hal_test_df.loc[i, "sample_id"], "source_dataset": "halueval",
-             "subset": "halueval_test", "method": method, "label": int(y_test[i]),
-             "score": round(float(p[i]), 6), "pred": int(p[i] >= MODEL_THRESHOLD)}
-            for i in range(len(hal_test_df))
-        ])
-    pred_df = pd.DataFrame(pred_rows + hal_test_rows)
+        pred_df = pd.DataFrame(pred_rows + hal_test_rows)
+        _save_stage("pred_df", pred_df)
+        logger.info("Stage 6 done (per-sample predictions), RSS=%.2f GB", _rss())
+    else:
+        logger.info("Stage 6 loaded from checkpoint, RSS=%.2f GB", _rss())
 
-    # ---- 7. Save artifacts ----
+    # ---- save artifacts (cheap: re-derives tables, refits calibrators) ----
     os.makedirs(B4_RESULTS, exist_ok=True)
     (B4_RESULTS / "b4_calibration_metrics.json").write_text(json.dumps(cal_metrics, indent=2))
     flat = []
@@ -497,6 +629,7 @@ def main():
     print("TARGET (RAGTruth QA train -> test):")
     print(json.dumps({k: v for k, v in target["methods"].items() if "mean" in str(v)}, indent=2)[:800])
     print("=" * 100)
+    logger.info("B4 complete, RSS=%.2f GB", _rss())
 
 
 def mean_std_rows(rows: list) -> dict:
@@ -509,13 +642,14 @@ def mean_std_rows(rows: list) -> dict:
     return out
 
 
-def subgroup_calibration(df: pd.DataFrame, dimension: str, calibrators: dict, n_bins: int, bin_fn=None) -> list:
+def subgroup_calibration(df: pd.DataFrame, dimension: str, calibrators: dict, n_bins: int,
+                         bin_col: str | None = None, bin_fn=None) -> list:
     """ECE/Brier/NLL per subgroup (source-calibrated, seed 42) with minimum-size rules."""
     rows = []
     y = df["label"].values
     work = df.copy()
-    if bin_fn is not None:
-        work["_bin"] = work["answer"].map(bin_fn)
+    if bin_col is not None:
+        work["_bin"] = work[bin_col].map(bin_fn)
         key_col = "_bin"
     else:
         key_col = dimension

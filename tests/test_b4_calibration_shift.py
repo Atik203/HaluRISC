@@ -156,3 +156,59 @@ def test_slope_intercept_simple():
     slope, intercept = calibration_slope_intercept(y, p)
     assert slope > 0
     assert isinstance(slope, float) and isinstance(intercept, float)
+
+
+def test_word_counts_streaming_bounded_memory(monkeypatch, tmp_path):
+    """merge_word_counts must derive counts WITHOUT materializing raw text."""
+    import src.models.run_b4_calibration_shift as m
+
+    uni = tmp_path / "unified.parquet"
+    pd.DataFrame({
+        "sample_id": ["a", "b", "c"],
+        "context": ["one word", "two words here", "x" * 500],
+        "answer": ["short", "longer answer text", "again"],
+    }).to_parquet(uni)
+    monkeypatch.setattr(m, "UNIFIED", uni)
+    df = pd.DataFrame({"sample_id": ["a", "b", "c"], "score_42": [0.1, 0.2, 0.3]})
+    out = m.merge_word_counts(df)
+    assert list(out["context_words"]) == [2, 3, 1]
+    assert list(out["answer_words"]) == [1, 3, 1]
+    assert "context" not in out.columns  # raw text must not leak into the frame
+
+
+def test_stage_checkpoint_roundtrip_and_hash_gate(monkeypatch, tmp_path):
+    """Stage cache saves/loads and is invalidated when b3 predictions change."""
+    import src.models.run_b4_calibration_shift as m
+
+    monkeypatch.setattr(m, "B4_RESULTS", tmp_path)
+    m._save_stage("probs", {"val": {"42": [0.1, 0.2]}})
+    assert m._load_stage("probs") == {"val": {"42": [0.1, 0.2]}}
+    m._save_stage("meta", {"b3_predictions_sha256": "abc"})
+    assert m._stages_valid("abc") is True
+    assert m._stages_valid("def") is False
+    frame = pd.DataFrame({"sample_id": ["x"], "score_42": [0.5]})
+    m._save_stage("external_wide", frame)
+    pd.testing.assert_frame_equal(m._load_stage("external_wide"), frame)
+
+
+def test_load_external_predictions_dedups_duplicated_b3_rows(monkeypatch, tmp_path):
+    """B4 must collapse duplicate b3 rows into one row per sample (n_rows fix)."""
+    import src.models.run_b4_calibration_shift as m
+
+    rows = []
+    for sid in ("a", "b"):
+        for _dup in range(3):
+            for seed in SEEDS:
+                rows.append({
+                    "sample_id": sid, "model": f"xgboost_seed_{seed}", "score": 0.5,
+                    "source_dataset": "ragtruth", "source_group_id": "g1", "task": "qa",
+                    "domain": "marco", "official_split": "test", "quality": "good",
+                    "generator_model": "gpt-3.5-turbo-0613", "label": 1,
+                })
+    p = tmp_path / "preds.parquet"
+    pd.DataFrame(rows).to_parquet(p)
+    monkeypatch.setattr(m, "B3_PREDICTIONS", p)
+    wide = m.load_external_predictions()
+    assert len(wide) == 2
+    assert wide["sample_id"].nunique() == 2
+    assert set(wide.columns) >= {"score_42", "score_123", "score_456"}

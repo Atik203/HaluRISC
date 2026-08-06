@@ -25,10 +25,36 @@ logger = logging.getLogger("eval_ragtruth")
 
 ROOT = Path(__file__).resolve().parents[2]
 RAGTRUTH_PATH = ROOT / "data" / "raw" / "ragtruth" / "ragtruth_qa.parquet"
+UNIFIED_PATH = ROOT / "data" / "processed" / "unified_records.parquet"
 MODELS_DIR = ROOT / "artifacts" / "models"
 RESULTS_DIR = ROOT / "artifacts" / "results"
 
 N_SAMPLES = 2000
+
+
+def load_ragtruth_frame(n: int = N_SAMPLES) -> pd.DataFrame:
+    """RAGTruth QA rows for zero-shot validation.
+
+    Priority: (1) legacy Version A parquet if present, (2) the B1 unified
+    dataset built by cell 7d (data/processed/unified_records.parquet), which
+    is written to the legacy path on first use so repeat runs skip the merge.
+    """
+    if RAGTRUTH_PATH.exists():
+        return pd.read_parquet(RAGTRUTH_PATH).head(n)
+    if not UNIFIED_PATH.exists():
+        raise FileNotFoundError(
+            f"RAGTruth data missing: run cell 7d (B1 unified build) or place "
+            f"{RAGTRUTH_PATH}"
+        )
+    unified = pd.read_parquet(
+        UNIFIED_PATH, columns=["source_dataset", "task", "question", "context", "answer", "label"]
+    )
+    qa = unified[(unified["source_dataset"] == "ragtruth") & (unified["task"] == "qa")]
+    qa = qa[["question", "context", "answer", "label"]].reset_index(drop=True)
+    RAGTRUTH_PATH.parent.mkdir(parents=True, exist_ok=True)
+    qa.to_parquet(RAGTRUTH_PATH, index=False)
+    logger.info(f"Built {RAGTRUTH_PATH} from the unified dataset ({len(qa)} QA rows)")
+    return qa.head(n)
 
 
 def ece(y_true, y_prob, n_bins: int = 10) -> float:
@@ -41,11 +67,7 @@ def main():
     sys.path.insert(0, str(ROOT))
     from src.features.extract_features import extract_all_features_single, load_heavy_models
 
-    if not RAGTRUTH_PATH.exists():
-        from src.data.download_ragtruth import download_ragtruth_qa
-
-        download_ragtruth_qa(limit=N_SAMPLES)
-    df = pd.read_parquet(RAGTRUTH_PATH).head(N_SAMPLES)
+    df = load_ragtruth_frame(N_SAMPLES)
     logger.info(f"RAGTruth QA holdout: {len(df)} samples (label balance: {df['label'].value_counts().to_dict()})")
 
     bundle = joblib.load(MODELS_DIR / "model_xgboost_calibrated.joblib")

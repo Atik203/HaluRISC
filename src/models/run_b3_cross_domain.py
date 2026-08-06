@@ -269,6 +269,34 @@ def predict_zero_shot(model, df: pd.DataFrame, feature_cols: list) -> tuple:
     return proba, preds
 
 
+def assemble_predictions(external: pd.DataFrame, seed_probs: dict) -> pd.DataFrame:
+    """One row per (sample, seed): builds b3_predictions.parquet.
+
+    Built from the UNIQUE external frame (NOT the overlapping subsets), so
+    samples never appear twice for a given seed. Row order is positional:
+    proba[i] aligns with external.iloc[i].
+    """
+    rows = []
+    for seed in sorted(seed_probs):
+        proba = seed_probs[seed]["proba"]
+        preds = seed_probs[seed]["preds"]
+        for i, r in enumerate(external.itertuples(index=False)):
+            rows.append({
+                "sample_id": r.sample_id, "source_dataset": r.source_dataset,
+                "source_group_id": r.source_group_id, "task": r.task, "domain": r.domain,
+                "official_split": r.official_split, "quality": r.quality,
+                "generator_model": r.generator_model, "label": int(r.label),
+                "model": f"xgboost_seed_{seed}",
+                "score": float(proba[i]), "pred": int(preds[i]),
+            })
+    out = pd.DataFrame(rows)
+    out = out.drop_duplicates(subset=["sample_id", "model"]).reset_index(drop=True)
+    assert len(out) == len(external) * len(seed_probs), (
+        f"prediction assembly produced {len(out)} rows, expected {len(external) * len(seed_probs)}"
+    )
+    return out
+
+
 def aggregate_metrics(y_true, proba, preds) -> dict:
     """Classification + calibration diagnostics for one subset (threshold fixed at 0.5)."""
     return evaluate(np.asarray(y_true), preds, proba)
@@ -540,7 +568,6 @@ def main():
     subset_metrics = {}
     subset_scores = {}
     bootstrap = {}
-    predictions_rows = []
     error_cases = []
     for name, sub in subsets.items():
         idx = external["sample_id"].isin(set(sub["sample_id"])).values
@@ -562,17 +589,6 @@ def main():
         agg["label_positive_rate"] = float(sub_df["label"].mean())
         subset_metrics[name] = agg
         subset_scores[name] = (seed_probs[B2_SEEDS[0]]["proba"][idx], sub_df["label"].values)
-        for seed in B2_SEEDS:
-            for i, r in sub_df.iterrows():
-                predictions_rows.append({
-                    "sample_id": r["sample_id"], "source_dataset": r["source_dataset"],
-                    "source_group_id": r["source_group_id"], "task": r["task"], "domain": r["domain"],
-                    "official_split": r["official_split"], "quality": r["quality"],
-                    "generator_model": r["generator_model"], "label": int(r["label"]),
-                    "model": f"xgboost_seed_{seed}",
-                    "score": float(seed_probs[seed]["proba"][idx][i]),
-                    "pred": int(seed_probs[seed]["preds"][idx][i]),
-                })
         bootstrap[name] = group_bootstrap_cis(
             sub_df["label"].values, seed_probs[B2_SEEDS[0]]["proba"][idx],
             sub_df["source_group_id"].values, n=args.n_bootstrap,
@@ -614,7 +630,7 @@ def main():
 
     make_figures(subset_metrics, subgroup_rows, subset_scores, transfer)
 
-    pred_df = pd.DataFrame(predictions_rows)
+    pred_df = assemble_predictions(external, seed_probs)
     pred_df.to_parquet(B3_RESULTS / "b3_predictions.parquet", index=False)
     (B3_RESULTS / "b3_dataset_metrics.json").write_text(json.dumps(subset_metrics, indent=2))
     pd.DataFrame({k: v for k, v in subset_metrics.items() if v is not None}).T.to_csv(B3_RESULTS / "b3_dataset_metrics.csv")

@@ -60,6 +60,24 @@ def test_drive_cache_imports_resolve():
                 assert hasattr(drive_cache, name), f"{name} missing from drive_cache"
 
 
+def test_restore_config_hash_dotted_keys(tmp_path):
+    """Config keys contain dots (features_full.parquet); the walk must match
+    the longest literal remainder instead of splitting the dotted filename."""
+    from colab import drive_cache
+
+    parquet = tmp_path / "features_full.parquet"
+    parquet.write_bytes(b"feat-bytes")
+    h = drive_cache.sha256_file(parquet)
+    cfg = tmp_path / "b2_run_config.json"
+    cfg.write_text('{"inputs": {"features_full.parquet": "%s"}}' % h, encoding="utf-8")
+    assert drive_cache.b2_restore_valid(cfg, parquet) is True
+    assert drive_cache.b4_restore_valid(cfg, parquet) is False  # different key -> missing
+
+    other = tmp_path / "other.parquet"
+    other.write_bytes(b"different")
+    assert drive_cache.b2_restore_valid(cfg, other) is False  # genuine hash mismatch
+
+
 def test_restore_flags_defined_before_use():
     """Every flag used in a run cell must be defined by an earlier restore cell."""
     cells = _cells()

@@ -81,15 +81,24 @@ def restore_config_hash(config_json_path, key: str, file_path) -> bool:
     """Generic: cached run-config records input hashes; restore only when they match.
 
     key is the dotted path into the config, e.g. "inputs.features_full.parquet"
-    or "unified_parquet_sha256". Returns False on any mismatch/missing file.
+    or "unified_parquet_sha256". Config keys themselves may contain dots
+    ("features_full.parquet"), so at every level the longest literal remainder
+    is tried first. Returns False on any mismatch/missing file.
     """
     import json
 
     try:
         cfg = json.loads(Path(config_json_path).read_text(encoding="utf-8"))
+        parts = key.split(".")
         node = cfg
-        for part in key.split("."):
-            if not isinstance(node, dict) or part not in node:
+        for i, part in enumerate(parts):
+            if not isinstance(node, dict):
+                return False
+            rest = ".".join(parts[i:])
+            if rest in node:  # literal key contains dots: take the whole remainder
+                node = node[rest]
+                break
+            if part not in node:
                 return False
             node = node[part]
         return node == sha256_file(file_path)

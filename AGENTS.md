@@ -133,7 +133,7 @@ HaluRISC/
 ### 5.1 Dependency Pinning Rule
 - `requirements.txt` MUST contain exact pins (`==`), never `>=`/`~=` (blueprint A18).
 - When adding a package, install the **latest stable version** that resolves against the installed stack, then pin the resolved version.
-- Installed versions in `.venv` take precedence over stale roadmap pins (e.g., scikit-learn 1.9, xgboost 3.4, pandas 3.0 are correct as installed — do NOT downgrade to older roadmap values).
+- Installed versions in `.venv` take precedence over stale roadmap pins (e.g., scikit-learn 1.9, pandas 3.0 are correct as installed — do NOT downgrade to older roadmap values). **Exception: xgboost MUST stay at `==3.3.0`** (both `requirements.txt` and `colab/requirements-colab.txt`). The Colab-produced booster serialization (blob starts with a `Config` section) is unreadable by the PyPI 3.4.0 wheel ("input stream corrupted") but loads fine with 3.3.0 — pinned there deliberately for cross-platform artifact portability. Do NOT bump xgboost to 3.4.0.
 
 ---
 
