@@ -14,10 +14,10 @@ NOTEBOOK = ROOT / "colab" / "HaluRISC_Training_Version_B.ipynb"
 REQUIRED_MARKERS = [
     "# 5b)", "# 6)", "# 6b)", "# 7.0)", "# 7)", "# 7b.0)", "# 7b)", "# 7b.5)",
     "# 7d)", "# 7d.5)", "# 7d.6)", "# 7e)", "# 7g.0)", "# 7g)", "# 7i)",
-    "# 8.0)", "# 12.5)", "# 13)", "# 15)",
+    "# 7j.0)", "# 7j)", "# 8.0)", "# 12.5)", "# 13)", "# 15)",
 ]
 
-FLAGS = ["DRIVE_DIR", "CACHE_OK", "B2_OK", "B3_CACHE_OK", "B3_OK", "B4_OK", "VA_OK", "LEGACY_OK"]
+FLAGS = ["DRIVE_DIR", "CACHE_OK", "B2_OK", "B3_CACHE_OK", "B3_OK", "B4_OK", "B5_OK", "VA_OK", "LEGACY_OK"]
 
 
 def _cells():
