@@ -187,6 +187,13 @@ def extract_or_load_external_features(df: pd.DataFrame, feature_cols: list, devi
         logger.info(f"Using cached external features ({len(cached)} rows)")
         return df.merge(cached[["sample_id"] + feature_cols], on="sample_id", how="left")
 
+    # Self-heal: a COMPLETE local cache from an interrupted session is reusable
+    # even without --skip-features (kernel restarts keep VM files alive).
+    if FEATURES_CACHE.exists() and meta.get("complete", False) and meta.get("input_sha256") == input_sha:
+        cached = pd.read_parquet(FEATURES_CACHE)
+        logger.info(f"Complete local feature cache found ({len(cached)} rows) - skipping extraction")
+        return df.merge(cached[["sample_id"] + feature_cols], on="sample_id", how="left")
+
     if extract_fn is None:
         from src.features.extract_features import extract_full_feature_set
 

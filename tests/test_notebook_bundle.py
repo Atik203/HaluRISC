@@ -67,7 +67,7 @@ def test_restore_flags_defined_before_use():
     for c in cells:
         src = "".join(c.get("source", []))
         for flag in FLAGS:
-            if re.search(rf"^{flag}\s*=", src, re.M):
+            if re.search(rf"^\s*{flag}\s*=", src, re.M):
                 defined.add(flag)
         for flag in FLAGS:
             if re.search(rf"\b{flag}\b", src) and flag not in defined:
