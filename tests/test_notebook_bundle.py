@@ -78,6 +78,21 @@ def test_restore_flags_defined_before_use():
     assert defined >= {"DRIVE_DIR", "CACHE_OK", "B2_OK", "B3_CACHE_OK", "B3_OK", "B4_OK"}
 
 
+def test_all_code_cells_compile():
+    """Every code cell without shell magics must be valid Python (no indent bugs)."""
+    cells = _cells()
+    checked = 0
+    for c in cells:
+        src = "".join(c.get("source", []))
+        if c["cell_type"] != "code" or not src.strip():
+            continue
+        if any(line.lstrip().startswith("!") or line.lstrip().startswith("%") for line in src.splitlines()):
+            continue  # cells with IPython magics are not pure Python
+        compile(src, "<cell>", "exec")
+        checked += 1
+    assert checked >= 10
+
+
 def test_final_package_excludes_external_cache():
     cells = _cells()
     pkg = next(c for c in cells if "".join(c.get("source", [])).strip().startswith("# 15)"))
