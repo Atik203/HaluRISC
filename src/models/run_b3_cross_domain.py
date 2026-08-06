@@ -147,40 +147,93 @@ def load_b2_models() -> dict:
     return models
 
 
-def extract_or_load_external_features(df: pd.DataFrame, feature_cols: list, device: str, batch_size: int, skip_features: bool = False) -> pd.DataFrame:
+def extract_or_load_external_features(df: pd.DataFrame, feature_cols: list, device: str, batch_size: int,
+                                      skip_features: bool = False, models=None, extract_fn=None,
+                                      chunk_size: int = 2000) -> pd.DataFrame:
     """Extract the 26 B2 features on external rows (cached; cache keyed by input hash).
 
-    The cache stores sample_id + metadata + features ONLY — raw question/context/
-    answer text is dropped so that FaithBench (CC BY-NC-SA) text never leaves the
-    Colab VM inside the packaged artifact zip.
+    Credit-safe behavior:
+      - Extraction runs in chunks (default 2000 rows) and saves a PARTIAL cache
+        after every chunk. If the runtime dies mid-extraction, the next run
+        resumes from the partial cache instead of re-extracting from scratch.
+      - The cache stores sample_id + metadata + features ONLY — raw
+        question/context/answer text is dropped so that FaithBench
+        (CC BY-NC-SA) text never leaves the Colab VM.
+      - meta.json carries "complete": true/false; --skip-features is only
+        accepted for a COMPLETE cache whose unified hash matches.
     """
     input_sha = sha256(UNIFIED)
     cache_meta_cols = ["source_dataset", "source_group_id", "task", "domain",
                        "official_split", "quality", "generator_model", "label"]
 
+    def read_meta() -> dict:
+        if not FEATURES_CACHE_META.exists():
+            return {}
+        try:
+            return json.loads(FEATURES_CACHE_META.read_text())
+        except (ValueError, OSError):
+            return {}
+
+    meta = read_meta()
+
     if skip_features:
         if not FEATURES_CACHE.exists():
             raise FileNotFoundError("--skip-features but no cache found")
-        cache_meta = json.loads(FEATURES_CACHE_META.read_text())
-        if cache_meta.get("input_sha256") != input_sha:
+        if meta.get("input_sha256") != input_sha:
             raise ValueError("cached external features do not match the current unified parquet")
+        if not meta.get("complete", False):
+            raise ValueError("cache is PARTIAL - rerun WITHOUT --skip-features to resume extraction")
         cached = pd.read_parquet(FEATURES_CACHE)
         logger.info(f"Using cached external features ({len(cached)} rows)")
         return df.merge(cached[["sample_id"] + feature_cols], on="sample_id", how="left")
 
-    from src.features.extract_features import extract_full_feature_set, load_heavy_models
+    if extract_fn is None:
+        from src.features.extract_features import extract_full_feature_set
 
+        extract_fn = extract_full_feature_set
+    if models is None:
+        from src.features.extract_features import load_heavy_models
+
+        models = load_heavy_models(device=device)
+
+    done = {}
+    if FEATURES_CACHE.exists() and meta.get("input_sha256") == input_sha and not meta.get("complete", True):
+        cached = pd.read_parquet(FEATURES_CACHE)
+        if {"sample_id"} <= set(cached.columns) and len(cached) > 0:
+            done = cached.set_index("sample_id")[feature_cols].to_dict(orient="index")
+            logger.info(f"Resuming B3 extraction from partial cache ({len(done)} rows already done)")
+
+    todo = df if not done else df[~df["sample_id"].isin(done)].reset_index(drop=True)
+    logger.info(f"B3 extraction: {len(df)} rows total, {len(todo)} to extract")
     t0 = time.time()
-    models = load_heavy_models(device=device)
-    work = df.copy()
-    work["item_idx"] = work["source_group_id"]
-    work["label"] = work["label"].astype(int)
-    work["split"] = work["official_split"].fillna("")
-    feats = extract_full_feature_set(work, models, batch_size=batch_size)
-    logger.info(f"External feature extraction done in {time.time() - t0:.0f}s")
+    total_chunks = max(1, (len(todo) + chunk_size - 1) // chunk_size)
 
-    cols = ["sample_id"] + feature_cols
-    merged = df.merge(feats[cols], on="sample_id", how="left")
+    for k, start in enumerate(range(0, len(todo), chunk_size)):
+        chunk = todo.iloc[start:start + chunk_size].copy()
+        chunk["item_idx"] = chunk["source_group_id"]
+        chunk["label"] = chunk["label"].astype(int)
+        chunk["split"] = chunk["official_split"].fillna("")
+        feats = extract_fn(chunk, models, batch_size=batch_size)
+        sub = feats[["sample_id"] + feature_cols].set_index("sample_id").to_dict(orient="index")
+        done.update(sub)
+        partial_df = pd.DataFrame.from_dict(done, orient="index").rename_axis("sample_id").reset_index()
+        partial_df.to_parquet(FEATURES_CACHE, index=False)
+        FEATURES_CACHE_META.write_text(json.dumps({
+            "input_sha256": input_sha,
+            "n_rows": int(len(partial_df)),
+            "feature_cols": feature_cols,
+            "complete": False,
+            "chunks_done": k + 1,
+            "chunks_total": total_chunks,
+            "extracted_at_utc": pd.Timestamp.now("UTC").isoformat(),
+            "device": device,
+            "batch_size": batch_size,
+            "note": "PARTIAL checkpoint - rerun WITHOUT --skip-features to resume. No raw text cached (FaithBench CC BY-NC-SA).",
+        }, indent=2))
+        logger.info(f"B3 extraction chunk {k + 1}/{total_chunks} done ({len(done)} rows) - partial cache saved")
+
+    feat_df = pd.DataFrame.from_dict(done, orient="index").rename_axis("sample_id").reset_index()
+    merged = df.merge(feat_df, on="sample_id", how="left")
     missing = merged[feature_cols].isna().any(axis=1)
     if missing.any():
         raise ValueError(f"{int(missing.sum())} rows missing extracted features")
@@ -190,12 +243,15 @@ def extract_or_load_external_features(df: pd.DataFrame, feature_cols: list, devi
         "input_sha256": input_sha,
         "n_rows": int(len(merged)),
         "feature_cols": feature_cols,
+        "complete": True,
+        "chunks_done": total_chunks,
+        "chunks_total": total_chunks,
         "extracted_at_utc": pd.Timestamp.now("UTC").isoformat(),
         "device": device,
         "batch_size": batch_size,
         "note": "Raw question/context/answer text is NOT cached (FaithBench CC BY-NC-SA never leaves the VM).",
     }, indent=2))
-    logger.info(f"Cached external features (metadata + features only) to {FEATURES_CACHE}")
+    logger.info(f"External feature extraction done in {time.time() - t0:.0f}s; complete cache saved to {FEATURES_CACHE}")
     return merged
 
 

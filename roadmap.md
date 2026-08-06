@@ -514,6 +514,14 @@ recommendation: **L4 (22.5 GB VRAM / 54 GB RAM)** to avoid free-T4 crashes.
 The old cells 8–12 remain optional Version A analyses and are outside the
 B2–B4 resume path; skip them for the publication run unless those legacy
 outputs are specifically required.
+(9) **Credit-safe B3 extraction**: the external-feature extractor now runs in
+chunks (2000 rows) and saves a PARTIAL cache + meta (`complete: false`) after
+every chunk; if the runtime dies mid-extraction (the ~40 min GPU step), the
+next run RESUMES from the partial cache instead of re-extracting from scratch.
+`--skip-features` is accepted only for a complete hash-matched cache. Cell 7d.5
+restores partial caches too (B3_CACHE_OK only when complete) and the B3 failure
+branch checkpoints the partial cache to Drive. Regression tests cover crash →
+resume → no-redundant-work paths (101 tests total).
 
 Environment: Colab Pro.
 
