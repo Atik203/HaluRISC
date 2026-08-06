@@ -235,6 +235,20 @@ Open `http://localhost:3000` in your browser.
 
 ## ☁️ Train on Colab (GPU, no local GPU needed)
 
+**Self-contained notebook — upload ONE file only.** `colab/HaluRISC_Training.ipynb`
+embeds the entire source tree (29 files, base64) in cell 3. Running cell 3
+writes everything to `/content/HaluRISC/`, verifies SHA-256 hashes, and `chdir`s
+there — no `halurisc_src.zip` upload ever needed. To patch a script later, edit
+that file's `EMBEDDED` entry in cell 3 (or paste a small cell that rewrites the
+file) and rerun cell 3. Regenerate the notebook after any source change with:
+
+```powershell
+& .venv\Scripts\python.exe colab\build_self_contained.py
+```
+
+(The legacy `colab/halurisc_src.zip` is still built by `colab/build_src_zip.py`
+as a Drive fallback but is no longer required.)
+
 Run the **full training pipeline** (feature extraction → XGBoost tuning → calibration → SHAP → RAGTruth validation) on Google Colab with a GPU, then download the artifacts back into this repo:
 
 [![Open In Colab](https://colab.research.google.com/drive/124wjKFVDyZkDNIjs1WgHW8N7vO7XyY6G?usp=sharing)

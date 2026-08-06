@@ -522,6 +522,16 @@ next run RESUMES from the partial cache instead of re-extracting from scratch.
 restores partial caches too (B3_CACHE_OK only when complete) and the B3 failure
 branch checkpoints the partial cache to Drive. Regression tests cover crash →
 resume → no-redundant-work paths (101 tests total).
+(10) **Self-contained notebook (no zip upload)**: `colab/build_self_contained.py`
+embeds all 29 runtime files (src/, colab/drive_cache.py, requirements-colab)
+as base64 in cell 3; running it writes + hash-verifies the source tree in
+Colab. The user uploads ONLY the single `.ipynb`; per-cell patches are done by
+editing that file's EMBEDDED entry and rerunning cell 3.
+(11) **Local-first restore**: restore cells (7.0/7b.0/7d.5/7d.6/7g.0) check
+local VM artifacts first (kernel restarts keep VM files alive), then Drive —
+B2/B3 results survive Colab quota kills without any Drive dependency; the B3
+runner also self-heals from a complete local feature cache. Cell 7e uploads
+the feature cache to Drive first (most valuable).
 
 Environment: Colab Pro.
 

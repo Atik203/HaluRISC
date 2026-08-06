@@ -93,6 +93,28 @@ def test_all_code_cells_compile():
     assert checked >= 10
 
 
+def test_self_contained_cell3_embeds_all_runtime_files():
+    """Cell 3 must be self-contained: it writes every runtime file from EMBEDDED."""
+    cells = _cells()
+    cell3 = next(c for c in cells if "".join(c.get("source", [])).strip().startswith("# 3)"))
+    src3 = "".join(cell3["source"])
+    assert "EMBEDDED" in src3 and "base64" in src3 and "HASHES" in src3
+    assert "halurisc_src.zip" not in src3, "zip upload must be gone from cell 3"
+
+    # every `python src/...` script invoked by any cell must be embedded
+    script_paths = set()
+    for c in cells:
+        src = "".join(c.get("source", []))
+        for m in re.findall(r"python (src/[\w/]+\.py)", src):
+            script_paths.add(m)
+    for rel in script_paths:
+        assert f'"{rel}"' in src3, f"{rel} invoked but not embedded in cell 3"
+    for rel in ("colab/drive_cache.py", "colab/requirements-colab.txt",
+                "src/models/run_b2_baselines.py", "src/models/run_b3_cross_domain.py",
+                "src/models/run_b4_calibration_shift.py", "src/models/verify_artifacts.py"):
+        assert f'"{rel}"' in src3, f"{rel} not embedded in cell 3"
+
+
 def test_final_package_excludes_external_cache():
     cells = _cells()
     pkg = next(c for c in cells if "".join(c.get("source", [])).strip().startswith("# 15)"))
