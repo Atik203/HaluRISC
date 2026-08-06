@@ -8,7 +8,7 @@ sha256 hashes, so the user uploads ONLY the single .ipynb file.
 
 Workflow after any source change:
   python colab/build_self_contained.py     # embeds current src into cell 3
-  # user re-uploads just colab/HaluRISC_Training.ipynb
+  # user re-uploads just colab/HaluRISC_Training_Version_B.ipynb
 
 To patch a single file in an existing session: paste a small cell that
 rewrites just that file (or re-run cell 3 after editing its EMBEDDED entry).
@@ -20,7 +20,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-NOTEBOOK = ROOT / "colab" / "HaluRISC_Training.ipynb"
+NOTEBOOK = ROOT / "colab" / "HaluRISC_Training_Version_B.ipynb"
 
 EMBED_PATHS = [
     *sorted((ROOT / "src").rglob("*.py")),

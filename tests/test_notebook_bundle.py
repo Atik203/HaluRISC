@@ -9,7 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-NOTEBOOK = ROOT / "colab" / "HaluRISC_Training.ipynb"
+NOTEBOOK = ROOT / "colab" / "HaluRISC_Training_Version_B.ipynb"
 
 REQUIRED_MARKERS = [
     "# 5b)", "# 6)", "# 6b)", "# 7.0)", "# 7)", "# 7b.0)", "# 7b)", "# 7b.5)",
@@ -99,7 +99,7 @@ def test_self_contained_cell3_embeds_all_runtime_files():
     cell3 = next(c for c in cells if "".join(c.get("source", [])).strip().startswith("# 3)"))
     src3 = "".join(cell3["source"])
     assert "EMBEDDED" in src3 and "base64" in src3 and "HASHES" in src3
-    assert "halurisc_src.zip" not in src3, "zip upload must be gone from cell 3"
+    assert "halurisc_src.zip" not in src3, "source zip upload must be gone from cell 3"
 
     # every `python src/...` script invoked by any cell must be embedded
     script_paths = set()

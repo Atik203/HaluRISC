@@ -447,7 +447,7 @@ sampling, and 4 figures. A local run was attempted on the RTX 3060 laptop but
 the external feature extraction (~18.5K rows) overheated the GPU (~100 °C) and
 was abandoned. **Decision: all heavy training/extraction now runs in Colab.**
 Colab notebook cells 7d (B1 unified build), 7e (B3 run), 7f (B3 display) were
-added; `colab/halurisc_src.zip` regenerated with the B3 runner and tests.
+added; the self-contained Version B notebook embeds the B3 runner and tests.
 B2 must run before B3 in the same Colab session so the CPU-portable boosters
 (HALU_XGB_DEVICE=cpu) exist.
 
@@ -477,7 +477,7 @@ isotonic reported for comparison. Outputs:
 `artifacts/results/b4/` + `artifacts/figures/b4/` + `artifacts/models/b4/`
 (pure-sklearn calibrators — portable, no CUDA booster serialization; B4 adds
 no heavy feature extraction, runs on CPU). Notebook cells 7g/7h added;
-`colab/halurisc_src.zip` regenerated. **Run order in Colab: 7b (B2) -> 7d (B1)
+The self-contained notebook is regenerated. **Run order in Colab: 7b (B2) -> 7d (B1)
 -> 7e (B3) -> 7g (B4) -> 7i (artifact verification) -> 13 (manifest) -> 15
 (package).** Local execution is possible only after B3 artifacts are
 downloaded from the Colab run.
@@ -490,7 +490,8 @@ produced the metrics; (3) single-class subgroups are flagged descriptive-only
 instead of crashing slope/intercept fitting; (4) `src/models/verify_artifacts.py`
 (cell 7i) loads every B2/B3/B4 artifact and predicts before packaging,
 preventing the historical post-download loading error; (5)
-`colab/build_src_zip.py` rebuilds the source zip without `__pycache__`/`.pyc`;
+`colab/build_self_contained.py` embeds source into the notebook and verifies
+hashes; no source zip is used;
 (6) `make_manifest.py` now hashes B2/B3/B4 artifacts and unified records.
 (7) **Drive caching of deterministic heavy artifacts** (new cells 5b/6b/7d.5,
 `colab/drive_cache.py`): `features_full.parquet` and the B3 external-feature
@@ -564,8 +565,8 @@ Environment: local machine plus Colab export.
 
 1. Add `run_all_experiments.py` or an equivalent config-driven runner.
 2. Save `artifact_manifest.json` with dataset hashes, split hash, code commit, package versions, model checkpoints, seeds, device, RAM, VRAM, and outputs.
-3. Regenerate `colab/halurisc_src.zip` after every source change used by Colab.
-4. Update the existing `colab/HaluRISC_Training.ipynb` cells rather than creating a second competing notebook.
+3. Regenerate the self-contained `colab/HaluRISC_Training_Version_B.ipynb` after every source change used by Colab.
+4. Update the existing Version B notebook cells rather than creating a second competing notebook.
 5. The first notebook update will replace the data-preparation/training cells after the grouped-split repair; later cells will call corrected evaluation scripts and export the manifest.
 6. Do not put raw datasets, restricted benchmark files, API keys, or model secrets in the repository.
 7. Provide a CPU-compatible Docker path and retain CUDA as an optional local acceleration path.
@@ -606,7 +607,7 @@ Exit condition: manuscript numbers, dashboard numbers, manifest, screenshots, an
 
 ### Colab notebook update note
 
-The existing `colab/HaluRISC_Training.ipynb` remains the notebook to use. It should not be replaced now. After the Version A code repair, update the relevant cells in this order: source upload, dependency install, grouped data preparation, feature extraction, training/evaluation, SHAP/error/latency evaluation, manifest creation, and artifact export. The exact cells and source files to change will be reported after the grouped-split implementation is complete.
+The existing `colab/HaluRISC_Training_Version_B.ipynb` remains the notebook to use. It is self-contained: cell 3 writes and hash-verifies the runtime source. After the Version A code repair, update the relevant cells in this order: source bootstrap, dependency install, grouped data preparation, feature extraction, training/evaluation, SHAP/error/latency evaluation, manifest creation, and artifact export.
 
 ---
 

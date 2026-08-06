@@ -138,7 +138,7 @@ def load_artifacts():
 
     missing = [n for n in ["model_xgboost_calibrated.joblib", "model_xgboost_raw.joblib", "feature_names.json", "params.json"] if _missing(n)]
     if missing:
-        logger.warning(f"Missing artifacts: {missing} - run training first (colab/HaluRISC_Training.ipynb)")
+        logger.warning(f"Missing artifacts: {missing} - run training first (colab/HaluRISC_Training_Version_B.ipynb)")
         return False
 
     import joblib
@@ -270,7 +270,7 @@ def health_check():
 @app.post("/predict", response_model=PredictionResponse)
 def predict_risk(req: AnalysisRequest):
     if STATE["model"] is None:
-        raise HTTPException(status_code=503, detail="Model artifacts not loaded. Run training (colab/HaluRISC_Training.ipynb) and place artifacts/ in the repo root.")
+        raise HTTPException(status_code=503, detail="Model artifacts not loaded. Run training (colab/HaluRISC_Training_Version_B.ipynb) and place artifacts/ in the repo root.")
     if not req.answer.strip():
         raise HTTPException(status_code=400, detail="Answer string cannot be empty.")
 

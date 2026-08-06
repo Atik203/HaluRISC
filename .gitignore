@@ -40,5 +40,4 @@ web/*.log
 Thumbs.db
 *.tmp
 
-# Colab bundle (regenerable)
-colab/*.zip
+# Colab bundle is self-contained in the notebook; no zip bundle is used.

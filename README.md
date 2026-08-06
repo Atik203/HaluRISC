@@ -235,10 +235,10 @@ Open `http://localhost:3000` in your browser.
 
 ## ☁️ Train on Colab (GPU, no local GPU needed)
 
-**Self-contained notebook — upload ONE file only.** `colab/HaluRISC_Training.ipynb`
+**Self-contained notebook — upload ONE file only.** `colab/HaluRISC_Training_Version_B.ipynb`
 embeds the entire source tree (29 files, base64) in cell 3. Running cell 3
 writes everything to `/content/HaluRISC/`, verifies SHA-256 hashes, and `chdir`s
-there — no `halurisc_src.zip` upload ever needed. To patch a script later, edit
+there — no source zip upload is needed. To patch a script later, edit
 that file's `EMBEDDED` entry in cell 3 (or paste a small cell that rewrites the
 file) and rerun cell 3. Regenerate the notebook after any source change with:
 
@@ -246,16 +246,13 @@ file) and rerun cell 3. Regenerate the notebook after any source change with:
 & .venv\Scripts\python.exe colab\build_self_contained.py
 ```
 
-(The legacy `colab/halurisc_src.zip` is still built by `colab/build_src_zip.py`
-as a Drive fallback but is no longer required.)
-
 Run the **full training pipeline** (feature extraction → XGBoost tuning → calibration → SHAP → RAGTruth validation) on Google Colab with a GPU, then download the artifacts back into this repo:
 
 [![Open In Colab](https://colab.research.google.com/drive/124wjKFVDyZkDNIjs1WgHW8N7vO7XyY6G?usp=sharing)
 
-1. Open the notebook (viewable by anyone with the link), select **GPU → T4** as the runtime.
-2. Run cells in order; cell 3 prompts for `colab/halurisc_src.zip` (from this repo).
-3. Cell 11 saves `halurisc_artifacts_<date>.zip` to your Google Drive — download it and unzip **at the repo root**.
+1. Open the notebook (viewable by anyone with the link), select **GPU → L4** when available.
+2. Upload only `HaluRISC_Training_Version_B.ipynb`; cell 3 embeds and verifies the runtime source.
+3. Cell 35 saves `halurisc_artifacts_<date>.zip` to your Google Drive — download it and unzip **at the repo root**.
 4. Start the API and web app as above — they automatically load the trained artifacts.
 
 ---
@@ -280,7 +277,7 @@ HaluRISC/
 │   ├── models/             # train_pipeline.py, config.py, error_analysis.py, eval_llm_judge.py, eval_efficiency.py
 │   ├── explain/            # shap_analysis.py
 │   └── api/                # FastAPI main.py (/predict, /explain, /judge, /health)
-├── colab/                  # HaluRISC_Training.ipynb + halurisc_src.zip bundle
+├── colab/                  # self-contained HaluRISC_Training_Version_B.ipynb + cache helpers
 ├── artifacts/
 │   ├── models/             # Model artifacts and params
 │   ├── results/            # baseline_results.csv, JSON outputs
