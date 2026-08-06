@@ -95,6 +95,11 @@ def test_legacy_cells_skip_when_outputs_exist():
 
 def test_l4_batch_sizes():
     cells = _cells()
+    cell2 = next(c for c in cells if "".join(c.get("source", [])).strip().startswith("# 2)"))
+    src2 = "".join(cell2["source"])
+    assert "BATCH_SIZE = 512 if any(k in GPU_NAME" in src2, "cell 2 must define adaptive BATCH_SIZE"
     for marker in ("# 6)", "# 7e)"):
         c = next(c for c in cells if "".join(c.get("source", [])).strip().startswith(marker))
-        assert "--batch-size 512" in "".join(c["source"]), f"{marker} not tuned for L4"
+        src = "".join(c["source"])
+        assert "{BATCH_SIZE}" in src, f"{marker} must use {{BATCH_SIZE}}"
+        assert "# L4: 22.5 GB VRAM {flag}" not in src, f"{marker} has shell-comment bug swallowing flags"
