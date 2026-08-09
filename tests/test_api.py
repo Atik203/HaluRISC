@@ -27,7 +27,7 @@ def test_health(client):
     assert r.status_code == 200
     body = r.json()
     assert body["status"] in ("ok", "degraded")
-    assert body["model"] == "xgboost-v1.0"
+    assert body["model"] == "b2-xgboost-v1.0"
     assert "artifacts_loaded" in body
 
 
@@ -66,7 +66,7 @@ def test_meta_contract(client, monkeypatch):
     r = client.get("/meta")
     assert r.status_code == 200
     body = r.json()
-    assert body["model_version"] == "xgboost-v1.0"
+    assert body["model_version"] == "b2-xgboost-v1.0"
     assert body["feature_version"] == "course-v1.0"
     assert body["n_features"] == 2
     assert body["thresholds"] == {"low": 0.30, "medium": 0.70, "high": 1.0}

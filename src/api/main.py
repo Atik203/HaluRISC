@@ -53,11 +53,17 @@ MODELS_DIR = ROOT / "artifacts" / "models"
 MAX_ANSWER_CHARS = 20000
 MAX_CONTEXT_CHARS = 20000
 
-MODEL_VERSION = "xgboost-v1.0"
+MODEL_VERSION = "b2-xgboost-v1.0"
 FEATURE_VERSION = "course-v1.0"
 
 THRESHOLDS = {"low": 0.30, "medium": 0.70, "high": 1.0}
 WARNING = "Trained on HaluEval synthetic data. Results may not generalize to real-world LLM outputs."
+
+# B-run deployable (B4.2 predeclared rule): B2 xgboost_seed_42 + B4 Platt
+# source calibrator. Falls back to the Version A bundle when B-run artifacts
+# are missing (e.g. a VA-only clone).
+B2_MODEL = MODELS_DIR / "b2" / "xgboost_seed_42.joblib"
+B4_PLATT = MODELS_DIR / "b4" / "calibrator_platt_source_seed_42.joblib"
 
 # Heavy models (spaCy + NLI + SBERT) are preloaded at startup and loaded lazily
 # on first request only if startup failed. The lock prevents concurrent
@@ -128,9 +134,23 @@ class JudgeResponse(BaseModel):
 # Startup / artifact loading
 # ----------------------------------------------------------------------------
 def _load_calibrated_model():
-    """Load the xgb+platt artifact; predict_proba = platt(raw.predict_proba)."""
+    """Deployable: B2 xgboost_seed_42 + B4 Platt source calibrator (B-run);
+    predict_proba = platt(raw.predict_proba). Falls back to the Version A
+    xgb+platt bundle when B-run artifacts are missing."""
     import joblib
 
+    if B2_MODEL.exists() and B4_PLATT.exists():
+        raw = joblib.load(B2_MODEL)
+        platt = joblib.load(B4_PLATT)
+
+        def predict_proba(X):
+            p = raw.predict_proba(X)[:, 1]
+            return platt.predict_proba(p.reshape(-1, 1))
+
+        logger.info("Deployable model: B2 xgboost_seed_42 + B4 Platt source calibrator")
+        return {"raw": raw, "predict_proba": predict_proba}
+
+    logger.warning("B-run deployable artifacts missing; falling back to the Version A bundle")
     bundle = joblib.load(MODELS_DIR / "model_xgboost_calibrated.joblib")
     if isinstance(bundle, dict) and bundle.get("kind") == "xgb+platt":
         raw, platt = bundle["model"], bundle["calibrator"]
@@ -147,7 +167,12 @@ def load_artifacts():
     def _missing(name: str) -> bool:
         return not (MODELS_DIR / name).exists()
 
-    missing = [n for n in ["model_xgboost_calibrated.joblib", "model_xgboost_raw.joblib", "feature_names.json", "params.json"] if _missing(n)]
+    b_run_ok = B2_MODEL.exists() and B4_PLATT.exists()
+    va_ok = (MODELS_DIR / "model_xgboost_calibrated.joblib").exists()
+    missing = [n for n in ["feature_names.json", "params.json"] if _missing(n)]
+    if not (b_run_ok or va_ok):
+        missing.append("b2/xgboost_seed_42.joblib + b4/calibrator_platt_source_seed_42.joblib "
+                       "(or legacy model_xgboost_calibrated.joblib)")
     if missing:
         logger.warning(f"Missing artifacts: {missing} - run training first (colab/HaluRISC_Training_Version_B.ipynb)")
         return False
@@ -224,8 +249,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="HaluRISC API",
-    description="Calibrated & explainable hallucination-risk estimation (Version A)",
-    version="1.0.0",
+    description="Calibrated & explainable hallucination-risk estimation (B-run deployable: B2 XGBoost + B4 Platt)",
+    version="1.1.0",
     lifespan=lifespan,
 )
 
