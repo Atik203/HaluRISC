@@ -259,6 +259,10 @@ Run the **full training pipeline** (feature extraction → XGBoost tuning → ca
 
 ## 🔁 Reproducibility (B6)
 
+Phase-specific guides live in **[`docs/`](docs/README.md)** — including the
+B5.5 **manual reviewer guide** (`docs/b5-explanation-reliability.md`), the
+B6 reproducibility protocol, and the B7 research-UI runbook.
+
 The full Version B pipeline (B1 data → B2 baselines → B3 cross-domain → B4 calibration shift → B5 explanation reliability → manifest → verify) is driven by a single config:
 
 ```powershell
