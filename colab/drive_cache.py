@@ -180,3 +180,34 @@ def b3_results_safe(results_dir) -> bool:
         return True
     except (OSError, ValueError, TypeError):
         return False
+
+
+def b3_predictions_safe(predictions_path) -> bool:
+    """Reject B3 prediction caches polluted by overlapping subset appends."""
+    try:
+        import pandas as pd
+
+        preds = pd.read_parquet(predictions_path, columns=["sample_id", "model"])
+        expected = {"xgboost_seed_42", "xgboost_seed_123", "xgboost_seed_456"}
+        return (
+            len(preds) > 0
+            and set(preds["model"].dropna().unique()) == expected
+            and not preds.duplicated(["sample_id", "model"]).any()
+        )
+    except (OSError, ValueError, ImportError, KeyError):
+        return False
+
+
+def b4_predictions_safe(predictions_path) -> bool:
+    """Reject B4 prediction caches with duplicate sample/method rows."""
+    try:
+        import pandas as pd
+
+        preds = pd.read_parquet(
+            predictions_path,
+            columns=["sample_id", "source_dataset", "subset", "method"],
+        )
+        key = ["sample_id", "source_dataset", "subset", "method"]
+        return len(preds) > 0 and not preds.duplicated(key).any()
+    except (OSError, ValueError, ImportError, KeyError):
+        return False

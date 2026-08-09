@@ -212,3 +212,28 @@ def test_load_external_predictions_dedups_duplicated_b3_rows(monkeypatch, tmp_pa
     assert len(wide) == 2
     assert wide["sample_id"].nunique() == 2
     assert set(wide.columns) >= {"score_42", "score_123", "score_456"}
+
+
+def test_prediction_cache_guards_reject_duplicate_rows(tmp_path):
+    """Restore guards must reject the polluted B3/B4 caches from older runs."""
+    from colab.drive_cache import b3_predictions_safe, b4_predictions_safe
+
+    b3_rows = [
+        {"sample_id": "a", "model": f"xgboost_seed_{seed}"}
+        for seed in SEEDS
+    ]
+    b3_path = tmp_path / "b3.parquet"
+    pd.DataFrame(b3_rows).to_parquet(b3_path)
+    assert b3_predictions_safe(b3_path) is True
+    pd.concat([pd.read_parquet(b3_path), pd.read_parquet(b3_path)]).to_parquet(b3_path)
+    assert b3_predictions_safe(b3_path) is False
+
+    b4_path = tmp_path / "b4.parquet"
+    b4_row = {
+        "sample_id": "a", "source_dataset": "ragtruth",
+        "subset": "ragtruth_qa_test", "method": "raw",
+    }
+    pd.DataFrame([b4_row]).to_parquet(b4_path)
+    assert b4_predictions_safe(b4_path) is True
+    pd.DataFrame([b4_row, b4_row]).to_parquet(b4_path)
+    assert b4_predictions_safe(b4_path) is False
