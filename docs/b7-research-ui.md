@@ -104,6 +104,24 @@ serves the cards; the LRU feature cache makes repeats near-instant. No LLM
 tool-calling and no extra tokens are involved — analysis runs after streaming
 completes, so the chat never waits for it.
 
+### Claim-level verdicts (B7.5 Tier 2)
+
+The card calls `POST /api/ml/verify` first (falls back to `/analyze`): the
+answer is split into atomic claims (`src/claims/decompose.py` — deterministic
+sentence/clause splitter) and each claim gets a 3-way NLI verdict against the
+evidence sentences (`src/claims/verify.py`, cross-encoder pairs):
+
+- `supported` (entailment ≥ 0.5 and beats contradiction)
+- `contradicted` (contradiction ≥ 0.5)
+- `unsupported` (no supporting evidence)
+
+Each claim chip shows its evidence sentence; the aggregate shows counts and an
+overall verdict, while the calibrated XGBoost score stays as a labelled
+secondary signal (SHAP = raw-model attribution). Verdict thresholds are
+documented constants, evaluated against human labels by
+`src/models/eval_claims.py` (build a human-labeling CSV, then measure
+flagging precision/recall — descriptive, no fixed pass thresholds).
+
 ## Deployment notes
 
 - Backend container: see `docs/b6-reproducibility.md` §3 (CPU Dockerfile).

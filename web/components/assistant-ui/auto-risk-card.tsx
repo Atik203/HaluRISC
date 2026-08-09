@@ -34,6 +34,25 @@ interface AnalyzeResult {
   explanation?: { top_features?: FeatureImpact[]; base_value?: number } | null;
 }
 
+interface ClaimVerdict {
+  id: number;
+  text: string;
+  verdict: "supported" | "contradicted" | "unsupported";
+  confidence: number;
+  evidence_sentence: string;
+}
+
+interface VerifyResult extends AnalyzeResult {
+  claims?: ClaimVerdict[];
+  aggregate?: {
+    n: number;
+    supported: number;
+    contradicted: number;
+    unsupported: number;
+    overall: string;
+  };
+}
+
 const LABEL_TEXT: Record<string, string> = {
   low_risk: "Low risk",
   medium_risk: "Medium risk",
@@ -52,6 +71,12 @@ interface PartLike {
   type?: string;
   text?: string;
 }
+
+const CLAIM_TONE: Record<string, string> = {
+  supported: "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+  contradicted: "border-rose-500/40 bg-rose-500/10 text-rose-600 dark:text-rose-400",
+  unsupported: "border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400",
+};
 
 function extractText(message: { content?: readonly PartLike[] }): string {
   return (message.content ?? [])
@@ -83,7 +108,7 @@ export function AutoRiskCard() {
   const messages = useAuiState((s) => s.thread.messages);
 
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");
-  const [result, setResult] = useState<AnalyzeResult | null>(null);
+  const [result, setResult] = useState<VerifyResult | null>(null);
   const [grounding, setGrounding] = useState<"evidence" | "conversation">("conversation");
   const analyzedRef = useRef<string | null>(null);
 
@@ -115,17 +140,31 @@ export function AutoRiskCard() {
       if (cancelled) return;
       setGrounding(input.grounding);
       setState("loading");
+      const payload = JSON.stringify({
+        question: input.question,
+        context: input.context,
+        answer: input.answer,
+      });
       try {
-        const res = await fetch("/api/ml/analyze", {
+        // Tier 2 first: claim-level verification (includes the prediction).
+        // Falls back to the Tier-1 combined analyze when unavailable.
+        let res = await fetch("/api/ml/verify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ question: input.question, context: input.context, answer: input.answer }),
+          body: payload,
         });
+        if (!res.ok) {
+          res = await fetch("/api/ml/analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: payload,
+          });
+        }
         if (!res.ok) {
           const detail = (await res.json().catch(() => null))?.detail;
           throw new Error(detail || `ML backend error (${res.status})`);
         }
-        const data = (await res.json()) as AnalyzeResult;
+        const data = (await res.json()) as VerifyResult;
         if (cancelled) return;
         setResult(data);
         setState("done");
@@ -168,6 +207,8 @@ export function AutoRiskCard() {
     const top = result.explanation?.top_features?.slice(0, 3) ?? [];
     const features = p.features ?? {};
     const groupCount = Object.keys(features).length;
+    const claims = result.claims ?? [];
+    const agg = result.aggregate;
 
     return (
       <section
@@ -201,6 +242,32 @@ export function AutoRiskCard() {
             </>
           )}
         </div>
+
+        {claims.length > 0 && agg && (
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-2 text-[11px]">
+              <span className="font-semibold text-muted-foreground">Per-claim verdicts (NLI):</span>
+              <span className={`px-2 py-0.5 rounded-full border font-mono ${CLAIM_TONE.supported}`}>{agg.supported} supported</span>
+              <span className={`px-2 py-0.5 rounded-full border font-mono ${CLAIM_TONE.contradicted}`}>{agg.contradicted} contradicted</span>
+              <span className={`px-2 py-0.5 rounded-full border font-mono ${CLAIM_TONE.unsupported}`}>{agg.unsupported} unsupported</span>
+            </div>
+            <ul className="space-y-1.5">
+              {claims.map((c) => (
+                <li key={c.id} className="text-[11px]">
+                  <span className={`inline-block px-2 py-0.5 rounded-full border font-mono mr-2 ${CLAIM_TONE[c.verdict]}`}>
+                    {c.verdict}
+                  </span>
+                  <span className="text-foreground/90">{c.text}</span>
+                  {c.evidence_sentence && (
+                    <p className="mt-0.5 pl-1 text-[10px] text-muted-foreground italic">
+                      evidence: {c.evidence_sentence.length > 140 ? `${c.evidence_sentence.slice(0, 140)}…` : c.evidence_sentence}
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {top.length > 0 && (
           <ul className="space-y-1 text-[11px]">

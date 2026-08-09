@@ -123,6 +123,27 @@ class AnalyzeResponse(BaseModel):
     explanation: Optional[ExplanationResponse] = None
 
 
+class ClaimVerdict(BaseModel):
+    """B7.5 Tier 2: one atomic claim with its NLI-based verdict."""
+    id: int
+    text: str
+    verdict: str  # supported | contradicted | unsupported
+    confidence: float
+    evidence_sentence: str
+
+
+class VerifyResponse(BaseModel):
+    """B7.5 Tier 2: claim-level verification + calibrated prediction.
+
+    prediction/explanation are the Tier-1 secondary signals; claims carry the
+    primary NLI-based verdicts.
+    """
+    claims: List[ClaimVerdict]
+    aggregate: Dict[str, object]
+    prediction: PredictionResponse
+    explanation: Optional[ExplanationResponse] = None
+
+
 class JudgeRequest(BaseModel):
     question: str = ""
     context: Optional[str] = ""
@@ -431,6 +452,47 @@ def analyze_risk(req: AnalysisRequest):
         else:
             raise
     return AnalyzeResponse(prediction=prediction, explanation=explanation)
+
+
+@app.post("/verify", response_model=VerifyResponse)
+def verify_claims_endpoint(req: AnalysisRequest):
+    """B7.5 Tier 2: per-claim NLI verification against the evidence.
+
+    Splits the answer into atomic claims, scores each against every evidence
+    sentence with the loaded NLI cross-encoder, and returns 3-way verdicts
+    (supported / contradicted / unsupported) plus the calibrated prediction
+    as the labelled secondary signal.
+    """
+    from src.claims.decompose import split_claims
+    from src.claims.verify import verify_claims as run_verify
+
+    claims = split_claims(req.answer or "")
+    if not claims:
+        raise HTTPException(status_code=400, detail="Answer contains no extractable claims.")
+
+    try:
+        nli_model = load_feature_models().get("nli")
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"NLI models unavailable: {e}")
+    if nli_model is None:
+        raise HTTPException(status_code=503, detail="NLI model not loaded.")
+
+    result = run_verify(claims, req.context or "", nli_model)
+
+    prediction = predict_risk(req)
+    try:
+        explanation = explain_risk(req)
+    except HTTPException as e:
+        if e.status_code != 503:
+            raise
+        explanation = None
+
+    return VerifyResponse(
+        claims=[ClaimVerdict(**c) for c in result["claims"]],
+        aggregate=result["aggregate"],
+        prediction=prediction,
+        explanation=explanation,
+    )
 
 
 @app.post("/judge", response_model=JudgeResponse)

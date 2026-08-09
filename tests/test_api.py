@@ -101,6 +101,50 @@ def test_analyze_combined_contract(client, monkeypatch):
     assert body["explanation"]["base_value"] == 0.5
 
 
+def test_verify_claims_endpoint(client, monkeypatch):
+    """B7.5 Tier 2: /verify returns per-claim verdicts + prediction."""
+    class FakeExplainer:
+        expected_value = 0.5
+
+        def shap_values(self, X):
+            return np.array([[0.3, -0.1]])
+
+    class FakeNli:
+        def predict(self, pairs, batch_size=64, apply_softmax=True):
+            return np.tile([0.05, 0.9, 0.05], (len(pairs), 1))  # strong entailment
+
+    monkeypatch.setattr(api, "STATE", {
+        "model": {"raw": object(), "predict_proba": lambda X: np.array([[0.38, 0.62]])},
+        "explainer": FakeExplainer(),
+        "feature_models": {"nli": FakeNli()},
+        "feature_cols": ["a", "b"],
+        "params": {},
+    })
+    monkeypatch.setattr(api, "_feature_vector", lambda req: {"a": 1.0, "b": 0.0})
+    r = client.post("/verify", json={
+        "question": "q",
+        "context": "Paris is the capital of France.",
+        "answer": "Paris is the capital of France. It has two million people.",
+    })
+    assert r.status_code == 200
+    body = r.json()
+    assert len(body["claims"]) >= 2
+    assert body["claims"][0]["verdict"] == "supported"
+    assert body["aggregate"]["overall"] in ("supported", "contradicted", "unsupported")
+    assert body["prediction"]["calibrated_score"] == 0.62
+    assert body["explanation"]["top_features"][0]["feature"] == "a"
+
+
+def test_verify_400_on_empty_claims(client, monkeypatch):
+    monkeypatch.setattr(api, "STATE", {
+        "model": {"raw": object(), "predict_proba": lambda X: np.array([[0.5, 0.5]])},
+        "explainer": None, "feature_models": {"nli": object()},
+        "feature_cols": ["a"], "params": {},
+    })
+    r = client.post("/verify", json={"question": "q", "context": "c", "answer": "   "})
+    assert r.status_code == 400
+
+
 def test_analyze_degrades_when_explainer_missing(client, monkeypatch):
     """/analyze still returns the prediction when the explainer is unavailable."""
     monkeypatch.setattr(api, "STATE", {
