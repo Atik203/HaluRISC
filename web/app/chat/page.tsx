@@ -52,6 +52,13 @@ export default function ChatPage() {
       <AssistantRuntimeProvider runtime={runtime}>
         <Thread />
       </AssistantRuntimeProvider>
+
+      <p className="text-[10px] text-muted-foreground text-center">
+        Chat streams via /api/chat and needs <code className="font-mono">OPENAI_API_KEY</code> in{" "}
+        <code className="font-mono">web/.env.local</code>. Without it, the model-risk tool still runs — use{" "}
+        <a href="/analyze" className="underline text-violet-600 dark:text-purple-400">Analyze</a> or the{" "}
+        <a href="/demo" className="underline text-violet-600 dark:text-purple-400">offline demo</a>.
+      </p>
     </div>
   );
 }
