@@ -257,6 +257,37 @@ Run the **full training pipeline** (feature extraction → XGBoost tuning → ca
 
 ---
 
+## 🔁 Reproducibility (B6)
+
+The full Version B pipeline (B1 data → B2 baselines → B3 cross-domain → B4 calibration shift → B5 explanation reliability → manifest → verify) is driven by a single config:
+
+```powershell
+# Inspect the exact commands (no execution):
+& .venv\Scripts\python.exe src\models\run_all_experiments.py --dry-run
+
+# Run everything (CPU; use --device cuda on a GPU box):
+& .venv\Scripts\python.exe src\models\run_all_experiments.py --device cpu
+
+# Run only B3→B5 (e.g. after a crash), continuing past a failed phase:
+& .venv\Scripts\python.exe src\models\run_all_experiments.py --from b3 --to b5 --keep-going
+```
+
+- Config: `configs/version_b.yaml` (schema `b6-run-all-v1`); each phase subprocess-invokes the existing per-phase runner, so the runners stay the single source of truth.
+- Every run writes `artifacts/results/run_all_report.json` (resolved args, per-phase exit codes/durations, git commit).
+- `artifacts/results/manifest.json` records processed + raw dataset hashes, split report, seeds `[42,123,456]`, feature groups, package versions, hardware, `HALU_*` env, and every produced artifact (internal checkpoints excluded). On Colab (no git) it also carries a `source_fingerprint` = sha256 over the notebook's embedded source hashes.
+
+**CPU-compatible Docker path (backend only; CUDA stays an optional local acceleration path):**
+
+```powershell
+docker build -t halurisc-api .
+docker run --rm -p 8000:8000 halurisc-api   # one worker, no --reload
+curl http://127.0.0.1:8000/health
+```
+
+The image ships the exact pinned `requirements.txt` and `artifacts/` — a clean clone plus the documented Colab downloads (README "Train on Colab") regenerates everything without hidden local paths.
+
+---
+
 ## 📁 Repository Structure
 
 ```
@@ -274,9 +305,10 @@ HaluRISC/
 ├── src/
 │   ├── data/               # download.py, prepare.py, download_ragtruth.py
 │   ├── features/           # extract_features.py + entity/nli/semantic modules
-│   ├── models/             # train_pipeline.py, config.py, error_analysis.py, eval_llm_judge.py, eval_efficiency.py
+│   ├── models/             # run_all_experiments.py (B6 orchestrator), train_pipeline.py, config.py, error_analysis.py, eval_llm_judge.py, eval_efficiency.py
 │   ├── explain/            # shap_analysis.py
 │   └── api/                # FastAPI main.py (/predict, /explain, /judge, /health)
+├── configs/                # version_b.yaml (B6 run-all protocol)
 ├── colab/                  # self-contained HaluRISC_Training_Version_B.ipynb + cache helpers
 ├── artifacts/
 │   ├── models/             # Model artifacts and params

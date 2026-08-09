@@ -1,9 +1,18 @@
 """
 HaluRISC artifact manifest generator (blueprint A18 / roadmap B6).
 
-Writes artifacts/results/manifest.json with dataset hashes, split report,
-package versions, hardware/software info, model/feature versions, and the
-list of produced artifacts. Colab-safe: repo-root-relative paths only.
+Writes artifacts/results/manifest.json with:
+  - dataset hashes (processed + raw sources with revision files)
+  - split report (split hash via split_indices.json)
+  - seeds [42, 123, 456], feature groups, model/feature versions
+  - package versions + hardware (CPU/RAM/GPU)
+  - git commit (when run inside a clone) OR source_fingerprint (sha256 over
+    the notebook cell-3 embedded HASHES, passed via HALU_SOURCE_FINGERPRINT;
+    this fingerprints the exact shipped source even on Colab without git)
+  - HALU_* environment configuration (non-secret; API keys are never included)
+  - the list of produced artifacts (internal checkpoints excluded)
+
+Colab-safe: repo-root-relative paths only.
 
 Run (repo root, .venv or Colab):
   python src/models/make_manifest.py
@@ -16,16 +25,27 @@ import os
 import platform
 import subprocess
 import sys
-import time
 from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from src.models.config import ARTIFACTS_DIR, DATA_PROCESSED, MODELS_DIR, RESULTS_DIR  # noqa: E402
+from src.models.config import (  # noqa: E402
+    ARTIFACTS_DIR,
+    DATA_PROCESSED,
+    MODELS_DIR,
+    RESULTS_DIR,
+    SEEDS,
+)
+from src.models.train_pipeline import FEATURE_GROUPS  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("make_manifest")
+
+RAW_DIR = ARTIFACTS_DIR.parent / "data" / "raw"
+
+# Internal/non-publication paths never listed in the manifest (or future zips).
+EXCLUDE_FRAGMENTS = ("_stages", "b2_smoke_test", "b2_test_tmp", "b5_crash.log", "__pycache__")
 
 SHA_FILES = [
     DATA_PROCESSED / "qa_clean.parquet",
@@ -77,6 +97,7 @@ def versions() -> dict:
         "spacy": ver("spacy"),
         "sentence_transformers": ver("sentence_transformers"),
         "fastapi": ver("fastapi"),
+        "pyyaml": ver("yaml"),
     }
 
 
@@ -98,6 +119,17 @@ def hardware() -> dict:
     except Exception:
         hw["ram_total_gb"] = None
     return hw
+
+
+def raw_hashes() -> dict:
+    """sha256 of every raw input file (incl. download revision.json files)."""
+    if not RAW_DIR.exists():
+        return {}
+    out = {}
+    for p in sorted(RAW_DIR.rglob("*")):
+        if p.is_file():
+            out[str(p.relative_to(RAW_DIR.parent))] = sha256(p)
+    return out
 
 
 def read_json(path: Path):
@@ -131,16 +163,34 @@ def main():
         "b4_calibrator_isotonic_source_seed_42.joblib": MODELS_DIR / "b4" / "calibrator_isotonic_source_seed_42.joblib",
         "unified_records.parquet": DATA_PROCESSED / "unified_records.parquet",
         "b3_external_features.parquet": DATA_PROCESSED / "b3_external_features.parquet",
+        "b5_run_config.json": RESULTS_DIR / "b5" / "b5_run_config.json",
+        "b5_feature_importance.json": RESULTS_DIR / "b5" / "b5_feature_importance.json",
+        "b5_neutralization.json": RESULTS_DIR / "b5" / "b5_neutralization.json",
+        "b5_stability_bootstrap.json": RESULTS_DIR / "b5" / "b5_stability_bootstrap.json",
+        "b5_perturbation_aggregates.csv": RESULTS_DIR / "b5" / "b5_perturbation_aggregates.csv",
+        "b5_review_cases.csv": RESULTS_DIR / "b5" / "b5_review_cases.csv",
+        "b5_failure_cases.json": RESULTS_DIR / "b5" / "b5_failure_cases.json",
     }
+
+    env_config = {
+        name: os.environ[name]
+        for name in ("HALU_API_DEVICE", "HALU_API_PRELOAD", "HALU_XGB_DEVICE",
+                     "HALU_NLI_MODEL", "HALU_JUDGE_N")
+        if name in os.environ
+    }
+    source_fingerprint = os.environ.get("HALU_SOURCE_FINGERPRINT")
 
     manifest = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "git_commit": git_commit(),
+        "source_fingerprint": source_fingerprint,
         "model_version": params.get("model_version"),
         "feature_version": "course-v1.0",
         "n_features": params.get("n_features"),
         "nli_model": params.get("nli_model"),
         "nli_provenance": nli_used,
+        "seeds": list(SEEDS),
+        "feature_groups": FEATURE_GROUPS,
         "split_report": split_report,
         "dataset_sha256": {
             "qa_clean.parquet": sha256(SHA_FILES[0]),
@@ -150,9 +200,11 @@ def main():
             "split_indices.json": sha256(SHA_FILES[4]),
             "split_integrity_report.json": sha256(SHA_FILES[5]),
         },
+        "raw_sha256": raw_hashes(),
         "b_artifacts_sha256": {name: sha_or_none(p) for name, p in b_paths.items()},
         "versions": versions(),
         "hardware": hardware(),
+        "env": env_config,
         "artifacts": sorted(
             str(p.relative_to(ARTIFACTS_DIR.parent))
             for p in [
@@ -160,14 +212,16 @@ def main():
                 *DATA_PROCESSED.glob("*.parquet"),
                 DATA_PROCESSED / "nli_model_used.json",
             ]
-            if p.is_file()
+            if p.is_file() and not any(frag in str(p) for frag in EXCLUDE_FRAGMENTS)
         ),
     }
 
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     out = RESULTS_DIR / "manifest.json"
     out.write_text(json.dumps(manifest, indent=2))
-    logger.info(f"Saved manifest to {out}")
+    logger.info(f"Saved manifest to {out} (git_commit={manifest['git_commit']}, "
+                f"source_fingerprint={'set' if source_fingerprint else None}, "
+                f"raw files={len(manifest['raw_sha256'])})")
     return manifest
 
 
