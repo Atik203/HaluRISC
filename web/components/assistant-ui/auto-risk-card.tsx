@@ -287,27 +287,41 @@ export function AutoRiskCard() {
     const p = result.prediction;
     const score = Number(p.calibrated_score ?? 0);
     const pct = Math.min(100, Math.max(0, Math.round(score * 100)));
-    const { cls, Icon } = tone(p.label);
     const top = result.explanation?.top_features?.slice(0, 3) ?? [];
     const features = p.features ?? {};
     const groupCount = Object.keys(features).length;
     const claims = result.claims ?? [];
     const agg = result.aggregate;
-    const allClaimsSupported =
-      claims.length > 0 && (agg?.contradicted ?? 0) === 0 && (agg?.unsupported ?? 0) === 0;
-    const styleMismatch = allClaimsSupported && score >= 0.7;
+    // Primary signal: per-claim evidence verdicts. The calibrated XGBoost
+    // score is style-sensitive (HaluEval favors terse answers) and only leads
+    // when no claim verdicts exist.
+    const hasClaims = claims.length > 0;
+    const claimRisk = hasClaims && agg
+      ? (agg.contradicted ?? 0) > 0
+        ? "high_risk"
+        : (agg.unsupported ?? 0) > 0
+          ? "medium_risk"
+          : "low_risk"
+      : null;
+    const headlineLabel = claimRisk ?? p.label;
+    const { cls, Icon } = tone(headlineLabel);
+    const legacyConflict = claimRisk != null && claimRisk !== "high_risk" && score >= 0.7;
 
     return (
       <section
         className="mt-3 rounded-xl border border-border/60 bg-secondary/20 p-4 space-y-3"
-        aria-label={`Hallucination risk: ${LABEL_TEXT[p.label] ?? p.label}, ${pct} percent`}
+        aria-label={`Hallucination risk: ${LABEL_TEXT[headlineLabel] ?? headlineLabel}, ${pct} percent`}
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Icon className="w-6 h-6" aria-hidden />
             <div>
-              <div className="text-sm font-bold">{LABEL_TEXT[p.label] ?? p.label}</div>
-              <div className="text-[11px] font-mono text-muted-foreground">{pct}% calibrated risk probability</div>
+              <div className="text-sm font-bold">{LABEL_TEXT[headlineLabel] ?? headlineLabel}</div>
+              <div className="text-[11px] font-mono text-muted-foreground">
+                {claimRisk
+                  ? `per-claim evidence verdict (${claims.length} claim${claims.length > 1 ? "s" : ""}) · legacy model score ${pct}%`
+                  : `${pct}% calibrated risk probability`}
+              </div>
             </div>
           </div>
           <div className="flex flex-col items-end gap-1 text-[10px] font-mono text-muted-foreground">
@@ -352,11 +366,11 @@ export function AutoRiskCard() {
           })()}
         </div>
 
-        {styleMismatch && (
+        {legacyConflict && (
           <p className="text-[10px] text-amber-600/90 dark:text-amber-400/90 bg-amber-500/5 border border-amber-500/20 rounded-lg px-2.5 py-1.5">
-            The calibrated score is style-sensitive: HaluEval favors terse keyword answers with full overlap,
-            so full-sentence answers tend to score high even when the per-claim verdicts say supported.
-            Trust the per-claim verdicts and evidence as the primary signal here.
+            The legacy model score ({pct}%) is style-sensitive: HaluEval favors terse keyword answers with full
+            overlap, so full-sentence answers score high even when the evidence says they are fine. The headline
+            above comes from the per-claim evidence verdicts — trust them and the citations.
           </p>
         )}
 
