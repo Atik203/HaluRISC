@@ -139,7 +139,10 @@ per answer via `evidence_mode: auto | context | index | web` on `/verify`
   LRU-cached, ~1,000 credits/month on the free tier.
 - **Citations**: each claim records `evidence_source` (`web:<url>` |
   `doc:<name>`) + `evidence_url`; the card renders source badges and clickable
-  links.
+  links. Contradicted claims also carry `evidence_quote` — the exact
+  contradicting evidence sentence ("Evidence says: …"), i.e. the corrective
+  answer straight from the source. Web passages are reranked with the same
+  cross-encoder used for documents.
 - **Abstention**: claims with no retrieved evidence above the relevance floor
   are `unsupported` with `abstained: true` and a "no evidence retrieved" note —
   the system never guesses.

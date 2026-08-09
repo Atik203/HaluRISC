@@ -41,6 +41,7 @@ interface ClaimVerdict {
   verdict: "supported" | "contradicted" | "unsupported";
   confidence: number;
   evidence_sentence: string;
+  evidence_quote?: string;
   evidence_source?: string;
   evidence_url?: string;
   abstained?: boolean;
@@ -405,7 +406,13 @@ export function AutoRiskCard() {
                       no evidence retrieved — abstained
                     </p>
                   ) : (
-                    c.evidence_sentence && (
+                    <>
+                      {c.verdict === "contradicted" && c.evidence_quote && (
+                        <p className="mt-0.5 pl-1 text-[10px] text-rose-700/90 dark:text-rose-400/90">
+                          <span className="font-semibold not-italic">Evidence says:</span>{" "}
+                          {c.evidence_quote.length > 200 ? `${c.evidence_quote.slice(0, 200)}…` : c.evidence_quote}
+                        </p>
+                      )}
                       <p className="mt-0.5 pl-1 text-[10px] text-muted-foreground italic">
                         evidence: {c.evidence_sentence.length > 140 ? `${c.evidence_sentence.slice(0, 140)}…` : c.evidence_sentence}
                         {c.evidence_source?.startsWith("web:") && c.evidence_url ? (
@@ -421,7 +428,7 @@ export function AutoRiskCard() {
                           <span className="ml-1.5 not-italic text-muted-foreground/80">· {c.evidence_source.replace("doc:", "")}</span>
                         ) : null}
                       </p>
-                    )
+                    </>
                   )}
                 </li>
               ))}

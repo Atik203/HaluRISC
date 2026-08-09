@@ -116,6 +116,34 @@ def verify_claims(claims: list, evidence: str, nli_model, batch_size: int = DEFA
     return {"claims": out_claims, "aggregate": _aggregate(out_claims)}
 
 
+def _quote_contradicting_sentences(claims: list, passages_by_claim: list, contradicted: list,
+                                   nli_model, batch_size: int = DEFAULT_BATCH_SIZE) -> dict:
+    """For contradicted claims, find the exact evidence sentence that
+    contradicts the claim (highest contradiction probability). Returns
+    {claim_index: sentence}. Pair order stays (evidence, claim)."""
+    pairs = []
+    meta = []
+    for ci, pi in contradicted:
+        passage = passages_by_claim[ci][pi] if ci < len(passages_by_claim) and pi < len(passages_by_claim[ci]) else None
+        text = (passage or {}).get("text", "")
+        sents = split_sentences(text) or ([text] if text.strip() else [])
+        meta.append((ci, sents))
+        for s in sents:
+            pairs.append((s, claims[ci]))
+    if not pairs:
+        return {}
+    probs = np.asarray(nli_model.predict(pairs, batch_size=batch_size, apply_softmax=True))
+    quotes = {}
+    cursor = 0
+    for ci, sents in meta:
+        block = probs[cursor : cursor + len(sents)]
+        cursor += len(sents)
+        contra = block[:, 0]
+        idx = int(np.argmax(contra))
+        quotes[ci] = sents[idx][:300]
+    return quotes
+
+
 def verify_claims_against_passages(claims: list, passages_by_claim: list, nli_model,
                                    batch_size: int = DEFAULT_BATCH_SIZE) -> dict:
     """Per-claim verification against retrieved passages (Tier 3).
@@ -142,6 +170,7 @@ def verify_claims_against_passages(claims: list, passages_by_claim: list, nli_mo
             probs = np.empty((0, 3))
 
         cursor = 0
+        contradicted = []
         for ci, claim in enumerate(claims):
             n = block_sizes[ci]
             ps = passages_by_claim[ci] if ci < len(passages_by_claim) else []
@@ -155,6 +184,8 @@ def verify_claims_against_passages(claims: list, passages_by_claim: list, nli_mo
             verdict, confidence, idx = _score_claim_blocks(probs[cursor : cursor + n], n)[0]
             cursor += n
             passage = ps[idx]
+            if verdict == "contradicted":
+                contradicted.append((ci, idx))
             out_claims.append({
                 "id": ci, "text": claim, "verdict": verdict,
                 "confidence": round(confidence, 4),
@@ -163,6 +194,13 @@ def verify_claims_against_passages(claims: list, passages_by_claim: list, nli_mo
                 "evidence_url": passage.get("url", ""),
                 "abstained": False,
             })
+
+        if contradicted:
+            quotes = _quote_contradicting_sentences(claims, passages_by_claim, contradicted,
+                                                    nli_model, batch_size)
+            for c in out_claims:
+                if c["id"] in quotes:
+                    c["evidence_quote"] = quotes[c["id"]]
 
     agg = _aggregate(out_claims)
     agg["abstained"] = sum(1 for c in out_claims if c.get("abstained"))

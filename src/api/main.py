@@ -183,6 +183,7 @@ class ClaimVerdict(BaseModel):
     verdict: str  # supported | contradicted | unsupported
     confidence: float
     evidence_sentence: str
+    evidence_quote: str = ""    # exact contradicting sentence (corrective snippet)
     evidence_source: str = ""   # "context" | "doc:<name>" | "web:<url>"
     evidence_url: str = ""
     abstained: bool = False
@@ -643,6 +644,8 @@ def _passages_for_claims(claims: List[str], mode: str):
         web = get_web_search()
         if web.enabled:
             per_claim = [web.search(c) for c in claims]
+            # rerank web passages too (relevance; lazy cross-encoder, offline fallback)
+            per_claim = [_maybe_rerank(c, ps, 3) if ps else ps for c, ps in zip(claims, per_claim)]
             return "web", per_claim
     return "context", None
 
