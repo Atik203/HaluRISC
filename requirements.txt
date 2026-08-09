@@ -43,3 +43,4 @@ pypdf==6.15.0
 python-docx==1.2.0
 rank_bm25==0.2.2
 python-multipart==0.0.32
+slowapi==0.1.10

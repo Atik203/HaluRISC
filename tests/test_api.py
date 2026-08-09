@@ -257,6 +257,65 @@ def test_verify_auto_falls_back_to_context_without_index_or_web(client, monkeypa
     assert body["claims"][0]["evidence_source"] == "context"
 
 
+def test_verify_llm_judge_routing(client, monkeypatch):
+    """T4: uncertain claims get LLM-judged with reasoning; confident stay NLI."""
+
+    class UncertainNli:
+        def predict(self, pairs, batch_size=64, apply_softmax=True):
+            # entail 0.62 -> inside the [0.50, 0.75) routing band
+            return np.tile([0.15, 0.62, 0.23], (len(pairs), 1))
+
+    monkeypatch.setattr(api, "STATE", {
+        "model": {"raw": object(), "predict_proba": lambda X: np.array([[0.38, 0.62]])},
+        "explainer": None, "feature_models": {"nli": UncertainNli()},
+        "feature_cols": ["a", "b"], "params": {},
+    })
+    monkeypatch.setattr(api, "_feature_vector", lambda req: {"a": 1.0, "b": 0.0})
+    monkeypatch.setattr(api, "get_retrieval_index", lambda: FakeIndex([{
+        "id": "p1", "source": "doc:note.txt", "url": "", "text": "Some evidence text.", "score": 0.9,
+    }]))
+    monkeypatch.setattr(api, "get_web_search", lambda: type("W", (), {"enabled": False, "search": lambda q: []})())
+    monkeypatch.setenv("OPENAI_API_KEY", "fake-key")
+
+    import src.claims.judge as claim_judge
+
+    def fake_judge_call(api_key):
+        def _call(claim_text, evidence_texts):
+            return {"verdict": "contradicted", "confidence": 0.9, "reasoning": "evidence contradicts"}
+        return _call
+
+    monkeypatch.setattr(claim_judge, "openai_judge_call", fake_judge_call)
+
+    r = client.post("/verify", json={
+        "question": "q", "context": "c",
+        "answer": "The capital of France is Paris.",
+        "evidence_mode": "index",
+        "judge_uncertain": True,
+    })
+    assert r.status_code == 200
+    body = r.json()
+    assert body["aggregate"]["llm_judged"] == 1
+    assert body["claims"][0]["judged_by"] == "llm"
+    assert body["claims"][0]["judge_reasoning"] == "evidence contradicts"
+    assert body["claims"][0]["verdict"] == "contradicted"
+
+
+def test_verify_judge_disabled_without_key(client, monkeypatch):
+    monkeypatch.setattr(api, "STATE", _state_with_nli())
+    monkeypatch.setattr(api, "_feature_vector", lambda req: {"a": 1.0, "b": 0.0})
+    monkeypatch.setattr(api, "get_retrieval_index", lambda: FakeIndex([]))
+    monkeypatch.setattr(api, "get_web_search", lambda: type("W", (), {"enabled": False, "search": lambda q: []})())
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    r = client.post("/verify", json={
+        "question": "q", "context": "Paris is the capital of France.",
+        "answer": "Paris is the capital of France.",
+    })
+    assert r.status_code == 200
+    body = r.json()
+    assert body["aggregate"]["llm_judged"] == 0
+    assert body["claims"][0]["judged_by"] == "nli"
+
+
 def test_analyze_degrades_when_explainer_missing(client, monkeypatch):
     """/analyze still returns the prediction when the explainer is unavailable."""
     monkeypatch.setattr(api, "STATE", {

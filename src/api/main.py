@@ -26,15 +26,19 @@ import threading
 import time
 from collections import OrderedDict
 from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Literal, Optional
 
 import numpy as np
 import pandas as pd
 from dotenv import load_dotenv
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 # Must be set before any CUDA context is created (model preload below).
 # expandable_segments fights VRAM fragmentation on small GPUs (RTX 3060 6 GB);
@@ -173,7 +177,7 @@ class AnalyzeResponse(BaseModel):
 
 
 class ClaimVerdict(BaseModel):
-    """B7.5 Tier 2/3: one atomic claim with its NLI-based verdict."""
+    """B7.5 Tier 2-4: one atomic claim with its NLI/LLM verdict."""
     id: int
     text: str
     verdict: str  # supported | contradicted | unsupported
@@ -182,11 +186,14 @@ class ClaimVerdict(BaseModel):
     evidence_source: str = ""   # "context" | "doc:<name>" | "web:<url>"
     evidence_url: str = ""
     abstained: bool = False
+    judged_by: str = "nli"      # nli | llm (Tier 4 hybrid routing)
+    judge_reasoning: str = ""
 
 
 class VerifyRequest(AnalysisRequest):
-    """Tier 3: evidence selection mode for claim verification."""
+    """Tier 3/4: evidence selection + optional LLM-judge routing."""
     evidence_mode: Literal["auto", "context", "index", "web"] = "auto"
+    judge_uncertain: bool = True
 
 
 class VerifyResponse(BaseModel):
@@ -224,6 +231,19 @@ class IndexStatusResponse(BaseModel):
     n_documents: int
     dim: Optional[int]
     index_dir: str
+
+
+class FeedbackRequest(BaseModel):
+    """T4: human feedback on a verdict (aggregate or per-claim)."""
+    inputs_hash: str = ""
+    question: str = ""
+    context: str = ""
+    answer: str = ""
+    claim_text: str = ""        # empty = aggregate feedback
+    verdict: str = ""
+    evidence_sentence: str = ""
+    feedback: Literal["agree", "disagree"] = "agree"
+    note: str = ""
 
 
 class JudgeRequest(BaseModel):
@@ -353,15 +373,27 @@ async def lifespan(app: FastAPI):
     else:
         logger.info("HALU_API_PRELOAD=0 -> heavy models will load lazily on first /predict.")
     yield
-    STATE.clear()
+    STATE.update({"model": None, "explainer": None, "feature_models": None,
+                  "feature_cols": None, "params": None})  # reset schema, not clear()
 
+
+# T4: per-IP rate limits (slowapi; env-tunable).
+RATE_LIMIT_VERIFY = os.environ.get("HALU_RATE_VERIFY", "30/minute")
+RATE_LIMIT_INDEX = os.environ.get("HALU_RATE_INDEX", "10/minute")
+RATE_LIMIT_JUDGE = os.environ.get("HALU_RATE_JUDGE", "10/minute")
+RATE_LIMIT_FEEDBACK = os.environ.get("HALU_RATE_FEEDBACK", "30/minute")
+
+limiter = Limiter(key_func=get_remote_address, default_limits=[])
 
 app = FastAPI(
     title="HaluRISC API",
     description="Calibrated & explainable hallucination-risk estimation (B-run deployable: B2 XGBoost + B4 Platt)",
-    version="1.1.0",
+    version="1.2.0",
     lifespan=lifespan,
 )
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
@@ -405,6 +437,9 @@ def _risk_label(p: float) -> str:
     if p >= 0.30:
         return "medium_risk"
     return "low_risk"
+
+
+FEEDBACK_LOG = ROOT / "data" / "processed" / "feedback_log.jsonl"
 
 
 # ----------------------------------------------------------------------------
@@ -543,7 +578,8 @@ def index_status():
 
 
 @app.post("/index")
-async def index_upload(files: List[UploadFile] = File(...)):
+@limiter.limit(RATE_LIMIT_INDEX)
+async def index_upload(request: Request, files: List[UploadFile] = File(...)):
     """T3: upload PDF/DOCX/TXT documents into the retrieval index."""
     from src.retrieval.chunk import extract_text_from_bytes
 
@@ -569,7 +605,8 @@ async def index_upload(files: List[UploadFile] = File(...)):
 
 
 @app.delete("/index")
-def index_clear():
+@limiter.limit(RATE_LIMIT_INDEX)
+def index_clear(request: Request):
     """T3: wipe the document index."""
     get_retrieval_index().clear()
     return {"cleared": True}
@@ -611,7 +648,8 @@ def _passages_for_claims(claims: List[str], mode: str):
 
 
 @app.post("/verify", response_model=VerifyResponse)
-def verify_claims_endpoint(req: VerifyRequest):
+@limiter.limit(RATE_LIMIT_VERIFY)
+def verify_claims_endpoint(request: Request, req: VerifyRequest):
     """B7.5 Tier 2/3: per-claim NLI verification against evidence.
 
     evidence_mode: auto (index -> web -> context), context (pasted text),
@@ -634,14 +672,35 @@ def verify_claims_endpoint(req: VerifyRequest):
         raise HTTPException(status_code=503, detail="NLI model not loaded.")
 
     evidence_mode, passages_by_claim = _passages_for_claims(claims, req.evidence_mode)
-    if passages_by_claim is None:
-        result = run_verify_context(claims, req.context or "", nli_model)
-        for c in result["claims"]:
-            c["evidence_source"] = "context"
-        result["aggregate"]["evidence_mode"] = "context"
-    else:
-        result = verify_claims_against_passages(claims, passages_by_claim, nli_model)
-        result["aggregate"]["evidence_mode"] = evidence_mode
+    with INFERENCE_LOCK:  # CUDA-safe: NLI batching serialized like feature extraction
+        if passages_by_claim is None:
+            from src.claims.decompose import split_sentences
+
+            result = run_verify_context(claims, req.context or "", nli_model)
+            for c in result["claims"]:
+                c["evidence_source"] = "context"
+            result["aggregate"]["evidence_mode"] = "context"
+            ctx_sents = split_sentences(req.context or "") or [req.context or ""]
+            judged_passages = [[{"text": s, "source": "context", "url": ""} for s in ctx_sents]
+                               for _ in result["claims"]]
+        else:
+            result = verify_claims_against_passages(claims, passages_by_claim, nli_model)
+            result["aggregate"]["evidence_mode"] = evidence_mode
+            judged_passages = passages_by_claim
+
+    if req.judge_uncertain:
+        from src.claims import judge as claim_judge
+        from src.claims.verify import _aggregate
+
+        api_key = os.environ.get("OPENAI_API_KEY")
+        if api_key:
+            judge_call = claim_judge.openai_judge_call(api_key)
+            result["claims"] = claim_judge.judge_claims(result["claims"], judged_passages, judge_call)
+        result["aggregate"]["llm_judged"] = sum(
+            1 for c in result["claims"] if c.get("judged_by") == "llm")
+        abstained = result["aggregate"].get("abstained", 0)
+        result["aggregate"].update(_aggregate(result["claims"]))
+        result["aggregate"]["abstained"] = abstained
 
     prediction = predict_risk(req)
     try:
@@ -659,8 +718,24 @@ def verify_claims_endpoint(req: VerifyRequest):
     )
 
 
+@app.post("/feedback")
+@limiter.limit(RATE_LIMIT_FEEDBACK)
+def submit_feedback(request: Request, req: FeedbackRequest):
+    """T4: append feedback to data/processed/feedback_log.jsonl (gitignored)."""
+    row = {
+        **req.model_dump(),
+        "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "model_version": MODEL_VERSION,
+    }
+    FEEDBACK_LOG.parent.mkdir(parents=True, exist_ok=True)
+    with open(FEEDBACK_LOG, "a", encoding="utf-8") as f:
+        f.write(json.dumps(row) + "\n")
+    return {"ok": True, "logged": "feedback_log.jsonl"}
+
+
 @app.post("/judge", response_model=JudgeResponse)
-def judge_answer(req: JudgeRequest):
+@limiter.limit(RATE_LIMIT_JUDGE)
+def judge_answer(request: Request, req: JudgeRequest):
     """LLM-as-judge baseline (GPT 5.6 Luna). Uses OPENAI_API_KEY from .env."""
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:

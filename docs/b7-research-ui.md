@@ -148,6 +148,25 @@ per answer via `evidence_mode: auto | context | index | web` on `/verify`
   France" look supported). The evidence sentence is always shown for human
   checking, and the claim-eval sheet (`eval_claims.py`) quantifies this.
 
+### Hybrid judge & feedback (B7.5 Tier 4)
+
+- **LLM-judge routing** (`judge_uncertain`, auto-on with `OPENAI_API_KEY`):
+  only claims whose NLI confidence falls in the uncertain band
+  (`HALU_JUDGE_CONF_LOW/HIGH`, default 0.50–0.75) or that abstained with
+  evidence are sent to the LLM with their evidence passages — capped at
+  `HALU_JUDGE_MAX_CLAIMS` (3) per answer. Claims are tagged `judged_by: nli|llm`
+  with one-line reasoning; graceful skip without a key.
+- **Feedback loop**: 👍/👎 on the aggregate and each claim verdict →
+  `POST /api/ml/feedback` → `data/processed/feedback_log.jsonl` (gitignored).
+  `python src/models/tune_thresholds.py` grid-searches the NLI thresholds
+  against labeled rows (report-only; `--apply` writes
+  `data/processed/verdict_thresholds.json`, read at runtime).
+- **Evals**: `eval_claims.py --from-feedback` exports feedback claims for
+  labeling; `--tier3 queries.csv` measures citation recall@k over the index.
+- **Hardening**: per-IP rate limits on `/verify`, `/index`, `/judge`,
+  `/feedback` (slowapi, env-tunable); `/verify` NLI runs under the inference
+  lock; input bounds unchanged.
+
 ## Deployment notes
 
 - Backend container: see `docs/b6-reproducibility.md` §3 (CPU Dockerfile).

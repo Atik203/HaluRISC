@@ -17,6 +17,9 @@ API (predict(pairs, batch_size=..., apply_softmax=True) -> probs in order
 [contradiction, entailment, neutral]).
 """
 
+import json
+from pathlib import Path
+
 import numpy as np
 
 from src.claims.decompose import split_sentences
@@ -27,9 +30,21 @@ ENTAIL_THRESHOLD = 0.5
 CONTRA_THRESHOLD = 0.5
 DEFAULT_BATCH_SIZE = 64
 
+THRESHOLDS_FILE = Path(__file__).resolve().parents[2] / "data" / "processed" / "verdict_thresholds.json"
+
+
+def _effective_thresholds() -> tuple:
+    """Thresholds may be tuned from feedback (T4.2 tune_thresholds.py --apply)."""
+    try:
+        d = json.loads(THRESHOLDS_FILE.read_text(encoding="utf-8"))
+        return float(d["entail"]), float(d["contra"])
+    except Exception:
+        return ENTAIL_THRESHOLD, CONTRA_THRESHOLD
+
 
 def _score_claim_blocks(probs: np.ndarray, n_sents: int):
     """Per-claim verdict decision from an (n_claims * n_sents, 3) prob block."""
+    ent_thr, con_thr = _effective_thresholds()
     out = []
     for ci in range(len(probs) // n_sents if n_sents else 0):
         block = probs[ci * n_sents : (ci + 1) * n_sents]
@@ -39,9 +54,9 @@ def _score_claim_blocks(probs: np.ndarray, n_sents: int):
         best_con = int(np.argmax(contra))
         ent_prob = float(entail[best_ent])
         con_prob = float(contra[best_con])
-        if ent_prob >= ENTAIL_THRESHOLD and ent_prob >= con_prob:
+        if ent_prob >= ent_thr and ent_prob >= con_prob:
             out.append(("supported", ent_prob, best_ent))
-        elif con_prob >= CONTRA_THRESHOLD:
+        elif con_prob >= con_thr:
             out.append(("contradicted", con_prob, best_con))
         else:
             out.append(("unsupported", max(ent_prob, con_prob), best_ent))
@@ -57,13 +72,14 @@ def _aggregate(out_claims: list) -> dict:
         overall = "contradicted"
     elif counts["unsupported"] > 0:
         overall = "unsupported"
+    ent_thr, con_thr = _effective_thresholds()
     return {
         "n": len(out_claims),
         "supported": counts["supported"],
         "contradicted": counts["contradicted"],
         "unsupported": counts["unsupported"],
         "overall": overall,
-        "rule": f"entailment>={ENTAIL_THRESHOLD} beats contradiction | contradiction>={CONTRA_THRESHOLD} | else unsupported",
+        "rule": f"entailment>={ent_thr} beats contradiction | contradiction>={con_thr} | else unsupported",
     }
 
 

@@ -44,6 +44,8 @@ interface ClaimVerdict {
   evidence_source?: string;
   evidence_url?: string;
   abstained?: boolean;
+  judged_by?: string;
+  judge_reasoning?: string;
 }
 
 interface VerifyResult extends AnalyzeResult {
@@ -56,7 +58,60 @@ interface VerifyResult extends AnalyzeResult {
     overall: string;
     abstained?: number;
     evidence_mode?: string;
+    llm_judged?: number;
   };
+}
+
+/** T4: 👍/👎 feedback on a verdict; posts to /api/ml/feedback. */
+function FeedbackButtons({
+  payload,
+}: {
+  payload: () => Record<string, string> | null;
+}) {
+  const [sent, setSent] = useState<"agree" | "disagree" | null>(null);
+  const send = async (feedback: "agree" | "disagree") => {
+    if (sent) return;
+    setSent(feedback);
+    const body = payload();
+    if (!body) return;
+    try {
+      await fetch("/api/ml/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...body, feedback }),
+      });
+    } catch {
+      /* feedback is best-effort */
+    }
+  };
+  return (
+    <span className="inline-flex items-center gap-1 ml-2 align-middle">
+      <button
+        type="button"
+        onClick={() => send("agree")}
+        aria-label="Agree with this verdict"
+        className={`text-xs rounded-md border px-1.5 py-0.5 transition-colors ${
+          sent === "agree"
+            ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-500"
+            : "border-border/60 text-muted-foreground hover:text-emerald-500 hover:border-emerald-500/40"
+        }`}
+      >
+        👍
+      </button>
+      <button
+        type="button"
+        onClick={() => send("disagree")}
+        aria-label="Disagree with this verdict"
+        className={`text-xs rounded-md border px-1.5 py-0.5 transition-colors ${
+          sent === "disagree"
+            ? "border-rose-500/50 bg-rose-500/10 text-rose-500"
+            : "border-border/60 text-muted-foreground hover:text-rose-500 hover:border-rose-500/40"
+        }`}
+      >
+        👎
+      </button>
+    </span>
+  );
 }
 
 const LABEL_TEXT: Record<string, string> = {
@@ -117,6 +172,7 @@ export function AutoRiskCard() {
   const [result, setResult] = useState<VerifyResult | null>(null);
   const [grounding, setGrounding] = useState<"evidence" | "conversation">("conversation");
   const analyzedRef = useRef<string | null>(null);
+  const inputRef = useRef<{ question: string; context: string; answer: string } | null>(null);
 
   const text = extractText(message);
   const isComplete = message?.status?.type === "complete";
@@ -139,6 +195,7 @@ export function AutoRiskCard() {
     if (!input) return;
 
     analyzedRef.current = key; // guard refires while the request is in flight
+    inputRef.current = { question: input.question, context: input.context, answer: input.answer };
     let cancelled = false;
 
     (async () => {
@@ -284,6 +341,22 @@ export function AutoRiskCard() {
                   {agg.abstained} abstained (no evidence)
                 </span>
               )}
+              {(agg.llm_judged ?? 0) > 0 && (
+                <span className="px-2 py-0.5 rounded-full border border-indigo-500/40 bg-indigo-500/10 font-mono text-indigo-600 dark:text-indigo-400">
+                  {agg.llm_judged} LLM-judged
+                </span>
+              )}
+              <FeedbackButtons
+                payload={() => {
+                  const input = inputRef.current;
+                  if (!input) return null;
+                  return {
+                    question: input.question, context: input.context, answer: input.answer,
+                    claim_text: "", verdict: agg.overall,
+                    evidence_sentence: "", inputs_hash: "",
+                  };
+                }}
+              />
             </div>
             <ul className="space-y-1.5">
               {claims.map((c) => (
@@ -292,6 +365,22 @@ export function AutoRiskCard() {
                     {c.verdict}
                   </span>
                   <span className="text-foreground/90">{c.text}</span>
+                  {c.judged_by === "llm" && c.judge_reasoning && (
+                    <span className="ml-1.5 text-[10px] text-indigo-600 dark:text-indigo-400 not-italic">
+                      LLM: {c.judge_reasoning.length > 90 ? `${c.judge_reasoning.slice(0, 90)}…` : c.judge_reasoning}
+                    </span>
+                  )}
+                  <FeedbackButtons
+                    payload={() => {
+                      const input = inputRef.current;
+                      if (!input) return null;
+                      return {
+                        question: input.question, context: input.context, answer: input.answer,
+                        claim_text: c.text, verdict: c.verdict,
+                        evidence_sentence: c.evidence_sentence, inputs_hash: "",
+                      };
+                    }}
+                  />
                   {c.abstained ? (
                     <p className="mt-0.5 pl-1 text-[10px] text-amber-600/90 dark:text-amber-400/90">
                       no evidence retrieved — abstained
