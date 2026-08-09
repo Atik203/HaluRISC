@@ -24,7 +24,7 @@ export default function OverviewTab() {
 
   const b4Ece = d.b4.metrics?.["halueval_test"]?.platt?.ece_mean;
   const judgeCost = d.legacy.judge?.cost_per_1000_usd;
-  const haluriscCost = d.legacy.latency?.cost_per_1000_usd?.halurisc_local;
+  const haluriscCost = d.legacy.latency?.cost_per_1000_predictions_usd?.halurisc_local;
   const costRatio = judgeCost && haluriscCost ? Math.round(judgeCost / haluriscCost) : null;
 
   return (

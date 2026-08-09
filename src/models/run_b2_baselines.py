@@ -494,13 +494,14 @@ def run_experiment(cfg: B2Config, data: dict) -> dict:
                  "n_seeds": 1 if deterministic else len(sub)}
         if not deterministic:
             for key in ("precision", "recall", "f1", "auroc", "pr_auc", "mcc", "ece", "brier"):
-                vals = [v for v in sub[key] if v is not None]
+                vals = [v for v in sub[key] if v is not None and not np.isnan(v)]
                 entry[f"{key}_mean"] = float(np.mean(vals)) if vals else None
                 entry[f"{key}_std"] = float(np.std(vals)) if vals else None
         else:
             row = sub.iloc[0]
             for key in ("precision", "recall", "f1", "auroc", "pr_auc", "mcc", "ece", "brier"):
-                entry[f"{key}_mean"] = row[key]
+                raw = row[key]
+                entry[f"{key}_mean"] = None if (raw is None or np.isnan(raw)) else raw
                 entry[f"{key}_std"] = 0.0
         if model == "heuristic_overlap":
             entry["val_f1"] = h_info["val_f1"]

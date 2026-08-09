@@ -1,4 +1,4 @@
-import { artifactSizeMb, loadDashboardData, fmt, fmtPct } from "@/lib/results";
+import { loadDashboardData, fmt, fmtPct } from "@/lib/results";
 import { Panel, DataTable, EmptyState, Mono } from "@/components/dashboard/panel";
 
 const MODULE_LABELS: Record<string, string> = {
@@ -14,18 +14,25 @@ export default function EfficiencyTab() {
   const d = loadDashboardData();
   const latency = d.legacy.latency;
   const judge = d.legacy.judge;
-  const modules = latency?.modules ?? {};
-  const modelMb = latency?.model_artifact_mb ?? artifactSizeMb();
+  const latencyMs = latency?.latency_ms ?? {};
+  const modelArtifactMb = latency?.model_artifact_mb;
+  const modelMb =
+    typeof modelArtifactMb === "number"
+      ? modelArtifactMb
+      : modelArtifactMb
+        ? Object.values(modelArtifactMb).reduce((a, b) => a + (b ?? 0), 0)
+        : null;
 
-  const moduleRows = Object.entries(modules).map(([name, v]) => ({
+  const moduleRows = Object.entries(latencyMs).map(([name, v]) => ({
     module: MODULE_LABELS[name] ?? name,
     p50: v.p50,
     p95: v.p95,
     mean: v.mean,
   }));
 
-  const haluriscCost = latency?.cost_per_1000_usd?.halurisc_local;
-  const judgeCost = judge?.cost_per_1000_usd ?? latency?.cost_per_1000_usd?.llm_judge_estimate;
+  const haluriscCost = latency?.cost_per_1000_predictions_usd?.halurisc_local;
+  const judgeCost =
+    judge?.cost_per_1000_usd ?? latency?.cost_per_1000_predictions_usd?.llm_judge_estimate;
 
   return (
     <div className="space-y-6">
@@ -115,7 +122,9 @@ export default function EfficiencyTab() {
           {judge && (
             <p className="text-xs text-muted-foreground">
               Agreement with XGBoost: {fmt(judge.agreement_with_xgboost, 3)}
-              {judge.mcnemar_p != null && ` · McNemar p = ${fmt(judge.mcnemar_p)}`}
+              {(judge.mcnemar_judge_vs_xgboost_p ?? judge.mcnemar_p) != null && (
+                <> · McNemar p = {fmt(judge.mcnemar_judge_vs_xgboost_p ?? judge.mcnemar_p)}</>
+              )}
               {judge.cost_usd != null && ` · judge run cost $${judge.cost_usd.toFixed(4)}`}
             </p>
           )}

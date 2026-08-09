@@ -65,7 +65,7 @@ export function Thread() {
         </div>
       </ThreadPrimitive.Viewport>
 
-      <ComposerPrimitive.Root className="glass-panel flex items-center gap-2 rounded-2xl p-2">
+      <ComposerPrimitive.Root className="glass-panel flex items-center gap-2 rounded-2xl p-2 mb-5">
         <ComposerPrimitive.Input
           autoFocus
           placeholder="Paste question, context, or answer to analyze..."

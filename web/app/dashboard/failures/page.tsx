@@ -106,7 +106,7 @@ export default function FailuresTab() {
               <>
                 <p className="text-xs text-muted-foreground mb-3">
                   {vaErrors.n_false_positives} FP / {vaErrors.n_false_negatives} FN of {vaErrors.n_test} test samples
-                  (sampled {vaErrors.sampled}).
+                  (sampled {vaErrors.sampled?.fp ?? 0} FP / {vaErrors.sampled?.fn ?? 0} FN).
                 </p>
                 <DataTable
                   rowKey={(r) => String(r.category)}

@@ -13,7 +13,15 @@ export function readJson<T>(name: string): T | null {
   const p = path.join(RESULTS_DIR, name);
   if (!fs.existsSync(p)) return null;
   try {
-    return JSON.parse(fs.readFileSync(p, "utf-8")) as T;
+    // Some artifacts were written by Python's json.dumps which emits bare
+    // NaN/Infinity tokens (invalid JSON) for undefined metrics (e.g. AUROC of
+    // the majority baseline). Tolerate them as null.
+    const text = fs
+      .readFileSync(p, "utf-8")
+      .replace(/-Infinity/g, "null")
+      .replace(/\bNaN\b/g, "null")
+      .replace(/\bInfinity\b/g, "null");
+    return JSON.parse(text) as T;
   } catch {
     return null;
   }
@@ -84,20 +92,20 @@ export function readText(name: string): string | null {
 
 export interface B2ModelRow {
   model: string;
-  deterministic: boolean;
-  threshold: number;
-  n_seeds: number;
-  precision_mean: number;
-  recall_mean: number;
-  f1_mean: number;
+  deterministic?: boolean;
+  threshold?: number;
+  n_seeds?: number;
+  precision_mean?: number;
+  recall_mean?: number;
+  f1_mean?: number;
   f1_std?: number;
-  auroc_mean: number;
+  auroc_mean?: number;
   auroc_std?: number;
-  pr_auc_mean: number;
-  mcc_mean: number;
-  ece_mean: number;
-  brier_mean: number;
-  val_f1: number;
+  pr_auc_mean?: number;
+  mcc_mean?: number;
+  ece_mean?: number;
+  brier_mean?: number;
+  val_f1?: number;
 }
 
 export interface B2StatisticalTests {
@@ -325,7 +333,7 @@ export interface ErrorAnalysis {
   n_test: number;
   n_false_positives: number;
   n_false_negatives: number;
-  sampled: number;
+  sampled: { fp: number; fn: number };
   category_counts: {
     false_positive: Record<string, number>;
     false_negative: Record<string, number>;
@@ -334,10 +342,10 @@ export interface ErrorAnalysis {
 
 export interface LatencyAnalysis {
   n_samples?: number;
-  modules?: Record<string, { p50?: number; p95?: number; mean?: number }>;
+  latency_ms?: Record<string, { p50?: number; p95?: number; mean?: number }>;
   total_per_sample_ms?: { p50?: number; p95?: number };
-  model_artifact_mb?: number;
-  cost_per_1000_usd?: Record<string, number>;
+  model_artifact_mb?: Record<string, number> | number;
+  cost_per_1000_predictions_usd?: Record<string, number>;
 }
 
 export interface LlmJudgeResults {
@@ -361,6 +369,7 @@ export interface LlmJudgeResults {
   cost_usd: number;
   cost_per_1000_usd: number;
   mcnemar_p?: number;
+  mcnemar_judge_vs_xgboost_p?: number;
 }
 
 export interface DashboardData {
@@ -401,12 +410,19 @@ export interface DashboardData {
 
 export function loadDashboardData(): DashboardData {
   return {
-    b2: {
-      comparison: readJson<B2ModelRow[]>("b2/b2_model_comparison.json"),
-      statisticalTests: readJson<B2StatisticalTests>("b2/b2_statistical_tests.json"),
-      tuning: readJson<Record<string, B2TuningPerSeed>>("b2/b2_tuning.json"),
-      leakageComparison: readJson("b2/b2_leakage_comparison.json"),
-    },
+  b2: {
+    comparison: (() => {
+      // b2_model_comparison.json is a dict keyed by model name, not a list.
+      const raw = readJson<Record<string, Record<string, number | boolean | string>>>(
+        "b2/b2_model_comparison.json",
+      );
+      if (!raw) return null;
+      return Object.entries(raw).map(([model, v]) => ({ ...(v as unknown as B2ModelRow), model }));
+    })(),
+    statisticalTests: readJson<B2StatisticalTests>("b2/b2_statistical_tests.json"),
+    tuning: readJson<Record<string, B2TuningPerSeed>>("b2/b2_tuning.json"),
+    leakageComparison: readJson("b2/b2_leakage_comparison.json"),
+  },
     b3: {
       datasetMetrics: readJson<B3DatasetMetricsMap>("b3/b3_dataset_metrics.json"),
       transfer: readCsv<B3TransferRow>("b3/b3_transfer_comparison.csv"),
