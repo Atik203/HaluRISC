@@ -155,7 +155,7 @@ def test_passage_per_claim_evidence_isolation():
     ]
 
     class SeqNLI:
-        """Returns the preloaded prob rows per call (quote pass adds a call)."""
+        """Returns the preloaded prob rows per call (sentence-level single pass)."""
 
         def __init__(self, calls):
             self._calls = [np.asarray(p) for p in calls]
@@ -167,11 +167,9 @@ def test_passage_per_claim_evidence_isolation():
             assert len(pairs) == len(probs), (len(pairs), len(probs))
             return probs
 
-    # call 1 (main): C1 vs p1 entail; C2 vs p2 contradiction
-    # call 2 (quote pass for contradicted C2): its one sentence contradicts again
+    # one sentence per passage: C1 vs p1 entail; C2 vs p2 contradiction
     nli = SeqNLI([
         [[0.05, 0.9, 0.05], [0.85, 0.08, 0.07]],
-        [[0.85, 0.08, 0.07]],
     ])
     out = verify_claims_against_passages(claims, passages, nli)
     vs = {c["text"]: c["verdict"] for c in out["claims"]}
@@ -214,27 +212,39 @@ def test_passage_evidence_quote_for_contradicted_claims():
     passages = [[{"id": "p1", "source": "web:https://example.com",
                   "url": "https://example.com", "text": passage_text}]]
 
-    class TwoPassNLI(FakeNLI):
-        """First predict: claim vs full passage -> contradiction.
-        Second predict (quote pass): per-sentence -> sentence 2 contradicts."""
-
-        def __init__(self):
-            super().__init__(np.zeros((0, 3)))
-            self.calls = 0
-
-        def predict(self, pairs, batch_size=64, apply_softmax=True):
-            self.calls += 1
-            if self.calls == 1:
-                # (passage, claim): strong contradiction
-                return np.array([[0.85, 0.08, 0.07]])
-            # quote pass: (sentence, claim) x2 -> first neutral, second contradiction
-            return np.array([[0.05, 0.10, 0.85],
-                             [0.95, 0.02, 0.03]])
-
-    out = verify_claims_against_passages([claim], passages, TwoPassNLI())
+    # sentence-level pass: sentence 1 neutral, sentence 2 contradicts
+    probs = np.array([
+        [0.05, 0.10, 0.85],
+        [0.95, 0.02, 0.03],
+    ])
+    out = verify_claims_against_passages([claim], passages, FakeNLI(probs))
     c = out["claims"][0]
     assert c["verdict"] == "contradicted"
     assert "8 goals" in c["evidence_quote"]
+    assert "8 goals" in c["evidence_sentence"]
+
+
+def test_passage_sentence_level_verdict():
+    """A supporting sentence must not be drowned by a long neutral passage."""
+    claim = "The capital of Bangladesh is Dhaka."
+    passage_text = ("Dhaka is the capital and most populous city of Bangladesh. "
+                    "Its origins trace back to the 1st millennium CE, and it served "
+                    "as the capital of the Bengal Sultanate and the Mughal Empire. "
+                    "As one of the most densely populated cities in the world, Dhaka "
+                    "faces challenges including traffic congestion and flooding.")
+    passages = [[{"id": "p1", "source": "web:https://e.com", "url": "https://e.com",
+                  "text": passage_text}]]
+    # first sentence entails; the others are neutral
+    probs = np.array([
+        [0.001, 0.998, 0.001],
+        [0.05, 0.10, 0.85],
+        [0.05, 0.10, 0.85],
+    ])
+    out = verify_claims_against_passages([claim], passages, FakeNLI(probs))
+    c = out["claims"][0]
+    assert c["verdict"] == "supported"
+    assert c["confidence"] >= 0.99
+    assert c["evidence_source"] == "web:https://e.com"
 
 
 def test_evidence_quote_only_for_contradicted():

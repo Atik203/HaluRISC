@@ -116,61 +116,41 @@ def verify_claims(claims: list, evidence: str, nli_model, batch_size: int = DEFA
     return {"claims": out_claims, "aggregate": _aggregate(out_claims)}
 
 
-def _quote_contradicting_sentences(claims: list, passages_by_claim: list, contradicted: list,
-                                   nli_model, batch_size: int = DEFAULT_BATCH_SIZE) -> dict:
-    """For contradicted claims, find the exact evidence sentence that
-    contradicts the claim (highest contradiction probability). Returns
-    {claim_index: sentence}. Pair order stays (evidence, claim)."""
-    pairs = []
-    meta = []
-    for ci, pi in contradicted:
-        passage = passages_by_claim[ci][pi] if ci < len(passages_by_claim) and pi < len(passages_by_claim[ci]) else None
-        text = (passage or {}).get("text", "")
-        sents = split_sentences(text) or ([text] if text.strip() else [])
-        meta.append((ci, sents))
-        for s in sents:
-            pairs.append((s, claims[ci]))
-    if not pairs:
-        return {}
-    probs = np.asarray(nli_model.predict(pairs, batch_size=batch_size, apply_softmax=True))
-    quotes = {}
-    cursor = 0
-    for ci, sents in meta:
-        block = probs[cursor : cursor + len(sents)]
-        cursor += len(sents)
-        contra = block[:, 0]
-        idx = int(np.argmax(contra))
-        quotes[ci] = sents[idx][:300]
-    return quotes
-
-
 def verify_claims_against_passages(claims: list, passages_by_claim: list, nli_model,
                                    batch_size: int = DEFAULT_BATCH_SIZE) -> dict:
     """Per-claim verification against retrieved passages (Tier 3).
 
-    passages_by_claim[ci] = list of {id, source, url, text} for claims[ci].
-    Each claim is scored only against ITS OWN retrieved passages; the verdict
-    records the driving passage as evidence (source + url = citation). Claims
-    without passages abstain (unsupported, abstained=True).
+    SENTENCE-LEVEL: each passage is split into sentences and every
+    (evidence_sentence, claim) pair is scored; the verdict uses the strongest
+    sentence (max entailment beats contradiction, else contradiction, else
+    unsupported). The driving sentence becomes the evidence/quote, so long
+    passages cannot drown a supporting sentence (fixes 'Dhaka' neutral bug).
+    Claims without passages abstain (unsupported, abstained=True).
     """
     claims = [c for c in claims if c.strip()]
     out_claims = []
     if claims:
-        pairs = []
-        block_sizes = []
+        pairs = []           # (sentence, claim)
+        block_sizes = []     # sentences per claim
+        sent_passage = []    # per (claim, sentence): passage index
         for ci, claim in enumerate(claims):
             ps = passages_by_claim[ci] if ci < len(passages_by_claim) else []
-            block_sizes.append(len(ps))
-            for p in ps:
-                # (premise, hypothesis) = (evidence passage, claim)
-                pairs.append((p.get("text", ""), claim))
+            n = 0
+            for pi, p in enumerate(ps):
+                text = p.get("text", "")
+                sents = split_sentences(text) or ([text] if text.strip() else [])
+                for s in sents:
+                    pairs.append((s, claim))
+                    sent_passage.append((ci, pi))
+                    n += 1
+            block_sizes.append(n)
+
         if pairs:
             probs = np.asarray(nli_model.predict(pairs, batch_size=batch_size, apply_softmax=True))
         else:
             probs = np.empty((0, 3))
 
         cursor = 0
-        contradicted = []
         for ci, claim in enumerate(claims):
             n = block_sizes[ci]
             ps = passages_by_claim[ci] if ci < len(passages_by_claim) else []
@@ -181,26 +161,35 @@ def verify_claims_against_passages(claims: list, passages_by_claim: list, nli_mo
                     "abstained": True,
                 })
                 continue
-            verdict, confidence, idx = _score_claim_blocks(probs[cursor : cursor + n], n)[0]
+            block = probs[cursor : cursor + n]
             cursor += n
-            passage = ps[idx]
-            if verdict == "contradicted":
-                contradicted.append((ci, idx))
-            out_claims.append({
+            contra = block[:, 0]
+            entail = block[:, 1]
+            ent_thr, con_thr = _effective_thresholds()
+            best_ent = int(np.argmax(entail))
+            best_con = int(np.argmax(contra))
+            ent_prob = float(entail[best_ent])
+            con_prob = float(contra[best_con])
+            if ent_prob >= ent_thr and ent_prob >= con_prob:
+                verdict, confidence, sent_idx = "supported", ent_prob, best_ent
+            elif con_prob >= con_thr:
+                verdict, confidence, sent_idx = "contradicted", con_prob, best_con
+            else:
+                verdict, confidence, sent_idx = "unsupported", max(ent_prob, con_prob), best_ent
+
+            _, pi = sent_passage[cursor - n + sent_idx]
+            passage = ps[pi]
+            entry = {
                 "id": ci, "text": claim, "verdict": verdict,
                 "confidence": round(confidence, 4),
-                "evidence_sentence": passage.get("text", ""),
+                "evidence_sentence": pairs[cursor - n + sent_idx][0],
                 "evidence_source": passage.get("source", ""),
                 "evidence_url": passage.get("url", ""),
                 "abstained": False,
-            })
-
-        if contradicted:
-            quotes = _quote_contradicting_sentences(claims, passages_by_claim, contradicted,
-                                                    nli_model, batch_size)
-            for c in out_claims:
-                if c["id"] in quotes:
-                    c["evidence_quote"] = quotes[c["id"]]
+            }
+            if verdict == "contradicted":
+                entry["evidence_quote"] = entry["evidence_sentence"][:300]
+            out_claims.append(entry)
 
     agg = _aggregate(out_claims)
     agg["abstained"] = sum(1 for c in out_claims if c.get("abstained"))
