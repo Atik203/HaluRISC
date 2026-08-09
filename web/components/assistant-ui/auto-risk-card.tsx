@@ -168,11 +168,19 @@ export function AutoRiskCard() {
   const message = useAuiState((s) => s.message);
   const messages = useAuiState((s) => s.thread.messages);
 
-  const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [state, setState] = useState<"idle" | "loading" | "done" | "error" | "timeout">("idle");
   const [result, setResult] = useState<VerifyResult | null>(null);
   const [grounding, setGrounding] = useState<"evidence" | "conversation">("conversation");
   const analyzedRef = useRef<string | null>(null);
   const inputRef = useRef<{ question: string; context: string; answer: string } | null>(null);
+  const unmountedRef = useRef(false);
+
+  useEffect(() => {
+    unmountedRef.current = false;
+    return () => {
+      unmountedRef.current = true; // only unmount cancels; store updates must not
+    };
+  }, []);
 
   const text = extractText(message);
   const isComplete = message?.status?.type === "complete";
@@ -196,11 +204,10 @@ export function AutoRiskCard() {
 
     analyzedRef.current = key; // guard refires while the request is in flight
     inputRef.current = { question: input.question, context: input.context, answer: input.answer };
-    let cancelled = false;
 
     (async () => {
       await Promise.resolve(); // defer setState out of the effect (no cascading renders)
-      if (cancelled) return;
+      if (unmountedRef.current) return;
       setGrounding(input.grounding);
       setState("loading");
       const payload = JSON.stringify({
@@ -209,6 +216,8 @@ export function AutoRiskCard() {
         answer: input.answer,
         evidence_mode: hasDocuments || webEnabled ? "auto" : "context",
       });
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 120_000); // hang -> error card
       try {
         // Tier 2 first: claim-level verification (includes the prediction).
         // Falls back to the Tier-1 combined analyze when unavailable.
@@ -216,12 +225,14 @@ export function AutoRiskCard() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: payload,
+          signal: controller.signal,
         });
         if (!res.ok) {
           res = await fetch("/api/ml/analyze", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: payload,
+            signal: controller.signal,
           });
         }
         if (!res.ok) {
@@ -229,17 +240,16 @@ export function AutoRiskCard() {
           throw new Error(detail || `ML backend error (${res.status})`);
         }
         const data = (await res.json()) as VerifyResult;
-        if (cancelled) return;
+        clearTimeout(timeout);
+        if (unmountedRef.current) return;
         setResult(data);
         setState("done");
-      } catch {
-        if (!cancelled) setState("error");
+      } catch (err) {
+        clearTimeout(timeout);
+        if (unmountedRef.current) return;
+        setState(err instanceof DOMException && err.name === "AbortError" ? "timeout" : "error");
       }
     })();
-
-    return () => {
-      cancelled = true;
-    };
   }, [enabled, isComplete, message?.id, message?.role, text, messages, sessionContext]);
 
   if (!enabled) return null;
@@ -250,6 +260,15 @@ export function AutoRiskCard() {
       <div className="mt-3 flex items-center gap-3 rounded-xl border border-border/60 bg-secondary/30 px-4 py-3 text-xs text-muted-foreground">
         <Loader2 className="w-4 h-4 animate-spin text-violet-500" aria-hidden />
         Checking hallucination risk…
+      </div>
+    );
+  }
+
+  if (state === "timeout") {
+    return (
+      <div className="mt-3 flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-2.5 text-[11px] text-amber-700 dark:text-amber-400" role="status">
+        <AlertTriangle className="w-4 h-4" aria-hidden />
+        Risk check timed out — is the ML backend running (uvicorn on port 8000)? /analyze and /demo still work.
       </div>
     );
   }
