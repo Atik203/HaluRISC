@@ -57,3 +57,19 @@ def test_explain_503_without_artifacts(client, monkeypatch):
     monkeypatch.setattr(api, "STATE", {"model": None, "explainer": None, "feature_models": None, "feature_cols": None, "params": None})
     r = client.post("/explain", json={"question": "q", "context": "c", "answer": "a"})
     assert r.status_code == 503
+
+
+def test_meta_contract(client, monkeypatch):
+    """B7 additive /meta endpoint: thresholds, warning, groups, versions."""
+    monkeypatch.setattr(api, "STATE", {"model": "m", "explainer": None, "feature_models": None,
+                                       "feature_cols": ["a", "b"], "params": None})
+    r = client.get("/meta")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["model_version"] == "xgboost-v1.0"
+    assert body["feature_version"] == "course-v1.0"
+    assert body["n_features"] == 2
+    assert body["thresholds"] == {"low": 0.30, "medium": 0.70, "high": 1.0}
+    assert "warning" in body and "device" in body
+    assert body["features_available"] is True
+    assert body["feature_groups"] is not None and "length" in body["feature_groups"]

@@ -18,11 +18,13 @@ Run (repo root, .venv):
   python -m uvicorn src.api.main:app --port 8000
 """
 
+import hashlib
 import json
 import logging
 import os
 import threading
 import time
+from collections import OrderedDict
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -54,6 +56,9 @@ MAX_CONTEXT_CHARS = 20000
 MODEL_VERSION = "xgboost-v1.0"
 FEATURE_VERSION = "course-v1.0"
 
+THRESHOLDS = {"low": 0.30, "medium": 0.70, "high": 1.0}
+WARNING = "Trained on HaluEval synthetic data. Results may not generalize to real-world LLM outputs."
+
 # Heavy models (spaCy + NLI + SBERT) are preloaded at startup and loaded lazily
 # on first request only if startup failed. The lock prevents concurrent
 # double-loading, which previously caused memory spikes and process exits.
@@ -63,6 +68,12 @@ FEATURE_MODEL_LOAD_LOCK = threading.Lock()
 # from uvicorn's threadpool crashed the process (silent exit). All GPU feature
 # extraction is serialized through this lock.
 INFERENCE_LOCK = threading.Lock()
+
+# Feature-vector LRU cache (roadmap B7.11: feature-result caching). Feature
+# extraction is the slow part (NLI/embeddings); predicting/explaining the same
+# inputs twice skips it. 256 entries of 26 floats is negligible memory.
+FEATURE_CACHE: "OrderedDict[str, Dict[str, float]]" = OrderedDict()
+FEATURE_CACHE_MAX = 256
 
 STATE = {"model": None, "explainer": None, "feature_models": None, "feature_cols": None, "params": None}
 
@@ -230,16 +241,28 @@ app.add_middleware(
 def _feature_vector(req: AnalysisRequest) -> Dict[str, float]:
     from src.features.extract_features import extract_all_features_single
 
-    try:
-        models = load_feature_models()
-    except Exception as e:
-        raise HTTPException(status_code=503, detail=f"Feature models unavailable: {e}")
+    key = hashlib.sha256(
+        f"{req.question}\x1f{req.context}\x1f{req.answer}".encode("utf-8")
+    ).hexdigest()
+
     with INFERENCE_LOCK:
+        cached = FEATURE_CACHE.get(key)
+        if cached is not None:
+            FEATURE_CACHE.move_to_end(key)
+            return cached
+        try:
+            models = load_feature_models()
+        except Exception as e:
+            raise HTTPException(status_code=503, detail=f"Feature models unavailable: {e}")
         feats = extract_all_features_single(req.question or "", req.context or "", req.answer, models)
-    missing = [c for c in STATE["feature_cols"] if c not in feats]
-    if missing:
-        raise HTTPException(status_code=500, detail=f"Feature extractor missing columns: {missing}")
-    return feats
+        missing = [c for c in STATE["feature_cols"] if c not in feats]
+        if missing:
+            raise HTTPException(status_code=500, detail=f"Feature extractor missing columns: {missing}")
+        FEATURE_CACHE[key] = feats
+        FEATURE_CACHE.move_to_end(key)
+        if len(FEATURE_CACHE) > FEATURE_CACHE_MAX:
+            FEATURE_CACHE.popitem(last=False)
+        return feats
 
 
 def _risk_label(p: float) -> str:
@@ -264,6 +287,47 @@ def health_check():
         "feature_models_ready": STATE["feature_models"] is not None,
         "explainer_ready": STATE["explainer"] is not None,
         "n_features": len(STATE["feature_cols"]) if STATE["feature_cols"] else 0,
+        "device": _active_device(),
+    }
+
+
+def _active_device() -> str:
+    """Resolved inference device: 'cuda' only when requested AND available."""
+    if os.environ.get("HALU_API_DEVICE", "cpu").lower() == "cuda":
+        try:
+            import torch
+
+            if torch.cuda.is_available():
+                return "cuda"
+        except Exception:
+            pass
+    return "cpu"
+
+
+@app.get("/meta")
+def api_meta():
+    """Frontend metadata (B7): thresholds, warning, feature groups, versions.
+
+    Additive endpoint; the /predict and /explain contracts are unchanged.
+    The frontend uses this to render thresholds/warning/grouped features
+    without hardcoding them.
+    """
+    feature_groups = None
+    try:
+        from src.models.train_pipeline import FEATURE_GROUPS
+
+        feature_groups = FEATURE_GROUPS
+    except Exception:
+        pass
+    return {
+        "model_version": MODEL_VERSION,
+        "feature_version": FEATURE_VERSION,
+        "n_features": len(STATE["feature_cols"]) if STATE["feature_cols"] else 0,
+        "thresholds": THRESHOLDS,
+        "warning": WARNING,
+        "device": _active_device(),
+        "feature_groups": feature_groups,
+        "features_available": STATE["model"] is not None,
     }
 
 
@@ -281,18 +345,17 @@ def predict_risk(req: AnalysisRequest):
     p = float(STATE["model"]["predict_proba"](X)[0, 1])
     p = min(0.999, max(0.001, p))
 
-    thresholds = {"low": 0.30, "medium": 0.70, "high": 1.0}
     latency = round((time.time() - t0) * 1000, 2)
 
     return PredictionResponse(
         risk_score=round(p, 4),
         calibrated_score=round(p, 4),
         label=_risk_label(p),
-        thresholds=thresholds,
+        thresholds=THRESHOLDS,
         latency_ms=latency,
         model_version=MODEL_VERSION,
         feature_version=FEATURE_VERSION,
-        warning="Trained on HaluEval synthetic data. Results may not generalize to real-world LLM outputs.",
+        warning=WARNING,
         features={k: float(v) for k, v in feats.items()},
     )
 
