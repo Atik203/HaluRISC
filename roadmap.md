@@ -591,6 +591,53 @@ Environment: local RTX 3060 laptop, 32 GB RAM.
 
 Exit condition: a presenter can explain the method, run a live example, show a real failure, open robustness/calibration evidence, and recover if the network or LLM API is unavailable.
 
+### B7.5 — Conversational auto-analysis (Tiers 1–4)
+
+Vision: chat normally (ChatGPT/Claude-style); after every assistant answer, a
+non-intrusive hallucination-risk card renders automatically; user can toggle it
+off at any time.
+
+**Tier 1 — Auto-analysis cards (conversational UX foundation)**
+- Every completed assistant message gets an automatic risk card (gauge, calibrated
+  score, label, top-3 SHAP, grounding note, expandable details); no LLM tool-calling,
+  no extra tokens; analysis runs after streaming completes (feature LRU cache keeps
+  repeats near-instant).
+- Two grounding modes: (a) user-pasted "Evidence context" panel — answers checked
+  against it (RAG-style, matches the model's training distribution); (b) conversation-only
+  fallback with an explicit card note "no external grounding — consistency vs conversation".
+- Master toggle in the chat header; offline/error states never break the chat.
+- Additive `POST /api/ml/analyze` (predict + explain in one call).
+
+**Tier 2 — Claim-level verification (no retraining; NLI-based)**
+- Decompose each answer into atomic claims (deterministic sentence/clause splitter,
+  no LLM dependency in the core path).
+- Per-claim 3-way verdict — `supported` / `contradicted` / `unsupported (no evidence)` —
+  from the existing NLI cross-encoder against the grounding passages (batched).
+- Card shows per-claim verdict chips + overall calibrated score as a labelled secondary
+  signal; expandable evidence per claim.
+- Evaluated against a human-annotated claim set (reuse the B5.5 reviewer workflow):
+  precision/recall of flagged claims, agreement stats — no fixed pass thresholds.
+
+**Tier 3 — Real retrieval (evidence acquisition)**
+- Auto web search (Tavily/SerpAPI/Bing) and/or uploaded documents (PDF/DOCX/TXT →
+  chunk → SBERT embeddings → FAISS vector store) to fetch evidence for the question.
+- BM25 → cross-encoder rerank; per-claim evidence windows (respects 20k limits);
+  citations map each verdict to the exact source passage/URL.
+- Query reformulation; abstain (no verdict) when evidence is insufficient.
+
+**Tier 4 — Production hardening**
+- Hybrid routing: cheap ML/NLI first; LLM-as-judge (`/judge`) only on borderline claims.
+- Feedback loop (👍/👎 per verdict) → labeled data → periodic retraining via `run_all`.
+- Evals harness per tier (precision/recall vs human labels); rate limits, redaction,
+  honesty layer (evidence basis always shown).
+
+Scientific note: B3 shows the HaluEval-trained XGBoost transfers weakly (AUROC ≈ 0.54
+zero-shot) — Tiers 2–4 therefore rely on the NLI verifier + retrieval as the primary
+claim judge, keeping the calibrated XGBoost as a labelled secondary signal.
+
+Exit condition (Tier 2): user chats normally, every answer shows per-claim verdicts with
+evidence basis, toggle works, and claim-level precision/recall vs human review is reported.
+
 ### B8 — Manuscript and delivery
 
 Environment: local machine and manual team work.

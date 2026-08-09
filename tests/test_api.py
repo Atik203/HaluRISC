@@ -4,6 +4,7 @@ import os
 import sys
 from pathlib import Path
 
+import numpy as np
 import pytest
 from fastapi.testclient import TestClient
 
@@ -73,3 +74,45 @@ def test_meta_contract(client, monkeypatch):
     assert "warning" in body and "device" in body
     assert body["features_available"] is True
     assert body["feature_groups"] is not None and "length" in body["feature_groups"]
+
+
+def test_analyze_combined_contract(client, monkeypatch):
+    """B7.5 Tier 1: /analyze returns prediction + explanation in one call."""
+    class FakeExplainer:
+        expected_value = 0.5
+
+        def shap_values(self, X):
+            return np.array([[0.3, -0.1]])
+
+    monkeypatch.setattr(api, "STATE", {
+        "model": {"raw": object(), "predict_proba": lambda X: np.array([[0.38, 0.62]])},
+        "explainer": FakeExplainer(),
+        "feature_models": object(),
+        "feature_cols": ["a", "b"],
+        "params": {},
+    })
+    monkeypatch.setattr(api, "_feature_vector", lambda req: {"a": 1.0, "b": 0.0})
+    r = client.post("/analyze", json={"question": "q", "context": "c", "answer": "a"})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["prediction"]["calibrated_score"] == 0.62
+    assert body["prediction"]["features"]["a"] == 1.0
+    assert body["explanation"]["top_features"][0]["feature"] == "a"
+    assert body["explanation"]["base_value"] == 0.5
+
+
+def test_analyze_degrades_when_explainer_missing(client, monkeypatch):
+    """/analyze still returns the prediction when the explainer is unavailable."""
+    monkeypatch.setattr(api, "STATE", {
+        "model": {"raw": object(), "predict_proba": lambda X: np.array([[0.6, 0.4]])},
+        "explainer": None,
+        "feature_models": object(),
+        "feature_cols": ["a", "b"],
+        "params": {},
+    })
+    monkeypatch.setattr(api, "_feature_vector", lambda req: {"a": 1.0, "b": 0.0})
+    r = client.post("/analyze", json={"question": "q", "context": "c", "answer": "a"})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["prediction"]["calibrated_score"] == 0.4
+    assert body["explanation"] is None

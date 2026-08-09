@@ -7,6 +7,7 @@ import {
   ThreadPrimitive,
 } from "@assistant-ui/react";
 import { MarkdownText } from "@/components/assistant-ui/markdown-text";
+import { AutoRiskCard } from "@/components/assistant-ui/auto-risk-card";
 
 function UserMessage() {
   return (
@@ -29,6 +30,7 @@ function AssistantMessage() {
       </div>
       <div className="max-w-3xl min-w-0 w-full space-y-3 rounded-2xl rounded-tl-none border border-border bg-secondary/80 px-4 py-3 text-sm">
         <MessagePrimitive.Content components={{ Text: MarkdownText }} />
+        <AutoRiskCard />
       </div>
     </div>
   );

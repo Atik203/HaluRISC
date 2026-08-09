@@ -117,6 +117,12 @@ class ExplanationResponse(BaseModel):
     base_value: float
 
 
+class AnalyzeResponse(BaseModel):
+    """B7.5 Tier 1: combined predict + explain for auto-analysis cards."""
+    prediction: PredictionResponse
+    explanation: Optional[ExplanationResponse] = None
+
+
 class JudgeRequest(BaseModel):
     question: str = ""
     context: Optional[str] = ""
@@ -406,6 +412,25 @@ def explain_risk(req: AnalysisRequest):
         for i in order
     ]
     return ExplanationResponse(top_features=top_features, base_value=round(base_value, 6))
+
+
+@app.post("/analyze", response_model=AnalyzeResponse)
+def analyze_risk(req: AnalysisRequest):
+    """Combined predict + explain (additive; B7.5 Tier 1 auto-analysis cards).
+
+    The feature vector is computed once (LRU-cached), so this is one extraction
+    + one prediction + one SHAP pass. Explanations degrade gracefully to null
+    when the SHAP explainer is unavailable.
+    """
+    prediction = predict_risk(req)
+    try:
+        explanation = explain_risk(req)
+    except HTTPException as e:
+        if e.status_code == 503:
+            explanation = None
+        else:
+            raise
+    return AnalyzeResponse(prediction=prediction, explanation=explanation)
 
 
 @app.post("/judge", response_model=JudgeResponse)

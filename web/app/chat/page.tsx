@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { AssistantRuntimeProvider } from "@assistant-ui/react";
 import { useChatRuntime } from "@assistant-ui/react-ai-sdk";
-import { Sparkles } from "lucide-react";
+import { FileText, Sparkles, X } from "lucide-react";
 import { Thread } from "@/components/assistant-ui/thread";
 import { MlStatus } from "@/components/ml-status";
+import { AutoAnalysisProvider } from "@/components/assistant-ui/auto-analysis-context";
+import { CONTEXT_MAX } from "@/lib/analysis-input";
 
 const SUGGESTIONS = [
   {
@@ -34,6 +37,8 @@ const SUGGESTIONS = [
 
 export default function ChatPage() {
   const runtime = useChatRuntime({ suggestions: SUGGESTIONS });
+  const [evidence, setEvidence] = useState("");
+  const [autoEnabled, setAutoEnabled] = useState(true);
 
   return (
     <div className="flex flex-col h-[calc(100vh-6rem)] gap-4">
@@ -43,14 +48,59 @@ export default function ChatPage() {
             <Sparkles className="w-5 h-5 text-violet-600 dark:text-purple-400" /> 💬 Chat Mode — Conversational AI Risk Analyst
           </h1>
           <p className="text-xs text-muted-foreground">
-            Streaming via /api/chat (Vercel AI SDK); risk tool runs the calibrated XGBoost backend
+            Streaming via /api/chat (Vercel AI SDK); every answer is auto-checked by the calibrated XGBoost backend
           </p>
         </div>
         <MlStatus />
       </div>
 
+      {/* Evidence context + auto-analysis controls */}
+      <div className="glass-panel rounded-2xl p-3 space-y-2">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={autoEnabled}
+              onChange={(e) => setAutoEnabled(e.target.checked)}
+              className="accent-violet-600 w-4 h-4"
+            />
+            Auto risk check (per answer)
+          </label>
+          <span className="text-[10px] text-muted-foreground font-mono">
+            {evidence ? `${evidence.length.toLocaleString()} / ${CONTEXT_MAX.toLocaleString()} chars` : "no evidence set — conversation-only grounding"}
+          </span>
+        </div>
+        <details className="group">
+          <summary className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-muted-foreground hover:text-foreground">
+            <FileText className="w-4 h-4 text-violet-600 dark:text-purple-400" aria-hidden />
+            Evidence context (optional) — answers are checked against this
+          </summary>
+          <div className="mt-2 flex flex-col sm:flex-row gap-2">
+            <textarea
+              value={evidence}
+              onChange={(e) => setEvidence(e.target.value.slice(0, CONTEXT_MAX))}
+              placeholder="Paste a document, article, or reference material once — then just chat. Every answer is automatically scored against this evidence."
+              rows={3}
+              className="flex-1 bg-secondary/50 border border-border rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setEvidence("")}
+                aria-label="Clear evidence context"
+                className="text-xs font-semibold bg-secondary/80 hover:bg-secondary border border-border px-3 py-2 rounded-xl transition-all inline-flex items-center gap-1"
+              >
+                <X className="w-3.5 h-3.5" aria-hidden /> Clear
+              </button>
+            </div>
+          </div>
+        </details>
+      </div>
+
       <AssistantRuntimeProvider runtime={runtime}>
-        <Thread />
+        <AutoAnalysisProvider config={{ enabled: autoEnabled, sessionContext: evidence.trim() || null }}>
+          <Thread />
+        </AutoAnalysisProvider>
       </AssistantRuntimeProvider>
 
       <p className="text-[10px] text-muted-foreground text-center">

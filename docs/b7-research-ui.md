@@ -82,6 +82,28 @@ evidence, and transfer figures.
 - Theme: dark-first, blue-violet accents; `glass-panel` / `gradient-text`
   utilities in `app/globals.css`.
 
+## Chat auto-analysis (B7.5 Tier 1)
+
+Chat works like a normal LLM conversation — **no pasting question/context/answer**.
+When auto-analysis is enabled (default), every completed assistant answer gets an
+automatic **risk card** below it:
+
+- compact gauge + calibrated score + label + top-3 SHAP features
+- grounding note: `Evidence: pasted context` **or** `conversation only — not
+  externally grounded` (honest about the difference)
+- expandable details: all feature values, model/feature version, latency
+- the master toggle in the chat header disables cards entirely; the optional
+  "Evidence context" panel lets you paste a document once so answers are checked
+  against it (RAG-style, matching the model's training distribution)
+
+Inputs are assembled client-side (`web/lib/analysis-input.ts`): question = last
+user message; context = evidence panel or the last few conversation turns;
+answer = the completed assistant message. The combined additive endpoint
+`POST /api/ml/analyze` (predict + explain in one call, one feature extraction)
+serves the cards; the LRU feature cache makes repeats near-instant. No LLM
+tool-calling and no extra tokens are involved — analysis runs after streaming
+completes, so the chat never waits for it.
+
 ## Deployment notes
 
 - Backend container: see `docs/b6-reproducibility.md` §3 (CPU Dockerfile).
