@@ -145,6 +145,118 @@ def test_verify_400_on_empty_claims(client, monkeypatch):
     assert r.status_code == 400
 
 
+class FakeIndex:
+    """Stub RetrievalIndex for T3 endpoint tests."""
+
+    def __init__(self, passages=None):
+        self._passages = passages or []
+
+    def status(self):
+        return {"n_passages": len(self._passages), "n_documents": 1, "dim": 4,
+                "index_dir": "/tmp/fake"}
+
+    def search(self, query, top_k=5, rerank_fn=None):
+        return self._passages[:top_k]
+
+    def add_documents(self, documents):
+        return [{"source": d["source"], "chunks": 1, "added": 1} for d in documents]
+
+    def clear(self):
+        self._passages = []
+
+
+class _FakeNli:
+    def predict(self, pairs, batch_size=64, apply_softmax=True):
+        return np.tile([0.05, 0.9, 0.05], (len(pairs), 1))
+
+
+def _state_with_nli():
+    return {
+        "model": {"raw": object(), "predict_proba": lambda X: np.array([[0.38, 0.62]])},
+        "explainer": None, "feature_models": {"nli": _FakeNli()},
+        "feature_cols": ["a", "b"], "params": {},
+    }
+
+
+def test_index_endpoints(client, monkeypatch, tmp_path):
+    monkeypatch.setattr(api, "get_retrieval_index", lambda: FakeIndex())
+    monkeypatch.setattr(api, "_embed_texts", lambda texts: np.zeros((len(texts), 4), dtype="float32"))
+
+    r = client.get("/index")
+    assert r.status_code == 200 and r.json()["n_passages"] == 0
+
+    r = client.post("/index", files=[("files", ("note.txt", b"Paris is the capital of France.", "text/plain"))])
+    assert r.status_code == 200
+    assert r.json()["indexed"][0]["added"] == 1
+
+    r = client.delete("/index")
+    assert r.status_code == 200 and r.json()["cleared"] is True
+
+
+def test_retrieve_endpoint(client, monkeypatch):
+    monkeypatch.setattr(api, "get_retrieval_index", lambda: FakeIndex([{
+        "id": "p1", "source": "doc:note.txt", "url": "", "text": "Paris is the capital of France.", "score": 0.9,
+    }]))
+    monkeypatch.setattr(api, "_maybe_rerank", lambda q, c, k: c[:k])
+    r = client.post("/retrieve", json={"query": "capital of France", "top_k": 3})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["evidence_mode"] == "index"
+    assert body["passages"][0]["source"] == "doc:note.txt"
+
+
+def test_verify_evidence_mode_index_with_citations(client, monkeypatch):
+    monkeypatch.setattr(api, "STATE", _state_with_nli())
+    monkeypatch.setattr(api, "_feature_vector", lambda req: {"a": 1.0, "b": 0.0})
+    monkeypatch.setattr(api, "get_retrieval_index", lambda: FakeIndex([{
+        "id": "p1", "source": "web:https://example.com/france", "url": "https://example.com/france",
+        "text": "Paris is the capital of France.", "score": 0.9,
+    }]))
+    monkeypatch.setattr(api, "_maybe_rerank", lambda q, c, k: c[:k])
+
+    r = client.post("/verify", json={
+        "question": "q", "context": "c",
+        "answer": "Paris is the capital of France.",
+        "evidence_mode": "index",
+    })
+    assert r.status_code == 200
+    body = r.json()
+    assert body["aggregate"]["evidence_mode"] == "index"
+    assert body["claims"][0]["evidence_source"] == "web:https://example.com/france"
+    assert body["claims"][0]["evidence_url"] == "https://example.com/france"
+    assert body["claims"][0]["abstained"] is False
+
+
+def test_verify_abstains_in_index_mode_when_empty(client, monkeypatch):
+    monkeypatch.setattr(api, "STATE", _state_with_nli())
+    monkeypatch.setattr(api, "_feature_vector", lambda req: {"a": 1.0, "b": 0.0})
+    monkeypatch.setattr(api, "get_retrieval_index", lambda: FakeIndex([]))
+    r = client.post("/verify", json={
+        "question": "q", "context": "c",
+        "answer": "Paris is the capital of France.",
+        "evidence_mode": "index",
+    })
+    assert r.status_code == 200
+    body = r.json()
+    assert body["claims"][0]["abstained"] is True
+    assert body["aggregate"]["abstained"] == 1
+
+
+def test_verify_auto_falls_back_to_context_without_index_or_web(client, monkeypatch):
+    monkeypatch.setattr(api, "STATE", _state_with_nli())
+    monkeypatch.setattr(api, "_feature_vector", lambda req: {"a": 1.0, "b": 0.0})
+    monkeypatch.setattr(api, "get_retrieval_index", lambda: FakeIndex([]))
+    monkeypatch.setattr(api, "get_web_search", lambda: type("W", (), {"enabled": False, "search": lambda q: []})())
+    r = client.post("/verify", json={
+        "question": "q", "context": "Paris is the capital of France.",
+        "answer": "Paris is the capital of France.",
+    })
+    assert r.status_code == 200
+    body = r.json()
+    assert body["aggregate"]["evidence_mode"] == "context"
+    assert body["claims"][0]["evidence_source"] == "context"
+
+
 def test_analyze_degrades_when_explainer_missing(client, monkeypatch):
     """/analyze still returns the prediction when the explainer is unavailable."""
     monkeypatch.setattr(api, "STATE", {

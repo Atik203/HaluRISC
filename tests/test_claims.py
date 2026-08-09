@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from src.claims.decompose import split_claims, split_sentences  # noqa: E402
-from src.claims.verify import verify_claims  # noqa: E402
+from src.claims.verify import verify_claims, verify_claims_against_passages  # noqa: E402
 
 
 class FakeNLI:
@@ -118,3 +118,74 @@ def test_verify_empty_evidence():
     probs = np.array([[0.05, 0.10, 0.85]])
     out = verify_claims(claims, "", FakeNLI(probs))
     assert out["claims"][0]["verdict"] == "unsupported"
+
+# ---- passage-based verification (Tier 3) ----
+
+def test_passage_verdict_with_citation():
+    claims = ["Paris is the capital of France."]
+    passages = [[{
+        "id": "p1", "source": "web:https://example.com/france",
+        "url": "https://example.com/france",
+        "text": "Paris is the capital of France.",
+    }]]
+    probs = np.array([[0.05, 0.92, 0.03]])
+    out = verify_claims_against_passages(claims, passages, FakeNLI(probs))
+    c = out["claims"][0]
+    assert c["verdict"] == "supported"
+    assert c["evidence_source"] == "web:https://example.com/france"
+    assert c["evidence_url"] == "https://example.com/france"
+    assert c["abstained"] is False
+    assert out["aggregate"]["abstained"] == 0
+
+
+def test_passage_abstention_when_no_evidence():
+    claims = ["Paris is the capital of France."]
+    out = verify_claims_against_passages(claims, [[]], FakeNLI(np.empty((0, 3))))
+    c = out["claims"][0]
+    assert c["verdict"] == "unsupported"
+    assert c["abstained"] is True
+    assert out["aggregate"]["abstained"] == 1
+
+
+def test_passage_per_claim_evidence_isolation():
+    claims = ["C1 about Paris.", "C2 about bananas."]
+    passages = [
+        [{"id": "p1", "source": "doc:a", "url": "", "text": "Paris is the capital of France."}],
+        [{"id": "p2", "source": "doc:b", "url": "", "text": "Bananas are yellow."}],
+    ]
+    # C1 vs p1: entail; C2 vs p2: contradiction
+    probs = np.array([
+        [0.05, 0.9, 0.05],
+        [0.85, 0.08, 0.07],
+    ])
+    out = verify_claims_against_passages(claims, passages, FakeNLI(probs))
+    vs = {c["text"]: c["verdict"] for c in out["claims"]}
+    assert vs[claims[0]] == "supported"
+    assert vs[claims[1]] == "contradicted"
+
+
+class OrderCheckingNLI(FakeNLI):
+    """Records the pair order; returns entailment only for (evidence, claim)."""
+
+    def __init__(self):
+        super().__init__(np.zeros((0, 3)))
+        self.pairs = []
+
+    def predict(self, pairs, batch_size=64, apply_softmax=True):
+        self.pairs = list(pairs)
+        return np.tile([0.05, 0.9, 0.05], (len(pairs), 1))
+
+
+def test_nli_pair_order_is_evidence_then_claim():
+    """CrossEncoder NLI expects (premise, hypothesis) = (evidence, claim)."""
+    claim = "The capital of France is Paris."
+    evidence = "Paris is the capital of France."
+
+    nli = OrderCheckingNLI()
+    verify_claims([claim], evidence, nli)
+    assert nli.pairs == [(evidence, claim)], f"wrong pair order: {nli.pairs}"
+
+    nli2 = OrderCheckingNLI()
+    verify_claims_against_passages(
+        [claim], [[{"id": "p1", "source": "doc:a", "url": "", "text": evidence}]], nli2)
+    assert nli2.pairs == [(evidence, claim)]

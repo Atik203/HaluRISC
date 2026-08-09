@@ -6,6 +6,7 @@ import {
   AlertTriangle,
   ChevronDown,
   FileText,
+  Globe,
   Loader2,
   MessagesSquare,
   ShieldCheck,
@@ -40,6 +41,9 @@ interface ClaimVerdict {
   verdict: "supported" | "contradicted" | "unsupported";
   confidence: number;
   evidence_sentence: string;
+  evidence_source?: string;
+  evidence_url?: string;
+  abstained?: boolean;
 }
 
 interface VerifyResult extends AnalyzeResult {
@@ -50,6 +54,8 @@ interface VerifyResult extends AnalyzeResult {
     contradicted: number;
     unsupported: number;
     overall: string;
+    abstained?: number;
+    evidence_mode?: string;
   };
 }
 
@@ -103,7 +109,7 @@ function turnFromMessage(m: {
  *   conversation, answer = this message. Toggle-off and skip rules respected.
  */
 export function AutoRiskCard() {
-  const { enabled, sessionContext } = useAutoAnalysis();
+  const { enabled, sessionContext, webEnabled, hasDocuments } = useAutoAnalysis();
   const message = useAuiState((s) => s.message);
   const messages = useAuiState((s) => s.thread.messages);
 
@@ -144,6 +150,7 @@ export function AutoRiskCard() {
         question: input.question,
         context: input.context,
         answer: input.answer,
+        evidence_mode: hasDocuments || webEnabled ? "auto" : "context",
       });
       try {
         // Tier 2 first: claim-level verification (includes the prediction).
@@ -230,17 +237,39 @@ export function AutoRiskCard() {
         </div>
 
         <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-          {grounding === "evidence" ? (
-            <>
-              <FileText className="w-3.5 h-3.5" aria-hidden />
-              Evidence: checked against your pasted context
-            </>
-          ) : (
-            <>
-              <MessagesSquare className="w-3.5 h-3.5" aria-hidden />
-              Conversation only — no external grounding; scores reflect answer-vs-conversation consistency
-            </>
-          )}
+          {(() => {
+            const mode = agg?.evidence_mode ?? (grounding === "evidence" ? "context" : "conversation");
+            if (mode === "index") {
+              return (
+                <>
+                  <FileText className="w-3.5 h-3.5" aria-hidden />
+                  Evidence: your uploaded documents (cited per claim)
+                </>
+              );
+            }
+            if (mode === "web") {
+              return (
+                <>
+                  <Globe className="w-3.5 h-3.5" aria-hidden />
+                  Evidence: live web search (cited per claim)
+                </>
+              );
+            }
+            if (mode === "context" || grounding === "evidence") {
+              return (
+                <>
+                  <FileText className="w-3.5 h-3.5" aria-hidden />
+                  Evidence: checked against your pasted context
+                </>
+              );
+            }
+            return (
+              <>
+                <MessagesSquare className="w-3.5 h-3.5" aria-hidden />
+                Conversation only — no external grounding; scores reflect answer-vs-conversation consistency
+              </>
+            );
+          })()}
         </div>
 
         {claims.length > 0 && agg && (
@@ -250,6 +279,11 @@ export function AutoRiskCard() {
               <span className={`px-2 py-0.5 rounded-full border font-mono ${CLAIM_TONE.supported}`}>{agg.supported} supported</span>
               <span className={`px-2 py-0.5 rounded-full border font-mono ${CLAIM_TONE.contradicted}`}>{agg.contradicted} contradicted</span>
               <span className={`px-2 py-0.5 rounded-full border font-mono ${CLAIM_TONE.unsupported}`}>{agg.unsupported} unsupported</span>
+              {(agg.abstained ?? 0) > 0 && (
+                <span className="px-2 py-0.5 rounded-full border border-border bg-secondary/40 font-mono text-muted-foreground">
+                  {agg.abstained} abstained (no evidence)
+                </span>
+              )}
             </div>
             <ul className="space-y-1.5">
               {claims.map((c) => (
@@ -258,10 +292,28 @@ export function AutoRiskCard() {
                     {c.verdict}
                   </span>
                   <span className="text-foreground/90">{c.text}</span>
-                  {c.evidence_sentence && (
-                    <p className="mt-0.5 pl-1 text-[10px] text-muted-foreground italic">
-                      evidence: {c.evidence_sentence.length > 140 ? `${c.evidence_sentence.slice(0, 140)}…` : c.evidence_sentence}
+                  {c.abstained ? (
+                    <p className="mt-0.5 pl-1 text-[10px] text-amber-600/90 dark:text-amber-400/90">
+                      no evidence retrieved — abstained
                     </p>
+                  ) : (
+                    c.evidence_sentence && (
+                      <p className="mt-0.5 pl-1 text-[10px] text-muted-foreground italic">
+                        evidence: {c.evidence_sentence.length > 140 ? `${c.evidence_sentence.slice(0, 140)}…` : c.evidence_sentence}
+                        {c.evidence_source?.startsWith("web:") && c.evidence_url ? (
+                          <a
+                            href={c.evidence_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="ml-1.5 inline-flex items-center gap-0.5 text-violet-600 dark:text-purple-400 not-italic underline"
+                          >
+                            <Globe className="w-3 h-3" aria-hidden /> source
+                          </a>
+                        ) : c.evidence_source?.startsWith("doc:") ? (
+                          <span className="ml-1.5 not-italic text-muted-foreground/80">· {c.evidence_source.replace("doc:", "")}</span>
+                        ) : null}
+                      </p>
+                    )
                   )}
                 </li>
               ))}

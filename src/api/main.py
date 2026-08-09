@@ -27,12 +27,12 @@ import time
 from collections import OrderedDict
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Literal, Optional
 
 import numpy as np
 import pandas as pd
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -83,6 +83,55 @@ FEATURE_CACHE_MAX = 256
 
 STATE = {"model": None, "explainer": None, "feature_models": None, "feature_cols": None, "params": None}
 
+# T3: lazy retrieval singletons (document index + Tavily web search).
+RETRIEVAL_LOCK = threading.Lock()
+RETRIEVAL_INDEX = None
+WEB_SEARCH = None
+MAX_UPLOAD_BYTES = 5 * 1024 * 1024
+MAX_TOTAL_UPLOAD_BYTES = 25 * 1024 * 1024
+
+
+def _embed_texts(texts: List[str]) -> np.ndarray:
+    """SBERT embeddings from the shared feature models (used by the index)."""
+    try:
+        models = load_feature_models()
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Feature models unavailable: {e}")
+    embedder = models.get("embedder")
+    if embedder is None:
+        raise HTTPException(status_code=503, detail="Embedding model not loaded.")
+    return np.asarray(embedder.encode(texts), dtype="float32")
+
+
+def get_retrieval_index():
+    """Lazy singleton document index (disk-persisted)."""
+    global RETRIEVAL_INDEX
+    if RETRIEVAL_INDEX is None:
+        with RETRIEVAL_LOCK:
+            if RETRIEVAL_INDEX is None:
+                from src.retrieval import RetrievalIndex
+
+                RETRIEVAL_INDEX = RetrievalIndex(embed_fn=_embed_texts)
+    return RETRIEVAL_INDEX
+
+
+def get_web_search():
+    """Lazy singleton Tavily web search (key from root .env)."""
+    global WEB_SEARCH
+    if WEB_SEARCH is None:
+        with RETRIEVAL_LOCK:
+            if WEB_SEARCH is None:
+                from src.retrieval import WebSearch
+
+                WEB_SEARCH = WebSearch()
+    return WEB_SEARCH
+
+
+def _maybe_rerank(query: str, candidates: list, top_k: int) -> list:
+    from src.retrieval import rerank
+
+    return rerank.rerank(query, candidates, top_k)
+
 
 # ----------------------------------------------------------------------------
 # Schemas (stable API contract, see AGENTS.md §8)
@@ -124,24 +173,57 @@ class AnalyzeResponse(BaseModel):
 
 
 class ClaimVerdict(BaseModel):
-    """B7.5 Tier 2: one atomic claim with its NLI-based verdict."""
+    """B7.5 Tier 2/3: one atomic claim with its NLI-based verdict."""
     id: int
     text: str
     verdict: str  # supported | contradicted | unsupported
     confidence: float
     evidence_sentence: str
+    evidence_source: str = ""   # "context" | "doc:<name>" | "web:<url>"
+    evidence_url: str = ""
+    abstained: bool = False
+
+
+class VerifyRequest(AnalysisRequest):
+    """Tier 3: evidence selection mode for claim verification."""
+    evidence_mode: Literal["auto", "context", "index", "web"] = "auto"
 
 
 class VerifyResponse(BaseModel):
-    """B7.5 Tier 2: claim-level verification + calibrated prediction.
+    """B7.5 Tier 2/3: claim-level verification + calibrated prediction.
 
     prediction/explanation are the Tier-1 secondary signals; claims carry the
-    primary NLI-based verdicts.
+    primary NLI-based verdicts with citations (Tier 3).
     """
     claims: List[ClaimVerdict]
     aggregate: Dict[str, object]
     prediction: PredictionResponse
     explanation: Optional[ExplanationResponse] = None
+
+
+class RetrieveRequest(BaseModel):
+    query: str = Field(..., max_length=2000)
+    top_k: int = Field(5, ge=1, le=20)
+
+
+class RetrievedPassage(BaseModel):
+    id: str
+    source: str
+    url: str = ""
+    text: str
+    score: float = 0.0
+
+
+class RetrieveResponse(BaseModel):
+    evidence_mode: str
+    passages: List[RetrievedPassage]
+
+
+class IndexStatusResponse(BaseModel):
+    n_passages: int
+    n_documents: int
+    dim: Optional[int]
+    index_dir: str
 
 
 class JudgeRequest(BaseModel):
@@ -454,17 +536,91 @@ def analyze_risk(req: AnalysisRequest):
     return AnalyzeResponse(prediction=prediction, explanation=explanation)
 
 
-@app.post("/verify", response_model=VerifyResponse)
-def verify_claims_endpoint(req: AnalysisRequest):
-    """B7.5 Tier 2: per-claim NLI verification against the evidence.
+@app.get("/index", response_model=IndexStatusResponse)
+def index_status():
+    """T3: document index status (passages, documents, embedding dim)."""
+    return get_retrieval_index().status()
 
-    Splits the answer into atomic claims, scores each against every evidence
-    sentence with the loaded NLI cross-encoder, and returns 3-way verdicts
-    (supported / contradicted / unsupported) plus the calibrated prediction
-    as the labelled secondary signal.
+
+@app.post("/index")
+async def index_upload(files: List[UploadFile] = File(...)):
+    """T3: upload PDF/DOCX/TXT documents into the retrieval index."""
+    from src.retrieval.chunk import extract_text_from_bytes
+
+    documents = []
+    total = 0
+    for f in files:
+        data = await f.read()
+        if len(data) > MAX_UPLOAD_BYTES:
+            raise HTTPException(status_code=413, detail=f"{f.filename} exceeds {MAX_UPLOAD_BYTES // 2**20} MB")
+        total += len(data)
+        if total > MAX_TOTAL_UPLOAD_BYTES:
+            raise HTTPException(status_code=413, detail="total upload exceeds 25 MB")
+        try:
+            text = extract_text_from_bytes(f.filename or "upload.txt", data)
+        except Exception:
+            raise HTTPException(status_code=400, detail=f"could not parse {f.filename}")
+        if not text.strip():
+            raise HTTPException(status_code=400, detail=f"{f.filename} contains no extractable text")
+        documents.append({"source": f"doc:{f.filename}", "text": text})
+
+    result = get_retrieval_index().add_documents(documents)
+    return {"indexed": result}
+
+
+@app.delete("/index")
+def index_clear():
+    """T3: wipe the document index."""
+    get_retrieval_index().clear()
+    return {"cleared": True}
+
+
+@app.post("/retrieve", response_model=RetrieveResponse)
+def retrieve_passages(req: RetrieveRequest):
+    """T3: hybrid retrieval over the document index (BM25 + dense + rerank)."""
+    index = get_retrieval_index()
+    if index.status()["n_passages"] == 0:
+        return RetrieveResponse(evidence_mode="index", passages=[])
+    passages = index.search(req.query, top_k=req.top_k, rerank_fn=_maybe_rerank)
+    return RetrieveResponse(
+        evidence_mode="index",
+        passages=[RetrievedPassage(**{k: p[k] for k in ("id", "source", "url", "text", "score")}) for p in passages],
+    )
+
+
+def _passages_for_claims(claims: List[str], mode: str):
+    """Tier 3 evidence selection -> (evidence_mode, passages_by_claim | None).
+
+    None = use the pasted context; otherwise a per-claim passage list.
+    """
+    if mode == "context":
+        return "context", None
+    if mode in ("auto", "index"):
+        index = get_retrieval_index()
+        if index.status()["n_passages"] > 0:
+            per_claim = [index.search(c, top_k=3, rerank_fn=_maybe_rerank) for c in claims]
+            return "index", per_claim
+        if mode == "index":
+            return "index", [[] for _ in claims]  # abstain everything
+    if mode in ("auto", "web"):
+        web = get_web_search()
+        if web.enabled:
+            per_claim = [web.search(c) for c in claims]
+            return "web", per_claim
+    return "context", None
+
+
+@app.post("/verify", response_model=VerifyResponse)
+def verify_claims_endpoint(req: VerifyRequest):
+    """B7.5 Tier 2/3: per-claim NLI verification against evidence.
+
+    evidence_mode: auto (index -> web -> context), context (pasted text),
+    index (documents only), web (Tavily only). Claims without retrieved
+    evidence abstain (unsupported, abstained=True).
     """
     from src.claims.decompose import split_claims
-    from src.claims.verify import verify_claims as run_verify
+    from src.claims.verify import verify_claims as run_verify_context
+    from src.claims.verify import verify_claims_against_passages
 
     claims = split_claims(req.answer or "")
     if not claims:
@@ -477,7 +633,15 @@ def verify_claims_endpoint(req: AnalysisRequest):
     if nli_model is None:
         raise HTTPException(status_code=503, detail="NLI model not loaded.")
 
-    result = run_verify(claims, req.context or "", nli_model)
+    evidence_mode, passages_by_claim = _passages_for_claims(claims, req.evidence_mode)
+    if passages_by_claim is None:
+        result = run_verify_context(claims, req.context or "", nli_model)
+        for c in result["claims"]:
+            c["evidence_source"] = "context"
+        result["aggregate"]["evidence_mode"] = "context"
+    else:
+        result = verify_claims_against_passages(claims, passages_by_claim, nli_model)
+        result["aggregate"]["evidence_mode"] = evidence_mode
 
     prediction = predict_risk(req)
     try:

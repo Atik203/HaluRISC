@@ -122,6 +122,32 @@ documented constants, evaluated against human labels by
 `src/models/eval_claims.py` (build a human-labeling CSV, then measure
 flagging precision/recall — descriptive, no fixed pass thresholds).
 
+### Retrieval & citations (B7.5 Tier 3)
+
+Evidence can come from **web search** and **uploaded documents**, selected
+per answer via `evidence_mode: auto | context | index | web` on `/verify`
+(auto = index → web → pasted context):
+
+- **Documents**: upload PDF/DOCX/TXT from the chat panel →
+  `POST /api/ml/index` (chunked, embedded with the shared SBERT embedder,
+  indexed with FAISS + BM25, persisted under `data/processed/retrieval_index/`).
+  `GET /api/ml/index` (status), `DELETE /api/ml/index` (clear),
+  `POST /api/ml/retrieve` (hybrid BM25 + dense + RRF fusion, optional
+  cross-encoder rerank `cross-encoder/ms-marco-MiniLM-L-6-v2`).
+- **Web search**: `TAVILY_API_KEY` in the root `.env` (server-side only,
+  never committed — `.env.example` holds the placeholder); per-claim queries,
+  LRU-cached, ~1,000 credits/month on the free tier.
+- **Citations**: each claim records `evidence_source` (`web:<url>` |
+  `doc:<name>`) + `evidence_url`; the card renders source badges and clickable
+  links.
+- **Abstention**: claims with no retrieved evidence above the relevance floor
+  are `unsupported` with `abstained: true` and a "no evidence retrieved" note —
+  the system never guesses.
+- **Known limitation**: NLI verdicts can over-entail on partial matches (e.g. a
+  page about Lyon containing "capital … France" can make "Lyon is the capital of
+  France" look supported). The evidence sentence is always shown for human
+  checking, and the claim-eval sheet (`eval_claims.py`) quantifies this.
+
 ## Deployment notes
 
 - Backend container: see `docs/b6-reproducibility.md` §3 (CPU Dockerfile).
