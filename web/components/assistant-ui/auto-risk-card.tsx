@@ -293,6 +293,9 @@ export function AutoRiskCard() {
     const groupCount = Object.keys(features).length;
     const claims = result.claims ?? [];
     const agg = result.aggregate;
+    const allClaimsSupported =
+      claims.length > 0 && (agg?.contradicted ?? 0) === 0 && (agg?.unsupported ?? 0) === 0;
+    const styleMismatch = allClaimsSupported && score >= 0.7;
 
     return (
       <section
@@ -348,6 +351,14 @@ export function AutoRiskCard() {
             );
           })()}
         </div>
+
+        {styleMismatch && (
+          <p className="text-[10px] text-amber-600/90 dark:text-amber-400/90 bg-amber-500/5 border border-amber-500/20 rounded-lg px-2.5 py-1.5">
+            The calibrated score is style-sensitive: HaluEval favors terse keyword answers with full overlap,
+            so full-sentence answers tend to score high even when the per-claim verdicts say supported.
+            Trust the per-claim verdicts and evidence as the primary signal here.
+          </p>
+        )}
 
         {claims.length > 0 && agg && (
           <div className="space-y-2">
