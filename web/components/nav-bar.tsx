@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { MessageSquare, BarChart2, LayoutDashboard, Info, ShieldCheck } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 
-export function NavBar() {
+export function NavBar({ version }: { version?: string | null }) {
   const pathname = usePathname();
 
   const navItems = [
@@ -24,14 +24,16 @@ export function NavBar() {
             <ShieldCheck className="w-5 h-5" />
           </div>
           <span className="gradient-text text-xl">HaluRISC</span>
-          <span className="text-[10px] uppercase tracking-widest text-muted-foreground bg-secondary/80 px-2 py-0.5 rounded-full border border-border">
-            v1.0
-          </span>
+          {version && (
+            <span className="text-[10px] uppercase tracking-widest text-muted-foreground bg-secondary/80 px-2 py-0.5 rounded-full border border-border">
+              {version}
+            </span>
+          )}
         </Link>
 
         {/* Navigation Links */}
         <div className="flex items-center gap-2">
-          <nav className="flex items-center gap-1 bg-secondary/50 p-1 rounded-xl border border-border/50">
+          <nav aria-label="Main" className="flex items-center gap-1 bg-secondary/50 p-1 rounded-xl border border-border/50">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href || (pathname === "/" && item.href === "/chat");
@@ -39,6 +41,7 @@ export function NavBar() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  aria-current={isActive ? "page" : undefined}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
                     isActive
                       ? "bg-primary text-primary-foreground shadow-md"

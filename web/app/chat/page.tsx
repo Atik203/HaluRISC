@@ -4,6 +4,7 @@ import { AssistantRuntimeProvider } from "@assistant-ui/react";
 import { useChatRuntime } from "@assistant-ui/react-ai-sdk";
 import { Sparkles } from "lucide-react";
 import { Thread } from "@/components/assistant-ui/thread";
+import { MlStatus } from "@/components/ml-status";
 
 const SUGGESTIONS = [
   {
@@ -42,13 +43,10 @@ export default function ChatPage() {
             <Sparkles className="w-5 h-5 text-violet-600 dark:text-purple-400" /> 💬 Chat Mode — Conversational AI Risk Analyst
           </h1>
           <p className="text-xs text-muted-foreground">
-            Powered by assistant-ui, GPT 5.6 Luna &amp; calibrated XGBoost (streaming via /api/chat)
+            Streaming via /api/chat (Vercel AI SDK); risk tool runs the calibrated XGBoost backend
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400">Streaming Connected</span>
-        </div>
+        <MlStatus />
       </div>
 
       <AssistantRuntimeProvider runtime={runtime}>
