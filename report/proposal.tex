@@ -119,6 +119,22 @@ The pipeline has seven clear steps:
     \item Deployment --- FastAPI backend serving the trained model, and a Next.js 16 + assistant-ui dashboard with a clean, modern UI: risk gauge, feature breakdown, per-claim evidence verdicts with citations, and a live input panel.
 \end{enumerate}
 
+Figure~\ref{fig:prop-pipeline} shows the end-to-end pipeline, and Figure~\ref{fig:prop-arch} shows the deployed two-tier architecture.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{figures/architecture.png}
+\caption{The HaluRISC pipeline: evidence-consistency features from the question, context, and answer feed a tuned, Platt-calibrated XGBoost model, producing a calibrated risk score, per-claim NLI verdicts, and SHAP explanations.}
+\label{fig:prop-pipeline}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{figures/system_architecture.png}
+\caption{Deployed two-tier architecture: the Next.js frontend streams the conversation through a backend-for-frontend proxy to FastAPI, which serves the machine-learning endpoints and the document and live web-search evidence.}
+\label{fig:prop-arch}
+\end{figure}
+
 Statistical rigor: model differences are tested with McNemar's test and bootstrap confidence intervals, so conclusions are not based on chance from a single split.
 
 External comparison: results are compared with published HaluEval detection baselines, such as SelfCheckGPT \cite{selfcheck}, and validated on the RAGTruth corpus \cite{ragtruth}, so a judge can see whether the scores are good and whether they generalize.
@@ -134,32 +150,9 @@ We use the HaluEval benchmark \cite{haluEval} (EMNLP 2023) --- the standard data
     \item External validation: results will also be checked on RAGTruth \cite{ragtruth} --- 17{,}790 naturally generated responses from several modern LLMs with human word-level annotations --- to test whether the model generalizes to natural responses.
 \end{itemize}
 
-\section{Results}
+\section{Expected Results}
 
-On the HaluEval QA subset (20{,}000 rows, 70/15/15 grouped stratified split) the tuned XGBoost model reaches F1 = 0.9846, AUROC = 0.9979, and MCC = 0.9697, with an expected calibration error of 0.0045 before any recalibration. The full analysis runs in about 62\,ms at the median and costs about \$0.001 per 1{,}000 predictions, roughly 100 times cheaper than an LLM-as-judge that it outperforms on a measured 200-sample set (F1 0.985 vs.\ 0.841). Zero-shot transfer to natural RAGTruth responses is poor, with F1 = 0.3022 on the QA split, an honest negative result that is reported rather than hidden. A small target-domain recalibration on 5{,}034 RAGTruth rows cuts the ECE on that corpus from 0.8185 to 0.1335. The project delivers a calibrated, explainable, deployable system with claim-level verification, evidence citations, and a live web dashboard.
-
-The project will deliver:
-
-\begin{enumerate}
-    \item A trained, calibrated XGBoost model with feature ablation, SHAP explanations, and explanation-reliability measurements.
-    \item Statistical significance tests (McNemar, bootstrap confidence intervals, three-seed protocol).
-    \item A polished, judge-ready web dashboard --- live risk prediction, per-claim evidence verdicts with citations, and an experiment dashboard fed by the real artifacts.
-    \item Reproducible code and artifacts: a self-contained Colab notebook, a frozen manifest with hashes, and the complete pipeline (data, features, training, evaluation, API).
-\end{enumerate}
-
-\section{Project Plan}
-
-The project ran in two phases --- experiments first, then the product --- and followed the pipeline below.
-
-\begin{itemize}
-    \item Data preparation: downloaded the HaluEval QA subset, cleaned the text, and manually audited 50 random samples to verify label quality.
-    \item Feature extraction: computed 26 features in seven groups --- length/style, lexical overlap, entity overlap, NLI contradiction, numeric consistency, hedging phrases, and semantic similarity.
-    \item Model development: compared a heuristic baseline, Logistic Regression, Random Forest, and XGBoost using grouped 5-fold cross-validation, randomized hyperparameter search, and 3-seed runs.
-    \item Calibration and evaluation: compared Platt and isotonic calibration, ran McNemar and bootstrap significance tests, evaluated zero-shot transfer on RAGTruth \cite{ragtruth} and FaithBench \cite{faithbench}, and measured explanation reliability with perturbation analysis.
-    \item Explanation: produced SHAP global feature importance, 3 local case studies, and an error analysis of 48 misclassified test samples.
-    \item Product: built the FastAPI backend and the Next.js + assistant-ui dashboard with claim-level verification, document indexing, live web search, and a demo page.
-    \item Documentation: prepared the final report and rehearsed the live demo.
-\end{itemize}
+The experiments are complete, and the expected results are confirmed on the frozen benchmark. On the HaluEval QA subset (20{,}000 rows, 70/15/15 grouped stratified split) the tuned XGBoost model reaches F1 = 0.9846, AUROC = 0.9979, and MCC = 0.9697, with an expected calibration error of 0.0045 before any recalibration. The full analysis runs in about 62\,ms at the median and costs about \$0.001 per 1{,}000 predictions, roughly 100 times cheaper than an LLM-as-judge that it outperforms on a measured 200-sample set (F1 0.985 vs.\ 0.841). Zero-shot transfer to natural RAGTruth responses is poor, with F1 = 0.3022 on the QA split, an honest negative result reported rather than hidden, and a small target-domain recalibration on 5{,}034 RAGTruth rows cuts the ECE on that corpus from 0.8185 to 0.1335. The project delivers a trained and calibrated XGBoost model with feature ablation and SHAP explanations, statistical significance tests, a judge-ready web dashboard with per-claim evidence verdicts and citations, and fully reproducible code and artifacts.
 
 \newpage
 
