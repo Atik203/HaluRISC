@@ -1,0 +1,51 @@
+% Chapter 6 — Results and Discussion (SHAP, error analysis, limitations).
+\section{Results and Discussion}
+
+\subsection{Feature importance}
+
+SHAP global importance (Figure~\ref{fig:shap}) is dominated by context overlap and answer length: HaluEval hallucinated answers tend to share vocabulary with the context while being systematically different in length from correct answers (median 10 vs.\ 2 words), an artifact of the benchmark's synthetic generation. NLI neutrality is the fifth most important signal. These results align with the ablation study and warn that benchmark-specific length patterns may not transfer.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.62\textwidth]{fig_shap_importance.pdf}
+\caption{Mean $|$SHAP$|$ feature importance (top 10).}
+\label{fig:shap}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_shap_summary.pdf}
+\caption{SHAP beeswarm summary over the test set.}
+\label{fig:shap2}
+\end{figure}
+
+\subsection{Error analysis}
+
+The test set contains only 33 misclassifications (12 false positives, 21 false negatives). We sampled 10 of each for manual inspection (Table~\ref{tab:errors}, auto-tagged with heuristic rules and reviewed). Errors concentrate in two categories: \emph{short-answer ambiguity} (very short answers where neither lexical nor NLI evidence is decisive) and \emph{label ambiguity} (answers that are semantically plausible under both labels). This matches the known HaluEval artifact that short answers are frequently hallucinated in the benchmark.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Error taxonomy for the 20 sampled misclassifications (heuristic first-pass tags, reviewed).}
+\label{tab:errors}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Category} & \textbf{FP} & \textbf{FN} \\
+\midrule
+short\_answer\_ambiguity & 6 & 8 \\
+label\_ambiguity          & 4 & 2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Limitations}
+
+\begin{itemize}
+    \item \textbf{Synthetic data.} 85\% of HaluEval is ChatGPT-generated ``sampling-then-filtering'' data; real-world hallucination patterns differ, and our RAGTruth zero-shot result (F1 0.4822) quantifies the gap.
+    \item \textbf{Benchmark artifacts.} Length and overlap patterns are highly informative on HaluEval but may be dataset-specific (see ablation and SHAP).
+    \item \textbf{Binary labels.} The benchmark reduces hallucination to yes/no; graded severity and partial hallucinations are out of scope.
+    \item \textbf{English only.} All features (NER, NLI, embeddings) are English-centric.
+    \item \textbf{Single dataset.} The model is trained only on HaluEval QA; domain adaptation is future work.
+    \item \textbf{Platt vs.\ isotonic.} Platt did not improve calibration here; isotonic did. The deployed artifact ships Platt (blueprint default).
+    \item \textbf{Style-sensitive calibrated score.} In conversational use, full-sentence answers can saturate the calibrated score even when per-claim evidence verdicts say supported; the interface therefore leads with the evidence verdicts and labels the legacy score as secondary.
+\end{itemize}

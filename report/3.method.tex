@@ -1,0 +1,48 @@
+% Chapter 3 — Methodology.
+\section{Methodology}
+
+\subsection{Task definition}
+
+Given a question $q$, an optional reference context $c$ (evidence), and a candidate answer $a$ produced by a black-box LLM, predict the probability $P(\text{hallucinated} \mid q, c, a)$. We predict \emph{risk}, not truth: the system flags answers that are unsupported by or contradictory to the available evidence.
+
+\subsection{Dataset and preprocessing}
+
+We use the QA subset of HaluEval \cite{haluEval} (EMNLP 2023), a widely used hallucination-evaluation benchmark. Each of the 10{,}000 QA entries provides a question, a knowledge passage (used as context), a correct answer, and a hallucinated answer. We create two rows per question (correct answer, label 0; hallucinated answer, label 1), giving 20{,}000 rows with a perfectly balanced label distribution. A 50-sample manual audit was performed to verify label quality before training.
+
+Text was whitespace-normalized; lexical features operate on lowercased token sets while NER and NLI keep original casing. Missing context is handled explicitly (lexical overlap $=0$, NLI probabilities $=1/3$). The dataset is split 70/15/15 stratified by label (14{,}000/3{,}000/3{,}000), and the split indices are saved for exact reproducibility.
+
+\subsection{Features}
+
+We extract 26 features in seven groups (Table~\ref{tab:features}). NLI signals use a cross-encoder NLI model (DeBERTa-v3-based, SNLI+MultiNLI), evaluated in both directions---context$\to$answer and answer$\to$context---producing six probability features. Semantic similarity uses MiniLM sentence embeddings; entity features use spaCy NER.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Feature groups (26 features total).}
+\label{tab:features}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Group} & \textbf{Features} & \textbf{Source} \\
+\midrule
+Length/style & n\_chars, n\_words, n\_sentences, avg\_word\_len & regex \\
+Lexical overlap & overlap/answer vs.\ context \& question, Jaccard $\times$2 & token sets \\
+Entity overlap & entity counts, overlap ratio, novel-entity ratio & spaCy NER \\
+NLI consistency & entail/contradict/neutral $\times$ 2 directions & cross-encoder NLI \\
+Numeric & number counts, overlap ratio, novel numbers & regex \\
+Hedging & hedge count, hedge density & lexicon \\
+Semantic & cosine(context,answer), cosine(question,answer) & MiniLM \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Models}
+
+We compare a heuristic baseline (risk $= 1 - \text{overlap}(\text{answer}, \text{context})$, threshold tuned on validation), logistic regression (standardized features), random forest (300 trees), and XGBoost. XGBoost hyperparameters are selected by randomized search (30 iterations, 5-fold stratified CV on the training split) over depth, learning rate, tree count, subsample, and column subsampling; the best configuration is $\{\text{max\_depth}=4, \text{lr}=0.01, \text{n\_estimators}=500, \text{subsample}=0.9, \text{colsample\_bytree}=0.7\}$ (CV AUROC 0.9971). Every experiment is repeated with seeds 42, 123, and 456 and reported as mean $\pm$ std.
+
+\subsection{Calibration}
+
+Calibrators are fit on the \emph{validation} split only. Platt scaling (sigmoid logistic regression on raw scores) and isotonic regression are compared against the raw model on the test split using Expected Calibration Error (ECE, 10 bins), Brier score, and reliability diagrams.
+
+\subsection{Explainability}
+
+A SHAP TreeExplainer \cite{shap} over the raw XGBoost model produces global mean-$|$SHAP$|$ importance and beeswarm summaries, plus local waterfall explanations for hand-picked high-risk, low-risk, and borderline test cases.

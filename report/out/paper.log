@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.10.23)  5 AUG 2026 02:34
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.10.23)  10 AUG 2026 20:38
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -499,20 +499,20 @@ File: l3backend-pdftex.def 2025-06-09 L3 backend support: PDF output (pdfTeX)
 (out/paper.aux)
 \openout1 = `paper.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 32.
-LaTeX Font Info:    ... okay on input line 32.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 32.
-LaTeX Font Info:    ... okay on input line 32.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 32.
-LaTeX Font Info:    ... okay on input line 32.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 32.
-LaTeX Font Info:    ... okay on input line 32.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 32.
-LaTeX Font Info:    ... okay on input line 32.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 32.
-LaTeX Font Info:    ... okay on input line 32.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 32.
-LaTeX Font Info:    ... okay on input line 32.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 54.
+LaTeX Font Info:    ... okay on input line 54.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 54.
+LaTeX Font Info:    ... okay on input line 54.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 54.
+LaTeX Font Info:    ... okay on input line 54.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 54.
+LaTeX Font Info:    ... okay on input line 54.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 54.
+LaTeX Font Info:    ... okay on input line 54.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 54.
+LaTeX Font Info:    ... okay on input line 54.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 54.
+LaTeX Font Info:    ... okay on input line 54.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -593,42 +593,45 @@ e
 ))
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: End \AtBeginDocument code.
+
+(./0.1.title.tex
 <./uiu.png, id=4, 351.3125pt x 320.19624pt>
 File: ./uiu.png Graphic file (type png)
 <use ./uiu.png>
-Package pdftex.def Info: ./uiu.png  used on input line 39.
+Package pdftex.def Info: ./uiu.png  used on input line 7.
 (pdftex.def)             Requested size: 77.28899pt x 70.44337pt.
 
 
 [1
 
 {c:/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{c:/texlive/2025/
-texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc} <./uiu.png>]
+texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc} <./uiu.png>])
+(./0.2.abstract.tex) (./1.intro.tex) (./2.related_work.tex
 
-[1]
+[1]) (./3.method.tex
 
-[2]
+[2]) (./4.experiments.tex
 
 [3]
-<../artifacts/figures/fig_reliability.pdf, id=35, 426.21133pt x 353.37474pt>
+<../artifacts/figures/fig_reliability.pdf, id=35, 426.20723pt x 353.37474pt>
 File: ../artifacts/figures/fig_reliability.pdf Graphic file (type pdf)
 <use ../artifacts/figures/fig_reliability.pdf>
 Package pdftex.def Info: ../artifacts/figures/fig_reliability.pdf  used on inpu
-t line 231.
+t line 56.
 (pdftex.def)             Requested size: 303.2414pt x 251.43163pt.
 <../artifacts/figures/fig_roc_pr.pdf, id=36, 859.74023pt x 317.42072pt>
 File: ../artifacts/figures/fig_roc_pr.pdf Graphic file (type pdf)
 <use ../artifacts/figures/fig_roc_pr.pdf>
 Package pdftex.def Info: ../artifacts/figures/fig_roc_pr.pdf  used on input lin
-e 238.
+e 63.
 (pdftex.def)             Requested size: 440.18959pt x 162.52174pt.
 
 
 [4]
 
 [5 <../artifacts/figures/fig_reliability.pdf> <../artifacts/figures/fig_roc_pr.
-pdf>]
-Underfull \hbox (badness 10000) in paragraph at lines 357--358
+pdf>]) (./5.web_application.tex
+Underfull \hbox (badness 10000) in paragraph at lines 26--27
 []\T1/cmr/m/n/12 The FastAPI back-end loads all ar-ti-facts (model, cal-i-bra-t
 or, SHAP ex-plainer,
  []
@@ -637,15 +640,15 @@ or, SHAP ex-plainer,
 File: ./screenshots/hallucinated_date.png Graphic file (type png)
 <use ./screenshots/hallucinated_date.png>
 Package pdftex.def Info: ./screenshots/hallucinated_date.png  used on input lin
-e 363.
+e 32.
 (pdftex.def)             Requested size: 303.2414pt x 142.60194pt.
 <./screenshots/grounded_correct.png, id=139, 1442.38875pt x 677.53125pt>
 File: ./screenshots/grounded_correct.png Graphic file (type png)
 <use ./screenshots/grounded_correct.png>
 Package pdftex.def Info: ./screenshots/grounded_correct.png  used on input line
- 365.
+ 34.
 (pdftex.def)             Requested size: 303.2414pt x 142.44083pt.
-
+) (./6.results_discussion.tex
 
 [6]
 <../artifacts/figures/fig_shap_importance.pdf, id=145, 568.21347pt x 425.92374p
@@ -653,58 +656,48 @@ t>
 File: ../artifacts/figures/fig_shap_importance.pdf Graphic file (type pdf)
 <use ../artifacts/figures/fig_shap_importance.pdf>
 Package pdftex.def Info: ../artifacts/figures/fig_shap_importance.pdf  used on 
-input line 378.
+input line 10.
 (pdftex.def)             Requested size: 303.2414pt x 227.31126pt.
 <../artifacts/figures/fig_shap_summary.pdf, id=146, 565.24413pt x 534.59514pt>
 File: ../artifacts/figures/fig_shap_summary.pdf Graphic file (type pdf)
 <use ../artifacts/figures/fig_shap_summary.pdf>
 Package pdftex.def Info: ../artifacts/figures/fig_shap_summary.pdf  used on inp
-ut line 385.
+ut line 17.
 (pdftex.def)             Requested size: 415.74042pt x 393.21228pt.
+) (./7.conclusion.tex
 
-
-[7{c:/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}]
-Underfull \hbox (badness 6708) in paragraph at lines 428--429
+[7{c:/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}])
+(./8.reproducibility.tex
+Underfull \hbox (badness 6708) in paragraph at lines 4--5
 \T1/cmr/m/n/12 The source repos-i-tory con-tains the com-plete pipeline: \T1/cm
 tt/m/n/12 src/data \T1/cmr/m/n/12 (down-load and
  []
 
 
-Underfull \hbox (badness 3058) in paragraph at lines 428--429
+Underfull \hbox (badness 3058) in paragraph at lines 4--5
 \T1/cmr/m/n/12 y-sis, judge and la-tency eval-u-a-tion), \T1/cmtt/m/n/12 src/ex
 plain \T1/cmr/m/n/12 (SHAP), and \T1/cmtt/m/n/12 src/api \T1/cmr/m/n/12 (FastAP
 I).
  []
 
 
-Underfull \hbox (badness 2111) in paragraph at lines 428--429
+Underfull \hbox (badness 2111) in paragraph at lines 4--5
 \T1/cmtt/m/n/12 requirements.txt \T1/cmr/m/n/12 pins ev-ery de-pen-dency ex-act
 ly. Train/validation/test split in-dices
  []
 
 
-Underfull \hbox (badness 4060) in paragraph at lines 428--429
+Underfull \hbox (badness 4060) in paragraph at lines 4--5
 \T1/cmr/m/n/12 are saved (\T1/cmtt/m/n/12 artifacts/split_indices.json \T1/cmr/
 m/n/12 and \T1/cmtt/m/n/12 .npy\T1/cmr/m/n/12 ), all seeds are cen-tral-ized in
 
  []
 
+) (./9.ethics.tex)
 
+[8] (out/paper.bbl
 
-[8]
-
-[9 <./screenshots/hallucinated_date.png> <./screenshots/grounded_correct.png>]
-Underfull \hbox (badness 3068) in paragraph at lines 452--453
-[]\T1/cmr/m/n/12 Yadav, S., Verma, N.K. (2026). \T1/cmr/m/it/12 A Hy-brid Frame
--work for Hal-lu-ci-na-tion De-tec-
- []
-
-
-Underfull \hbox (badness 1082) in paragraph at lines 452--453
-\T1/cmr/m/it/12 tion in Large Lan-guage Mod-els. \T1/cmr/m/n/12 IEEE Trans-ac-t
-ions on Ar-ti-fi-cial In-tel-li-gence. DOI:
- []
-
+[9 <./screenshots/hallucinated_date.png> <./screenshots/grounded_correct.png>])
 
 
 [10 <../artifacts/figures/fig_shap_importance.pdf>]
@@ -716,13 +709,13 @@ L3 programming layer <2025-09-02>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 16206 strings out of 467748
- 319490 string characters out of 5431137
- 714498 words of memory out of 5000000
- 44623 multiletter control sequences out of 15000+600000
+ 16285 strings out of 467748
+ 320749 string characters out of 5431137
+ 714483 words of memory out of 5000000
+ 44655 multiletter control sequences out of 15000+600000
  642679 words of font info for 71 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 84i,9n,91p,1319b,752s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 84i,9n,91p,1340b,752s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/tex
 live/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb><c:/texlive/2025
 /texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/texlive/2025/texmf-dis
@@ -739,9 +732,9 @@ cm-super/sfrm1095.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/s
 frm1200.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfti1095.pf
 b><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfti1200.pfb><c:/texl
 ive/2025/texmf-dist/fonts/type1/public/cm-super/sftt1200.pfb>
-Output written on out/paper.pdf (12 pages, 824205 bytes).
+Output written on out/paper.pdf (12 pages, 819221 bytes).
 PDF statistics:
- 341 PDF objects out of 1000 (max. 8388607)
+ 342 PDF objects out of 1000 (max. 8388607)
  121 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  48 words of extra memory for PDF output out of 10000 (max. 10000000)

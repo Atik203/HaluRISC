@@ -1,0 +1,18 @@
+% Chapter 1 — Introduction.
+\section{Introduction}
+
+Large language models are increasingly embedded in real products---chatbots, retrieval-augmented question answering, and content-review tools---where a confidently wrong answer has a real cost. LLMs occasionally generate text that is fluent but factually unsupported, an effect known as \emph{hallucination}. Detecting hallucinations is therefore a first-class safety problem.
+
+The dominant detection strategy asks a strong LLM to judge its own output (SelfCheckGPT \cite{selfcheck}) or to act as an external judge. Such approaches are slow (seconds per response), expensive at scale (API fees per call), and opaque (no feature-level reason for the verdict). Neural classifiers over frozen encoders \cite{ieeeTai} are more accurate but require model weights and GPU inference, and their decisions are difficult to explain.
+
+HaluRISC takes a different route. We treat the problem as a supervised risk-prediction task over \emph{engineered evidence-consistency features}---how well the answer agrees with the question and reference context in terms of vocabulary, named entities, logical entailment, numbers, hedging, and semantics---and train a lightweight XGBoost classifier with calibrated probabilities and SHAP explanations. The system is black-box friendly (it never inspects the LLM), runs in milliseconds on a CPU, costs essentially nothing per prediction, and explains every verdict with the feature contributions that drove it.
+
+The contributions of this work are:
+
+\begin{enumerate}
+    \item A reproducible feature-extraction pipeline with 26 features across 7 groups, including bidirectional NLI entailment/contradiction signals, entity overlap, and semantic similarity.
+    \item A rigorous comparison of heuristic, logistic regression, random forest, and XGBoost baselines under 5-fold cross-validation, randomized hyperparameter search, and a three-seed protocol, with McNemar and bootstrap significance testing.
+    \item A calibration study (Platt vs.\ isotonic) fit strictly on the validation split, showing that isotonic regression reduces ECE from 0.0115 to 0.0051.
+    \item An honest external evaluation: zero-shot transfer to the natural RAGTruth corpus fails (F1 = 0.4822), quantifying the synthetic-benchmark gap.
+    \item A deployable FastAPI + Next.js system with SHAP explanations, LLM-as-judge comparison, and a live web dashboard.
+\end{enumerate}

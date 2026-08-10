@@ -1,0 +1,14 @@
+% Chapter 2 — Related Work.
+\section{Related Work}
+
+Hallucination detection is an active research area with three broad families of approaches.
+
+\textbf{LLM-based detection.} SelfCheckGPT \cite{selfcheck} detects hallucination by sampling multiple LLM responses and measuring consistency, without external resources. Small language models have been used as cheaper detectors \cite{haluagent}, and lightweight evaluation models such as Luna \cite{luna} show that efficient detection is possible in practice. LLM-as-judge setups remain expensive and non-explainable at scale.
+
+\textbf{Neural classifiers.} Frozen BERT/RoBERTa/DeBERTa encoders combined with lightweight classifiers achieve strong results on hallucination benchmarks \cite{ieeeTai}. These methods require the encoder weights and GPU inference, and their embeddings are not directly interpretable.
+
+\textbf{Feature-based and explainable methods.} A multi-signal framework combining retrieval grounding, NLI verification, and XGBoost was proposed in \cite{ijert}, and token-level SHAP-LIME attributions for hallucination scoring in \cite{multimedia}. Unlike \cite{multimedia}, which attributes token-level importance on raw LLM outputs, HaluRISC explains predictions at the level of semantically meaningful evidence-consistency features and additionally provides calibrated risk scores and cross-domain evaluation.
+
+On the benchmark side, HaluEval \cite{haluEval} and TruthfulQA \cite{truthqa} provide standard test beds; FActScore \cite{factscore} evaluates factual precision in detail. RAGTruth \cite{ragtruth} contributes natural responses with human word-level annotations, and FaithBench \cite{faithbench} shows that current detectors still fail on challenging modern-LLM outputs. SpikeScore \cite{spikescore} demonstrates that cross-domain generalization remains open, which motivates our honest zero-shot evaluation.
+
+Our positioning follows the literature-honesty rule: prior work has explored hallucination detection, feature engineering, calibration, and SHAP in isolation; this paper focuses on a compact, course-feasible, calibrated and explainable risk-prediction pipeline with a deployable interface.

@@ -1,0 +1,6 @@
+% Chapter 8 — Reproducibility Statement.
+\section{Reproducibility Statement}
+
+The source repository contains the complete pipeline: \texttt{src/data} (download and splits), \texttt{src/features} (seven feature groups), \texttt{src/models} (training protocol, error analysis, judge and latency evaluation), \texttt{src/explain} (SHAP), and \texttt{src/api} (FastAPI). \texttt{requirements.txt} pins every dependency exactly. Train/validation/test split indices are saved (\texttt{artifacts/split\_indices.json} and \texttt{.npy}), all seeds are centralized in \texttt{src/models/config.py}, and model, calibrator, scaler, and SHAP explainer artifacts are saved under \texttt{artifacts/models/}. A Colab notebook (\texttt{colab/HaluRISC\_Training\_Version\_B.ipynb}) reproduces the full experiment on a GPU, persists artifacts to Google Drive, and the \texttt{run\_all\_experiments.py} protocol regenerates the B-run end-to-end.
+
+Environment: Python 3.12.13, Windows 11, NVIDIA RTX 3060 6\,GB (CUDA 12.8, torch 2.11.0+cu128), 32\,GB RAM; scikit-learn 1.9.0, XGBoost 3.3.0, SHAP 0.52.0, spaCy 3.8.14, sentence-transformers 5.6.1; Next.js 16.3.0 with pnpm.
