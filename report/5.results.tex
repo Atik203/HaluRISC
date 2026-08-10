@@ -211,11 +211,9 @@ XGBoost (ours)     & 0.985 & 0.980 & 0.990 & 0.985 & 62   & $\approx$\$0.001 \\
 
 The 3{,}000-sample test set contains 48 errors, 12 false positives and 36 false negatives, an error rate of 1.6\%. A manual inspection of 20 sampled errors assigns them to two categories. Short-answer ambiguity covers very short answers where neither the lexical nor the NLI evidence is decisive, and label ambiguity covers answers that are semantically plausible under both labels. Table~\ref{tab:errors} reports the counts. Both categories trace back to the construction of the benchmark, where short answers are frequently hallucinated by design.
 
-\begin{table}[t]
+\begin{table}[H]
 \centering
 \small
-\caption{Error taxonomy for 20 sampled misclassifications.}
-\label{tab:errors}
 \begin{tabular}{@{}lrr@{}}
 \toprule
 \textbf{Category} & \textbf{FP} & \textbf{FN} \\
@@ -224,4 +222,6 @@ Label ambiguity       & 7 & 4 \\
 Short-answer ambiguity& 3 & 6 \\
 \bottomrule
 \end{tabular}
+\caption{Error taxonomy for 20 sampled misclassifications.}
+\label{tab:errors}
 \end{table}
