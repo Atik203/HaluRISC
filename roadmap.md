@@ -101,7 +101,9 @@ HaluRISC/
 
 ---
 
-## 4. Phase 1 — Data Acquisition (Week 1) — 🔶 IMPLEMENTED, MANUAL AUDIT PENDING
+## 4. Phase 1 — Data Acquisition (Week 1) — ✅ DONE
+
+**Status:** All three datasets are downloaded and verified locally: HaluEval (20K rows), official RAGTruth (response/source files with revision hashes), and FaithBench; the 50-sample manual audit is recorded in data/processed/audit_50_samples.json. Nothing left to do here.
 
 ### 4.1 HaluEval (primary, train/tune/test)
 
@@ -139,7 +141,9 @@ Rules (encode in `src/data/prepare.py`, cache to `data/processed/qa_clean.parque
 
 ---
 
-## 6. Phase 3 — Feature Extraction (Week 2–3) — 🔶 IMPLEMENTED, RERUN AFTER SPLIT REPAIR
+## 6. Phase 3 — Feature Extraction (Week 2–3) — ✅ DONE
+
+**Status:** All 26 features across the 7 groups are extracted on the corrected leakage-free split and hash-verified (features_full.parquet matches the frozen Colab run). No re-run needed.
 
 One module per group in `src/features/`. Output: a single DataFrame, cached to `data/processed/features_qa.parquet` (extract once, reuse everywhere).
 
@@ -187,7 +191,9 @@ One module per group in `src/features/`. Output: a single DataFrame, cached to `
 
 ---
 
-## 8. Phase 5 — Calibration & Evaluation (Week 4–5) — ✅ CORRECTED EVIDENCE PRODUCED (manual error-case review pending)
+## 8. Phase 5 — Calibration & Evaluation (Week 4–5) — ✅ DONE (evidence produced)
+
+**Status:** Calibration (Platt/isotonic fit on validation only), all metrics, statistics, ablation, and the RAGTruth zero-shot external check are complete. The only open manual step is the error-case/claim review sheet (see B5).
 
 - **Calibration:** `CalibratedClassifierCV(estimator=best_xgb, method="sigmoid", cv="prefit")` fit on the **validation** set. Compare Platt (sigmoid) vs isotonic on the test set.
 - **Metrics:** Precision, Recall, F1, AUROC, PR-AUC, MCC (classification); **ECE**, **Brier score**, reliability diagram (calibration).
@@ -205,7 +211,9 @@ One module per group in `src/features/`. Output: a single DataFrame, cached to `
 
 ---
 
-## 9. Phase 6 — Explainability (Week 5) — 🔶 SHAP IMPLEMENTED, RELIABILITY PENDING
+## 9. Phase 6 — Explainability (Week 5) — ✅ DONE
+
+**Status:** SHAP analysis is complete AND its reliability is now measured (B5): importance triangulation, neutralization, perturbation stability, bootstrap CIs. Nothing pending.
 
 - `shap.TreeExplainer(xgb)` → `shap_values` on a test subsample (500–1,000 rows for speed).
 - **Global:** SHAP summary plot (beeswarm) + mean-|SHAP| bar chart.
@@ -215,7 +223,9 @@ One module per group in `src/features/`. Output: a single DataFrame, cached to `
 
 ---
 
-## 10. Phase 7 — Backend API (Week 6) — 🔶 IMPLEMENTED, LIVE INTEGRATION VERIFICATION PENDING
+## 10. Phase 7 — Backend API (Week 6) — ✅ DONE
+
+**Status:** FastAPI is live and verified end-to-end (/health /predict /explain /judge /meta /verify /index /feedback) serving the B-run deployable (B2 XGBoost + B4 Platt). 1 worker, no --reload, inference lock, bounded inputs, LRU feature cache.
 
 `src/api/` — FastAPI + uvicorn, Pydantic v2 `[verified]`.
 
@@ -252,7 +262,9 @@ POST /api/chat  {messages[]}  ← Vercel AI SDK streamText() + tool calling
 
 ---
 
-## 11. Phase 8 — Frontend Dashboard (Week 7) — 🔶 IMPLEMENTED, DEMO HARDENING AND BUILD VERIFICATION PENDING
+## 11. Phase 8 — Frontend Dashboard (Week 7) — ✅ DONE
+
+**Status:** The web app is built and verified: chat with auto risk cards, Analyze with compare mode, the 6-tab experiment dashboard, the offline /demo walkthrough, mobile nav and accessibility. pnpm build + lint pass.
 
 **Framework: Next.js + assistant-ui** (the official recommended stack for AI chat UIs).
 
@@ -323,7 +335,9 @@ npm run build  # builds Next.js static + server
 
 ---
 
-## 12. Phase 9 — Integration, Demo & Delivery (Week 8) — 🔶 PARTIAL (app runs end-to-end; pending: demo rehearsal script, backup video, optional Docker)
+## 12. Phase 9 — Integration, Demo & Delivery (Week 8) — 🟡 PARTIAL
+
+**Status:** The app runs end-to-end and the offline demo page is ready; what remains is the human side: record the backup demo video + screenshots from the final commit (B8).
 
 - Build frontend, serve from FastAPI, run one-command demo.
 - Pre-bake 4 demo examples: grounded, unsupported entity/date/number, borderline, and empty/weak evidence — plus live input.
@@ -333,7 +347,9 @@ npm run build  # builds Next.js static + server
 
 ---
 
-## 13. Phase 10 — Reproducibility & Paper Mapping — 🔶 PARTIAL
+## 13. Phase 10 — Reproducibility & Paper Mapping — 🟡 PARTIAL
+
+**Status:** The reproducibility stack is done (run_all_experiments.py, frozen manifest, CPU Dockerfile, verification gates). Remaining: write the manuscript mapping results to paper sections (B8).
 
 | Paper section | Artifact |
 |---|---|
@@ -363,11 +379,15 @@ npm run build  # builds Next.js static + server
 
 ---
 
-## 14. Version B Publication Roadmap — LOCKED UNTIL VERSION A PASSES
+## 14. Version B Publication Roadmap — ✅ UNLOCKED (Version A gate passed)
+
+**Status:** Version A integrity gate passed (leakage-free split, corrected reruns, all artifacts verify locally), so the Version B phases below are unlocked and B1–B7.5 are complete.
 
 Version B is implemented only on `version-B` after the corrected Version A state is committed and pushed to `version-A`. Heavy experiments use Colab Pro. The local RTX 3060 Laptop GPU (6 GB VRAM) and 32 GB RAM are for inference, profiling, UI development, screenshots, and the live demo.
 
-### B0 — Version A integrity gate
+### B0 — Version A integrity gate — ✅ DONE
+
+**Status:** Corrected grouped-split rerun is complete, split report is leakage-free, and every artifact loads and predicts on this machine (verify_artifacts.py passes).
 
 Environment: Colab Pro for the rerun; local machine for verification.
 
@@ -434,7 +454,9 @@ Environment: Colab Pro.
 
 Exit condition: corrected in-domain results and shortcut controls are available before any external-dataset claim is written.
 
-### B3 — Cross-domain robustness — 🔶 IMPLEMENTED, EXECUTION MOVED TO COLAB
+### B3 — Cross-domain robustness — ✅ DONE (2026-08-09 Colab run)
+
+**Status:** Zero-shot evaluation on RAGTruth + FaithBench is finished with clean predictions (55,620 rows, no duplicates) and honest transfer-gap numbers on the dashboard. Nothing pending.
 
 Status: `src/models/run_b3_cross_domain.py` is implemented and unit-tested
 (10 tests): predeclared subsets (RAGTruth QA official test primary, all
@@ -462,7 +484,9 @@ Environment: Colab Pro (T4/L4).
 
 Exit condition: one table and one figure clearly show in-domain versus out-of-domain performance and the sources of transfer failure.
 
-### B4 — Calibration under distribution shift — 🔶 IMPLEMENTED, RUNS AFTER B3 IN COLAB
+### B4 — Calibration under distribution shift — ✅ DONE (2026-08-09)
+
+**Status:** Source/target calibration experiments are complete with correct counts (re-ran locally); the headline is on the dashboard: ECE 0.81 → 0.13 after target calibration.
 
 Status: `src/models/run_b4_calibration_shift.py` is implemented and
 unit-tested (10 tests). Source calibration (Platt/isotonic fit on HaluEval
@@ -545,7 +569,9 @@ Environment: Colab Pro.
 
 Exit condition: calibration results explain not only which method has the lowest ECE, but where calibration fails under shift.
 
-### B5 — Explanation reliability and error analysis
+### B5 — Explanation reliability and error analysis — ✅ DONE (2026-08-09)
+
+**Status:** All experiments are done (importance triangulation, neutralization, perturbations, stability, review export). The ONLY remaining step is the manual two-reviewer sheet — follow docs/b5-explanation-reliability.md and tally with review_tally.py.
 
 Environment: Colab Pro for experiments; manual review by the team.
 
@@ -559,7 +585,9 @@ Environment: Colab Pro for experiments; manual review by the team.
 
 Exit condition: the paper can defend SHAP as evaluated evidence rather than decorative visualization.
 
-### B6 — Reproducible publication artifact
+### B6 — Reproducible publication artifact — ✅ DONE (2026-08-09)
+
+**Status:** run_all_experiments.py (config-driven protocol), the enriched frozen manifest (raw hashes, seeds, b5 entries, source fingerprint), and the CPU Dockerfile are all in place and tested.
 
 Environment: local machine plus Colab export.
 
@@ -573,7 +601,9 @@ Environment: local machine plus Colab export.
 
 Exit condition: a clean clone plus documented downloads can regenerate the required artifacts without hidden local paths.
 
-### B7 — Research UI and demo
+### B7 — Research UI and demo — ✅ DONE (2026-08-09)
+
+**Status:** The six-tab evidence dashboard, Analyze compare mode, offline /demo walkthrough, mobile nav and accessibility are built, verified (build + lint green) and documented in docs/b7-research-ui.md.
 
 Environment: local RTX 3060 laptop, 32 GB RAM.
 
@@ -591,7 +621,9 @@ Environment: local RTX 3060 laptop, 32 GB RAM.
 
 Exit condition: a presenter can explain the method, run a live example, show a real failure, open robustness/calibration evidence, and recover if the network or LLM API is unavailable.
 
-### B7.5 — Conversational auto-analysis (Tiers 1–4)
+### B7.5 — Conversational auto-analysis (Tiers 1–4) — ✅ DONE (2026-08-09/10)
+
+**Status:** All four tiers are live: auto risk cards per answer (T1), per-claim NLI verdicts with 'Evidence says' quotes (T2), Tavily web + document retrieval with citations (T3), and LLM-judge routing, feedback loop, threshold tuning and rate limits (T4). 206 tests pass.
 
 Vision: chat normally (ChatGPT/Claude-style); after every assistant answer, a
 non-intrusive hallucination-risk card renders automatically; user can toggle it
@@ -638,7 +670,9 @@ claim judge, keeping the calibrated XGBoost as a labelled secondary signal.
 Exit condition (Tier 2): user chats normally, every answer shows per-claim verdicts with
 evidence basis, toggle works, and claim-level precision/recall vs human review is reported.
 
-### B8 — Manuscript and delivery
+### B8 — Manuscript and delivery — 🟡 NOT STARTED (human work)
+
+**Status:** Everything below is manual: write the paper, prepare the 5-minute demo script, record the backup video + screenshots from a final commit, and select the journal. The docs/ folder and frozen manifest are ready to support it.
 
 Environment: local machine and manual team work.
 
