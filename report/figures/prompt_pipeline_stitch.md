@@ -1,99 +1,120 @@
-# Figure 1 — HaluRISC Pipeline Infographic (Google Stitch design brief)
+# Figure 1 — HaluRISC Pipeline Infographic (one-page UI-style design brief)
 
-Use this brief to build the end-to-end methodology figure in **Google Stitch**
-(or any diagram tool: draw.io, Google Drawings, PowerPoint). It becomes
-**Figure 1** in the paper's Methodology chapter.
+Use this brief in **Google Stitch** (or Gemini Flash Image / Ideogram) to
+generate the end-to-end methodology figure as a **rich one-page infographic
+styled like a polished product UI page**. The generated page IS the image we
+use in the paper (Figure 1, Methodology chapter).
 
 ## Output requirements
 
-- **Canvas:** 16:9 landscape, 2400 x 1350 px (any wide landscape export works;
-  LaTeX scales it with `\textwidth`)
-- **Format:** PNG, 300 DPI, white background (transparent also fine)
+- **Canvas:** 16:9 landscape, 2400 x 1350 px, PNG, 300 DPI, no watermark
 - **Save as:** `report/figures/architecture.png`
-- **Style:** flat design, rounded-corner boxes, thin straight arrows, no 3D,
-  no shadows, no clipart, no watermark. All text short and legible.
+- **Style:** clean dark-and-light hybrid UI page: white content cards on a
+  soft light background with a blue-violet gradient header band. Rounded
+  corners, thin borders, subtle shadows allowed here (this is a UI-style
+  figure, not a plain schematic). Simple geometric icons per stage are
+  welcome. All technical text must be exact (list below).
 
-## Color palette
+## Full color palette (use these exact hex values)
 
-| Element | Hex |
+| Role | Hex |
 |---|---|
-| Inputs | slate `#475569` |
-| Feature group chips | violet `#7c3aed` |
-| Model boxes | indigo `#4f46e5` |
-| Output boxes | emerald `#059669`, amber `#d97706`, rose `#e11d48` |
-| Evaluation band | teal `#0d9488` |
-| Background | white `#ffffff`, box fill tints at ~10-15% of the accent |
+| Page background | `#f8fafc` (light gray) |
+| Header gradient | `#7c3aed` → `#4f46e5` → `#38bdf8` (violet-indigo-cyan) |
+| Header text | white `#ffffff` |
+| Input stage | slate `#475569` / tint `#f1f5f9` |
+| Feature chips | violet `#7c3aed` on `#ede9fe` |
+| Model boxes | indigo `#4f46e5` on `#eef2ff` |
+| Calibrator box | cyan `#0891b2` on `#ecfeff` |
+| Outputs | emerald `#059669`, amber `#d97706`, rose `#e11d48` (tints 10-15%) |
+| Evaluation band | teal `#0d9488` on `#f0fdfa` |
+| Dataset chips | blue `#2563eb` on `#eff6ff` |
+| Border color | `#cbd5e1` |
+| Body text | `#0f172a` (dark slate) |
+| Muted text | `#64748b` |
 
-## Layout and exact labels (copy these words exactly)
+## Page layout (top to bottom, one page)
 
-Top-to-bottom flow with a full-width evaluation band at the bottom.
+**1. Header band (full width, gradient violet→indigo→cyan, white text):**
 
-**Band 1 — Inputs (three boxes side by side):**
+- App-style title: `HaluRISC`
+- Subtitle: `Hallucination Risk Estimation Pipeline`
+- A small white pill badge: `black-box · calibrated · explainable`
 
-```
-[ Question ]   [ Context / Evidence ]   [ Answer (black-box LLM) ]
-```
+**2. Stage 1 — Inputs (three white cards in a row, numbered badge 1):**
 
-**Band 2 — Feature extraction (one wide box):**
+- Card 1: `Question`
+- Card 2: `Context / Evidence`
+- Card 3: `Answer (black-box LLM)` with a small chip `no weights needed`
+- A single arrow flows down into stage 2.
 
-```
-Feature Extraction — 26 Features, 7 Groups
-    chips: Length | Lexical | Entity | NLI | Numeric | Hedging | Semantic
-```
+**3. Stage 2 — Feature extraction (one wide card, badge 2):**
 
-**Band 3 — Model and calibration (two stacked boxes):**
+- Title: `Feature Extraction — 26 Features, 7 Groups`
+- Inside, seven chips in a row, violet tint, each with a tiny icon dot:
+  `Length`, `Lexical`, `Entity`, `NLI`, `Numeric`, `Hedging`, `Semantic`
+- Small muted caption: `NLI + embeddings + NER, cached once`
+- Arrow down with the label `26 features`.
 
-```
-[ XGBoost Classifier ]
-   grouped 5-fold CV · seeds 42/123/456
+**4. Stage 3 — Model and calibration (two stacked cards, badge 3):**
 
-[ Platt Calibrator ]
-   source (HaluEval val) → target (RAGTruth)
-```
+- Top card (indigo): `XGBoost Classifier` with chip row:
+  `grouped 5-fold CV`, `seeds 42/123/456`
+- Bottom card (cyan): `Platt Calibrator` with chip row:
+  `source: HaluEval val`, `target: RAGTruth`
+- Small muted caption: `fit on validation only`
+- Arrow down with the label `threshold 0.5`.
 
-**Band 4 — Outputs (three boxes side by side):**
+**5. Stage 4 — Outputs (three cards in a row, badge 4):**
 
-```
-[ Calibrated Risk Score ]  [ Per-Claim NLI Verdicts ]  [ SHAP Explanation ]
-```
+- `Calibrated Risk Score` (emerald/amber/rose mini gauge dot)
+- `Per-Claim NLI Verdicts` with three mini chips:
+  `supported`, `contradicted`, `unsupported`
+- `SHAP Explanation` with two tiny horizontal bars
 
-**Bottom band — Evaluation and deployment (three boxes in a row):**
+**6. Evaluation band (full width, teal tint, white card):**
 
-```
-[ Cross-Domain Zero-Shot ]     [ Explanation Reliability ]    [ Conversational Chat ]
-   RAGTruth · FaithBench          perturbations · stability      auto risk cards · citations
-```
+Three columns with small icons and sublabels:
 
-**Arrow labels:**
+- `Cross-Domain Zero-Shot` → sublabels `RAGTruth`, `FaithBench`
+- `Explanation Reliability` → sublabels `perturbations`, `stability`
+- `Conversational Chat` → sublabels `auto risk cards`, `citations`
 
-- Between Band 2 and Band 3: `26 features`
-- Between Band 3 and Band 4: `threshold 0.5`
+**7. Footer strip (light band):**
+
+- Three dataset chips: `HaluEval 20K`, `RAGTruth 17.8K`, `FaithBench 750`
+- Muted note: `grouped leakage-free split · 26 features · 3 seeds`
 
 ## Step-by-step in Stitch
 
-1. Open Google Stitch and start a blank design canvas.
-2. Paste this whole brief into the design prompt (Stitch reads natural-language
-   design intent). Say: "build this exact pipeline diagram, 16:9 landscape".
-3. After it renders, inspect every text label. Fix any garbled or missing word
-   by selecting the text layer and retyping the exact label from this file.
-4. Adjust colors to the palette above if Stitch picked its own.
-5. Export: File -> Export / Download as PNG (300 DPI if offered).
+1. Open a blank Stitch canvas.
+2. Paste this whole brief as the design prompt. Say: "build this one-page
+   pipeline infographic exactly as specified, 16:9, styled like a product
+   UI page".
+3. After rendering, inspect EVERY technical label against the exact list
+   above. Stitch sometimes rewrites or drops chips (the seven feature names
+   and the six sublabels are the most common failures). Select the wrong text
+   layer and retype it.
+4. Match colors to the palette if Stitch improvised.
+5. Export File -> Export / Download as PNG (300 DPI).
 6. Save to `report/figures/architecture.png`.
 
-## Quality checklist before saving
+## Quality checklist
 
-- [ ] All seven feature chips spelled exactly: Length, Lexical, Entity, NLI,
-      Numeric, Hedging, Semantic
-- [ ] "grouped 5-fold CV" and "seeds 42/123/456" present
-- [ ] "source (HaluEval val) to target (RAGTruth)" present
-- [ ] Bottom band has all three modules with sublabels
+- [ ] Header shows HaluRISC + subtitle + badge
+- [ ] Seven feature chips exact: Length, Lexical, Entity, NLI, Numeric,
+      Hedging, Semantic
+- [ ] "grouped 5-fold CV" and "seeds 42/123/456" chips present
+- [ ] "source: HaluEval val" and "target: RAGTruth" chips present
+- [ ] Three output cards with verdict chips supported/contradicted/unsupported
+- [ ] Evaluation band has all three modules with sublabels
+- [ ] Footer has the three dataset chips with numbers
 - [ ] Arrow labels "26 features" and "threshold 0.5" present
-- [ ] Ratio is clearly landscape (16:9)
+- [ ] Landscape 16:9, no watermark
 
 ## Alternative tools (same spec)
 
-- **draw.io / diagrams.net:** manual build, export File -> Export as PNG
-  (zoom 100%, 300 DPI).
-- **Google Drawings:** manual build, File -> Download -> PNG.
-- If Stitch output keeps garbling text, fall back to the AI image prompt in
-  `prompt_pipeline_ai.md`, or build manually in draw.io.
+- **Gemini Flash Image / Ideogram:** paste the whole brief as the image
+  prompt (see `prompt_pipeline_ai.md` for the matching prompt).
+- **draw.io / Google Drawings:** manual build for pixel-perfect text if the
+  AI keeps garbling labels.

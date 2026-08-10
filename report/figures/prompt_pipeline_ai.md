@@ -1,10 +1,10 @@
 # Figure 1 — Pipeline Infographic (AI image generator prompt)
 
 Fallback route for `prompt_pipeline_stitch.md`: use this with **Gemini**
-(Flash Image / Imagen), **Ideogram**, or **Microsoft Designer** to generate the
-same figure as an image. AI generators often garble small text, so check every
-label after generation and prefer the Stitch/draw.io route if any word is
-wrong after one retry.
+(Flash Image / Imagen), **Ideogram**, or **Microsoft Designer**. It produces
+the same rich one-page infographic (styled like a product UI page) as an
+image. AI generators often garble small text, so verify every label after
+generation; if a retry still fails, build the figure manually in draw.io.
 
 ## Output requirements
 
@@ -14,49 +14,58 @@ wrong after one retry.
 ## The prompt (copy-paste)
 
 ```
-Create a clean, professional academic journal figure for a machine learning
-paper about hallucination risk detection in large language models. Flat
-design, white background, rounded rectangles, thin straight arrows, no 3D
-effects, no shadows, no clipart, no watermarks. Consistent blue-violet color
-palette: inputs in slate gray, feature groups in violet, the model in indigo,
-outputs in emerald/amber/rose, evaluation modules in teal. Canvas 16:9,
-landscape, 2400x1350 pixels.
+Design a one-page infographic styled like a polished product UI page for an
+academic machine learning paper about hallucination risk detection in large
+language models. Light gray background, white content cards with rounded
+corners and thin slate borders, and a blue-violet-cyan gradient header band.
+Simple geometric icons per stage. Subtle shadows are fine. No clipart, no
+watermark.
 
-Layout, left to right in four horizontal bands:
+Canvas 16:9, landscape, 2400x1350 pixels. Use this palette: page background
+#f8fafc, header gradient #7c3aed to #4f46e5 to #38bdf8, slate text #0f172a,
+muted text #64748b, violet #7c3aed, indigo #4f46e5, cyan #0891b2, emerald
+#059669, amber #d97706, rose #e11d48, teal #0d9488, blue #2563eb, border
+#cbd5e1, tints at 10-15%.
 
-Band 1 (top): three input boxes side by side labeled "Question",
-"Context / Evidence", "Answer (black-box LLM)". One arrow joins them downward.
+Header band (full width): title "HaluRISC", subtitle "Hallucination Risk
+Estimation Pipeline", and a white pill badge reading "black-box - calibrated
+- explainable".
 
-Band 2: a single wide box labeled "Feature Extraction - 26 Features, 7
-Groups", containing seven small chips in a row labeled exactly: "Length",
-"Lexical", "Entity", "NLI", "Numeric", "Hedging", "Semantic". Arrow downward.
+Stage 1, numbered badge 1, three cards in a row: "Question",
+"Context / Evidence", "Answer (black-box LLM)" with chip "no weights
+needed".
 
-Band 3: two stacked boxes. Top box: "XGBoost Classifier" with a small
-subtitle "grouped 5-fold CV - seeds 42/123/456". Bottom box: "Platt
-Calibrator" with subtitle "source (HaluEval val) to target (RAGTruth)".
-Arrow downward.
+Stage 2, badge 2, one wide card titled "Feature Extraction - 26 Features,
+7 Groups" containing seven chips in a row: "Length", "Lexical", "Entity",
+"NLI", "Numeric", "Hedging", "Semantic". Caption "NLI + embeddings + NER,
+cached once". Arrow down labeled "26 features".
 
-Band 4 (outputs): three boxes side by side labeled exactly:
-"Calibrated Risk Score", "Per-Claim NLI Verdicts", "SHAP Explanation".
+Stage 3, badge 3, two stacked cards: indigo card "XGBoost Classifier" with
+chips "grouped 5-fold CV" and "seeds 42/123/456"; cyan card "Platt
+Calibrator" with chips "source: HaluEval val" and "target: RAGTruth".
+Caption "fit on validation only". Arrow down labeled "threshold 0.5".
 
-Bottom band (full width): three boxes in a row labeled exactly:
-"Cross-Domain Zero-Shot Evaluation" with sublabels "RAGTruth", "FaithBench";
-"Explanation Reliability" with sublabels "perturbations", "stability";
-"Conversational Chat" with sublabels "auto risk cards", "citations".
+Stage 4, badge 4, three cards in a row: "Calibrated Risk Score" with a
+green-amber-red gauge dot, "Per-Claim NLI Verdicts" with chips "supported",
+"contradicted", "unsupported", and "SHAP Explanation" with two small bars.
 
-Arrow labels: "26 features" between band 2 and 3, "threshold 0.5" between
-band 3 and 4. Keep all text short, legible, and perfectly spelled. No extra
-text anywhere else.
+Evaluation band, teal tint, three columns: "Cross-Domain Zero-Shot" with
+sublabels "RAGTruth", "FaithBench"; "Explanation Reliability" with sublabels
+"perturbations", "stability"; "Conversational Chat" with sublabels "auto
+risk cards", "citations".
+
+Footer strip with three chips: "HaluEval 20K", "RAGTruth 17.8K",
+"FaithBench 750" and a muted note "grouped leakage-free split - 26 features
+- 3 seeds".
+
+Keep every label short and spelled exactly as written above. No extra text.
 ```
 
 ## After generation
 
-1. Zoom into the image and verify every label against the exact list in
-   `prompt_pipeline_stitch.md` (especially the seven feature chips and the
-   subtitles).
-2. If any word is garbled, retry once with that word in quotes at the end of
-   the prompt: e.g. "...make sure the words 'Hedging' and 'FaithBench' appear
-   exactly".
-3. If it still fails, build the figure manually in draw.io or Google Drawings
-   using the same spec file.
+1. Zoom in and check every label against the exact list (the seven feature
+   chips, the six evaluation sublabels, and the footer chips fail most often).
+2. Retry once with any wrong word in quotes at the end of the prompt.
+3. If it still fails, build manually in draw.io / Google Drawings using the
+   spec in `prompt_pipeline_stitch.md`.
 4. Save the final PNG to `report/figures/architecture.png`.
