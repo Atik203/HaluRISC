@@ -5,6 +5,9 @@ The methods above are deployed as a two-tier web application, and Figure~\ref{fi
 
 \begin{figure}[t]
 \centering
+\IfFileExists{./figures/system_architecture.png}{
+\includegraphics[width=\textwidth]{system_architecture.png}
+}{
 \begin{tikzpicture}[
     box/.style={draw, rounded corners=4pt, minimum height=1.05cm, inner sep=5pt, align=center, font=\small},
     arrow/.style={-latex, thick},
@@ -19,6 +22,7 @@ The methods above are deployed as a two-tier web application, and Figure~\ref{fi
 \draw[arrow] (bff) -- node[above, font=\scriptsize]{/api/ml/*} (api);
 \draw[arrow] (api) -- (ml);
 \end{tikzpicture}
+}
 \caption{HaluRISC system architecture. The Next.js backend-for-frontend proxies machine-learning requests to FastAPI and streams LLM chat with tool-generated UI widgets.}
 \label{fig:arch}
 \end{figure}
