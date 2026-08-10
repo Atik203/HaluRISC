@@ -96,7 +96,7 @@ LLMs are now used in real products --- chatbots, Q\&A systems, content review to
 
 \section{Objectives}
 
-Research question: Can a lightweight machine learning model predict hallucination risk in LLM answers using simple text features, while giving calibrated risk scores and clear explanations? To answer this, the project has five objectives. The first is to build a feature extraction pipeline (about 20--30 features) that captures how well an answer agrees with the question and context, covering word overlap, named entities, contradiction signals, numbers, hedging words, and semantic similarity. The second is to train and honestly compare classical models, including a simple heuristic baseline, Logistic Regression, Random Forest, and XGBoost. The third is to calibrate the risk scores so that a score of 0.8 truly means ``about 80\% risk'', making the score trustworthy for real use. The fourth is to explain predictions with SHAP, giving a global view of which features matter most plus detailed case studies of individual predictions. The fifth is to build a polished web dashboard (Next.js 16 with assistant-ui + FastAPI) with strong UI/UX, featuring live prediction, a risk gauge, per-claim evidence verdicts, an explanation panel, and a demo gallery, designed for presentation and judging.
+Research question: Can a lightweight machine learning model predict hallucination risk in LLM answers using simple text features, while giving calibrated risk scores and clear explanations? To answer this, the project has five objectives. The first is to build a feature extraction pipeline (26 features in seven groups) that captures how well an answer agrees with the question and context, covering word overlap, named entities, contradiction signals, numbers, hedging words, and semantic similarity. The second is to train and honestly compare classical models, including a simple heuristic baseline, Logistic Regression, Random Forest, and XGBoost. The third is to calibrate the risk scores so that a score of 0.8 truly means ``about 80\% risk'', making the score trustworthy for real use. The fourth is to explain predictions with SHAP, giving a global view of which features matter most plus detailed case studies of individual predictions. The fifth is to build a polished web dashboard (Next.js 16 with assistant-ui + FastAPI) with strong UI/UX, featuring live prediction, a risk gauge, per-claim evidence verdicts, an explanation panel, and a demo gallery, designed for presentation and judging.
 
 \section{Related Work}
 
@@ -136,14 +136,9 @@ External comparison: results are compared with published HaluEval detection base
 
 \section{Dataset}
 
-We use the HaluEval benchmark \cite{haluEval} (EMNLP 2023) --- the standard dataset for hallucination evaluation, widely used and well documented.
+The project uses three public corpora. The training source is the QA subset of HaluEval \cite{haluEval} (EMNLP 2023), the standard benchmark for hallucination evaluation. It contains 10{,}000 questions, each paired with a correct answer and a hallucinated answer, which yields 20{,}000 labeled rows with a balanced label distribution. The rows are split 70/15/15 at the question-group level into 14{,}000 training, 3{,}000 validation, and 3{,}000 test rows, so the two answers of one question never cross splits.
 
-\begin{itemize}
-    \item Size: 35{,}000 samples across 4 task types (QA, dialogue, summarization, general).
-    \item Used here: the QA subset (about 10{,}000 samples). Each sample has a question, an answer, a context, and a label (hallucinated or not).
-    \item Why QA: it is the largest, cleanest, and most comparable subset, and it matches the demo scenario (question $\rightarrow$ answer $\rightarrow$ risk score).
-    \item External validation: results will also be checked on RAGTruth \cite{ragtruth} --- 17{,}790 naturally generated responses from several modern LLMs with human word-level annotations --- to test whether the model generalizes to natural responses.
-\end{itemize}
+The evaluation corpora come from the extended study. RAGTruth \cite{ragtruth} contributes 17{,}790 naturally generated responses with human word-level annotations, covering three tasks (QA, summarization, and data-to-text), four domains (MS MARCO, CNN/DailyMail, recent news, and Yelp), and six generator models from the GPT, Llama-2, and Mistral families. FaithBench \cite{faithbench} adds 750 summaries produced by ten modern LLMs. Both corpora are used for zero-shot evaluation, and a 5{,}034-row RAGTruth QA slice serves as the calibration set for target-domain recalibration, with a disjoint 900-row held-out test set.
 
 \section{Expected Results}
 
