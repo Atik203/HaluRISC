@@ -44,3 +44,4 @@ Thumbs.db
 report/out/
 report/*.aux
 report/*.log
+report/*.out
