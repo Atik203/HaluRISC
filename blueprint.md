@@ -16,9 +16,13 @@ The two versions must not be mixed during the course. The biggest risk is trying
 
 > **Build a clean, defensible course project first. Then extend it into a stronger publication study.**
 
-> **IMPLEMENTATION STATUS (updated 2026-08-06):** ✅ DONE | 🔶 PARTIAL | ⬜ TODO
+> **IMPLEMENTATION STATUS (updated 2026-08-11):** ✅ DONE | 🔶 PARTIAL | ⬜ TODO
 >
-> Version A integrity repair is complete: group-aware split by `item_idx` is leakage-free (0 groups spanning splits), and all corrected artifacts were regenerated (XGBoost F1 0.9842 / AUROC 0.9982, calibration ECE raw 0.0122 / Platt 0.0101 / isotonic 0.0071, RAGTruth zero-shot F1 0.4819, LLM-judge F1 0.84 vs XGBoost 0.985, per-seed metrics, manifest). API and pytest verified; Colab notebook/zip produce portable artifacts (HALU_XGB_DEVICE=cpu). Remaining for final: manual 50-sample audit review, manual error-case review, paper claim updates (A13), web lint/build/clean-clone verification, and pushing the final state to `version-A`. Version B stays locked until that push.
+> **Version A (frozen on branch `version-A`, pushed):** integrity repair complete — group-aware split by `item_idx` is leakage-free, corrected artifacts regenerated (XGBoost F1 0.9842 / AUROC 0.9982), API + pytest verified, Colab notebook portable.
+>
+> **Version B (branch `version-B`, complete, ~97%):** all experiments finished with verified, frozen artifacts (B2 baselines F1 0.9846 / AUROC 0.9979 / ECE 0.0045; B3 cross-domain transfer gap quantified; B4 calibration under shift, ECE 0.8185 → 0.1335 after target recalibration; B5 explanation reliability; B6 reproducibility with frozen manifest; B7 research UI; B7.5 conversational tiers 1–4). The manuscript is written: `report/paper.tex` (modular, 15-page clean build, hyperlinked citations, all Version B numbers) and `report/proposal.tex` + PDF, with the five 2026 references verified and corrected in `ref.bib`. The deployed API serves an evidence-domain display score (B4 natural isotonic + per-claim verdict adjustment) that removes the blanket-99% saturation. 206 tests pass.
+>
+> **Remaining (all manual):** the B5.5 two-reviewer sheet, claim-eval and feedback labeling, DOI click-through at submission, optional fresh UI screenshots, and the 5-minute demo script (see `roadmap.md` §17).
 
 ---
 

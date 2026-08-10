@@ -4,11 +4,13 @@
 
 **Convention:** items marked `[verified 2026]` were checked against current web/PyPI info in July 2026.
 
-> **IMPLEMENTATION STATUS (updated 2026-08-10):** ✅ **~90% done.**
+> **IMPLEMENTATION STATUS (updated 2026-08-11):** ✅ **~97% done.**
 >
 > Everything code-side is complete and verified: Version A integrity repair (leakage-free split, corrected artifacts, XGBoost F1 0.9842 / AUROC 0.9982) and all of Version B — B1 unified data, B2 baselines, B3 cross-domain, B4 calibration under shift, B5 explanation reliability, B6 reproducibility, B7 research UI, B7.5 conversational tiers 1–4 (206 tests, build + lint green, `ALL ARTIFACTS VERIFIED`).
 >
-> **What still needs to be done is human work — the manual review sheets and the paper — listed in §17 at the end of this file.**
+> **The manuscript is also done.** `report/paper.tex` (modular, 15-page clean build, hyperlinked citations, all Version B numbers) and `report/proposal.tex` were rewritten and built; all five 2026 references were verified and fixed in `ref.bib`; the paper/proposal figures are vendored in `report/figures/`. The API now serves an evidence-domain display score (B4 natural isotonic + per-claim adjustment) instead of the blanket-99% HaluEval-Platt score.
+>
+> **What still needs to be done is human work — the manual review sheets and the final checks — listed in §17 at the end of this file.**
 
 ### Operating rule
 
@@ -105,7 +107,7 @@ Platt/isotonic (fit on validation only), all metrics, statistics (McNemar, boots
 SHAP global + local figures, and its reliability is now measured in B5 (importance triangulation, neutralization, perturbation stability, bootstrap CIs).
 
 ### 10. Phase 7 — Backend API — ✅ DONE
-FastAPI live and verified end-to-end: `/health /predict /explain /judge /meta /verify /index /feedback`, serving the B-run deployable (B2 XGBoost + B4 Platt). One worker, no `--reload`, inference lock, bounded inputs, LRU feature cache.
+FastAPI live and verified end-to-end: `/health /predict /explain /judge /meta /verify /index /feedback`, serving the B-run deployable (B2 XGBoost + B4 display isotonic fitted on natural RAGTruth data; HaluEval-Platt kept as `legacy_score`). One worker, no `--reload`, inference lock, bounded inputs, LRU feature cache.
 
 ### 11. Phase 8 — Frontend Dashboard — ✅ DONE
 Chat with auto risk cards, Analyze with compare mode, the 6-tab experiment dashboard, the offline `/demo` walkthrough, mobile nav and accessibility. `pnpm build` + `lint` pass. Runbook: `docs/b7-research-ui.md`.
@@ -140,6 +142,12 @@ Six-tab evidence dashboard, Analyze compare mode, offline `/demo` walkthrough, m
 
 ### B7.5 — Conversational auto-analysis (Tiers 1–4) — ✅ DONE (2026-08-09/10)
 All four tiers live: auto risk cards per answer (T1), per-claim NLI verdicts with "Evidence says" quotes (T2), Tavily web + document retrieval with citations (T3), LLM-judge routing + feedback loop + threshold tuning + rate limits (T4). 206 tests pass.
+
+### B7.6 — Evidence-domain display score — ✅ DONE (2026-08-10)
+`calibrated_score` no longer saturates at 99% on full-sentence inputs. `src/models/fit_display_calibrator.py` fits the B4 display calibrator (isotonic) on 5,034 natural RAGTruth QA rows (ECE 0.133 on the disjoint 900-row test, vs 0.819 raw); `/verify` further adjusts the score from per-claim verdicts (contradicted up, supported down). Verified live: grounded full-sentence answer 0.31 (low), contradicted-claim answer 0.80 (high).
+
+### B8 — Manuscript & delivery — ✅ DONE (2026-08-10/11)
+`report/paper.tex` rewritten as a modular document (intro, literature review, methodology, experimental setup, results, system, discussion, conclusion, reproducibility) with only verified Version B numbers, student-register prose (`report/paper_prompt.md`), hyperlinked citations, and vendored figures (pipeline infographic, system architecture, reliability/calibration/transfer diagrams). `report/proposal.tex` and `proposal.pdf` updated to Version B. All five 2026 citations verified against live sources and fixed in `ref.bib` (Luna authors, IJERT authors, IEEE TAI authors, Multimedia authors, SpikeScore ICLR).
 
 ---
 
@@ -188,7 +196,7 @@ All four tiers live: auto risk cards per answer (T1), per-claim NLI verdicts wit
 
 ## 17. What Still Needs to Be Done (all manual / human work)
 
-Everything left is paper and review work — no code changes are required. Guides and artifacts are ready in `docs/`.
+The manuscript is written; everything left is manual review and final pre-submission checks — no code changes are required. Guides and artifacts are ready in `docs/`.
 
 ### 17.1 Manual review tasks (do these first)
 
@@ -196,14 +204,13 @@ Everything left is paper and review work — no code changes are required. Guide
 2. **Claim-eval labeling (T2/T3 evals)** — build the human-labeling sheet with `python src/models/eval_claims.py --build`, label claims by hand, then measure verdict agreement and flagging precision/recall with `--evaluate`. For retrieval, annotate `--tier3` queries and report citation recall@k.
 3. **Feedback labeling** — if you used the 👍/👎 buttons in chat, export the collected rows with `--from-feedback` and label `correct_verdict`; then `python src/models/tune_thresholds.py` to see whether tuned NLI thresholds improve agreement (`--apply` is an explicit human step).
 
-### 17.2 B8 — Manuscript & delivery (paper work only)
+### 17.2 B8 — Pre-submission delivery (paper work only)
 
-1. Freeze the artifact manifest (already generated — `artifacts/results/manifest.json` and `docs/manifest.frozen.json`).
-2. Write the paper around the five storylines: leakage control (B2), cross-domain robustness (B3), calibration under shift (B4), explanation reliability (B5), and deployment cost (B7 efficiency).
-3. Include dataset licenses, limitations, source-group rules, and the negative results (the transfer gap and the style-sensitive calibrated score are honest negatives, not failures).
-4. Do not claim SOTA, universal truth detection, guaranteed Q2 acceptance, or an unverified first contribution.
-5. Prepare the 5-minute demo script: problem → grounded example → unsupported example → explanation → calibration/shift result → failure case → efficiency. The offline `/demo` page already contains the material.
-6. Select the journal only after the corrected results are available; recheck scope, quartile, APC, and author guidelines at submission time.
+1. Fill the three manual sheets above (17.1) if the reviewer/feedback numbers should appear in the report.
+2. Click through every DOI/URL in `report/ref.bib` once more at submission time (all 18 entries were verified 2026-08-11; `ieeeTai` DOI should be re-checked on ieeexplore, which blocks scraping).
+3. If desired, update the System chapter screenshots (`report/screenshots/*.png`) to the latest chat auto-risk card, then rebuild with `latexmk -pdf -outdir=out paper.tex`.
+4. Prepare the 5-minute demo script: problem → grounded example → unsupported example → explanation → calibration/shift result → failure case → efficiency. The offline `/demo` page already contains the material.
+5. Journal selection stays deferred: pick the venue only after the manual review sheets exist; recheck scope, quartile, APC, and author guidelines at submission time.
 
 Exit condition: manuscript numbers, dashboard numbers, manifest, and screenshots all come from the same frozen commit and artifact bundle.
 
