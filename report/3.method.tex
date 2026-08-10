@@ -1,15 +1,14 @@
 % Chapter 3 — Methodology.
 \section{Methodology}
 
-Figure~\ref{fig:pipeline} gives an end-to-end view of the pipeline before we
-describe each stage in detail.
+Figure~\ref{fig:pipeline} shows the full pipeline at a glance. The system takes a question, an optional reference context, and a candidate answer produced by a black-box LLM, and it returns a calibrated risk probability together with per-feature explanations. Each stage is described in the following subsections.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{architecture.png}
-\caption{End-to-end HaluRISC pipeline: evidence-consistency features from the
+\caption{End-to-end HaluRISC pipeline. Evidence-consistency features from the
 question, context, and answer feed a grouped-CV trained, Platt-calibrated
-XGBoost model; outputs include a calibrated risk score, per-claim NLI
+XGBoost model. Outputs include a calibrated risk score, per-claim NLI
 verdicts, and SHAP explanations, with cross-domain and explanation-reliability
 evaluation.}
 \label{fig:pipeline}
@@ -17,17 +16,17 @@ evaluation.}
 
 \subsection{Task definition}
 
-Given a question $q$, an optional reference context $c$ (evidence), and a candidate answer $a$ produced by a black-box LLM, predict the probability $P(\text{hallucinated} \mid q, c, a)$. We predict \emph{risk}, not truth: the system flags answers that are unsupported by or contradictory to the available evidence.
+Given a question $q$, an optional reference context $c$ (evidence), and a candidate answer $a$ produced by a black-box LLM, the task is to predict the probability $P(\text{hallucinated} \mid q, c, a)$. HaluRISC predicts risk, not truth. It flags answers that are unsupported by, or contradictory to, the available evidence.
 
 \subsection{Dataset and preprocessing}
 
-We use the QA subset of HaluEval \cite{haluEval} (EMNLP 2023), a widely used hallucination-evaluation benchmark. Each of the 10{,}000 QA entries provides a question, a knowledge passage (used as context), a correct answer, and a hallucinated answer. We create two rows per question (correct answer, label 0; hallucinated answer, label 1), giving 20{,}000 rows with a perfectly balanced label distribution. A 50-sample manual audit was performed to verify label quality before training.
+The QA subset of HaluEval \cite{haluEval} provides 10{,}000 questions, each with a knowledge passage, a correct answer, and a hallucinated answer. Every question yields two rows, one per answer variant, for a total of 20{,}000 rows with perfectly balanced labels. The data is split 70/15/15 stratified by label, and the split is performed at the question-group level so that the two rows of one question never land in different splits. This grouped, leakage-free design matters because both answer variants of a question share the same context, and a random split could otherwise let the model memorize the pairing. The split indices are saved to disk for exact reproducibility.
 
-Text was whitespace-normalized; lexical features operate on lowercased token sets while NER and NLI keep original casing. Missing context is handled explicitly (lexical overlap $=0$, NLI probabilities $=1/3$). The dataset is split 70/15/15 stratified by label (14{,}000/3{,}000/3{,}000), and the split indices are saved for exact reproducibility.
+Text is whitespace-normalized. Lexical features operate on lowercased token sets, while NER and NLI keep the original casing. Missing context is handled explicitly, with lexical overlap set to zero and NLI probabilities to one third.
 
 \subsection{Features}
 
-We extract 26 features in seven groups (Table~\ref{tab:features}). NLI signals use a cross-encoder NLI model (DeBERTa-v3-based, SNLI+MultiNLI), evaluated in both directions---context$\to$answer and answer$\to$context---producing six probability features. Semantic similarity uses MiniLM sentence embeddings; entity features use spaCy NER.
+Table~\ref{tab:features} lists the 26 features in seven groups. NLI signals come from a DeBERTa-v3 cross-encoder trained on SNLI and MultiNLI, evaluated in both directions, context-to-answer and answer-to-context, which yields six probability features. Semantic similarity uses MiniLM sentence embeddings \cite{sbert}, entity features use spaCy NER, and the numeric and hedging groups are collected with regular expressions and a small hedging lexicon.
 
 \begin{table}[t]
 \centering
@@ -38,25 +37,25 @@ We extract 26 features in seven groups (Table~\ref{tab:features}). NLI signals u
 \toprule
 \textbf{Group} & \textbf{Features} & \textbf{Source} \\
 \midrule
-Length/style & n\_chars, n\_words, n\_sentences, avg\_word\_len & regex \\
-Lexical overlap & overlap/answer vs.\ context \& question, Jaccard $\times$2 & token sets \\
-Entity overlap & entity counts, overlap ratio, novel-entity ratio & spaCy NER \\
-NLI consistency & entail/contradict/neutral $\times$ 2 directions & cross-encoder NLI \\
-Numeric & number counts, overlap ratio, novel numbers & regex \\
-Hedging & hedge count, hedge density & lexicon \\
-Semantic & cosine(context,answer), cosine(question,answer) & MiniLM \\
+Length/style  & n\_chars, n\_words, n\_sentences, avg\_word\_len & regex \\
+Lexical       & overlap vs.\ context \& question, Jaccard $\times$2 & token sets \\
+Entity        & entity counts, overlap ratio, novel-entity ratio & spaCy NER \\
+NLI           & entail/contradict/neutral $\times$ 2 directions & cross-encoder NLI \\
+Numeric       & number counts, overlap ratio, novel numbers & regex \\
+Hedging       & hedge count, hedge density & lexicon \\
+Semantic      & cosine(context,answer), cosine(question,answer) & MiniLM \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsection{Models}
 
-We compare a heuristic baseline (risk $= 1 - \text{overlap}(\text{answer}, \text{context})$, threshold tuned on validation), logistic regression (standardized features), random forest (300 trees), and XGBoost. XGBoost hyperparameters are selected by randomized search (30 iterations, 5-fold stratified CV on the training split) over depth, learning rate, tree count, subsample, and column subsampling; the best configuration is $\{\text{max\_depth}=4, \text{lr}=0.01, \text{n\_estimators}=500, \text{subsample}=0.9, \text{colsample\_bytree}=0.7\}$ (CV AUROC 0.9971). Every experiment is repeated with seeds 42, 123, and 456 and reported as mean $\pm$ std.
+Four baselines are compared. The first is a heuristic that sets risk to one minus the lexical overlap between the answer and the context, with its threshold tuned on validation. The second is logistic regression on standardized features, the third a random forest with 300 trees, and the fourth XGBoost. XGBoost hyperparameters come from a randomized search of 30 iterations over depth, learning rate, tree count, subsample, and column subsampling, scored with 5-fold stratified cross-validation on the training split. The best configuration is depth 4, learning rate 0.01, 500 trees, subsample 0.9, and column subsampling 0.7, with a cross-validated AUROC of 0.9970. Every experiment is repeated with seeds 42, 123, and 456, and results are reported as the mean over seeds.
 
 \subsection{Calibration}
 
-Calibrators are fit on the \emph{validation} split only. Platt scaling (sigmoid logistic regression on raw scores) and isotonic regression are compared against the raw model on the test split using Expected Calibration Error (ECE, 10 bins), Brier score, and reliability diagrams.
+Calibrators are fit on the validation split only. Platt scaling fits a sigmoid to the raw scores, and isotonic regression fits a step function, and both are compared against the raw model on the test split with expected calibration error (10 bins), Brier score, and reliability diagrams. A second step targets a new domain. When a small labeled sample of the target corpus is available, the calibrator is re-fit on that sample, and the effect is measured on a disjoint held-out part of the target corpus.
 
 \subsection{Explainability}
 
-A SHAP TreeExplainer \cite{shap} over the raw XGBoost model produces global mean-$|$SHAP$|$ importance and beeswarm summaries, plus local waterfall explanations for hand-picked high-risk, low-risk, and borderline test cases.
+Global interpretability comes from SHAP \cite{shap}. A TreeExplainer over the raw XGBoost model produces mean absolute SHAP importance and beeswarm summaries, and local explanations show the feature contributions behind a single verdict. Explanation reliability is measured directly in this work. Each test answer is perturbed in six ways, by replacing entities, numbers, or dates, removing supporting context, inserting irrelevant context, and shuffling clauses, and the calibrated score should stay stable under neutral perturbations and react to semantic ones. Stability is quantified with Spearman and Kendall rank correlation between the original and perturbed scores, the fraction of top-1 flips, and the top-$k$ Jaccard overlap of the SHAP feature rankings.
