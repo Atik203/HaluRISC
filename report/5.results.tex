@@ -1,5 +1,5 @@
-% Chapter 6 — Results and Discussion (SHAP, error analysis, limitations).
-\section{Results and Discussion}
+% Chapter 5 — Results (feature importance, error analysis).
+\section{Results}
 
 \subsection{Feature importance}
 
@@ -38,14 +38,4 @@ label\_ambiguity          & 4 & 2 \\
 \end{tabular}
 \end{table}
 
-\subsection{Limitations}
-
-\begin{itemize}
-    \item \textbf{Synthetic data.} 85\% of HaluEval is ChatGPT-generated ``sampling-then-filtering'' data; real-world hallucination patterns differ, and our RAGTruth zero-shot result (F1 0.4822) quantifies the gap.
-    \item \textbf{Benchmark artifacts.} Length and overlap patterns are highly informative on HaluEval but may be dataset-specific (see ablation and SHAP).
-    \item \textbf{Binary labels.} The benchmark reduces hallucination to yes/no; graded severity and partial hallucinations are out of scope.
-    \item \textbf{English only.} All features (NER, NLI, embeddings) are English-centric.
-    \item \textbf{Single dataset.} The model is trained only on HaluEval QA; domain adaptation is future work.
-    \item \textbf{Platt vs.\ isotonic.} Platt did not improve calibration here; isotonic did. The deployed artifact ships Platt (blueprint default).
-    \item \textbf{Style-sensitive calibrated score.} In conversational use, full-sentence answers can saturate the calibrated score even when per-claim evidence verdicts say supported; the interface therefore leads with the evidence verdicts and labels the legacy score as secondary.
-\end{itemize}
+% Limitations moved to 7.discussion.tex (prose, with ethics).

@@ -4,19 +4,19 @@
 % modules below (add/remove modules by editing this file — never content here).
 %
 %   report/
-%   ├── paper.tex            <- main entry point (this file)
-%   ├── 0.1.title.tex        <- title page
-%   ├── 0.2.abstract.tex     <- abstract
+%   ├── paper.tex                 <- main entry point (this file)
+%   ├── 0.1.title.tex             <- title page
+%   ├── 0.2.abstract.tex          <- abstract
 %   ├── 1.intro.tex
-%   ├── 2.related_work.tex
+%   ├── 2.literature_review.tex
 %   ├── 3.method.tex
-%   ├── 4.experiments.tex
-%   ├── 5.web_application.tex
-%   ├── 6.results_discussion.tex
-%   ├── 7.conclusion.tex
-%   ├── 8.reproducibility.tex
-%   ├── 9.ethics.tex
-%   └── ref.bib             <- BibTeX references
+%   ├── 4.experimental_setup.tex
+%   ├── 5.results.tex
+%   ├── 6.system.tex
+%   ├── 7.discussion.tex
+%   ├── 8.conclusion.tex
+%   ├── 9.reproducibility.tex
+%   └── ref.bib                   <- BibTeX references
 %
 % Compile (run twice for references):
 %   pdflatex paper.tex && bibtex paper && pdflatex paper.tex && pdflatex paper.tex
@@ -57,15 +57,18 @@
 \input{0.2.abstract}
 
 \input{1.intro}
-\input{2.related_work}
+\input{2.literature_review}
 \input{3.method}
-\input{4.experiments}
-\input{5.web_application}
-\input{6.results_discussion}
-\input{7.conclusion}
-\input{8.reproducibility}
-\input{9.ethics}
+\input{4.experimental_setup}
+\input{5.results}
+\input{6.system}
+\input{7.discussion}
+\input{8.conclusion}
+\input{9.reproducibility}
 
+% Flush pending floats before the reference section so no figure is
+% rendered after the bibliography.
+\clearpage
 \bibliographystyle{plain}
 \bibliography{ref}
 
