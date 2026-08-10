@@ -305,7 +305,7 @@ export function AutoRiskCard() {
       : null;
     const headlineLabel = claimRisk ?? p.label;
     const { cls, Icon } = tone(headlineLabel);
-    const legacyConflict = claimRisk != null && claimRisk !== "high_risk" && score >= 0.7;
+    const legacyConflict = claimRisk != null && claimRisk !== "high_risk" && score >= 0.6;
 
     return (
       <section
@@ -319,8 +319,8 @@ export function AutoRiskCard() {
               <div className="text-sm font-bold">{LABEL_TEXT[headlineLabel] ?? headlineLabel}</div>
               <div className="text-[11px] font-mono text-muted-foreground">
                 {claimRisk
-                  ? `per-claim evidence verdict (${claims.length} claim${claims.length > 1 ? "s" : ""}) · legacy model score ${pct}%`
-                  : `${pct}% calibrated risk probability`}
+                  ? `per-claim evidence verdict (${claims.length} claim${claims.length > 1 ? "s" : ""}) · evidence-calibrated score ${pct}%`
+                  : `${pct}% evidence-calibrated risk probability`}
               </div>
             </div>
           </div>
@@ -368,9 +368,9 @@ export function AutoRiskCard() {
 
         {legacyConflict && (
           <p className="text-[10px] text-amber-600/90 dark:text-amber-400/90 bg-amber-500/5 border border-amber-500/20 rounded-lg px-2.5 py-1.5">
-            The legacy model score ({pct}%) is style-sensitive: HaluEval favors terse keyword answers with full
-            overlap, so full-sentence answers score high even when the evidence says they are fine. The headline
-            above comes from the per-claim evidence verdicts — trust them and the citations.
+            The score is calibrated on natural RAGTruth responses and adjusted by the per-claim verdicts below.
+            It stays style-sensitive because the underlying model was trained on HaluEval synthetic data, so the
+            headline comes from the claim evidence — trust it and the citations.
           </p>
         )}
 

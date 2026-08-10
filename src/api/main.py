@@ -60,14 +60,17 @@ MAX_CONTEXT_CHARS = 20000
 MODEL_VERSION = "b2-xgboost-v1.0"
 FEATURE_VERSION = "course-v1.0"
 
-THRESHOLDS = {"low": 0.30, "medium": 0.70, "high": 1.0}
-WARNING = "Trained on HaluEval synthetic data. Results may not generalize to real-world LLM outputs."
+THRESHOLDS = {"low": 0.35, "medium": 0.60, "high": 1.0}
+WARNING = ("Calibrated on natural RAGTruth responses. The model itself is trained on "
+           "HaluEval synthetic data, so the score is style-sensitive; per-claim "
+           "verdicts lead when present.")
 
 # B-run deployable (B4.2 predeclared rule): B2 xgboost_seed_42 + B4 Platt
 # source calibrator. Falls back to the Version A bundle when B-run artifacts
 # are missing (e.g. a VA-only clone).
 B2_MODEL = MODELS_DIR / "b2" / "xgboost_seed_42.joblib"
 B4_PLATT = MODELS_DIR / "b4" / "calibrator_platt_source_seed_42.joblib"
+B4_DISPLAY = MODELS_DIR / "b4" / "calibrator_display.joblib"
 
 # Heavy models (spaCy + NLI + SBERT) are preloaded at startup and loaded lazily
 # on first request only if startup failed. The lock prevents concurrent
@@ -156,6 +159,7 @@ class FeatureImpact(BaseModel):
 class PredictionResponse(BaseModel):
     risk_score: float
     calibrated_score: float
+    legacy_score: float
     label: str
     thresholds: Dict[str, float]
     latency_ms: float
@@ -264,21 +268,46 @@ class JudgeResponse(BaseModel):
 # Startup / artifact loading
 # ----------------------------------------------------------------------------
 def _load_calibrated_model():
-    """Deployable: B2 xgboost_seed_42 + B4 Platt source calibrator (B-run);
-    predict_proba = platt(raw.predict_proba). Falls back to the Version A
+    """Deployable: B2 xgboost_seed_42 + B4 display calibrator (fitted on
+    natural RAGTruth QA data) for calibrated_score, with the B4 source Platt
+    (HaluEval val) kept as legacy_score. Falls back to the Version A
     xgb+platt bundle when B-run artifacts are missing."""
     import joblib
+
+    def _legacy_proba(raw, platt, X):
+        p = raw.predict_proba(X)[:, 1]
+        return platt.predict_proba(p.reshape(-1, 1))
 
     if B2_MODEL.exists() and B4_PLATT.exists():
         raw = joblib.load(B2_MODEL)
         platt = joblib.load(B4_PLATT)
+        display_bundle = joblib.load(B4_DISPLAY) if B4_DISPLAY.exists() else None
 
         def predict_proba(X):
-            p = raw.predict_proba(X)[:, 1]
-            return platt.predict_proba(p.reshape(-1, 1))
+            return _legacy_proba(raw, platt, X)
 
-        logger.info("Deployable model: B2 xgboost_seed_42 + B4 Platt source calibrator")
-        return {"raw": raw, "predict_proba": predict_proba}
+        def predict_proba_display(X):
+            p_raw = raw.predict_proba(X)[:, 1]
+            if display_bundle is None:
+                return platt.predict_proba(p_raw.reshape(-1, 1))
+            method = display_bundle["method"]
+            cal = display_bundle["calibrator"]
+            if method == "isotonic":
+                res = cal.predict(p_raw)
+            else:
+                p_clip = np.clip(p_raw, 1e-12, 1 - 1e-12)
+                z = np.log(p_clip / (1 - p_clip))
+                if method == "temperature":
+                    res = 1.0 / (1.0 + np.exp(-z / float(cal)))
+                else:
+                    res = cal.predict_proba(z.reshape(-1, 1))[:, 1]
+            pos = np.asarray(res).reshape(-1, 1)
+            return np.hstack([1.0 - pos, pos])
+
+        logger.info("Deployable model: B2 xgboost_seed_42 + B4 display calibrator "
+                    f"({display_bundle['method'] if display_bundle else 'source platt fallback'})")
+        return {"raw": raw, "predict_proba": predict_proba,
+                "predict_proba_display": predict_proba_display}
 
     logger.warning("B-run deployable artifacts missing; falling back to the Version A bundle")
     bundle = joblib.load(MODELS_DIR / "model_xgboost_calibrated.joblib")
@@ -286,11 +315,12 @@ def _load_calibrated_model():
         raw, platt = bundle["model"], bundle["calibrator"]
 
         def predict_proba(X):
-            p = raw.predict_proba(X)[:, 1]
-            return platt.predict_proba(p.reshape(-1, 1))
+            return _legacy_proba(raw, platt, X)
 
-        return {"raw": raw, "predict_proba": predict_proba}
-    return {"raw": bundle, "predict_proba": lambda X: bundle.predict_proba(X)}
+        return {"raw": raw, "predict_proba": predict_proba,
+                "predict_proba_display": predict_proba}
+    return {"raw": bundle, "predict_proba": lambda X: bundle.predict_proba(X),
+            "predict_proba_display": lambda X: bundle.predict_proba(X)}
 
 
 def load_artifacts():
@@ -433,9 +463,9 @@ def _feature_vector(req: AnalysisRequest) -> Dict[str, float]:
 
 
 def _risk_label(p: float) -> str:
-    if p >= 0.70:
+    if p >= THRESHOLDS["medium"]:
         return "high_risk"
-    if p >= 0.30:
+    if p >= THRESHOLDS["low"]:
         return "medium_risk"
     return "low_risk"
 
@@ -512,15 +542,20 @@ def predict_risk(req: AnalysisRequest):
     feats = _feature_vector(req)
     X = np.array([[feats[c] for c in STATE["feature_cols"]]], dtype=np.float64)
 
-    p = float(STATE["model"]["predict_proba"](X)[0, 1])
-    p = min(0.999, max(0.001, p))
+    p_raw = float(STATE["model"]["raw"].predict_proba(X)[0, 1])
+    p_raw = min(0.999, max(0.001, p_raw))
+    p_disp = float(STATE["model"]["predict_proba_display"](X)[0, 1])
+    p_disp = min(0.999, max(0.001, p_disp))
+    p_leg = float(STATE["model"]["predict_proba"](X)[0, 1])
+    p_leg = min(0.999, max(0.001, p_leg))
 
     latency = round((time.time() - t0) * 1000, 2)
 
     return PredictionResponse(
-        risk_score=round(p, 4),
-        calibrated_score=round(p, 4),
-        label=_risk_label(p),
+        risk_score=round(p_raw, 4),
+        calibrated_score=round(p_disp, 4),
+        legacy_score=round(p_leg, 4),
+        label=_risk_label(p_disp),
         thresholds=THRESHOLDS,
         latency_ms=latency,
         model_version=MODEL_VERSION,
@@ -712,6 +747,27 @@ def verify_claims_endpoint(request: Request, req: VerifyRequest):
         if e.status_code != 503:
             raise
         explanation = None
+
+    # Evidence-adjusted display score: on natural inputs the model alone
+    # cannot discriminate (RAGTruth QA AUROC 0.54), so the per-claim NLI
+    # verdicts carry the strongest signal. Lift the score for contradicted
+    # claims, lower it when everything is supported.
+    verdicts = [c.get("verdict") for c in result["claims"]]
+    if verdicts:
+        n = len(verdicts)
+        c_frac = sum(1 for v in verdicts if v == "contradicted") / n
+        u_frac = sum(1 for v in verdicts if v == "unsupported") / n
+        s_frac = sum(1 for v in verdicts if v == "supported") / n
+        base = prediction.calibrated_score
+        adj = base + 0.35 * c_frac + 0.15 * u_frac - 0.15 * s_frac
+        adj = round(min(0.98, max(0.02, adj)), 4)
+        prediction = prediction.model_copy(update={
+            "calibrated_score": adj,
+            "label": _risk_label(adj),
+        })
+        result["aggregate"]["model_calibrated_score"] = base
+        result["aggregate"]["evidence_calibrated_score"] = adj
+        result["aggregate"]["score_adjusted_by_claims"] = True
 
     return VerifyResponse(
         claims=[ClaimVerdict(**c) for c in result["claims"]],

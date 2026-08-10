@@ -70,10 +70,29 @@ def test_meta_contract(client, monkeypatch):
     assert body["model_version"] == "b2-xgboost-v1.0"
     assert body["feature_version"] == "course-v1.0"
     assert body["n_features"] == 2
-    assert body["thresholds"] == {"low": 0.30, "medium": 0.70, "high": 1.0}
+    assert body["thresholds"] == {"low": 0.35, "medium": 0.60, "high": 1.0}
     assert "warning" in body and "device" in body
     assert body["features_available"] is True
     assert body["feature_groups"] is not None and "length" in body["feature_groups"]
+
+
+class FakeRaw:
+    """Mimics the raw XGBoost wrapper (predict_proba -> [P(neg), P(pos)])."""
+
+    def __init__(self, p: float):
+        self._p = p
+
+    def predict_proba(self, X):
+        return np.tile([[1 - self._p, self._p]], (len(X), 1))
+
+
+def _fake_model(p: float) -> dict:
+    """STATE['model'] mock with raw + legacy + display calibrators."""
+    return {
+        "raw": FakeRaw(p),
+        "predict_proba": lambda X: np.tile([[1 - p, p]], (len(X), 1)),
+        "predict_proba_display": lambda X: np.tile([[1 - p, p]], (len(X), 1)),
+    }
 
 
 def test_analyze_combined_contract(client, monkeypatch):
@@ -85,7 +104,7 @@ def test_analyze_combined_contract(client, monkeypatch):
             return np.array([[0.3, -0.1]])
 
     monkeypatch.setattr(api, "STATE", {
-        "model": {"raw": object(), "predict_proba": lambda X: np.array([[0.38, 0.62]])},
+        "model": _fake_model(0.62),
         "explainer": FakeExplainer(),
         "feature_models": object(),
         "feature_cols": ["a", "b"],
@@ -114,7 +133,7 @@ def test_verify_claims_endpoint(client, monkeypatch):
             return np.tile([0.05, 0.9, 0.05], (len(pairs), 1))  # strong entailment
 
     monkeypatch.setattr(api, "STATE", {
-        "model": {"raw": object(), "predict_proba": lambda X: np.array([[0.38, 0.62]])},
+        "model": _fake_model(0.62),
         "explainer": FakeExplainer(),
         "feature_models": {"nli": FakeNli()},
         "feature_cols": ["a", "b"],
@@ -131,13 +150,16 @@ def test_verify_claims_endpoint(client, monkeypatch):
     assert len(body["claims"]) >= 2
     assert body["claims"][0]["verdict"] == "supported"
     assert body["aggregate"]["overall"] in ("supported", "contradicted", "unsupported")
-    assert body["prediction"]["calibrated_score"] == 0.62
+    # all-supported claims lower the evidence-calibrated score by 0.15
+    assert body["prediction"]["calibrated_score"] == 0.47
+    assert body["prediction"]["legacy_score"] == 0.62
+    assert body["aggregate"]["evidence_calibrated_score"] == 0.47
     assert body["explanation"]["top_features"][0]["feature"] == "a"
 
 
 def test_verify_400_on_empty_claims(client, monkeypatch):
     monkeypatch.setattr(api, "STATE", {
-        "model": {"raw": object(), "predict_proba": lambda X: np.array([[0.5, 0.5]])},
+        "model": _fake_model(0.5),
         "explainer": None, "feature_models": {"nli": object()},
         "feature_cols": ["a"], "params": {},
     })
@@ -172,7 +194,7 @@ class _FakeNli:
 
 def _state_with_nli():
     return {
-        "model": {"raw": object(), "predict_proba": lambda X: np.array([[0.38, 0.62]])},
+        "model": _fake_model(0.62),
         "explainer": None, "feature_models": {"nli": _FakeNli()},
         "feature_cols": ["a", "b"], "params": {},
     }
@@ -266,7 +288,7 @@ def test_verify_llm_judge_routing(client, monkeypatch):
             return np.tile([0.15, 0.62, 0.23], (len(pairs), 1))
 
     monkeypatch.setattr(api, "STATE", {
-        "model": {"raw": object(), "predict_proba": lambda X: np.array([[0.38, 0.62]])},
+        "model": _fake_model(0.62),
         "explainer": None, "feature_models": {"nli": UncertainNli()},
         "feature_cols": ["a", "b"], "params": {},
     })
@@ -319,7 +341,7 @@ def test_verify_judge_disabled_without_key(client, monkeypatch):
 def test_analyze_degrades_when_explainer_missing(client, monkeypatch):
     """/analyze still returns the prediction when the explainer is unavailable."""
     monkeypatch.setattr(api, "STATE", {
-        "model": {"raw": object(), "predict_proba": lambda X: np.array([[0.6, 0.4]])},
+        "model": _fake_model(0.4),
         "explainer": None,
         "feature_models": object(),
         "feature_cols": ["a", "b"],

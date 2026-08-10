@@ -42,3 +42,5 @@ Thumbs.db
 
 # Colab bundle is self-contained in the notebook; no zip bundle is used.
 report/out/
+report/*.aux
+report/*.log

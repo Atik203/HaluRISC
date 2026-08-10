@@ -191,7 +191,7 @@ pnpm run lint   # eslint (flat config, eslint 9)
 1. **Chat page** MUST use assistant-ui `Thread` primitives + `/api/chat` (Vercel AI SDK streaming). Never rebuild a custom chat loop.
 2. **`next.config.ts`** MUST wrap config with `withAui()` from `@assistant-ui/next` and keep the `/api/ml/:path*` → FastAPI rewrite.
 3. **No fabricated data:** dashboard/experiment numbers MUST come from `artifacts/results/*` (read via fs in a server component or generated JSON). Never hardcode fake metrics or model rows.
-4. **API contract:** frontend consumes `POST /api/ml/predict` → `{risk_score, calibrated_score, label, thresholds, latency_ms, model_version, feature_version, warning, features}` and `POST /api/ml/explain` → `{top_features[], base_value}`. Keep field names stable.
+4. **API contract:** frontend consumes `POST /api/ml/predict` → `{risk_score, calibrated_score, legacy_score, label, thresholds, latency_ms, model_version, feature_version, warning, features}` and `POST /api/ml/explain` → `{top_features[], base_value}`. `calibrated_score` is the evidence-domain score (B4 display calibrator fitted on RAGTruth QA; adjusted by per-claim verdicts in `/verify` when claims exist), `legacy_score` is the HaluEval-Platt source score, `risk_score` is the raw XGBoost probability. Keep field names stable.
 5. **Theme:** dark theme, blue-violet accent gradients, `glass-panel`/`gradient-text` utility classes defined in `app/globals.css`.
 
 ---
