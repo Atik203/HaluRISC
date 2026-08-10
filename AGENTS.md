@@ -193,3 +193,12 @@ pnpm run lint   # eslint (flat config, eslint 9)
 3. **No fabricated data:** dashboard/experiment numbers MUST come from `artifacts/results/*` (read via fs in a server component or generated JSON). Never hardcode fake metrics or model rows.
 4. **API contract:** frontend consumes `POST /api/ml/predict` → `{risk_score, calibrated_score, label, thresholds, latency_ms, model_version, feature_version, warning, features}` and `POST /api/ml/explain` → `{top_features[], base_value}`. Keep field names stable.
 5. **Theme:** dark theme, blue-violet accent gradients, `glass-panel`/`gradient-text` utility classes defined in `app/globals.css`.
+
+---
+
+## 9. Paper Writing Rules (Version B)
+
+1. **Student-register guide:** `report/paper_prompt.md` is the operative writing guide for the paper. Load it at the start of any paper-writing session and follow every rule (burstiness, vocabulary blacklist, no em-dashes/semicolons, max one transition per 2–3 paragraphs, inline citations, active voice, no first-person in formal sections).
+2. **Source of truth:** all numbers in `report/*.tex` MUST come from verified B-run artifacts (`artifacts/results/*`, `manifest.frozen.json`). The Version A draft numbers (0.9886, 0.4822, 137 ms, ECE 0.0115) are stale and must not be reintroduced.
+3. **Build:** compile from `report/` with `latexmk -pdf -outdir=out paper.tex` (TeX Live 2025). Verify a clean build (no unresolved citations, 12–16 pages) before finishing paper work.
+4. **References:** `report/ref.bib` keys are all verified against real publications. Do not add references without web verification. Chapter rename locked: Literature Review (not Related Work).
