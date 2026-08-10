@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.10.23)  10 AUG 2026 20:38
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.10.23)  10 AUG 2026 21:13
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -609,17 +609,23 @@ texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc} <./uiu.png>])
 (./0.2.abstract.tex) (./1.intro.tex) (./2.related_work.tex
 
 [1]) (./3.method.tex
+<./figures/architecture.png, id=26, 1027.84pt x 574.145pt>
+File: ./figures/architecture.png Graphic file (type png)
+<use ./figures/architecture.png>
+Package pdftex.def Info: ./figures/architecture.png  used on input line 9.
+(pdftex.def)             Requested size: 489.10287pt x 273.21231pt.
 
-[2]) (./4.experiments.tex
 
-[3]
-<../artifacts/figures/fig_reliability.pdf, id=35, 426.20723pt x 353.37474pt>
+[2]
+
+[3 <./figures/architecture.png (PNG copy)>]) (./4.experiments.tex
+<../artifacts/figures/fig_reliability.pdf, id=36, 426.20723pt x 353.37474pt>
 File: ../artifacts/figures/fig_reliability.pdf Graphic file (type pdf)
 <use ../artifacts/figures/fig_reliability.pdf>
 Package pdftex.def Info: ../artifacts/figures/fig_reliability.pdf  used on inpu
 t line 56.
 (pdftex.def)             Requested size: 303.2414pt x 251.43163pt.
-<../artifacts/figures/fig_roc_pr.pdf, id=36, 859.74023pt x 317.42072pt>
+<../artifacts/figures/fig_roc_pr.pdf, id=37, 859.74023pt x 317.42072pt>
 File: ../artifacts/figures/fig_roc_pr.pdf Graphic file (type pdf)
 <use ../artifacts/figures/fig_roc_pr.pdf>
 Package pdftex.def Info: ../artifacts/figures/fig_roc_pr.pdf  used on input lin
@@ -629,45 +635,45 @@ e 63.
 
 [4]
 
-[5 <../artifacts/figures/fig_reliability.pdf> <../artifacts/figures/fig_roc_pr.
-pdf>]) (./5.web_application.tex
+[5 <../artifacts/figures/fig_reliability.pdf>]) (./5.web_application.tex
 Underfull \hbox (badness 10000) in paragraph at lines 26--27
 []\T1/cmr/m/n/12 The FastAPI back-end loads all ar-ti-facts (model, cal-i-bra-t
 or, SHAP ex-plainer,
  []
 
-<./screenshots/hallucinated_date.png, id=137, 1443.89438pt x 679.03688pt>
+
+
+[6 <../artifacts/figures/fig_roc_pr.pdf>]
+<./screenshots/hallucinated_date.png, id=143, 1443.89438pt x 679.03688pt>
 File: ./screenshots/hallucinated_date.png Graphic file (type png)
 <use ./screenshots/hallucinated_date.png>
 Package pdftex.def Info: ./screenshots/hallucinated_date.png  used on input lin
 e 32.
 (pdftex.def)             Requested size: 303.2414pt x 142.60194pt.
-<./screenshots/grounded_correct.png, id=139, 1442.38875pt x 677.53125pt>
+<./screenshots/grounded_correct.png, id=145, 1442.38875pt x 677.53125pt>
 File: ./screenshots/grounded_correct.png Graphic file (type png)
 <use ./screenshots/grounded_correct.png>
 Package pdftex.def Info: ./screenshots/grounded_correct.png  used on input line
  34.
 (pdftex.def)             Requested size: 303.2414pt x 142.44083pt.
 ) (./6.results_discussion.tex
-
-[6]
-<../artifacts/figures/fig_shap_importance.pdf, id=145, 568.21347pt x 425.92374p
+<../artifacts/figures/fig_shap_importance.pdf, id=146, 568.21347pt x 425.92374p
 t>
 File: ../artifacts/figures/fig_shap_importance.pdf Graphic file (type pdf)
 <use ../artifacts/figures/fig_shap_importance.pdf>
 Package pdftex.def Info: ../artifacts/figures/fig_shap_importance.pdf  used on 
 input line 10.
 (pdftex.def)             Requested size: 303.2414pt x 227.31126pt.
-<../artifacts/figures/fig_shap_summary.pdf, id=146, 565.24413pt x 534.59514pt>
+<../artifacts/figures/fig_shap_summary.pdf, id=147, 565.24413pt x 534.59514pt>
 File: ../artifacts/figures/fig_shap_summary.pdf Graphic file (type pdf)
 <use ../artifacts/figures/fig_shap_summary.pdf>
 Package pdftex.def Info: ../artifacts/figures/fig_shap_summary.pdf  used on inp
 ut line 17.
 (pdftex.def)             Requested size: 415.74042pt x 393.21228pt.
-) (./7.conclusion.tex
+
 
 [7{c:/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}])
-(./8.reproducibility.tex
+(./7.conclusion.tex) (./8.reproducibility.tex
 Underfull \hbox (badness 6708) in paragraph at lines 4--5
 \T1/cmr/m/n/12 The source repos-i-tory con-tains the com-plete pipeline: \T1/cm
 tt/m/n/12 src/data \T1/cmr/m/n/12 (down-load and
@@ -693,14 +699,14 @@ m/n/12 and \T1/cmtt/m/n/12 .npy\T1/cmr/m/n/12 ), all seeds are cen-tral-ized in
 
  []
 
-) (./9.ethics.tex)
-
-[8] (out/paper.bbl
-
-[9 <./screenshots/hallucinated_date.png> <./screenshots/grounded_correct.png>])
 
 
-[10 <../artifacts/figures/fig_shap_importance.pdf>]
+[8]) (./9.ethics.tex)
+
+[9 <./screenshots/hallucinated_date.png> <./screenshots/grounded_correct.png>]
+(out/paper.bbl
+
+[10 <../artifacts/figures/fig_shap_importance.pdf>])
 
 [11 <../artifacts/figures/fig_shap_summary.pdf>] (out/paper.aux)
  ***********
@@ -709,10 +715,10 @@ L3 programming layer <2025-09-02>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 16285 strings out of 467748
- 320749 string characters out of 5431137
- 714483 words of memory out of 5000000
- 44655 multiletter control sequences out of 15000+600000
+ 16295 strings out of 467748
+ 321037 string characters out of 5431137
+ 713517 words of memory out of 5000000
+ 44665 multiletter control sequences out of 15000+600000
  642679 words of font info for 71 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  84i,9n,91p,1340b,752s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -732,10 +738,10 @@ cm-super/sfrm1095.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/s
 frm1200.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfti1095.pf
 b><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfti1200.pfb><c:/texl
 ive/2025/texmf-dist/fonts/type1/public/cm-super/sftt1200.pfb>
-Output written on out/paper.pdf (12 pages, 819221 bytes).
+Output written on out/paper.pdf (12 pages, 1318219 bytes).
 PDF statistics:
- 342 PDF objects out of 1000 (max. 8388607)
+ 343 PDF objects out of 1000 (max. 8388607)
  121 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
- 48 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 53 words of extra memory for PDF output out of 10000 (max. 10000000)
 

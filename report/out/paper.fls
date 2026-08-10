@@ -237,6 +237,10 @@ INPUT 2.related_work.tex
 INPUT ./3.method.tex
 INPUT ./3.method.tex
 INPUT 3.method.tex
+INPUT ./figures/architecture.png
+INPUT ./figures/architecture.png
+INPUT ./figures/architecture.png
+INPUT ./figures/architecture.png
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/jknappen/ec/ecrm1440.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/jknappen/ec/ecbx1440.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/jknappen/ec/ecrm0800.tfm
@@ -276,10 +280,10 @@ INPUT ../artifacts/figures/fig_shap_summary.pdf
 INPUT ../artifacts/figures/fig_shap_summary.pdf
 INPUT ../artifacts/figures/fig_shap_summary.pdf
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/jknappen/ec/tcrm1200.tfm
+INPUT c:/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc
 INPUT ./7.conclusion.tex
 INPUT ./7.conclusion.tex
 INPUT 7.conclusion.tex
-INPUT c:/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc
 INPUT ./8.reproducibility.tex
 INPUT ./8.reproducibility.tex
 INPUT 8.reproducibility.tex

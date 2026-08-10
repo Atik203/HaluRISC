@@ -1,6 +1,20 @@
 % Chapter 3 — Methodology.
 \section{Methodology}
 
+Figure~\ref{fig:pipeline} gives an end-to-end view of the pipeline before we
+describe each stage in detail.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{architecture.png}
+\caption{End-to-end HaluRISC pipeline: evidence-consistency features from the
+question, context, and answer feed a grouped-CV trained, Platt-calibrated
+XGBoost model; outputs include a calibrated risk score, per-claim NLI
+verdicts, and SHAP explanations, with cross-domain and explanation-reliability
+evaluation.}
+\label{fig:pipeline}
+\end{figure}
+
 \subsection{Task definition}
 
 Given a question $q$, an optional reference context $c$ (evidence), and a candidate answer $a$ produced by a black-box LLM, predict the probability $P(\text{hallucinated} \mid q, c, a)$. We predict \emph{risk}, not truth: the system flags answers that are unsupported by or contradictory to the available evidence.

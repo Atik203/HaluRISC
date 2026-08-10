@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex out/paper"] 1786372684.23378 "out/paper.aux" "out/paper.bbl" "out/paper" 1786372688.24159 0
+["bibtex out/paper"] 1786374823.47038 "out/paper.aux" "out/paper.bbl" "out/paper" 1786374827.26585 0
   "./ref.bib" 1786372523 5474 0a50eb4c131abe8112f8b8fc15f94d59 ""
   "c:/texlive/2025/texmf-dist/bibtex/bst/base/plain.bst" 1761152295 20613 bd3fbfa9f64872b81ac57a0dd2ed855f ""
-  "out/paper.aux" 1786372686 6716 ab85aeb316afdc4d2a9db8d41d3b154b "pdflatex"
+  "out/paper.aux" 1786374825 7168 787e2421821916257114a6eb960d7cf7 "pdflatex"
   (generated)
   "out/paper.bbl"
   "out/paper.blg"
   (rewritten before read)
-["pdflatex"] 1786372684.82079 "paper.tex" "out/paper.pdf" "paper" 1786372688.24278 0
+["pdflatex"] 1786374824.04353 "paper.tex" "out/paper.pdf" "paper" 1786374827.2671 0
   "../artifacts/figures/fig_reliability.pdf" 1786032851 18268 4ad240d4f87fd36fb58902b753f2c45f ""
   "../artifacts/figures/fig_roc_pr.pdf" 1786032851 15119 7370d8250e8bbad9bd50ffde87d20088 ""
   "../artifacts/figures/fig_shap_importance.pdf" 1786032851 13720 416c44a96befd057548b555f28d4e5b7 ""
@@ -16,7 +16,7 @@
   "0.2.abstract.tex" 1786372324 1405 63ed11b8e810baad465e0fe77a0a9926 ""
   "1.intro.tex" 1786372338 2431 eff1cb602d2122072db73afbe587c84f ""
   "2.related_work.tex" 1786372352 2178 91db23716e5178c4c476f0caf61c8589 ""
-  "3.method.tex" 1786372384 3641 f3b39057b8810ebe4e22ffa1f5d74523 ""
+  "3.method.tex" 1786374790 4181 93b045fc6a06dcbde45d93c917404a40 ""
   "4.experiments.tex" 1786372405 8268 f75fe2ff4f30ef2bb496faa978c2c07e ""
   "5.web_application.tex" 1786372416 2348 74d0f95503e335371a9c2cfa4c10274b ""
   "6.results_discussion.tex" 1786372428 3112 3d8de51512a796f1d0f511cae8fe1c9e ""
@@ -178,9 +178,10 @@
   "c:/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1761163168 5574153 af86687748baf417d9e7d549313527be ""
   "c:/texlive/2025/texmf-var/web2c/pdftex/pdflatex.fmt" 1761163389 3629008 a48baa9d78f9198f4318d3cc7e36e9fa ""
   "c:/texlive/2025/texmf.cnf" 1761163137 713 e69b156964470283e0530f5060668171 ""
-  "out/paper.aux" 1786372686 6716 ab85aeb316afdc4d2a9db8d41d3b154b "pdflatex"
-  "out/paper.bbl" 1786372684 3263 d31aaded39c0bad1f843d7c2cdd22aff "bibtex out/paper"
-  "paper.tex" 1786372281 1950 63dc8a555a3086ca53910b72e56b3849 ""
+  "figures/architecture.png" 1786374651 499290 6f32db651de3211f8f92374cb6025467 ""
+  "out/paper.aux" 1786374825 7168 787e2421821916257114a6eb960d7cf7 "pdflatex"
+  "out/paper.bbl" 1786374824 3263 d31aaded39c0bad1f843d7c2cdd22aff "bibtex out/paper"
+  "paper.tex" 1786374780 1962 086dd2a8a88329bdb261ccf87a75e2ff ""
   "screenshots/grounded_correct.png" 1785875313 142695 10c66f6156b8782db427e48b83ca63f0 ""
   "screenshots/hallucinated_date.png" 1785875345 154026 89e295b400e86791e9c10f435bec7d68 ""
   "uiu.png" 1785236064 112647 095bbe88bf4f08a3ba8c342f12acc18c ""
