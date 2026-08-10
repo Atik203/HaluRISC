@@ -11,6 +11,7 @@
 \usepackage{array}
 \usepackage{parskip}
 \usepackage{enumitem}
+\usepackage{float}
 
 \setlength{\parskip}{0.4em}
 \setlist{topsep=2pt, itemsep=1pt, parsep=1pt}
@@ -107,28 +108,22 @@ None of these works combine lightweight engineered features with calibrated risk
 
 \section{Methodology}
 
-The pipeline has seven clear steps:
+The pipeline has seven clear steps, all implemented and verified. The first two prepare the data and the features. The QA subset of HaluEval is downloaded, cleaned, and manually inspected on 50 random samples to verify label quality, and each answer is described by 26 features in seven groups covering length and style, lexical overlap, entity overlap, NLI contradiction with a lightweight pretrained NLI model, numeric consistency, hedging phrases, and semantic similarity.
 
-\begin{enumerate}
-    \item Data preparation --- load the HaluEval QA dataset, clean the text, and manually inspect 50 random samples to verify label quality before training.
-    \item Feature extraction --- compute features in seven groups: length/style, lexical overlap, entity overlap, NLI contradiction (using a lightweight pre-trained NLI model), numeric consistency, hedging phrases, and semantic similarity.
-    \item Model training --- 5-fold stratified cross-validation, hyperparameter tuning for XGBoost, and every experiment repeated with 3 random seeds, reported as mean $\pm$ standard deviation.
-    \item Model comparison --- heuristic baseline, Logistic Regression, Random Forest, and XGBoost, judged on F1, AUROC, precision, recall, and MCC.
-    \item Calibration --- compare Platt scaling and isotonic regression fit on the validation split only \cite{costeff}, measured with Expected Calibration Error (ECE) and Brier score, and re-calibrate on target-domain data when a small labeled sample is available.
-    \item Explanation --- SHAP global feature importance plus 3 local case studies; error analysis on 20 wrong predictions (10 false positives, 10 false negatives).
-    \item Deployment --- FastAPI backend serving the trained model, and a Next.js 16 + assistant-ui dashboard with a clean, modern UI: risk gauge, feature breakdown, per-claim evidence verdicts with citations, and a live input panel.
-\end{enumerate}
+Model development comes next. A simple heuristic baseline, Logistic Regression, Random Forest, and XGBoost are compared with grouped 5-fold cross-validation, randomized hyperparameter search, and three-seed runs, judged on F1, AUROC, precision, recall, and MCC. Platt and isotonic calibration are fit on the validation split only and measured with expected calibration error and Brier score, SHAP provides global feature importance plus three local case studies, and the worst predictions are examined in a short error analysis.
+
+The last step is deployment. A FastAPI backend serves the trained model, and a Next.js 16 + assistant-ui dashboard provides the risk gauge, the feature breakdown, per-claim evidence verdicts with citations, and a live input panel.
 
 Figure~\ref{fig:prop-pipeline} shows the end-to-end pipeline, and Figure~\ref{fig:prop-arch} shows the deployed two-tier architecture.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{figures/architecture.png}
 \caption{The HaluRISC pipeline: evidence-consistency features from the question, context, and answer feed a tuned, Platt-calibrated XGBoost model, producing a calibrated risk score, per-claim NLI verdicts, and SHAP explanations.}
 \label{fig:prop-pipeline}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{figures/system_architecture.png}
 \caption{Deployed two-tier architecture: the Next.js frontend streams the conversation through a backend-for-frontend proxy to FastAPI, which serves the machine-learning endpoints and the document and live web-search evidence.}
