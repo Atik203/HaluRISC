@@ -1,6 +1,12 @@
 import { loadDashboardData, fmt, fmtPct } from "@/lib/results";
-import { Panel, DataTable, Figure, EmptyState, Mono } from "@/components/dashboard/panel";
+import { Panel, DataTable, Figure, EmptyState } from "@/components/dashboard/panel";
 import { TransferBars } from "@/components/dashboard/charts";
+
+const LABEL_MAPPINGS: Record<string, string> = {
+  primary_worst_q_plus_unwanted: "Primary (worst + question + unwanted)",
+  majority_q_plus_unwanted: "Majority (question + unwanted)",
+  strict_worst_unwanted_only: "Strict (unwanted only)",
+};
 
 const DATASET_LABELS: Record<string, string> = {
   ragtruth_qa_test: "RAGTruth QA test",
@@ -140,11 +146,30 @@ export default function RobustnessTab() {
               <p className="text-xs text-muted-foreground">b3_bootstrap_cis.json not present.</p>
             )}
             {d.b3.labelSensitivity && (
-              <div className="pt-2 border-t border-border/40">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">FaithBench label-mapping sensitivity</h3>
-                <pre className="text-[11px] font-mono overflow-auto max-h-48 rounded-xl bg-secondary/40 p-3 border border-border/50">
-                  {JSON.stringify(d.b3.labelSensitivity, null, 2)}
-                </pre>
+              <div className="space-y-2 border-t border-border/40 pt-3">
+                <h3 className="eyebrow">FaithBench label-mapping sensitivity</h3>
+                <p className="text-[11px] leading-relaxed text-muted-foreground">
+                  The measured F1 depends on which FaithBench labels count as positive.
+                </p>
+                <DataTable
+                  rowKey={(r) => String(r.mapping)}
+                  columns={[
+                    { key: "mapping", label: "Mapping" },
+                    { key: "pos", label: "Pos.", align: "right" },
+                    { key: "neg", label: "Neg.", align: "right" },
+                    { key: "f1", label: "F1", align: "right" },
+                    { key: "auroc", label: "AUROC", align: "right" },
+                    { key: "mcc", label: "MCC", align: "right" },
+                  ]}
+                  rows={Object.entries(d.b3.labelSensitivity).map(([mapping, v]) => ({
+                    mapping: LABEL_MAPPINGS[mapping] ?? mapping,
+                    pos: v.n_positive,
+                    neg: v.n_negative,
+                    f1: fmt(v.f1),
+                    auroc: fmt(v.auroc),
+                    mcc: fmt(v.mcc),
+                  }))}
+                />
               </div>
             )}
           </Panel>

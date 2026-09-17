@@ -30,12 +30,14 @@ export default function AboutPage() {
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* Banner */}
-      <div className="glass-panel p-6 rounded-2xl">
-        <h1 className="text-2xl font-bold gradient-text flex items-center gap-2">
-          <Info className="w-6 h-6 text-violet-600 dark:text-purple-400" /> About HaluRISC Framework
-        </h1>
-        <p className="text-xs text-muted-foreground mt-1">
-          Calibrated, explainable hallucination risk prediction for black-box LLM outputs — Version B (B1–B5) evidence.
+      <div className="glass-panel p-6 rounded-2xl animate-fade">
+        <p className="eyebrow flex items-center gap-2">
+          <Info className="w-3.5 h-3.5 text-violet-600 dark:text-purple-400" aria-hidden />
+          Version B evidence · B1 to B5
+        </p>
+        <h1 className="display-title text-3xl mt-1.5">About HaluRISC</h1>
+        <p className="text-sm text-muted-foreground mt-2">
+          Calibrated, explainable hallucination risk prediction for black-box LLM outputs.
         </p>
       </div>
 
@@ -51,26 +53,26 @@ export default function AboutPage() {
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
-          <div className="bg-secondary/40 p-4 rounded-xl border border-border">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-300 mb-1">1. Feature Extraction</h4>
+          <div className="surface-inset p-4 rounded-xl">
+            <h4 className="eyebrow text-violet-700 dark:text-purple-300 mb-1">1. Feature Extraction</h4>
             <p className="text-xs text-muted-foreground">
               {nFeatures} engineered features across 7 groups measuring grounding, entity coverage, NLI consistency, numeric novelty, and semantic drift (B1/B2).
             </p>
           </div>
-          <div className="bg-secondary/40 p-4 rounded-xl border border-border">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 mb-1">2. Calibrated XGBoost</h4>
+          <div className="surface-inset p-4 rounded-xl">
+            <h4 className="eyebrow text-emerald-700 dark:text-emerald-300 mb-1">2. Calibrated XGBoost</h4>
             <p className="text-xs text-muted-foreground">
               XGBoost with group-aware splits (no leakage) and Platt scaling; calibration-under-shift is measured in B4 — source calibration does not transfer, target calibration fixes it.
             </p>
           </div>
-          <div className="bg-secondary/40 p-4 rounded-xl border border-border">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300 mb-1">3. SHAP Explanations</h4>
+          <div className="surface-inset p-4 rounded-xl">
+            <h4 className="eyebrow text-sky-700 dark:text-sky-300 mb-1">3. SHAP Explanations</h4>
             <p className="text-xs text-muted-foreground">
               TreeExplainer attributions identifying features raising or lowering risk. B5 validates SHAP stability (top-1 never flips under controlled perturbations).
             </p>
           </div>
-          <div className="bg-secondary/40 p-4 rounded-xl border border-border">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300 mb-1">4. Conversational AI UI</h4>
+          <div className="surface-inset p-4 rounded-xl">
+            <h4 className="eyebrow text-amber-700 dark:text-amber-300 mb-1">4. Conversational AI UI</h4>
             <p className="text-xs text-muted-foreground">
               Next.js + assistant-ui for natural-language explanations with Generative UI; offline /demo walkthrough needs no API key.
             </p>

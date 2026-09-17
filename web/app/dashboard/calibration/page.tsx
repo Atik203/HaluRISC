@@ -1,5 +1,5 @@
-import { loadDashboardData, fmt, fmtPct } from "@/lib/results";
-import { Panel, DataTable, Figure, EmptyState, Mono } from "@/components/dashboard/panel";
+import { loadDashboardData, fmt } from "@/lib/results";
+import { Panel, DataTable, Figure, EmptyState } from "@/components/dashboard/panel";
 import { CalibrationBars } from "@/components/dashboard/charts";
 
 const SUBSET_LABELS: Record<string, string> = {

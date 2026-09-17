@@ -23,7 +23,10 @@ const TABS = [
 export function DashboardTabs() {
   const pathname = usePathname();
   return (
-    <nav aria-label="Dashboard sections" className="flex flex-wrap gap-1.5">
+    <nav
+      aria-label="Dashboard sections"
+      className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1"
+    >
       {TABS.map((tab) => {
         const Icon = tab.icon;
         const active = pathname === tab.href || pathname.startsWith(`${tab.href}/`);
@@ -32,10 +35,10 @@ export function DashboardTabs() {
             key={tab.href}
             href={tab.href}
             aria-current={active ? "page" : undefined}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold border transition-all duration-200 ${
+            className={`inline-flex shrink-0 items-center gap-2 rounded-xl border px-4 py-2 text-xs font-semibold transition-all duration-200 ${
               active
-                ? "bg-primary text-primary-foreground border-primary shadow-md"
-                : "text-muted-foreground border-border/60 hover:text-foreground hover:bg-secondary/60"
+                ? "border-transparent bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md shadow-violet-600/20"
+                : "border-border/60 text-muted-foreground hover:border-border hover:bg-secondary/60 hover:text-foreground"
             }`}
           >
             <Icon className="w-4 h-4" aria-hidden />

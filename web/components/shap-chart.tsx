@@ -91,7 +91,7 @@ export function ShapChart({ features, baseValue }: ShapChartProps) {
               formatter={(val: number | string) => [`Impact: ${val}`, "SHAP Value"]}
             />
             <ReferenceLine x={0} stroke="var(--muted-foreground)" strokeOpacity={0.4} strokeDasharray="3 3" />
-            <Bar dataKey="impact" radius={[4, 4, 4, 4]}>
+            <Bar dataKey="impact" radius={[4, 4, 4, 4]} isAnimationActive={false}>
               {data.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}

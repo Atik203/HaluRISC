@@ -9,11 +9,13 @@ import {
   Globe,
   Loader2,
   MessagesSquare,
-  ShieldCheck,
   ShieldAlert,
+  ShieldCheck,
   ShieldQuestion,
+  ThumbsDown,
+  ThumbsUp,
 } from "lucide-react";
-import { buildAnalysisInput, CONTEXT_MAX, type Turn } from "@/lib/analysis-input";
+import { buildAnalysisInput, type Turn } from "@/lib/analysis-input";
 import { useAutoAnalysis } from "@/components/assistant-ui/auto-analysis-context";
 
 interface FeatureImpact {
@@ -31,6 +33,7 @@ interface AnalyzeResult {
     feature_version?: string;
     warning?: string;
     features?: Record<string, number>;
+    thresholds?: { low?: number; medium?: number };
   };
   explanation?: { top_features?: FeatureImpact[]; base_value?: number } | null;
 }
@@ -63,12 +66,12 @@ interface VerifyResult extends AnalyzeResult {
   };
 }
 
-/** T4: 👍/👎 feedback on a verdict; posts to /api/ml/feedback. */
-function FeedbackButtons({
-  payload,
-}: {
-  payload: () => Record<string, string> | null;
-}) {
+function truncate(text: string, max: number): string {
+  return text.length > max ? `${text.slice(0, max)}…` : text;
+}
+
+/** T4: thumbs feedback on a verdict; posts to /api/ml/feedback. */
+function FeedbackButtons({ payload }: { payload: () => Record<string, string> | null }) {
   const [sent, setSent] = useState<"agree" | "disagree" | null>(null);
   const send = async (feedback: "agree" | "disagree") => {
     if (sent) return;
@@ -85,48 +88,66 @@ function FeedbackButtons({
       /* feedback is best-effort */
     }
   };
+  const base =
+    "inline-flex h-6 w-6 items-center justify-center rounded-md border transition-colors";
   return (
-    <span className="inline-flex items-center gap-1 ml-2 align-middle">
+    <span className="inline-flex shrink-0 items-center gap-1" aria-label="Verdict feedback">
       <button
         type="button"
         onClick={() => send("agree")}
         aria-label="Agree with this verdict"
-        className={`text-xs rounded-md border px-1.5 py-0.5 transition-colors ${
+        aria-pressed={sent === "agree"}
+        className={`${base} ${
           sent === "agree"
-            ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-500"
-            : "border-border/60 text-muted-foreground hover:text-emerald-500 hover:border-emerald-500/40"
+            ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+            : "border-border/60 text-muted-foreground hover:border-emerald-500/40 hover:text-emerald-600 dark:hover:text-emerald-400"
         }`}
       >
-        👍
+        <ThumbsUp className="h-3 w-3" aria-hidden />
       </button>
       <button
         type="button"
         onClick={() => send("disagree")}
         aria-label="Disagree with this verdict"
-        className={`text-xs rounded-md border px-1.5 py-0.5 transition-colors ${
+        aria-pressed={sent === "disagree"}
+        className={`${base} ${
           sent === "disagree"
-            ? "border-rose-500/50 bg-rose-500/10 text-rose-500"
-            : "border-border/60 text-muted-foreground hover:text-rose-500 hover:border-rose-500/40"
+            ? "border-rose-500/50 bg-rose-500/10 text-rose-600 dark:text-rose-400"
+            : "border-border/60 text-muted-foreground hover:border-rose-500/40 hover:text-rose-600 dark:hover:text-rose-400"
         }`}
       >
-        👎
+        <ThumbsDown className="h-3 w-3" aria-hidden />
       </button>
     </span>
   );
 }
 
-const LABEL_TEXT: Record<string, string> = {
-  low_risk: "Low risk",
-  medium_risk: "Medium risk",
-  high_risk: "High risk",
-};
-
-function tone(label: string): { cls: string; Icon: typeof ShieldCheck } {
+function tone(label: string): {
+  cls: string;
+  bar: string;
+  headline: string;
+  Icon: typeof ShieldCheck;
+} {
   if (label === "high_risk")
-    return { cls: "border-rose-500/40 bg-rose-500/10 text-rose-600 dark:text-rose-400", Icon: ShieldAlert };
+    return {
+      cls: "border-rose-500/40 bg-rose-500/10 text-rose-700 dark:text-rose-300",
+      bar: "#ef4444",
+      headline: "Likely hallucinated",
+      Icon: ShieldAlert,
+    };
   if (label === "medium_risk")
-    return { cls: "border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400", Icon: ShieldQuestion };
-  return { cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400", Icon: ShieldCheck };
+    return {
+      cls: "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300",
+      bar: "#eab308",
+      headline: "Needs a closer look",
+      Icon: ShieldQuestion,
+    };
+  return {
+    cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+    bar: "#22c55e",
+    headline: "Grounded in the evidence",
+    Icon: ShieldCheck,
+  };
 }
 
 interface PartLike {
@@ -135,9 +156,9 @@ interface PartLike {
 }
 
 const CLAIM_TONE: Record<string, string> = {
-  supported: "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-  contradicted: "border-rose-500/40 bg-rose-500/10 text-rose-600 dark:text-rose-400",
-  unsupported: "border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400",
+  supported: "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+  contradicted: "border-rose-500/40 bg-rose-500/10 text-rose-700 dark:text-rose-300",
+  unsupported: "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300",
 };
 
 function extractText(message: { content?: readonly PartLike[] }): string {
@@ -258,27 +279,36 @@ export function AutoRiskCard() {
 
   if (state === "loading") {
     return (
-      <div className="mt-3 flex items-center gap-3 rounded-xl border border-border/60 bg-secondary/30 px-4 py-3 text-xs text-muted-foreground">
-        <Loader2 className="w-4 h-4 animate-spin text-violet-500" aria-hidden />
-        Checking hallucination risk…
+      <div className="border-t border-border/50 px-4 py-3" role="status" aria-live="polite">
+        <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+          <Loader2 className="w-3.5 h-3.5 animate-spin text-violet-500" aria-hidden />
+          {grounding === "evidence"
+            ? "Checking each claim against your evidence…"
+            : "Checking the answer against the conversation…"}
+        </div>
+        <div className="mt-2.5 space-y-1.5" aria-hidden>
+          <div className="h-2 w-3/4 rounded-full bg-secondary/70 animate-pulse-soft" />
+          <div className="h-2 w-1/2 rounded-full bg-secondary/70 animate-pulse-soft [animation-delay:150ms]" />
+        </div>
       </div>
     );
   }
 
-  if (state === "timeout") {
+  if (state === "timeout" || state === "error") {
     return (
-      <div className="mt-3 flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-2.5 text-[11px] text-amber-700 dark:text-amber-400" role="status">
-        <AlertTriangle className="w-4 h-4" aria-hidden />
-        Risk check timed out — is the ML backend running (uvicorn on port 8000)? /analyze and /demo still work.
-      </div>
-    );
-  }
-
-  if (state === "error") {
-    return (
-      <div className="mt-3 flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-2.5 text-[11px] text-amber-700 dark:text-amber-400" role="status">
-        <AlertTriangle className="w-4 h-4" aria-hidden />
-        Risk check unavailable — ML backend offline. /analyze and /demo still work.
+      <div className="border-t border-border/50 px-4 py-3">
+        <div
+          className="flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/5 px-3 py-2.5 text-[11px] leading-relaxed text-amber-700 dark:text-amber-300"
+          role="status"
+        >
+          <AlertTriangle className="mt-0.5 w-3.5 h-3.5 shrink-0" aria-hidden />
+          <span>
+            {state === "timeout"
+              ? "The risk check timed out. The local ML service may still be starting."
+              : "The risk check could not reach the local ML service."}{" "}
+            Analyze mode and the offline presenter demo still work.
+          </span>
+        </div>
       </div>
     );
   }
@@ -304,156 +334,220 @@ export function AutoRiskCard() {
           : "low_risk"
       : null;
     const headlineLabel = claimRisk ?? p.label;
-    const { cls, Icon } = tone(headlineLabel);
+    const { cls, bar, headline, Icon } = tone(headlineLabel);
     const legacyConflict = claimRisk != null && claimRisk !== "high_risk" && score >= 0.6;
+    const maxAbs = top.length > 0 ? Math.max(...top.map((f) => Math.abs(f.impact)), 1e-6) : 1;
+    const thresholds = p.thresholds;
 
     return (
       <section
-        className="mt-3 rounded-xl border border-border/60 bg-secondary/20 p-4 space-y-3"
-        aria-label={`Hallucination risk: ${LABEL_TEXT[headlineLabel] ?? headlineLabel}, ${pct} percent`}
+        className="border-t border-border/50 px-4 py-4 space-y-3.5"
+        aria-label={`Hallucination risk: ${headline}, ${pct} percent`}
       >
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        {/* Verdict banner */}
+        <div className={`rounded-xl border p-3.5 ${cls}`}>
           <div className="flex items-center gap-3">
-            <Icon className="w-6 h-6" aria-hidden />
-            <div>
-              <div className="text-sm font-bold">{LABEL_TEXT[headlineLabel] ?? headlineLabel}</div>
-              <div className="text-[11px] font-mono text-muted-foreground">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-background/40">
+              <Icon className="h-5 w-5" aria-hidden />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-bold leading-tight">{headline}</p>
+              <p className="mt-0.5 text-[11px] leading-snug opacity-80">
                 {claimRisk
-                  ? `per-claim evidence verdict (${claims.length} claim${claims.length > 1 ? "s" : ""}) · evidence-calibrated score ${pct}%`
-                  : `${pct}% evidence-calibrated risk probability`}
-              </div>
+                  ? `${claims.length} claim${claims.length > 1 ? "s" : ""} checked · headline follows the claim evidence`
+                  : "Evidence-calibrated risk probability"}
+              </p>
+            </div>
+            <div className="text-right">
+              <div className="font-mono text-2xl font-extrabold tnum leading-none">{pct}%</div>
+              <div className="mt-0.5 font-mono text-[10px] opacity-70">{claimRisk ? "evidence score" : "risk"}</div>
             </div>
           </div>
-          <div className="flex flex-col items-end gap-1 text-[10px] font-mono text-muted-foreground">
-            {p.latency_ms != null && <span>{p.latency_ms.toFixed(0)} ms</span>}
-            {p.model_version && <span>model {p.model_version}</span>}
+
+          {/* Score meter with decision thresholds */}
+          <div className="relative mt-3 h-1.5 overflow-hidden rounded-full bg-background/50">
+            <div className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${pct}%`, backgroundColor: bar }} />
+            {thresholds?.low != null && (
+              <span
+                className="absolute inset-y-0 w-px bg-background/80"
+                style={{ left: `${thresholds.low * 100}%` }}
+                aria-hidden
+              />
+            )}
+            {thresholds?.medium != null && (
+              <span
+                className="absolute inset-y-0 w-px bg-background/80"
+                style={{ left: `${thresholds.medium * 100}%` }}
+                aria-hidden
+              />
+            )}
           </div>
+          {thresholds?.low != null && thresholds.medium != null && (
+            <p className="mt-1.5 font-mono text-[10px] opacity-70">
+              low &lt; {thresholds.low.toFixed(2)} · medium {thresholds.low.toFixed(2)}–{thresholds.medium.toFixed(2)} · high ≥{" "}
+              {thresholds.medium.toFixed(2)}
+            </p>
+          )}
         </div>
 
-        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-          {(() => {
-            const mode = agg?.evidence_mode ?? (grounding === "evidence" ? "context" : "conversation");
-            if (mode === "index") {
+        {/* Grounding mode + provenance */}
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[11px] text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5">
+            {(() => {
+              const mode = agg?.evidence_mode ?? (grounding === "evidence" ? "context" : "conversation");
+              if (mode === "index") {
+                return (
+                  <>
+                    <FileText className="w-3.5 h-3.5" aria-hidden />
+                    Evidence: your uploaded documents, cited per claim
+                  </>
+                );
+              }
+              if (mode === "web") {
+                return (
+                  <>
+                    <Globe className="w-3.5 h-3.5" aria-hidden />
+                    Evidence: live web search, cited per claim
+                  </>
+                );
+              }
+              if (mode === "context" || grounding === "evidence") {
+                return (
+                  <>
+                    <FileText className="w-3.5 h-3.5" aria-hidden />
+                    Evidence: your pasted context
+                  </>
+                );
+              }
               return (
                 <>
-                  <FileText className="w-3.5 h-3.5" aria-hidden />
-                  Evidence: your uploaded documents (cited per claim)
+                  <MessagesSquare className="w-3.5 h-3.5" aria-hidden />
+                  Conversation only, no external grounding
                 </>
               );
-            }
-            if (mode === "web") {
-              return (
-                <>
-                  <Globe className="w-3.5 h-3.5" aria-hidden />
-                  Evidence: live web search (cited per claim)
-                </>
-              );
-            }
-            if (mode === "context" || grounding === "evidence") {
-              return (
-                <>
-                  <FileText className="w-3.5 h-3.5" aria-hidden />
-                  Evidence: checked against your pasted context
-                </>
-              );
-            }
-            return (
-              <>
-                <MessagesSquare className="w-3.5 h-3.5" aria-hidden />
-                Conversation only — no external grounding; scores reflect answer-vs-conversation consistency
-              </>
-            );
-          })()}
+            })()}
+          </span>
+          <span className="font-mono">
+            {p.latency_ms != null && <>{p.latency_ms.toFixed(0)} ms</>}
+            {p.model_version && <> · model {p.model_version}</>}
+          </span>
         </div>
 
         {legacyConflict && (
-          <p className="text-[10px] text-amber-600/90 dark:text-amber-400/90 bg-amber-500/5 border border-amber-500/20 rounded-lg px-2.5 py-1.5">
-            The score is calibrated on natural RAGTruth responses and adjusted by the per-claim verdicts below.
-            It stays style-sensitive because the underlying model was trained on HaluEval synthetic data, so the
-            headline comes from the claim evidence — trust it and the citations.
+          <p className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-2.5 py-2 text-[11px] leading-relaxed text-amber-700 dark:text-amber-300">
+            The model score is style-sensitive because it was trained on synthetic HaluEval data. The headline here follows
+            the claim evidence, so trust the verdict and the citations first.
           </p>
         )}
 
-        {claims.length > 0 && agg && (
+        {/* Claim verdicts */}
+        {hasClaims && agg && (
           <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-2 text-[11px]">
-              <span className="font-semibold text-muted-foreground">Per-claim verdicts (NLI):</span>
-              <span className={`px-2 py-0.5 rounded-full border font-mono ${CLAIM_TONE.supported}`}>{agg.supported} supported</span>
-              <span className={`px-2 py-0.5 rounded-full border font-mono ${CLAIM_TONE.contradicted}`}>{agg.contradicted} contradicted</span>
-              <span className={`px-2 py-0.5 rounded-full border font-mono ${CLAIM_TONE.unsupported}`}>{agg.unsupported} unsupported</span>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="eyebrow">Claim verdicts</span>
+              <span className={`rounded-md border px-1.5 py-0.5 font-mono text-[10px] ${CLAIM_TONE.supported}`}>
+                {agg.supported} supported
+              </span>
+              <span className={`rounded-md border px-1.5 py-0.5 font-mono text-[10px] ${CLAIM_TONE.contradicted}`}>
+                {agg.contradicted} contradicted
+              </span>
+              <span className={`rounded-md border px-1.5 py-0.5 font-mono text-[10px] ${CLAIM_TONE.unsupported}`}>
+                {agg.unsupported} unsupported
+              </span>
               {(agg.abstained ?? 0) > 0 && (
-                <span className="px-2 py-0.5 rounded-full border border-border bg-secondary/40 font-mono text-muted-foreground">
-                  {agg.abstained} abstained (no evidence)
+                <span className="rounded-md border border-border bg-secondary/40 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+                  {agg.abstained} not judged
                 </span>
               )}
               {(agg.llm_judged ?? 0) > 0 && (
-                <span className="px-2 py-0.5 rounded-full border border-indigo-500/40 bg-indigo-500/10 font-mono text-indigo-600 dark:text-indigo-400">
-                  {agg.llm_judged} LLM-judged
+                <span className="rounded-md border border-indigo-500/40 bg-indigo-500/10 px-1.5 py-0.5 font-mono text-[10px] text-indigo-600 dark:text-indigo-300">
+                  {agg.llm_judged} LLM-reviewed
                 </span>
               )}
-              <FeedbackButtons
-                payload={() => {
-                  const input = inputRef.current;
-                  if (!input) return null;
-                  return {
-                    question: input.question, context: input.context, answer: input.answer,
-                    claim_text: "", verdict: agg.overall,
-                    evidence_sentence: "", inputs_hash: "",
-                  };
-                }}
-              />
+              <span className="ml-auto">
+                <FeedbackButtons
+                  payload={() => {
+                    const input = inputRef.current;
+                    if (!input) return null;
+                    return {
+                      question: input.question,
+                      context: input.context,
+                      answer: input.answer,
+                      claim_text: "",
+                      verdict: agg.overall,
+                      evidence_sentence: "",
+                      inputs_hash: "",
+                    };
+                  }}
+                />
+              </span>
             </div>
-            <ul className="space-y-1.5">
+
+            <ul className="space-y-2">
               {claims.map((c) => (
-                <li key={c.id} className="text-[11px]">
-                  <span className={`inline-block px-2 py-0.5 rounded-full border font-mono mr-2 ${CLAIM_TONE[c.verdict]}`}>
-                    {c.verdict}
-                  </span>
-                  <span className="text-foreground/90">{c.text}</span>
-                  {c.judged_by === "llm" && c.judge_reasoning && (
-                    <span className="ml-1.5 text-[10px] text-indigo-600 dark:text-indigo-400 not-italic">
-                      LLM: {c.judge_reasoning.length > 90 ? `${c.judge_reasoning.slice(0, 90)}…` : c.judge_reasoning}
-                    </span>
-                  )}
-                  <FeedbackButtons
-                    payload={() => {
-                      const input = inputRef.current;
-                      if (!input) return null;
-                      return {
-                        question: input.question, context: input.context, answer: input.answer,
-                        claim_text: c.text, verdict: c.verdict,
-                        evidence_sentence: c.evidence_sentence, inputs_hash: "",
-                      };
-                    }}
-                  />
+                <li key={c.id} className="rounded-xl border border-border/60 bg-card/40 p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <span
+                        className={`inline-block rounded-md border px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${CLAIM_TONE[c.verdict]}`}
+                      >
+                        {c.verdict}
+                      </span>
+                      <p className="mt-1.5 text-xs leading-relaxed text-foreground/90">{c.text}</p>
+                    </div>
+                    <FeedbackButtons
+                      payload={() => {
+                        const input = inputRef.current;
+                        if (!input) return null;
+                        return {
+                          question: input.question,
+                          context: input.context,
+                          answer: input.answer,
+                          claim_text: c.text,
+                          verdict: c.verdict,
+                          evidence_sentence: c.evidence_sentence,
+                          inputs_hash: "",
+                        };
+                      }}
+                    />
+                  </div>
+
                   {c.abstained ? (
-                    <p className="mt-0.5 pl-1 text-[10px] text-amber-600/90 dark:text-amber-400/90">
-                      no evidence retrieved — abstained
+                    <p className="mt-2 text-[11px] text-amber-700 dark:text-amber-300">
+                      No evidence was retrieved, so this claim was not judged.
                     </p>
                   ) : (
                     <>
                       {c.verdict === "contradicted" && c.evidence_quote && (
-                        <p className="mt-0.5 pl-1 text-[10px] text-rose-700/90 dark:text-rose-400/90">
-                          <span className="font-semibold not-italic">Evidence says:</span>{" "}
-                          {c.evidence_quote.length > 200 ? `${c.evidence_quote.slice(0, 200)}…` : c.evidence_quote}
+                        <blockquote className="mt-2 rounded-lg border-l-2 border-rose-500/60 bg-rose-500/5 px-2.5 py-1.5 text-[11px] leading-relaxed text-rose-700 dark:text-rose-300">
+                          <span className="font-semibold">Evidence says: </span>
+                          {truncate(c.evidence_quote, 220)}
+                        </blockquote>
+                      )}
+                      {c.evidence_sentence && (
+                        <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
+                          {truncate(c.evidence_sentence, 150)}
+                          {c.evidence_source?.startsWith("web:") && c.evidence_url ? (
+                            <a
+                              href={c.evidence_url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="ml-1.5 inline-flex items-center gap-0.5 text-violet-600 underline dark:text-purple-400"
+                            >
+                              <Globe className="h-3 w-3" aria-hidden /> source
+                            </a>
+                          ) : c.evidence_source?.startsWith("doc:") ? (
+                            <span className="ml-1.5 text-muted-foreground/80">· {c.evidence_source.replace("doc:", "")}</span>
+                          ) : null}
                         </p>
                       )}
-                      <p className="mt-0.5 pl-1 text-[10px] text-muted-foreground italic">
-                        evidence: {c.evidence_sentence.length > 140 ? `${c.evidence_sentence.slice(0, 140)}…` : c.evidence_sentence}
-                        {c.evidence_source?.startsWith("web:") && c.evidence_url ? (
-                          <a
-                            href={c.evidence_url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="ml-1.5 inline-flex items-center gap-0.5 text-violet-600 dark:text-purple-400 not-italic underline"
-                          >
-                            <Globe className="w-3 h-3" aria-hidden /> source
-                          </a>
-                        ) : c.evidence_source?.startsWith("doc:") ? (
-                          <span className="ml-1.5 not-italic text-muted-foreground/80">· {c.evidence_source.replace("doc:", "")}</span>
-                        ) : null}
-                      </p>
                     </>
+                  )}
+
+                  {c.judged_by === "llm" && c.judge_reasoning && (
+                    <p className="mt-1.5 text-[11px] leading-relaxed text-indigo-600 dark:text-indigo-300">
+                      LLM review: {truncate(c.judge_reasoning, 140)}
+                    </p>
                   )}
                 </li>
               ))}
@@ -461,43 +555,62 @@ export function AutoRiskCard() {
           </div>
         )}
 
+        {/* Feature attribution */}
         {top.length > 0 && (
-          <ul className="space-y-1 text-[11px]">
-            {top.map((f) => (
-              <li key={f.feature} className="flex items-center justify-between gap-3">
-                <span className="text-muted-foreground truncate">{f.feature}</span>
-                <span className={`font-mono ${f.impact >= 0 ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400"}`}>
-                  {f.impact >= 0 ? "+" : ""}
-                  {f.impact.toFixed(3)}
-                </span>
-              </li>
-            ))}
-          </ul>
+          <div className="space-y-2">
+            <span className="eyebrow">Why this score</span>
+            <ul className="space-y-2">
+              {top.map((f) => (
+                <li key={f.feature} className="space-y-1">
+                  <div className="flex items-center justify-between gap-3 text-[11px]">
+                    <span className="truncate text-muted-foreground">{f.feature}</span>
+                    <span
+                      className={`font-mono tnum ${
+                        f.impact >= 0 ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400"
+                      }`}
+                    >
+                      {f.impact >= 0 ? "+" : ""}
+                      {f.impact.toFixed(3)}
+                    </span>
+                  </div>
+                  <div className="relative h-1.5 rounded-full bg-secondary/70">
+                    <span className="absolute inset-y-0 left-1/2 w-px bg-border" aria-hidden />
+                    <span
+                      className={`absolute inset-y-0 rounded-full ${f.impact >= 0 ? "left-1/2 bg-rose-500/80" : "right-1/2 bg-emerald-500/80"}`}
+                      style={{ width: `${(Math.abs(f.impact) / maxAbs) * 50}%` }}
+                    />
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <p className="text-[10px] leading-relaxed text-muted-foreground">
+              SHAP values explain the raw XGBoost model, not the calibrated score. Red raises risk, green lowers it.
+            </p>
+          </div>
         )}
 
         {p.warning && (
-          <p className="text-[10px] text-amber-600/90 dark:text-amber-400/90 bg-amber-500/5 border border-amber-500/20 rounded-lg px-2.5 py-1.5">
+          <p className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-2.5 py-2 text-[11px] leading-relaxed text-amber-700 dark:text-amber-300">
             {p.warning}
           </p>
         )}
 
         {groupCount > 0 && (
           <details className="group">
-            <summary className="flex items-center justify-between cursor-pointer text-[11px] font-semibold text-muted-foreground hover:text-foreground">
-              <span>{groupCount} features · thresholds · provenance</span>
+            <summary className="flex cursor-pointer items-center justify-between text-[11px] font-semibold text-muted-foreground hover:text-foreground">
+              <span>{groupCount} features used for this score</span>
               <ChevronDown className="w-3.5 h-3.5 transition-transform group-open:rotate-180" aria-hidden />
             </summary>
-            <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-0.5 text-[10px]">
+            <div className="mt-2 grid grid-cols-1 gap-x-6 gap-y-0.5 text-[10px] sm:grid-cols-2">
               {Object.entries(features).map(([name, value]) => (
                 <div key={name} className="flex justify-between gap-3">
-                  <span className="text-muted-foreground truncate">{name}</span>
-                  <span className="font-mono">{Number(value).toFixed(4)}</span>
+                  <span className="truncate text-muted-foreground">{name}</span>
+                  <span className="font-mono tnum">{Number(value).toFixed(4)}</span>
                 </div>
               ))}
             </div>
-            <p className="mt-2 text-[10px] text-muted-foreground">
-              SHAP values reflect the raw XGBoost model (feature attribution), not the calibrated score. Thresholds and
-              provenance: see /analyze.
+            <p className="mt-2 text-[10px] leading-relaxed text-muted-foreground">
+              Full thresholds and provenance live in Analyze mode.
             </p>
           </details>
         )}

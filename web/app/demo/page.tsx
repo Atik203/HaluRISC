@@ -43,18 +43,20 @@ export default function DemoPage() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      <div className="glass-panel p-6 md:p-8 rounded-2xl">
-        <h1 className="text-2xl font-bold gradient-text flex items-center gap-2">
-          <Presentation className="w-6 h-6 text-violet-600 dark:text-purple-400" /> Presenter Demo
-        </h1>
-        <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-          A self-contained walkthrough: every score, table, and figure below is rendered from the frozen{" "}
-          <code className="font-mono">artifacts/</code> — no API calls, no OpenAI key, no network. Works on a clean
-          clone after unzipping the Colab artifact bundle.
+      <div className="glass-panel p-6 md:p-8 rounded-2xl animate-fade">
+        <p className="eyebrow flex items-center gap-2">
+          <Presentation className="w-3.5 h-3.5 text-violet-600 dark:text-purple-400" aria-hidden />
+          Offline walkthrough
+        </p>
+        <h1 className="display-title text-3xl mt-1.5">Presenter demo</h1>
+        <p className="text-sm text-muted-foreground mt-2 leading-relaxed max-w-3xl">
+          Every score, table, and figure below is rendered from the frozen{" "}
+          <code className="font-mono">artifacts/</code>, with no API calls, no OpenAI key, and no network. It works on a
+          clean clone after unzipping the Colab artifact bundle.
         </p>
       </div>
 
-      <Panel title="The problem in one line">
+      <Panel title="01 · The problem in one line">
         <p className="text-sm leading-relaxed text-foreground/90">
           Black-box LLMs hallucinate; you cannot inspect their weights. HaluRISC scores candidate answers against the
           provided context with <strong>26 calibrated, explainable features</strong> — and measures honestly where that
@@ -62,15 +64,15 @@ export default function DemoPage() {
         </p>
         <div className="flex flex-wrap gap-2 pt-2">
           {stats.map((s) => (
-            <div key={s.label} className="glass-panel px-4 py-3 rounded-xl flex-1 min-w-[220px]">
-              <div className="text-lg font-extrabold font-mono">{s.value}</div>
-              <div className="text-[11px] text-muted-foreground">{s.label}</div>
+            <div key={s.label} className="surface-inset px-4 py-3.5 rounded-xl flex-1 min-w-[220px]">
+              <div className="text-2xl font-extrabold font-mono tnum tracking-tight">{s.value}</div>
+              <div className="text-[11px] text-muted-foreground mt-1">{s.label}</div>
             </div>
           ))}
         </div>
       </Panel>
 
-      <Panel title="Three real cases (from the B5 reviewer export)" subtitle="Sampled from b5_review_cases.json — real scores, no staging data.">
+      <Panel title="02 · Three real cases (from the B5 reviewer export)" subtitle="Sampled from b5_review_cases.json — real scores, no staging data.">
         {[grounded, hallucinated, borderline].map((case_) =>
           case_ ? (
             <div key={case_.sample_id} className="border border-border/60 rounded-xl p-4 space-y-2 bg-secondary/20">
@@ -103,7 +105,7 @@ export default function DemoPage() {
         )}
       </Panel>
 
-      <Panel title="A real failure (B5 perturbation protocol)" subtitle="Controlled edit that flipped or moved the model's score.">
+      <Panel title="03 · A real failure (B5 perturbation protocol)" subtitle="Controlled edit that flipped or moved the model's score.">
         {failure ? (
           <p className="text-xs text-muted-foreground leading-relaxed">
             Sample <code className="font-mono">{failure.sample_id}</code> under <strong>{failure.perturbation}</strong>{" "}
@@ -123,7 +125,7 @@ export default function DemoPage() {
         )}
       </Panel>
 
-      <Panel title="Calibration under shift — the key evidence (B4)">
+      <Panel title="04 · Calibration under shift, the key evidence (B4)">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Figure src="/api/figures/b4/calibration_shift.png" alt="Calibration shift across subsets and methods" className="w-full" />
           <Figure src="/api/figures/b4/reliability_diagrams.png" alt="Reliability diagrams for HaluEval, RAGTruth QA and FaithBench" className="w-full" />
@@ -138,7 +140,7 @@ export default function DemoPage() {
         </p>
       </Panel>
 
-      <Panel title="Transfer robustness (B3)" subtitle="Zero-shot on external data — figures from artifacts/figures/b3.">
+      <Panel title="05 · Transfer robustness (B3)" subtitle="Zero-shot on external data — figures from artifacts/figures/b3.">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Figure src="/api/figures/b3/transfer_score_distributions.png" alt="Score distributions in-domain versus out-of-domain" className="w-full" />
           <Figure src="/api/figures/b3/context_length_robustness.png" alt="F1 by context length" className="w-full" />
