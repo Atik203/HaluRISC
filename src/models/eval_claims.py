@@ -24,7 +24,7 @@ Two modes:
 Run (repo root, .venv; --build and --tier3 need the heavy models loaded):
   python src/models/eval_claims.py --build --n 40
   python src/models/eval_claims.py --evaluate artifacts/results/b5/claim_eval_cases_reviewed.csv
-  python src/models/eval_claims.py --from-feedback --out data/processed/feedback_eval.csv
+  python src/models/eval_claims.py --from-feedback data/processed/feedback_eval.csv
   python src/models/eval_claims.py --tier3 data/processed/tier3_queries.csv
 """
 

@@ -40,6 +40,11 @@ python src/models/make_manifest.py
 python src/models/analyze_length_shortcut.py   # length-confound table
 python src/models/review_tally.py              # expert-audit tally
 
+# Human-labeling sheets (fill by hand, then report)
+python src/data/build_audit_review_sheet.py    # 50-sample audit review sheet
+python src/models/eval_claims.py --build --n 40 # claim-eval sheet (loads NLI)
+python src/models/eval_claims.py --from-feedback data/processed/feedback_eval.csv
+
 # Tests, API, web
 python -m pytest tests -q
 python -m uvicorn src.api.main:app --port 8000

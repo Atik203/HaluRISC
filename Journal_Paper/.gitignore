@@ -2,9 +2,7 @@
 *.bbl
 *.blg
 *.log
-*.out
+
 *.spl
 *.synctex.gz
 *.abs
-out/
-halurisc.pdf
