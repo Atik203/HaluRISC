@@ -1,5 +1,5 @@
 """
-HaluRISC artifact manifest generator (blueprint A18 / roadmap B6).
+HaluRISC artifact manifest generator (blueprint §11 / roadmap B6).
 
 Writes artifacts/results/manifest.json with:
   - dataset hashes (processed + raw sources with revision files)

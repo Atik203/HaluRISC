@@ -19,56 +19,73 @@
   - **📊 Analyze Mode**: Form-based evidence inspector (`/analyze`)
   - **📈 Dashboard**: Empirical benchmarks and cost comparisons (`/dashboard`)
   - **ℹ️ About**: Pipeline architecture and method overview (`/about`)
-- ⚡ **Lightweight & Fast**: ~125 ms per analysis (p50 total over 200 test samples; model inference alone 4.5 ms).
-- 💰 **~100x Cheaper than LLM Judges**: measured $0.101/1K predictions with GPT 5.6 Luna as judge vs near-zero local cost; also ~290x faster (1.29 s vs ~4.5 ms per sample).
-- 🔬 **Statistically Rigorous**: 20,000 samples (HaluEval QA), grouped 70/15/15 splits (leakage-free), 3-seed protocol (42/123/456), grouped 5-fold CV tuning, McNemar + bootstrap CIs, calibration ECE raw 0.0122 / Platt 0.0101 / isotonic 0.0071 (corrected).
+- ⚡ **Lightweight & Fast**: 61.8 ms per analysis at the median over 200 test samples (XGBoost inference 1.3 ms, SHAP 1.9 ms).
+- 💰 **Cheaper and Faster than LLM Judges**: measured $0.105/1K predictions and 1,310 ms for GPT 5.6 Luna as judge, versus about $0.001/1K and 61.8 ms for the local model — roughly 100x cheaper and 20x faster.
+- 🔬 **Statistically Rigorous**: 20,000 samples (HaluEval QA), leakage-free grouped 70/15/15 splits, 3-seed protocol (42/123/456), grouped 5-fold CV tuning, McNemar tests and bootstrap CIs. Raw probabilities are already calibrated on the source domain (ECE 0.0045); Platt (0.0091) and isotonic (0.0070) do not improve them there.
+- 🌍 **Cross-Domain and Explanation-Aware**: zero-shot transfer measured on RAGTruth and FaithBench, target-domain recalibration (ECE 0.819 → 0.134 on RAGTruth QA), SHAP reliability metrics, a structured expert audit of 26 error-enriched cases, and an answer-length confound analysis.
+- 📄 **Two Manuscripts**: course-format paper (`report/paper.tex`) and an Elsevier CAS single-column journal manuscript (`Journal_Paper/halurisc.tex`), both built from the frozen artifacts.
 
 ---
 
-## 📊 Benchmark Results (HaluEval QA Holdout Test Set, N=3,000)
+## 📊 Benchmark Results (HaluEval QA test set, N = 3,000)
 
-Corrected leakage-free grouped split; mean over seeds 42/123/456
-(real results from `artifacts/results/b2/b2_model_comparison.json`):
+Leakage-free grouped split; mean over seeds 42/123/456, from
+`artifacts/results/b2/b2_model_comparison.csv`:
 
 | Model Architecture          | Precision  | Recall     | F1-Score   | AUROC      | PR-AUC     | MCC        |
 | --------------------------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- |
 | **Majority (all 0)**        | 0.0000     | 0.0000     | 0.0000     | n/a        | n/a        | 0.0000     |
 | **Heuristic (1 - overlap)** | 0.9473     | 0.9233     | 0.9352     | 0.9132     | 0.8196     | 0.8723     |
-| **TF-IDF (Q+C+A)**          | 0.6403     | 0.5660     | 0.6008     | 0.6753     | 0.6785     | 0.2497     |
+| **TF-IDF (Q+C+A)**          | 0.6397     | 0.5647     | 0.5999     | 0.6754     | 0.6785     | 0.2484     |
 | **TF-IDF (answer only)**    | 0.9550     | 0.8920     | 0.9224     | 0.9696     | 0.9665     | 0.8519     |
 | **TF-IDF (context only)**   | 0.5000     | 1.0000     | 0.6667     | n/a        | n/a        | 0.0000     |
-| **NLI-only**                | 0.6479     | 0.6967     | 0.6714     | 0.7178     | 0.7533     | 0.3189     |
-| **Logistic Regression**     | 0.9768     | 0.9553     | 0.9660     | 0.9932     | 0.9900     | 0.9329     |
-| **Random Forest**           | 0.9890     | 0.9789     | 0.9839     | 0.9981     | 0.9984     | 0.9681     |
-| **XGBoost (ours)**          | **0.9935** | **0.9780** | **0.9857** | **0.9980** | **0.9984** | **0.9717** |
+| **NLI-only**                | 0.6479     | 0.6967     | 0.6714     | 0.7177     | 0.7531     | 0.3189     |
+| **Logistic Regression**     | 0.9768     | 0.9553     | 0.9660     | 0.9932     | 0.9901     | 0.9329     |
+| **Random Forest**           | 0.9897     | 0.9789     | 0.9842     | 0.9980     | 0.9983     | 0.9687     |
+| **XGBoost (ours)**          | **0.9932** | **0.9762** | **0.9846** | **0.9979** | **0.9983** | **0.9697** |
 
-**Artifact controls (B2):** answer-only TF-IDF already reaches F1 0.9224 — a
-large part of the HaluEval signal is answer-style surface text. Context-only
-has zero signal (paired answers share context, F1 0.6667 = always-positive).
-NLI-only is weak (0.6714). The full evidence-aware model (XGBoost 0.9857)
-adds a significant margin over all controls (McNemar p < 1e-5 vs answer-only).
-Uncalibrated XGBoost ECE 0.0065 (formal calibration comparison: B4).
+**Artifact controls:** answer-only TF-IDF already reaches F1 0.9224 — a large
+part of the HaluEval signal is answer-style surface text. Context-only has zero
+signal (paired answers share context, F1 0.6667 = always-positive), and
+NLI-only is weak (0.6714). The full evidence-aware XGBoost model adds a
+significant margin over the controls (McNemar p = 1.3e-06 vs answer-only,
+p = 0.044 vs random forest; bootstrap 95% CI F1 [0.9812, 0.9895], AUROC
+[0.9964, 0.9989]).
 
-**Leakage-removal impact (B2):** historical row-level-split F1 0.9886 →
-corrected grouped split + grouped-CV tuning F1 0.9857 (Δ −0.003; AUROC
-unchanged at 0.9980). The corrected Version A reference (row-CV tuning) was
-F1 0.9842. Details: `artifacts/results/b2/b2_leakage_comparison.json`.
+**Calibration on the source domain:** raw XGBoost probabilities are already
+well calibrated (ECE 0.0045), and Platt (0.0091) and isotonic (0.0070) do not
+improve them — an honest negative result. Calibration pays off only after the
+domain shift (see the RAGTruth recalibration below).
+
+**Leakage-removal impact:** the historical row-level split inflated F1 to
+0.9886; the grouped split corrects it to 0.9846 (Δ −0.004 in F1, AUROC 0.9979).
+The earlier course-run reference with row-level CV tuning was F1 0.9842.
+Details: `artifacts/results/b2/b2_leakage_comparison.json`.
 
 ### LLM-as-Judge comparison (200 test samples, measured)
 
 | Model              | Accuracy   | Precision  | Recall     | F1         | Latency p50 | Cost / 1K |
 | ------------------ | ---------- | ---------- | ---------- | ---------- | ----------- | --------- |
-| GPT 5.6 Luna judge | 0.8600     | 0.9737     | 0.7400     | 0.8409     | 1,310 ms    | $0.105    |
-| **XGBoost (ours)** | **0.9850** | **0.9802** | **0.9900** | **0.9851** | ~5 ms       | ~$0.001   |
+| GPT 5.6 Luna judge | 0.8600     | 0.9740     | 0.7400     | 0.8410     | 1,310 ms    | $0.105    |
+| **XGBoost (ours)** | **0.9850** | **0.9800** | **0.9900** | **0.9850** | 62 ms       | ~$0.001   |
 
 Agreement between judge and XGBoost: 0.845 (McNemar p = 1.6e-05).
 
-### External zero-shot validation (RAGTruth QA, 2,000 samples, no training)
+### External zero-shot validation (no training or adaptation)
 
-F1 0.4819 · AUROC 0.5797 · ECE 0.6651 — the HaluEval-trained model does
-**not** transfer to natural RAG responses (recall 1.0 = flags almost everything
-risky). This is an honest finding: synthetic HaluEval patterns differ from
-real-world generation, motivating cross-domain adaptation (Version B B3).
+| Corpus         | Rows     | F1    | AUROC | ECE   |
+| -------------- | -------- | ----- | ----- | ----- |
+| RAGTruth QA    | 900      | 0.302 | 0.540 | 0.819 |
+| RAGTruth all   | 17,790   | 0.603 | 0.497 | 0.560 |
+| FaithBench     | 750      | 0.813 | 0.531 | 0.301 |
+
+Recall is 1.0 on every corpus: the HaluEval-trained model flags almost
+everything as risky on natural responses. The length-binned analysis shows why:
+in HaluEval the hallucinated share rises from 2.1% for one-word answers to
+99.2% above 17 words, and the model reproduced that confound. This is the
+central negative result, and it motivates the claim-level evidence verification
+in the deployed system. Target-domain recalibration on 5,034 RAGTruth rows cuts
+the ECE on the disjoint 900-row test from 0.819 to 0.134.
 
 ---
 
@@ -104,8 +121,8 @@ real-world generation, motivating cross-domain adaptation (Version B B3).
 
 ### Reproduced environment (for the paper's reproducibility statement)
 
-- Windows 11, Python 3.12.13, NVIDIA RTX 3060 6GB (CUDA 12.8, torch 2.11.0+cu128), 32 GB RAM
-- scikit-learn 1.9.0, xgboost 3.4.0, shap 0.52.0, spacy 3.8.14 (en-core-web-sm 3.8.0), sentence-transformers 5.6.1
+- Windows 11, Python 3.12, NVIDIA RTX 3060 6GB (CUDA 12.8, torch 2.11.0+cu128), 32 GB RAM
+- scikit-learn 1.9.0, xgboost 3.3.0, shap 0.52.0, spacy 3.8.14 (en-core-web-sm 3.8.0), sentence-transformers 5.6.1
 
 ---
 
@@ -158,10 +175,10 @@ python src/models/eval_llm_judge.py
 
 ---
 
-### Version B — Unified dataset layer (B1)
+### Unified dataset layer
 
-Canonical, lossless schema for HaluEval + RAGTruth (official) + FaithBench
-(roadmap §14 B1). Version A preprocessing (`prepare.py`) is untouched; B1 adds
+Canonical, lossless schema for HaluEval + RAGTruth (official) + FaithBench.
+The HaluEval preprocessing in `prepare.py` stays as is; the unified layer adds
 adapter modules. FaithBench (CC BY-NC-SA) is never bundled — raw files stay
 under gitignored `data/raw/`; only hashes, citations, and license notes ship.
 
@@ -206,7 +223,7 @@ and an identical content fingerprint.
   loading errors after download. Cell 7i (`verify_artifacts.py`) proves every
   artifact loads and predicts before packaging; run it again locally after
   unzipping.
-- If you also run the optional Version A cell 7, cell 7.0 restores its
+- If you also run the optional legacy (course-run) cell 7, cell 7.0 restores its
   hash-matched root artifacts and cell 7 checkpoints them immediately to
   `halurisc_cache/version_a/`. Cell 8.0 restores the legacy analyses
   (cells 8–12, SHAP/RAGTruth/error/latency/LLM-judge) and cell 12.5
@@ -263,7 +280,7 @@ Phase-specific guides live in **[`docs/`](docs/README.md)** — including the
 B5.5 **manual reviewer guide** (`docs/b5-explanation-reliability.md`), the
 B6 reproducibility protocol, and the B7 research-UI runbook.
 
-The full Version B pipeline (B1 data → B2 baselines → B3 cross-domain → B4 calibration shift → B5 explanation reliability → manifest → verify) is driven by a single config:
+The full pipeline (data → baselines → cross-domain → calibration shift → explanation reliability → manifest → verify) is driven by a single config:
 
 ```powershell
 # Inspect the exact commands (no execution):
@@ -296,30 +313,34 @@ The image ships the exact pinned `requirements.txt` and `artifacts/` — a clean
 
 ```
 HaluRISC/
-├── blueprint.md            # Research blueprint & two-version study plan
+├── blueprint.md            # Unified research blueprint (single source of truth)
 ├── proposal.md             # Project proposal document
-├── roadmap.md              # Detailed 8-week implementation roadmap
-├── AGENTS.md               # AI Agent optimization guidelines & prompt caching protocol
+├── roadmap.md              # Implementation record (both phases complete)
+├── AGENTS.md               # AI agent rules (prompt caching, boundaries, paper rules)
 ├── LICENSE                 # MIT License
 ├── .env.example            # Environment variables template
-├── requirements.txt        # Pinned Python dependencies
+├── requirements.txt        # Pinned Python dependencies (exact pins)
+├── report/                 # Course-format manuscript (paper.tex) + proposal + figures
+├── Journal_Paper/          # Journal-format manuscript (halurisc.tex, CAS single column)
+├── docs/                   # Phase guides (b5/b6/b7) + frozen manifest
 ├── data/
-│   ├── raw/halueval/       # Downloaded raw qa_data.json
-│   └── processed/          # Clean parquet dataset, audit 50 samples
+│   ├── raw/                # gitignored raw corpora + revision.json provenance
+│   └── processed/          # clean parquet, unified records, audit samples
 ├── src/
-│   ├── data/               # download.py, prepare.py, download_ragtruth.py
+│   ├── data/               # download.py, prepare.py, prepare_unified.py, registry.py
 │   ├── features/           # extract_features.py + entity/nli/semantic modules
-│   ├── models/             # run_all_experiments.py (B6 orchestrator), train_pipeline.py, config.py, error_analysis.py, eval_llm_judge.py, eval_efficiency.py
+│   ├── models/             # run_all_experiments.py, train_pipeline.py, run_b2..b5, analyze_length_shortcut.py
 │   ├── explain/            # shap_analysis.py
-│   └── api/                # FastAPI main.py (/predict, /explain, /judge, /health)
-├── configs/                # version_b.yaml (B6 run-all protocol)
-├── colab/                  # self-contained HaluRISC_Training_Version_B.ipynb + cache helpers
+│   └── api/                # FastAPI main.py (/predict, /explain, /verify, /judge, /health)
+├── configs/                # version_b.yaml (run-all protocol)
+├── colab/                  # self-contained HaluRISC_Training_Version_B.ipynb + helpers
 ├── artifacts/
-│   ├── models/             # Model artifacts and params
-│   ├── results/            # baseline_results.csv, JSON outputs
-│   └── split_indices.json  # Saved 70/15/15 split indices
+│   ├── models/             # model, calibrator, scaler, SHAP explainer artifacts
+│   ├── results/            # b2..b5 metric tables + audit sheet + length analysis
+│   └── split_indices.json  # Saved grouped 70/15/15 split indices
+├── tests/                  # pytest suites (206 tests)
 └── web/                    # Next.js App Router frontend
-    ├── app/                # /chat, /analyze, /dashboard, /about, /api/chat
+    ├── app/                # /chat, /analyze, /dashboard, /demo, /about, /api/chat
     ├── components/         # RiskGauge, ShapChart, NavBar, ThemeToggle, assistant-ui/thread
     └── toolkit.tsx         # Generative UI toolkit definition
 ```
@@ -329,8 +350,10 @@ HaluRISC/
 ## 📜 Dataset & Licensing Disclosures
 
 - **HaluRISC Codebase**: Released under the **[MIT License](LICENSE)**.
-- **HaluEval Benchmark Dataset**: Downloaded from the official [RUCAIBox/HaluEval](https://github.com/RUCAIBox/HaluEval) repository (EMNLP 2023). Note: HaluEval dataset files are used locally for academic research evaluation purposes.
-- **RAGTruth Dataset**: External holdout evaluation corpus from [ParticleMedia/RAGTruth](https://github.com/ParticleMedia/RAGTruth) (ACL 2024).
+- **HaluEval** (MIT): downloaded from the official [RUCAIBox/HaluEval](https://github.com/RUCAIBox/HaluEval) repository (EMNLP 2023), pinned to commit `b7253db3cdaa` with the file SHA-256 recorded in `data/raw/halueval/revision.json`.
+- **RAGTruth** (MIT): external evaluation corpus from [ParticleMedia/RAGTruth](https://github.com/ParticleMedia/RAGTruth) (ACL 2024), pinned to commit `c103204b9ce2`.
+- **FaithBench** (CC BY-NC-SA 4.0): stress-test corpus from [vectara/FaithBench](https://github.com/vectara/FaithBench) (NAACL 2025). Raw files are never redistributed; the repository ships the downloader, revision, and hashes only.
+- No dataset is downloaded from Kaggle or an unverified mirror. Raw and restricted files stay gitignored; only scripts, hashes, citations, and license notes ship with the release.
 
 ---
 

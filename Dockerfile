@@ -1,4 +1,4 @@
-# HaluRISC backend — CPU-compatible FastAPI inference server (blueprint B11).
+# HaluRISC backend — CPU-compatible FastAPI inference server (blueprint §9).
 # CUDA is an OPTIONAL local acceleration path; this image is intentionally CPU
 # so a clean clone can run the full /predict + /explain stack anywhere.
 #

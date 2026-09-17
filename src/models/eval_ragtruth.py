@@ -1,5 +1,5 @@
 """
-Zero-shot external validation of the HaluRISC model on RAGTruth QA (blueprint A10,
+Zero-shot external validation of the HaluRISC model on RAGTruth QA (blueprint §8.4,
 roadmap Phase 5 "External comparison").
 
 Runs the final calibrated XGBoost model with NO training on RAGTruth data:

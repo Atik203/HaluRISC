@@ -6,7 +6,7 @@ This document specifies mandatory rules, design patterns, prompt caching optimiz
 
 ## 0. Source of Truth (Read First)
 
-- **`blueprint.md`** — research design, scientific claims, scope. **Version A is frozen on branch `version-A`; Version B (publication) work runs on branch `version-B` only.** Do not mix scopes or alter Version A artifacts after the gate push without a documented reason.
+- **`blueprint.md`** — unified research design, scientific claims, and scope (both phases are complete; the document no longer splits Version A/B). Version A remains frozen on branch `version-A`; current work and both manuscripts live on `version-B`. Do not alter frozen artifacts without a documented reason.
 - **`roadmap.md`** — phased implementation plan. Treat as guidance, NOT gospel: version numbers, URLs, and library claims in it can be stale. Always prefer the **latest stable versions actually available/installed** (check `.venv` and PyPI before pinning anything).
 - **`AGENTS.md`** (this file) — binding agent rules. On conflict with `roadmap.md`, this file and `blueprint.md` win.
 
@@ -97,9 +97,14 @@ assistant-ui follows the **shadcn/ui "Open Code" philosophy**:
 
 ```
 HaluRISC/
-├── blueprint.md          # research source of truth (Version A active)
-├── roadmap.md            # implementation plan (guidance only)
+├── blueprint.md          # unified research source of truth
+├── roadmap.md            # implementation record (guidance only)
 ├── requirements.txt      # EXACT pins only (==)
+├── report/               # course-format manuscript (paper.tex) + proposal + figures/screenshots
+├── Journal_Paper/        # journal-format manuscript (halurisc.tex, CAS single column) + ref.bib
+├── docs/                 # phase guides (b5/b6/b7) + frozen manifest
+├── configs/              # version_b.yaml (run_all protocol)
+├── colab/                # self-contained training notebook
 ├── src/
 │   ├── data/             # download.py (HaluEval, RAGTruth), prepare.py (splits)
 │   ├── features/         # extract_features.py (core) + entity/nli/semantic modules
@@ -131,15 +136,15 @@ HaluRISC/
 - **Git Security Rule:** Neither `.env` nor `.env.local` are ever committed to Git (`.gitignore` protects both).
 
 ### 5.1 Dependency Pinning Rule
-- `requirements.txt` MUST contain exact pins (`==`), never `>=`/`~=` (blueprint A18).
+- `requirements.txt` MUST contain exact pins (`==`), never `>=`/`~=` (blueprint §11).
 - When adding a package, install the **latest stable version** that resolves against the installed stack, then pin the resolved version.
 - Installed versions in `.venv` take precedence over stale roadmap pins (e.g., scikit-learn 1.9, pandas 3.0 are correct as installed — do NOT downgrade to older roadmap values). **Exception: xgboost MUST stay at `==3.3.0`** (both `requirements.txt` and `colab/requirements-colab.txt`). The Colab-produced booster serialization (blob starts with a `Config` section) is unreadable by the PyPI 3.4.0 wheel ("input stream corrupted") but loads fine with 3.3.0 — pinned there deliberately for cross-platform artifact portability. Do NOT bump xgboost to 3.4.0.
 
 ---
 
-## 6. Mandatory ML Experiment Protocol (Version A)
+## 6. Mandatory ML Experiment Protocol
 
-Grading-critical rules (blueprint A9–A10, roadmap Phases 4–5). All training scripts MUST follow these:
+Grading-critical rules (blueprint §5-§8, roadmap Phases 4–5). All training scripts MUST follow these:
 
 - **Splits:** 70/15/15 stratified by label; split indices saved to `artifacts/split_indices.json` + `.npy`. Never re-split using only a seed.
 - **Cross-validation:** 5-fold stratified CV on train for tuning and model comparison.
@@ -196,9 +201,10 @@ pnpm run lint   # eslint (flat config, eslint 9)
 
 ---
 
-## 9. Paper Writing Rules (Version B)
+## 9. Paper Writing Rules
 
 1. **Student-register guide:** `report/paper_prompt.md` is the operative writing guide for the paper. Load it at the start of any paper-writing session and follow every rule (burstiness, vocabulary blacklist, no em-dashes/semicolons, max one transition per 2–3 paragraphs, inline citations, active voice, no first-person in formal sections).
-2. **Source of truth:** all numbers in `report/*.tex` MUST come from verified B-run artifacts (`artifacts/results/*`, `manifest.frozen.json`). The Version A draft numbers (0.9886, 0.4822, 137 ms, ECE 0.0115) are stale and must not be reintroduced.
-3. **Build:** compile from `report/` with `latexmk -pdf -outdir=out paper.tex` (TeX Live 2025). Verify a clean build (no unresolved citations, 12–16 pages) before finishing paper work.
-4. **References:** `report/ref.bib` keys are all verified against real publications. Do not add references without web verification. Chapter rename locked: Literature Review (not Related Work).
+2. **Source of truth:** all numbers in `report/*.tex` and `Journal_Paper/halurisc.tex` MUST come from verified artifacts (`artifacts/results/*`, `docs/manifest.frozen.json`). The old draft numbers (0.9886, 0.4822, 137 ms, ECE 0.0115) are stale and must not be reintroduced.
+3. **Build:** compile both manuscripts with TeX Live 2025: `latexmk -pdf -outdir=out paper.tex` from `report/`, and `latexmk -pdf -outdir=out halurisc.tex` from `Journal_Paper/`. Verify clean builds (no unresolved citations; 12-16 pages course format, 13-16 pages journal format) before finishing paper work.
+4. **References:** `report/ref.bib` (18 entries) and `Journal_Paper/ref.bib` (25 entries) are all verified against real publications. Do not add references without web verification. The course manuscript uses `Literature Review` (never `Related Work`); the journal manuscript follows the CAS sample and names that chapter `Conventional Method`.
+5. **Audit provenance:** the B5.5 explanation audit was performed with an AI assistant (two review passes, `review_mode = ai-expert` in `artifacts/results/b5/b5_review_cases_reviewed.csv`). Never describe it as a two-human-reviewer study, and always state the error-enriched sampling caveat wherever its numbers appear.

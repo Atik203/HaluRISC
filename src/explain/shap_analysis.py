@@ -1,5 +1,5 @@
 """
-SHAP explainability analysis for HaluRISC (blueprint A9, roadmap Phase 6).
+SHAP explainability analysis for HaluRISC (blueprint §7.3, roadmap Phase 6).
 
 Produces (saved to artifacts/figures + artifacts/results):
   - Global: SHAP beeswarm summary + mean|SHAP| bar chart
@@ -59,7 +59,7 @@ def case_indexes(y_prob: np.ndarray) -> dict:
 
 
 def _save_fig(fig, name: str):
-    """Save a figure as PNG (dashboard) + PDF (paper, blueprint A18 vector format)."""
+    """Save a figure as PNG (dashboard) + PDF (paper, blueprint §11 vector format)."""
     for ext in ("png", "pdf"):
         fig.savefig(FIGURES_DIR / f"{name}.{ext}", dpi=150, bbox_inches="tight")
     plt.close(fig)

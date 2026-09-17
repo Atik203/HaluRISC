@@ -1,4 +1,4 @@
-# HaluRISC — Pinned Dependencies (exact pins only, blueprint A18)
+# HaluRISC — Pinned Dependencies (exact pins only, blueprint §11)
 # Resolved 2026-08-04 against .venv (Python 3.12.13, Windows, CUDA 12.8 / RTX 3060)
 
 # Core Scientific & Data

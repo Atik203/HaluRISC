@@ -13,7 +13,7 @@ calibrated source model is applied out of domain:
 Rules enforced here:
   - Calibrators are fit ONLY on the designated calibration data (B4.2).
   - Selection rule predeclared: Platt is the primary deployable calibrator;
-    isotonic reported for comparison (blueprint B8/B4.2).
+    isotonic reported for comparison (blueprint §7.2/roadmap B4.2).
   - Metrics: ECE, adaptive ECE, Brier, NLL (log loss), calibration
     slope/intercept, reliability curves, F1/AUROC at fixed threshold 0.5.
   - Subgroup calibration only for >= 100 rows and >= 20 source groups;

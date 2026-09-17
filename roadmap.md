@@ -4,13 +4,15 @@
 
 **Convention:** items marked `[verified 2026]` were checked against current web/PyPI info in July 2026.
 
-> **IMPLEMENTATION STATUS (updated 2026-08-11):** ✅ **~97% done.**
+> **IMPLEMENTATION STATUS (updated 2026-09-17): ✅ COMPLETE.**
 >
-> Everything code-side is complete and verified: Version A integrity repair (leakage-free split, corrected artifacts, XGBoost F1 0.9842 / AUROC 0.9982) and all of Version B — B1 unified data, B2 baselines, B3 cross-domain, B4 calibration under shift, B5 explanation reliability, B6 reproducibility, B7 research UI, B7.5 conversational tiers 1–4 (206 tests, build + lint green, `ALL ARTIFACTS VERIFIED`).
+> Both phases are finished and verified end to end. Version A: leakage-free grouped split, corrected artifacts (XGBoost F1 0.9842 / AUROC 0.9982), API + tests + portable Colab notebook. Version B: B1 unified data, B2 baselines, B3 cross-domain, B4 calibration under shift, B5 explanation reliability, B6 reproducibility, B7 research UI, B7.5 conversational tiers 1–4, B7.6 evidence-domain display score (206 tests, build + lint green, `ALL ARTIFACTS VERIFIED`).
 >
-> **The manuscript is also done.** `report/paper.tex` (modular, 15-page clean build, hyperlinked citations, all Version B numbers) and `report/proposal.tex` were rewritten and built; all five 2026 references were verified and fixed in `ref.bib`; the paper/proposal figures are vendored in `report/figures/`. The API now serves an evidence-domain display score (B4 natural isotonic + per-claim adjustment) instead of the blanket-99% HaluEval-Platt score.
+> **Manuscripts are complete in two formats.** `report/paper.tex` (course format, 15-page clean build, hyperlinked citations, all Version B numbers) with `report/proposal.tex`, and `Journal_Paper/halurisc.tex` (Elsevier CAS single-column, 14-page clean build, six-section journal skeleton, 25 verified references). The API serves the evidence-domain display score (B4 natural isotonic + per-claim adjustment) instead of the blanket-99% HaluEval-Platt score.
 >
-> **What still needs to be done is human work — the manual review sheets and the final checks — listed in §17 at the end of this file.**
+> **Later additions (2026-09-17):** the B5.5 expert audit was completed (AI-assisted two passes, 23/26 agreement; sheet and tally in `artifacts/results/b5/`), the HaluEval answer-length confound was quantified (`b5_length_error_analysis.csv`) and folded into the journal manuscript, and HaluEval provenance was pinned (commit + SHA-256 in `revision.json` and the license manifest). `blueprint.md` is now a single unified design document.
+>
+> **What still needs to be done is human work only — audit review, claim/feedback labeling, and submission checks — listed in §17 at the end of this file.**
 
 ### Operating rule
 
@@ -59,7 +61,8 @@ HaluRISC/
 ├── blueprint.md            # research blueprint (source of truth)
 ├── proposal.md             # supervisor proposal (Markdown copy)
 ├── roadmap.md              # this file
-├── report/                 # LaTeX proposal
+├── report/                 # course-format manuscript (paper.tex) + proposal + figures/screenshots
+├── Journal_Paper/          # journal-format manuscript (halurisc.tex, CAS single column) + ref.bib + class files
 ├── docs/                   # phase guides: b5 (manual review), b6 (reproducibility), b7 (UI), frozen manifest
 ├── configs/                # version_b.yaml (run_all protocol)
 ├── data/
@@ -123,7 +126,7 @@ Corrected grouped-split rerun complete, split report leakage-free, every artifac
 Canonical schema, label mappings, dataset registry/license manifest, official RAGTruth + FaithBench downloaders, `prepare_unified.py` → 38,540 deterministic rows; mapping + license reports in `artifacts/results/`.
 
 ### B2 — Corrected baseline and artifact controls — ✅ DONE (2026-08-06)
-Nine baselines with grouped-CV tuning, leakage-removal impact report, per-seed predictions; XGBoost F1 0.9857 / AUROC 0.9980. Artifacts: `artifacts/results/b2/` + `artifacts/models/b2/`.
+Nine baselines with grouped-CV tuning, leakage-removal impact report, per-seed predictions; XGBoost F1 0.9846 / AUROC 0.9979. Artifacts: `artifacts/results/b2/` + `artifacts/models/b2/`.
 
 ### B3 — Cross-domain robustness — ✅ DONE (2026-08-09 Colab run)
 Zero-shot evaluation on RAGTruth + FaithBench finished with clean predictions (55,620 rows, no duplicates); honest transfer-gap numbers on the dashboard. Nothing pending.
@@ -132,7 +135,7 @@ Zero-shot evaluation on RAGTruth + FaithBench finished with clean predictions (5
 Source/target calibration complete with correct counts (re-ran locally); headline on the dashboard: ECE 0.81 → 0.13 after target calibration.
 
 ### B5 — Explanation reliability and error analysis — ✅ DONE (2026-08-09)
-Importance triangulation, neutralization, perturbations, stability, review export all done. **Only remaining step: the manual two-reviewer sheet** (guide: `docs/b5-explanation-reliability.md`; tally: `review_tally.py`) — see §17.
+Importance triangulation, neutralization, perturbations, stability, and the review export are done. The B5.5 sheet was completed with two AI-assisted expert passes (23/26 agreement, 15 cases implausible on both passes), tallied with `review_tally.py`, and documented in `docs/b5-explanation-reliability.md`. Follow-up: the answer-length confound was quantified by `src/models/analyze_length_shortcut.py` → `b5_length_error_analysis.csv` and added to the journal Results.
 
 ### B6 — Reproducible publication artifact — ✅ DONE (2026-08-09)
 `run_all_experiments.py` (config-driven protocol), enriched frozen manifest (raw hashes, seeds, b5 entries, source fingerprint), CPU Dockerfile — all tested. Guide: `docs/b6-reproducibility.md`.
@@ -147,7 +150,7 @@ All four tiers live: auto risk cards per answer (T1), per-claim NLI verdicts wit
 `calibrated_score` no longer saturates at 99% on full-sentence inputs. `src/models/fit_display_calibrator.py` fits the B4 display calibrator (isotonic) on 5,034 natural RAGTruth QA rows (ECE 0.133 on the disjoint 900-row test, vs 0.819 raw); `/verify` further adjusts the score from per-claim verdicts (contradicted up, supported down). Verified live: grounded full-sentence answer 0.31 (low), contradicted-claim answer 0.80 (high).
 
 ### B8 — Manuscript & delivery — ✅ DONE (2026-08-10/11)
-`report/paper.tex` rewritten as a modular document (intro, literature review, methodology, experimental setup, results, system, discussion, conclusion, reproducibility) with only verified Version B numbers, student-register prose (`report/paper_prompt.md`), hyperlinked citations, and vendored figures (pipeline infographic, system architecture, reliability/calibration/transfer diagrams). `report/proposal.tex` and `proposal.pdf` updated to Version B. All five 2026 citations verified against live sources and fixed in `ref.bib` (Luna authors, IJERT authors, IEEE TAI authors, Multimedia authors, SpikeScore ICLR).
+`report/paper.tex` rewritten as a modular document (intro, literature review, methodology, experimental setup, results, system, discussion, conclusion, reproducibility) with only verified Version B numbers, student-register prose (`report/paper_prompt.md`), hyperlinked citations, and vendored figures (pipeline infographic, system architecture, reliability/calibration/transfer diagrams). `report/proposal.tex` and `proposal.pdf` updated to Version B. All five 2026 citations verified against live sources and fixed in `ref.bib` (Luna authors, IJERT authors, IEEE TAI authors, Multimedia authors, SpikeScore ICLR). Later addition: the journal-format manuscript `Journal_Paper/halurisc.tex` (Elsevier CAS single-column, six-section skeleton, 25 references verified 2026-09-17, 14-page clean build) with the length-confound table and the audit paragraph.
 
 ---
 
@@ -198,19 +201,20 @@ All four tiers live: auto risk cards per answer (T1), per-claim NLI verdicts wit
 
 The manuscript is written; everything left is manual review and final pre-submission checks — no code changes are required. Guides and artifacts are ready in `docs/`.
 
-### 17.1 Manual review tasks (do these first)
+### 17.1 Manual review tasks
 
-1. **B5.5 two-reviewer sheet** — fill `reviewer_1` / `reviewer_2` / `agreement` for the ~40 cases in `artifacts/results/b5/b5_review_cases.csv`, save as `b5_review_cases_reviewed.csv`, then tally with `python src/models/review_tally.py`. Step-by-step guide: `docs/b5-explanation-reliability.md`.
+1. ~~B5.5 two-reviewer sheet~~ ✅ **DONE (2026-09-17, AI-assisted).** `artifacts/results/b5/b5_review_cases_reviewed.csv` holds the two passes (23/26 agreement, `review_mode = ai-expert`); tally with `python src/models/review_tally.py`. If the study ever needs a human two-reviewer result, the sheet must be re-filled by humans. Guide: `docs/b5-explanation-reliability.md`.
 2. **Claim-eval labeling (T2/T3 evals)** — build the human-labeling sheet with `python src/models/eval_claims.py --build`, label claims by hand, then measure verdict agreement and flagging precision/recall with `--evaluate`. For retrieval, annotate `--tier3` queries and report citation recall@k.
 3. **Feedback labeling** — if you used the 👍/👎 buttons in chat, export the collected rows with `--from-feedback` and label `correct_verdict`; then `python src/models/tune_thresholds.py` to see whether tuned NLI thresholds improve agreement (`--apply` is an explicit human step).
+4. **50-sample audit human review** — `data/processed/audit_50_samples.json` exists but the human label-quality review fields are still pending.
 
-### 17.2 B8 — Pre-submission delivery (paper work only)
+### 17.2 Pre-submission delivery (paper work only)
 
-1. Fill the three manual sheets above (17.1) if the reviewer/feedback numbers should appear in the report.
-2. Click through every DOI/URL in `report/ref.bib` once more at submission time (all 18 entries were verified 2026-08-11; `ieeeTai` DOI should be re-checked on ieeexplore, which blocks scraping).
-3. If desired, update the System chapter screenshots (`report/screenshots/*.png`) to the latest chat auto-risk card, then rebuild with `latexmk -pdf -outdir=out paper.tex`.
+1. The B5.5 sheet is filled (17.1). Claim-eval and feedback labels remain optional inputs if those numbers should appear in the paper.
+2. Click through every DOI/URL at submission time: `report/ref.bib` (18 entries, verified 2026-08-11; `ieeeTai` DOI must be re-checked on ieeexplore, which blocks scraping) and `Journal_Paper/ref.bib` (25 entries, verified 2026-09-17).
+3. If desired, update the System chapter screenshots (`report/screenshots/*.png`) to the latest chat auto-risk card, then rebuild both manuscripts: `latexmk -pdf -outdir=out paper.tex` (from `report/`) and `latexmk -pdf -outdir=out halurisc.tex` (from `Journal_Paper/`).
 4. Prepare the 5-minute demo script: problem → grounded example → unsupported example → explanation → calibration/shift result → failure case → efficiency. The offline `/demo` page already contains the material.
-5. Journal selection stays deferred: pick the venue only after the manual review sheets exist; recheck scope, quartile, APC, and author guidelines at submission time.
+5. Pick the journal venue and recheck scope, quartile, APC, and author guidelines at submission time. The CAS single-column manuscript in `Journal_Paper/` is the submission draft.
 
 Exit condition: manuscript numbers, dashboard numbers, manifest, and screenshots all come from the same frozen commit and artifact bundle.
 
@@ -227,7 +231,9 @@ Exit condition: manuscript numbers, dashboard numbers, manifest, and screenshots
 | Cross-domain | `artifacts/results/b3/` (metrics, transfer, subgroups, CIs) |
 | Calibration | `artifacts/results/b4/` (ECE/Brier/NLL, target story, reliability) |
 | Explainability | `artifacts/results/b5/` + SHAP figures |
+| Explanation audit + length confound | `b5_review_cases_reviewed.csv` + `b5_length_error_analysis.csv` |
 | Efficiency | latency/cost tables + LLM-judge comparison |
 | Reproducibility | pinned requirements, split hashes, `run_all` protocol, frozen manifest, CPU Dockerfile |
 
-3. **Verify live claims** — XGBoost `3.3.0` and `cross-encoder/nli-deberta-v3-base` model card still match before install (links in §16).
+3. **Journal manuscript** — every number in `Journal_Paper/halurisc.tex` must trace to the same artifacts; the six-section skeleton follows the CAS sample, and `Conventional Method` is the journal name for the literature chapter (the course manuscript keeps `Literature Review`).
+4. **Verify live claims** — XGBoost `3.3.0` and `cross-encoder/nli-deberta-v3-base` model card still match before install (links in §16).

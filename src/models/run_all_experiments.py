@@ -1,5 +1,5 @@
 """
-B6 — Reproducible publication protocol: config-driven orchestrator (blueprint B11).
+B6 — Reproducible publication protocol: config-driven orchestrator (blueprint §11).
 
 Runs the full Version B pipeline (B1 data -> B2 baselines -> B3 cross-domain ->
 B4 calibration shift -> B5 explanation reliability -> manifest -> verify) by
