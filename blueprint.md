@@ -11,6 +11,54 @@ publication extension, completed on branch `version-B`. This blueprint merges
 both into one design: what is described below is what was built, evaluated, and
 written.
 
+## Contents
+
+- [1. Project at a glance](#1-project-at-a-glance)
+- [2. Research question](#2-research-question)
+- [3. Contributions](#3-contributions)
+- [4. Positioning and research gap](#4-positioning-and-research-gap)
+  - [4.1 The gap](#41-the-gap)
+  - [4.2 Must-cite overlapping work and differentiation](#42-must-cite-overlapping-work-and-differentiation)
+  - [4.3 Venue realism](#43-venue-realism)
+- [5. Datasets](#5-datasets)
+  - [5.1 Corpora](#51-corpora)
+  - [5.2 Splits and leakage control](#52-splits-and-leakage-control)
+  - [5.3 HaluEval limitations (must be disclosed in the paper)](#53-halueval-limitations-must-be-disclosed-in-the-paper)
+- [6. Features (26 features, 7 groups)](#6-features-26-features-7-groups)
+- [7. ML pipeline](#7-ml-pipeline)
+  - [7.1 Models](#71-models)
+  - [7.2 Protocol discipline](#72-protocol-discipline)
+  - [7.3 Explainability](#73-explainability)
+- [8. Evaluation strategy](#8-evaluation-strategy)
+  - [8.1 Metrics](#81-metrics)
+  - [8.2 Statistical testing](#82-statistical-testing)
+  - [8.3 Ablations and controls](#83-ablations-and-controls)
+  - [8.4 External bar](#84-external-bar)
+  - [8.5 Error analysis](#85-error-analysis)
+- [9. System artifact](#9-system-artifact)
+  - [9.1 Architecture](#91-architecture)
+  - [9.2 Claim-level verification tiers](#92-claim-level-verification-tiers)
+- [10. Verified results (frozen B-run)](#10-verified-results-frozen-b-run)
+- [11. Reproducibility](#11-reproducibility)
+- [12. Paper and submission plan](#12-paper-and-submission-plan)
+  - [12.1 Manuscripts (both complete)](#121-manuscripts-both-complete)
+  - [12.2 Submission checklist](#122-submission-checklist)
+- [13. Remaining manual work](#13-remaining-manual-work)
+- [14. Risks and mitigations](#14-risks-and-mitigations)
+- [15. Verified reference backbone](#15-verified-reference-backbone)
+- [16. Final verdict](#16-final-verdict)
+
+**Where to read more:** the operational documentation starts at
+[`docs/README.md`](docs/README.md), then
+[`docs/01-project-and-methods.md`](docs/01-project-and-methods.md) (datasets,
+features, models, system),
+[`docs/02-experiments-and-results.md`](docs/02-experiments-and-results.md)
+(every experiment and number, artifact traceability), and
+[`docs/03-reproduction-and-defense.md`](docs/03-reproduction-and-defense.md)
+(rebuild and verify, demo script, defense Q&A, glossary). Phase deep-dives are in
+`docs/b5-*`, `docs/b6-*`, and `docs/b7-*`; the frozen artifact identity is
+`docs/manifest.frozen.json`.
+
 ---
 
 ## 1. Project at a glance
