@@ -3,54 +3,73 @@
 /* Class-based dark mode (Tailwind v4: media query is default) */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ------------------------------------------------------------------ */
+/* Design tokens — "precision lab instrument"                          */
+/* Dark-first, blue-violet signal palette, both themes first-class.    */
+/* ------------------------------------------------------------------ */
+
 :root {
   color-scheme: light;
-  --background: hsl(240 25% 98%);
-  --foreground: hsl(240 10% 8%);
+  --background: hsl(250 33% 98%);
+  --foreground: hsl(248 24% 11%);
   --card: hsl(0 0% 100%);
-  --card-foreground: hsl(240 10% 8%);
+  --card-foreground: hsl(248 24% 11%);
   --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(240 10% 8%);
-  --primary: hsl(252 76% 53%);
+  --popover-foreground: hsl(248 24% 11%);
+  --primary: hsl(255 62% 48%);
   --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(240 8% 93%);
-  --secondary-foreground: hsl(240 10% 15%);
-  --muted: hsl(240 8% 93%);
-  --muted-foreground: hsl(240 6% 40%);
-  --accent: hsl(252 76% 53%);
+  --secondary: hsl(250 20% 94%);
+  --secondary-foreground: hsl(248 20% 18%);
+  --muted: hsl(250 20% 94%);
+  --muted-foreground: hsl(250 12% 36%);
+  --accent: hsl(255 62% 48%);
   --accent-foreground: hsl(0 0% 100%);
-  --destructive: hsl(0 72% 51%);
+  --destructive: hsl(0 72% 45%);
   --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(240 8% 87%);
-  --input: hsl(240 8% 87%);
-  --ring: hsl(252 76% 53%);
-  --gauge-track: rgba(15, 15, 25, 0.1);
-  --gauge-needle: #3f3f46;
+  --border: hsl(250 16% 86%);
+  --input: hsl(250 16% 86%);
+  --ring: hsl(255 62% 48%);
+  --gauge-track: rgba(15, 15, 25, 0.09);
+  --gauge-needle: hsl(248 24% 16%);
+  --glass: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(15, 15, 25, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.6);
+  --atmosphere-1: rgba(124, 58, 237, 0.10);
+  --atmosphere-2: rgba(56, 189, 248, 0.08);
+  --atmosphere-3: rgba(99, 102, 241, 0.07);
+  --grain-opacity: 0.015;
 }
 
 .dark {
   color-scheme: dark;
-  --background: hsl(240 10% 4%);
-  --foreground: hsl(0 0% 98%);
-  --card: hsl(240 10% 8%);
-  --card-foreground: hsl(0 0% 98%);
-  --popover: hsl(240 10% 8%);
-  --popover-foreground: hsl(0 0% 98%);
-  --primary: hsl(252 87% 67%);
-  --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(240 6% 15%);
-  --secondary-foreground: hsl(0 0% 98%);
-  --muted: hsl(240 6% 15%);
-  --muted-foreground: hsl(240 5% 65%);
-  --accent: hsl(252 87% 67%);
-  --accent-foreground: hsl(0 0% 100%);
-  --destructive: hsl(0 84% 60%);
+  --background: hsl(248 26% 5%);
+  --foreground: hsl(250 20% 97%);
+  --card: hsl(248 22% 9%);
+  --card-foreground: hsl(250 20% 97%);
+  --popover: hsl(248 22% 9%);
+  --popover-foreground: hsl(250 20% 97%);
+  --primary: hsl(255 86% 70%);
+  --primary-foreground: hsl(255 60% 12%);
+  --secondary: hsl(248 16% 14%);
+  --secondary-foreground: hsl(250 20% 95%);
+  --muted: hsl(248 16% 14%);
+  --muted-foreground: hsl(250 12% 70%);
+  --accent: hsl(255 86% 70%);
+  --accent-foreground: hsl(255 60% 12%);
+  --destructive: hsl(0 84% 62%);
   --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(240 6% 18%);
-  --input: hsl(240 6% 18%);
-  --ring: hsl(252 87% 67%);
-  --gauge-track: rgba(255, 255, 255, 0.1);
-  --gauge-needle: #ffffff;
+  --border: hsl(248 14% 19%);
+  --input: hsl(248 14% 19%);
+  --ring: hsl(255 86% 70%);
+  --gauge-track: rgba(255, 255, 255, 0.09);
+  --gauge-needle: hsl(250 20% 97%);
+  --glass: rgba(19, 18, 28, 0.68);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.04);
+  --atmosphere-1: rgba(124, 58, 237, 0.16);
+  --atmosphere-2: rgba(56, 189, 248, 0.09);
+  --atmosphere-3: rgba(99, 102, 241, 0.11);
+  --grain-opacity: 0.03;
 }
 
 @theme inline {
@@ -76,40 +95,177 @@
 }
 
 @theme {
-  --radius-lg: 0.75rem;
-  --radius-md: 0.625rem;
+  --font-sans: var(--font-instrument), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: var(--font-newsreader), "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
   --radius-sm: 0.5rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+
+  --animate-rise: rise 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-fade: fade 0.4s ease both;
+  --animate-pulse-soft: pulse-soft 2.4s ease-in-out infinite;
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes pulse-soft {
+    0%,
+    100% {
+      opacity: 0.45;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
 }
 
-body {
-  background-color: var(--color-background);
-  color: var(--color-foreground);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  overflow-x: hidden;
-  transition: background-color 300ms ease, color 300ms ease;
+/* ------------------------------------------------------------------ */
+/* Base                                                                */
+/* ------------------------------------------------------------------ */
+
+@layer base {
+  html {
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+    transition: background-color 300ms ease, color 300ms ease;
+  }
+
+  /* Atmosphere: soft signal glow, fixed behind content */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background:
+      radial-gradient(50rem 32rem at 12% -8%, var(--atmosphere-1), transparent 65%),
+      radial-gradient(42rem 30rem at 92% 4%, var(--atmosphere-2), transparent 60%),
+      radial-gradient(56rem 38rem at 50% 118%, var(--atmosphere-3), transparent 65%);
+  }
+
+  /* Atmosphere: fine grain to remove banding */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: var(--grain-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 30%, transparent);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
 }
 
-/* Glassmorphism utility */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(15, 15, 25, 0.08);
-  transition: background-color 300ms ease, border-color 300ms ease;
+/* ------------------------------------------------------------------ */
+/* Components                                                          */
+/* ------------------------------------------------------------------ */
+
+@layer components {
+  /* One glass layer per surface: translucent fill, hairline, inner light */
+  .glass-panel {
+    background: var(--glass);
+    backdrop-filter: blur(14px) saturate(1.4);
+    -webkit-backdrop-filter: blur(14px) saturate(1.4);
+    border: 1px solid var(--glass-border);
+    box-shadow: inset 0 1px 0 var(--glass-highlight);
+    transition: background-color 300ms ease, border-color 300ms ease;
+  }
+
+  .gradient-text {
+    background: linear-gradient(118deg, #6d28d9 0%, #4f46e5 52%, #0369a1 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .dark .gradient-text {
+    background: linear-gradient(118deg, #c4b5fd 0%, #a5b4fc 45%, #7dd3fc 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Display serif for hero / page titles */
+  .display-title {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    letter-spacing: -0.015em;
+  }
+
+  /* Subtle inset surface for nested blocks (replaces stacked glass) */
+  .surface-inset {
+    background: color-mix(in oklab, var(--secondary) 55%, transparent);
+    border: 1px solid color-mix(in oklab, var(--border) 75%, transparent);
+  }
+
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
 }
 
-.dark .glass-panel {
-  background: rgba(20, 20, 28, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
+/* ------------------------------------------------------------------ */
+/* Shiki code blocks: let the panel background show through            */
+/* ------------------------------------------------------------------ */
 
-.gradient-text {
-  background: linear-gradient(135deg, #a78bfa 0%, #818cf8 50%, #38bdf8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Shiki code blocks: let the panel background show through */
 .shiki-shell .shiki {
   margin: 0 !important;
   padding: 0 !important;
@@ -121,7 +277,7 @@ body {
 
 .shiki-shell .shiki code {
   display: block;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-family: var(--font-mono);
   font-size: inherit;
   line-height: inherit;
 }

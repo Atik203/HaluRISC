@@ -1,6 +1,15 @@
-import { Award, DollarSign, GitCommit, ShieldCheck, TrendingUp, Zap } from "lucide-react";
-import { loadDashboardData, fmt, fmtPct, modelVersionFromManifest } from "@/lib/results";
-import { Panel, KpiCard, DataTable, Mono, EmptyState } from "@/components/dashboard/panel";
+import { Award, DollarSign, ShieldCheck, TrendingUp, Zap } from "lucide-react";
+import { loadDashboardData, fmt, modelVersionFromManifest } from "@/lib/results";
+import { Panel, KpiCard, DataTable, EmptyState } from "@/components/dashboard/panel";
+
+interface LeakageComparison {
+  historical_leaked_row_level?: { f1?: number; auroc?: number; source?: string };
+  version_a_corrected_grouped?: { f1?: number; auroc?: number };
+  b2_xgboost_grouped_cv?: { f1_mean?: number; auroc_mean?: number };
+  delta_b2_vs_leaked_f1?: number;
+  delta_b2_vs_leaked_auroc?: number;
+  note?: string;
+}
 
 const MODEL_LABELS: Record<string, string> = {
   xgboost: "XGBoost (ours)",
@@ -21,6 +30,7 @@ export default function OverviewTab() {
   const m = d.manifest;
   const xgb = rows.find((r) => r.model === "xgboost");
   const bestBaseline = rows.find((r) => r.model === stats?.best_baseline);
+  const leak = d.b2.leakageComparison as LeakageComparison | null;
 
   const b4Ece = d.b4.metrics?.["halueval_test"]?.platt?.ece_mean;
   const judgeCost = d.legacy.judge?.cost_per_1000_usd;
@@ -104,17 +114,55 @@ export default function OverviewTab() {
               </dl>
             </Panel>
 
-            <Panel title="Leakage-removal impact (B2)" subtitle="Historical leaked vs corrected grouped-split comparison.">
-              {d.b2.leakageComparison ? (
-                <pre className="text-[11px] font-mono overflow-auto max-h-64 rounded-xl bg-secondary/40 p-3 border border-border/50">
-                  {JSON.stringify(d.b2.leakageComparison, null, 2)}
-                </pre>
+            <Panel title="Leakage-removal impact (B2)" subtitle="Historical leaked split vs the corrected grouped pipeline.">
+              {leak ? (
+                <div className="space-y-3">
+                  <dl className="space-y-2 text-xs">
+                    {[
+                      [
+                        "Historical (leaky row-level)",
+                        leak.historical_leaked_row_level &&
+                          `F1 ${fmt(leak.historical_leaked_row_level.f1)} · AUROC ${fmt(leak.historical_leaked_row_level.auroc)}`,
+                      ],
+                      [
+                        "Version A (corrected grouped split)",
+                        leak.version_a_corrected_grouped &&
+                          `F1 ${fmt(leak.version_a_corrected_grouped.f1)} · AUROC ${fmt(leak.version_a_corrected_grouped.auroc)}`,
+                      ],
+                      [
+                        "B2 (this work, grouped 5-fold CV)",
+                        leak.b2_xgboost_grouped_cv &&
+                          `F1 ${fmt(leak.b2_xgboost_grouped_cv.f1_mean)} · AUROC ${fmt(leak.b2_xgboost_grouped_cv.auroc_mean)}`,
+                      ],
+                    ].map(([label, value]) => (
+                      <div key={String(label)} className="flex justify-between gap-4 border-b border-border/40 pb-1.5">
+                        <dt className="text-muted-foreground">{label}</dt>
+                        <dd className="font-mono tnum text-right">{value ?? "—"}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                  <div className="flex flex-wrap gap-2 font-mono text-[11px]">
+                    {leak.delta_b2_vs_leaked_f1 != null && (
+                      <span className="rounded-lg border border-border bg-secondary/40 px-2.5 py-1">
+                        ΔF1 vs leaked {leak.delta_b2_vs_leaked_f1 >= 0 ? "+" : ""}
+                        {fmt(leak.delta_b2_vs_leaked_f1)}
+                      </span>
+                    )}
+                    {leak.delta_b2_vs_leaked_auroc != null && (
+                      <span className="rounded-lg border border-border bg-secondary/40 px-2.5 py-1">
+                        ΔAUROC vs leaked {leak.delta_b2_vs_leaked_auroc >= 0 ? "+" : ""}
+                        {fmt(leak.delta_b2_vs_leaked_auroc)}
+                      </span>
+                    )}
+                  </div>
+                  {leak.note && <p className="text-[11px] leading-relaxed text-muted-foreground">{leak.note}</p>}
+                </div>
               ) : (
                 <p className="text-xs text-muted-foreground">b2_leakage_comparison.json not present.</p>
               )}
               {d.b2.tuning && (
-                <div className="pt-2">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Tuning (per seed, 5-fold group CV)</h3>
+                <div className="pt-2 border-t border-border/40">
+                  <h3 className="eyebrow mb-2">Tuning (per seed, 5-fold group CV)</h3>
                   <ul className="space-y-1 text-xs">
                     {Object.entries(d.b2.tuning).map(([seed, t]) => (
                       <li key={seed} className="flex justify-between gap-4">

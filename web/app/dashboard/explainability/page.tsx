@@ -1,5 +1,5 @@
 import { loadDashboardData, fmt, fmtPct } from "@/lib/results";
-import { Panel, DataTable, EmptyState, Mono } from "@/components/dashboard/panel";
+import { Panel, DataTable, EmptyState } from "@/components/dashboard/panel";
 import {
   GroupImportanceBars,
   NeutralizationChart,
