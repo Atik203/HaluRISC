@@ -14,7 +14,9 @@ Defends SHAP as EVALUATED evidence instead of decoration:
      top-1/top-3 flip rate, SHAP rank correlation (Spearman).
   D. Bootstrap CIs (1,000 resamples) for mean-|SHAP| per feature and top-k set
      stability (Jaccard); aggregate score stability CI.
-  E. Human-review package: 40 cases (10 FP / 10 FN / 20 borderline) exported
+  E. Review package for the B5.5 expert audit: up to 10 FP / 10 FN / 20
+     borderline cases exported (each pool capped by availability; the B-run
+     export produced 9 FP / 10 FN / 7 borderline).
      with top-5 SHAP features; two reviewers fill the agreement columns.
   F. Failure cases: perturbations that flip the class or move the score by
      more than 0.3, exported with text excerpts for manual inspection.
@@ -458,7 +460,7 @@ def main():
         review[col] = ""
     review.to_json(B5_RESULTS / "b5_review_cases.json", orient="records", indent=2)
     review.to_csv(B5_RESULTS / "b5_review_cases.csv", index=False)
-    logger.info("E done: %d review cases exported (10 FP / 10 FN / 20 borderline)", len(review))
+    logger.info("E done: %d review cases exported (pools capped by availability)", len(review))
 
     # ---- config ----
     def sha256(path: Path) -> str:

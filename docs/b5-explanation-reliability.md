@@ -12,7 +12,9 @@ calibrator** (the predeclared deployable, roadmap B4.2).
 | Top-k neutralization → prediction change (k = 1,3,5,10) | B5.2 | `b5_neutralization.json` |
 | Text perturbations with full feature re-extraction: numeric, date, entity (spaCy NER), support-sentence removal, irrelevant insertion, clause shuffle | B5.3 | `b5_perturbations.csv`, `b5_perturbation_aggregates.csv`, `b5_failure_cases.json` |
 | Bootstrap CIs for mean-|SHAP| + top-k set stability (Jaccard) | B5.4 | `b5_stability_bootstrap.json` |
-| Reviewer export (10 FP / 10 FN / 20 borderline) | B5.5 | `b5_review_cases.csv` / `.json` |
+| Reviewer export (up to 10 FP / 10 FN / 20 borderline, capped by availability) | B5.5 | `b5_review_cases.csv` / `.json` |
+| Expert audit of the review sheet (two AI-assisted passes, 23/26 agreement) | B5.5 | `b5_review_cases_reviewed.csv` |
+| Length-binned error analysis (benchmark length confound) | B5 follow-up | `b5_length_error_analysis.csv` / `.json` |
 | Failure cases (|Δscore| > 0.3 or SHAP top-1 flip) | B5.6 | `b5_failure_cases.json` |
 
 All outputs live in `artifacts/results/b5/`. Figures (none required; tables and
@@ -41,7 +43,9 @@ irrelevant-insert (n=120); clause-shuffle is a limited paraphrase proxy.
 
 ## Manual Review Guide (B5.5) — do this by hand
 
-Two reviewers independently assess ~40 cases. This is a **manual, human step** —
+Two independent review passes are expected. The B-run export contains **26
+cases** (9 FP, 10 FN, and 7 borderline cases in the 0.35–0.65 calibrated band;
+the exporter caps each pool at what is available). This is a **manual step** —
 no script writes your judgment.
 
 ### 1. Open the sheet
@@ -96,6 +100,29 @@ are purely descriptive — no fixed pass thresholds (B5.7).
   evidence; report the numbers.
 - Disagreements or `implausible` clusters → report them as failure cases
   (B5.6) and discuss where SHAP is unstable or inconsistent with evidence.
+
+## Result (AI-assisted audit, 2026-09-17)
+
+Both passes were completed by an AI assistant at the authors' direction, and
+the sheet records this in the `review_mode` column (`ai-expert`). Pass 1 judged
+evidence grounding (does the score fit how well the answer is supported by the
+context), pass 2 judged the SHAP feature story. Tally
+(`python src/models/review_tally.py`):
+
+- 26 cases: 9 FP, 10 FN, 7 borderline.
+- Pass agreement 23/26 (88%). Disagreements: `q_4156_correct`,
+  `q_1729_hallucinated`, `q_5173_hallucinated`.
+- Implausible 15/26 on both passes; plausible 6 (pass 1) and 7 (pass 2);
+  unsure 5 and 4.
+- False positives follow the HaluEval answer-length confound
+  (`b5_length_error_analysis.csv`: 67% of FPs land in the 5–8 word bin, where
+  the hallucinated share is already 90%). False negatives reuse context
+  entities, which keeps lexical overlap high.
+- Two labelled-hallucinated cases (items 2251 and 2436) are supported by their
+  context and look like benchmark label noise.
+
+Caveat: the sheet is deliberately error-heavy, so these proportions are not
+test-set estimates. Do not describe this audit as a two-human-reviewer study.
 
 ## Interpreting failure cases (B5.6)
 
