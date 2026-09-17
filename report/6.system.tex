@@ -1,0 +1,47 @@
+% Chapter 6 — Web application (system artifact).
+\section{System}
+
+The methods above are deployed as a two-tier web application, and Figure~\ref{fig:arch} shows the architecture. The Next.js frontend streams an LLM conversation on the chat page using the assistant-ui library, and the FastAPI backend holds the model, the calibrator, the SHAP explainer, and the feature models, all loaded once at startup. Every machine-learning request from the frontend goes through a backend-for-frontend proxy in the Next.js layer to the FastAPI endpoints, which avoids cross-origin issues and keeps the API key on the server side.
+
+\begin{figure}[t]
+\centering
+\IfFileExists{./figures/system_architecture.png}{
+\includegraphics[width=\textwidth]{system_architecture.png}
+}{
+\begin{tikzpicture}[
+    box/.style={draw, rounded corners=4pt, minimum height=1.05cm, inner sep=5pt, align=center, font=\small},
+    arrow/.style={-latex, thick},
+]
+\node[box] (ui) at (0, 0) {Next.js 16 + assistant-ui\\\scriptsize chat \& analyze pages};
+\node[box] (bff) at (0, -1.7) {Next.js BFF /api/chat\\\scriptsize Vercel AI SDK streaming};
+\node[box] (llm) at (-3.2, -3.4) {GPT 5.6 Luna\\\scriptsize conversational analysis};
+\node[box] (api) at (3.2, -3.4) {FastAPI :8000\\\scriptsize /predict /explain /verify\\\scriptsize /index /retrieve /feedback};
+\node[box, text width=2.6cm] (ml) at (3.2, -5.4) {XGBoost + Platt\\SHAP\\NLI + NER + SBERT\\BM25 + FAISS + Tavily};
+\draw[arrow] (ui) -- (bff);
+\draw[arrow] (bff) -- node[above, font=\scriptsize]{tool call} (llm);
+\draw[arrow] (bff) -- node[above, font=\scriptsize]{/api/ml/*} (api);
+\draw[arrow] (api) -- (ml);
+\end{tikzpicture}
+}
+\caption{HaluRISC system architecture. The Next.js backend-for-frontend proxies machine-learning requests to FastAPI and streams LLM chat with tool-generated UI widgets.}
+\label{fig:arch}
+\end{figure}
+
+The chat page uses the streaming route of the Vercel AI SDK. A tool call from the conversation model triggers the analysis endpoint, and the result renders as a risk card inside the message thread. The card shows the calibrated score with its threshold band, the per-claim verdicts, the SHAP contribution bars, and a link to a full evidence panel that expands the supporting and contradicting passages.
+
+Beyond the score, the system verifies the answer claim by claim. Each claim is decomposed from the answer text and checked with sentence-level NLI against one of three evidence sources, the provided context, an indexed document collection, or live web search. The verdicts supported, contradicted, and unsupported are rendered per claim, with the driving evidence sentence quoted for contradicted claims. Web search uses the Tavily API, and the document index combines BM25, FAISS dense retrieval, and reciprocal rank fusion with a cross-encoder reranker. When the verification score falls into an uncertain band, the claim is routed to an LLM judge that returns a verdict with a short reasoning note.
+
+The verdict headline leads the card. Any contradicted claim sets the risk to high, an unsupported claim sets it to medium, and fully supported claims set it to low, while the XGBoost score appears as the legacy model score beneath it with a notice when the two disagree. This ordering follows directly from the style-sensitivity result in Chapter~5, where a full-sentence grounded answer can saturate the calibrated score even though every claim is supported. The displayed percentage itself comes from the evidence-domain calibrator, which is fitted on natural RAGTruth responses rather than on HaluEval, and in chat it is adjusted by the claim verdicts, so grounded full-sentence answers score low while answers that contradict the evidence score high.
+
+The analyze page accepts typed text or an uploaded file, runs the pipeline, and shows the risk gauge, the calibrated score, the SHAP bars with the seven feature groups expandable, and a comparison against the raw model score. A demo page walks through the whole flow without an API key. The experiment dashboard renders the tables of Chapter~5 directly from the artifacts folder, and an about page reads the frozen manifest to show the model version, the feature version, and the training commit. Feedback on the verdicts is stored in a feedback log, and a threshold-tuning script turns that log into updated verification thresholds.
+
+Figure~\ref{fig:screens} shows two analysis cases from the analyze page, a hallucinated date answer with a high risk score and a grounded answer with a low score, together with the SHAP contribution charts.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.62\textwidth]{hallucinated_date.png}\\
+\vspace{0.3em}
+\includegraphics[width=0.62\textwidth]{grounded_correct.png}
+\caption{Analyze page: hallucinated-date case (high risk) and grounded case (low risk) with SHAP contribution charts.}
+\label{fig:screens}
+\end{figure}

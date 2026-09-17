@@ -11,10 +11,14 @@
 \usepackage{array}
 \usepackage{parskip}
 \usepackage{enumitem}
+\usepackage{float}
 
 \setlength{\parskip}{0.4em}
 \setlist{topsep=2pt, itemsep=1pt, parsep=1pt}
 \emergencystretch=2em
+
+% Clickable cross-references and citations (load after all other packages).
+\usepackage[colorlinks=true, linkcolor=black, citecolor=blue, urlcolor=blue]{hyperref}
 
 % University logo (renders only if an image file is present)
 \newif\ifuiu
@@ -84,7 +88,7 @@
 
 \section{Project Overview}
 
-Large language models (LLMs) like ChatGPT are very good at writing text that sounds confident and correct, but they sometimes generate information that is wrong or made up --- this is called a hallucination. This project builds a complete system that predicts how likely an LLM answer is to be hallucinated. The system is black-box friendly --- it only needs the question, the answer, and (optionally) some context, without ever looking inside the LLM. It is lightweight --- it uses simple text features and classical machine learning (XGBoost), so it runs in milliseconds on a normal computer, with no GPU and no API fees. It is explainable --- for every prediction it shows \emph{why} the answer looks risky (for example: ``the answer contradicts the provided context'', or ``the answer contains numbers that are not supported''). Finally, it is presentable --- a polished, interactive web dashboard lets a judge or supervisor test the system live, type any question and answer, and see the risk score and explanation instantly. The novelty is not in inventing hallucination detection, but in combining NLI-based consistency features, calibrated risk scores, and tested explanations into one lightweight system --- a combination no published work offers as a single product.
+Large language models (LLMs) like ChatGPT are very good at writing text that sounds confident and correct, but they sometimes generate information that is wrong or made up --- this is called a hallucination. This project builds a complete system that predicts how likely an LLM answer is to be hallucinated. The system is black-box friendly --- it only needs the question, the answer, and (optionally) some context, without ever looking inside the LLM. It is lightweight --- it uses simple text features and classical machine learning (XGBoost), so a full analysis runs in about 62\,ms at the median on a laptop, with no API fees. It is explainable --- for every prediction it shows \emph{why} the answer looks risky (for example: ``the answer contradicts the provided context'', or ``the answer contains numbers that are not supported''). Finally, it is presentable --- a polished, interactive web dashboard lets a judge or supervisor test the system live, type any question and answer, and see the risk score and explanation instantly, with every claim in the answer verified against the pasted context, uploaded documents, or live web search, and cited. The novelty is not in inventing hallucination detection, but in combining NLI-based consistency features, calibrated risk scores, and tested explanations into one lightweight system --- a combination no published work offers as a single product.
 
 \section{Motivation}
 
@@ -92,7 +96,7 @@ LLMs are now used in real products --- chatbots, Q\&A systems, content review to
 
 \section{Objectives}
 
-Research question: Can a lightweight machine learning model predict hallucination risk in LLM answers using simple text features, while giving calibrated risk scores and clear explanations? To answer this, the project has five objectives. The first is to build a feature extraction pipeline (about 20--30 features) that captures how well an answer agrees with the question and context, covering word overlap, named entities, contradiction signals, numbers, hedging words, and semantic similarity. The second is to train and honestly compare classical models, including a simple heuristic baseline, Logistic Regression, Random Forest, and XGBoost. The third is to calibrate the risk scores so that a score of 0.8 truly means ``about 80\% risk'', making the score trustworthy for real use. The fourth is to explain predictions with SHAP, giving a global view of which features matter most plus detailed case studies of individual predictions. The fifth is to build a polished web dashboard (React + FastAPI) with strong UI/UX, featuring live prediction, a risk gauge, an explanation panel, and a demo gallery, designed for presentation and judging.
+Research question: Can a lightweight machine learning model predict hallucination risk in LLM answers using simple text features, while giving calibrated risk scores and clear explanations? To answer this, the project has five objectives. The first is to build a feature extraction pipeline (26 features in seven groups) that captures how well an answer agrees with the question and context, covering word overlap, named entities, contradiction signals, numbers, hedging words, and semantic similarity. The second is to train and honestly compare classical models, including a simple heuristic baseline, Logistic Regression, Random Forest, and XGBoost. The third is to calibrate the risk scores so that a score of 0.8 truly means ``about 80\% risk'', making the score trustworthy for real use. The fourth is to explain predictions with SHAP, giving a global view of which features matter most plus detailed case studies of individual predictions. The fifth is to build a polished web dashboard (Next.js 16 with assistant-ui + FastAPI) with strong UI/UX, featuring live prediction, a risk gauge, per-claim evidence verdicts, an explanation panel, and a demo gallery, designed for presentation and judging.
 
 \section{Related Work}
 
@@ -104,17 +108,27 @@ None of these works combine lightweight engineered features with calibrated risk
 
 \section{Methodology}
 
-The pipeline has seven clear steps:
+The pipeline has seven clear steps, all implemented and verified. The first two prepare the data and the features. The QA subset of HaluEval is downloaded, cleaned, and manually inspected on 50 random samples to verify label quality, and each answer is described by 26 features in seven groups covering length and style, lexical overlap, entity overlap, NLI contradiction with a lightweight pretrained NLI model, numeric consistency, hedging phrases, and semantic similarity.
 
-\begin{enumerate}
-    \item Data preparation --- load the HaluEval QA dataset, clean the text, and manually inspect 50 random samples to verify label quality before training.
-    \item Feature extraction --- compute features in seven groups: length/style, lexical overlap, entity overlap, NLI contradiction (using a lightweight pre-trained NLI model), numeric consistency, hedging phrases, and semantic similarity.
-    \item Model training --- 5-fold stratified cross-validation, hyperparameter tuning for XGBoost, and every experiment repeated with 3 random seeds, reported as mean $\pm$ standard deviation.
-    \item Model comparison --- heuristic baseline, Logistic Regression, Random Forest, and XGBoost, judged on F1, AUROC, precision, recall, and MCC.
-    \item Calibration --- apply Platt scaling to the final model \cite{costeff} and measure the gain with Expected Calibration Error (ECE) and Brier score.
-    \item Explanation --- SHAP global feature importance plus 3 local case studies; error analysis on 20 wrong predictions (10 false positives, 10 false negatives).
-    \item Deployment --- FastAPI backend serving the trained model, and a React (Vite) dashboard with a clean, modern UI: risk gauge, feature breakdown, and live input panel.
-\end{enumerate}
+Model development comes next. A simple heuristic baseline, Logistic Regression, Random Forest, and XGBoost are compared with grouped 5-fold cross-validation, randomized hyperparameter search, and three-seed runs, judged on F1, AUROC, precision, recall, and MCC. Platt and isotonic calibration are fit on the validation split only and measured with expected calibration error and Brier score, SHAP provides global feature importance plus three local case studies, and the worst predictions are examined in a short error analysis.
+
+The last step is deployment. A FastAPI backend serves the trained model, and a Next.js 16 + assistant-ui dashboard provides the risk gauge, the feature breakdown, per-claim evidence verdicts with citations, and a live input panel.
+
+Figure~\ref{fig:prop-pipeline} shows the end-to-end pipeline, and Figure~\ref{fig:prop-arch} shows the deployed two-tier architecture.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/architecture.png}
+\caption{The HaluRISC pipeline: evidence-consistency features from the question, context, and answer feed a tuned, Platt-calibrated XGBoost model, producing a calibrated risk score, per-claim NLI verdicts, and SHAP explanations.}
+\label{fig:prop-pipeline}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/system_architecture.png}
+\caption{Deployed two-tier architecture: the Next.js frontend streams the conversation through a backend-for-frontend proxy to FastAPI, which serves the machine-learning endpoints and the document and live web-search evidence.}
+\label{fig:prop-arch}
+\end{figure}
 
 Statistical rigor: model differences are tested with McNemar's test and bootstrap confidence intervals, so conclusions are not based on chance from a single split.
 
@@ -122,41 +136,13 @@ External comparison: results are compared with published HaluEval detection base
 
 \section{Dataset}
 
-We use the HaluEval benchmark \cite{haluEval} (EMNLP 2023) --- the standard dataset for hallucination evaluation, widely used and well documented.
+The project uses three public corpora. The training source is the QA subset of HaluEval \cite{haluEval} (EMNLP 2023), the standard benchmark for hallucination evaluation. It contains 10{,}000 questions, each paired with a correct answer and a hallucinated answer, which yields 20{,}000 labeled rows with a balanced label distribution. The rows are split 70/15/15 at the question-group level into 14{,}000 training, 3{,}000 validation, and 3{,}000 test rows, so the two answers of one question never cross splits.
 
-\begin{itemize}
-    \item Size: 35{,}000 samples across 4 task types (QA, dialogue, summarization, general).
-    \item Used here: the QA subset (about 10{,}000 samples). Each sample has a question, an answer, a context, and a label (hallucinated or not).
-    \item Why QA: it is the largest, cleanest, and most comparable subset, and it matches the demo scenario (question $\rightarrow$ answer $\rightarrow$ risk score).
-    \item External validation: results will also be checked on RAGTruth \cite{ragtruth} --- about 18{,}000 naturally generated responses from several modern LLMs with human word-level annotations --- to test whether the model generalizes to natural responses.
-\end{itemize}
+The evaluation corpora come from the extended study. RAGTruth \cite{ragtruth} contributes 17{,}790 naturally generated responses with human word-level annotations, covering three tasks (QA, summarization, and data-to-text), four domains (MS MARCO, CNN/DailyMail, recent news, and Yelp), and six generator models from the GPT, Llama-2, and Mistral families. FaithBench \cite{faithbench} adds 750 summaries produced by ten modern LLMs. Both corpora are used for zero-shot evaluation, and a 5{,}034-row RAGTruth QA slice serves as the calibration set for target-domain recalibration, with a disjoint 900-row held-out test set.
 
 \section{Expected Results}
 
-Based on published baselines on the same benchmark \cite{haluEval,ieeeTai}, we expect the tuned XGBoost model to reach an F1 score of around 0.75--0.85 and an AUROC of around 0.80--0.90 on the QA subset. Success means matching or beating these baselines while keeping the system lightweight, explainable, and ready for live demonstration.
-
-The project will deliver:
-
-\begin{enumerate}
-    \item A trained, calibrated XGBoost model with feature ablation and SHAP explanations.
-    \item Statistical significance tests (McNemar, bootstrap confidence intervals).
-    \item A polished, judge-ready web dashboard --- live risk prediction with clean UI/UX.
-    \item Reproducible code: dataset preparation, feature extraction, training, and API.
-\end{enumerate}
-
-\section{Project Plan}
-
-The project will run in two phases --- experiments first, then the product --- and follows the pipeline below.
-
-\begin{itemize}
-    \item Data preparation: download the HaluEval QA subset, clean the text, and manually audit 50 random samples to verify label quality.
-    \item Feature extraction: compute about 20--30 features in seven groups --- length/style, lexical overlap, entity overlap, NLI contradiction, numeric consistency, hedging phrases, and semantic similarity.
-    \item Model development: compare a heuristic baseline, Logistic Regression, Random Forest, and XGBoost using 5-fold cross-validation, hyperparameter tuning, and 3-seed runs.
-    \item Calibration and evaluation: apply Platt scaling, measure ECE and Brier score, run McNemar and bootstrap significance tests, and compare against SelfCheckGPT \cite{selfcheck} and the RAGTruth corpus \cite{ragtruth}.
-    \item Explanation: produce SHAP global feature importance and 3 local case studies, plus an error analysis of 20 wrong predictions.
-    \item Product: build the FastAPI backend and the React dashboard with UI/UX polish and a demo gallery.
-    \item Documentation: prepare the final report and rehearse the live demo.
-\end{itemize}
+The experiments are complete, and the expected results are confirmed on the frozen benchmark. On the HaluEval QA subset (20{,}000 rows, 70/15/15 grouped stratified split) the tuned XGBoost model reaches F1 = 0.9846, AUROC = 0.9979, and MCC = 0.9697, with an expected calibration error of 0.0045 before any recalibration. The full analysis runs in about 62\,ms at the median and costs about \$0.001 per 1{,}000 predictions, roughly 100 times cheaper than an LLM-as-judge that it outperforms on a measured 200-sample set (F1 0.985 vs.\ 0.841). Zero-shot transfer to natural RAGTruth responses is poor, with F1 = 0.3022 on the QA split, an honest negative result reported rather than hidden, and a small target-domain recalibration on 5{,}034 RAGTruth rows cuts the ECE on that corpus from 0.8185 to 0.1335. The project delivers a trained and calibrated XGBoost model with feature ablation and SHAP explanations, statistical significance tests, a judge-ready web dashboard with per-claim evidence verdicts and citations, and fully reproducible code and artifacts.
 
 \newpage
 

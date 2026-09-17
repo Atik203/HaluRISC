@@ -1,5 +1,5 @@
 """
-HaluRISC efficiency & cost analysis (blueprint A10 efficiency block).
+HaluRISC efficiency & cost analysis (blueprint §8.1 efficiency block).
 
 On a sample of the test set, times each feature-extraction group, model
 prediction, and SHAP explanation; reports p50/p95, model artifact size, and

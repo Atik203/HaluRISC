@@ -1,5 +1,5 @@
 """
-HaluRISC error analysis (blueprint A10: inspect 20 wrong predictions, 10 FP + 10 FN).
+HaluRISC error analysis (blueprint §8.5: inspect 20 wrong predictions, 10 FP + 10 FN).
 
 Steps:
   1. Predict the test split with the calibrated model.
@@ -65,7 +65,7 @@ def load_predictions(X_test, feature_cols):
 
 
 def tag_case(row: pd.Series) -> str:
-    """Heuristic taxonomy tagging (blueprint A10 categories) - review manually."""
+    """Heuristic taxonomy tagging (blueprint §8.5 categories) - review manually."""
     n_words = float(row.get("n_words", 0))
     overlap = float(row.get("overlap_answer_context", 0.0))
     nli_contra = float(row.get("nli_ctx_contradicts_ans", 0.0))

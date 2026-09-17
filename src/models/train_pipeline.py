@@ -1,5 +1,5 @@
 """
-HaluRISC full experiment protocol (blueprint A9-A10, roadmap Phases 4-5).
+HaluRISC full experiment protocol (blueprint §7-§8, roadmap Phases 4-5).
 
 Mandatory rules implemented here:
   - 5-fold stratified CV + randomized search tuning for XGBoost (30 iters)
@@ -257,7 +257,7 @@ def mean_std_table(rows: List[dict], metric_keys: List[str]) -> dict:
 
 
 class CalibratedXGBoost:
-    """Deployable artifact (blueprint A18): raw XGBoost + Platt calibrator, sklearn-compatible."""
+    """Deployable artifact (blueprint §11): raw XGBoost + Platt calibrator, sklearn-compatible."""
 
     def __init__(self, model, calibrator):
         self.model = model
@@ -474,7 +474,7 @@ def main():
     with open(RESULTS_DIR / "final_results.json", "w") as f:
         json.dump(results, f, indent=2)
 
-    # Per-seed metric rows (blueprint A9: report mean +/- std AND keep raw seed rows)
+    # Per-seed metric rows (blueprint §7.2: report mean +/- std AND keep raw seed rows)
     def seed_rows(rows):
         return [
             {

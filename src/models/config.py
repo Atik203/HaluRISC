@@ -1,6 +1,6 @@
 """
 HaluRISC single source of truth for experiment configuration
-(blueprint A18: "All random seeds documented in a single config file").
+(blueprint §11: "All random seeds documented in a single config file").
 
 Imported by train_pipeline, shap_analysis, error_analysis, eval_llm_judge,
 eval_efficiency — never redefine seeds elsewhere.
@@ -10,7 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 
-# Experiment seeds (blueprint A9: repeat every experiment with 42, 123, 456)
+# Experiment seeds (blueprint §7.2: repeat every experiment with 42, 123, 456)
 SEEDS = [42, 123, 456]
 
 # Bootstrap / sampling seeds (fixed, separate from experiment seeds)

@@ -1,0 +1,23 @@
+# HaluRISC backend image — keep it lean and secret-free
+.venv
+.git
+.gitignore
+.agents
+.vscode
+.pytest_cache
+__pycache__
+*.pyc
+tests
+colab
+web
+node_modules
+data
+report
+halurisc_artifacts_*
+.env
+.env.example
+*.md
+roadmap.md
+blueprint.md
+proposal.md
+LICENSE

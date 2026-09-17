@@ -19,6 +19,12 @@ artifacts/figures/*
 !artifacts/figures/.gitkeep
 artifacts/results/*
 !artifacts/results/.gitkeep
+# B5.5 audit sheet + length-binned error analysis ship with the release (paper artifacts)
+!artifacts/results/b5/
+artifacts/results/b5/*
+!artifacts/results/b5/b5_review_cases_reviewed.csv
+!artifacts/results/b5/b5_length_error_analysis.csv
+!artifacts/results/b5/b5_length_error_analysis.json
 
 # Environment & Keys
 .env
@@ -40,5 +46,8 @@ web/*.log
 Thumbs.db
 *.tmp
 
-# Colab bundle (regenerable)
-colab/*.zip
+# Colab bundle is self-contained in the notebook; no zip bundle is used.
+report/
+report/*.aux
+report/*.log
+report/*.out

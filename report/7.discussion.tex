@@ -1,0 +1,14 @@
+% Chapter 7 — Discussion (limitations, ethical considerations).
+\section{Discussion}
+
+\subsection{Limitations}
+
+The results need to be read against several limitations. Around 85\% of HaluEval is generated with a sampling-then-filtering procedure, so its hallucination patterns are synthetic by construction, and our zero-shot transfer result on RAGTruth shows how far in-distribution performance is from natural responses. Length and overlap statistics are highly informative on HaluEval but they are benchmark artifacts that may not carry over to other settings, a warning that the ablation study and the SHAP analysis both reinforce. The benchmark also reduces hallucination to a binary label, which leaves graded severity and partially supported answers out of scope. Every feature in the pipeline is English-centric because the NER, NLI, and embedding models are trained on English data, and the supervised model itself is trained on a single dataset, so domain adaptation remains open work. Calibration deserves one more honest note. On the source benchmark the raw probabilities are already well calibrated, and neither Platt nor isotonic regression improves them, while the target-domain recalibration on RAGTruth cuts the ECE there from 0.8185 to 0.1335. The deployed artifact ships the Platt-calibrated model to follow the project default. Finally, the calibrated score is style-sensitive in conversational use, since full-sentence answers can saturate it even when the per-claim evidence verdicts are supported. The interface therefore leads with the evidence verdicts and presents the model score as a secondary signal.
+
+\subsection{Ethical considerations}
+
+A hallucination-risk score predicts risk, not truth, and it must not be treated as a fact-checker. Over-reliance on automated detectors creates false trust, especially when scores are confidently wrong out of domain, which is exactly what the RAGTruth result demonstrates. Detection quality varies across domains and languages, and the current system is English-only. The interface therefore labels scores as risk estimates and shows a training-data warning with every prediction.
+
+\subsection{Future work}
+
+An extended study will target cross-domain evaluation on FaithBench \cite{faithbench}, multicalibration under distribution shift, explanation-reliability metrics that combine feature-ablation correlation with perturbation stability, and neural baselines for comparison.

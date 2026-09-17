@@ -1,0 +1,160 @@
+"""Static validation of the Colab bundle: notebook structure, referenced files,
+drive_cache imports, restore-flag ordering, and packaging rules."""
+
+import json
+import re
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+NOTEBOOK = ROOT / "colab" / "HaluRISC_Training_Version_B.ipynb"
+
+REQUIRED_MARKERS = [
+    "# 5b)", "# 6)", "# 6b)", "# 7.0)", "# 7)", "# 7b.0)", "# 7b)", "# 7b.5)",
+    "# 7d)", "# 7d.5)", "# 7d.6)", "# 7e)", "# 7g.0)", "# 7g)", "# 7i)",
+    "# 7j.0)", "# 7j)", "# 8.0)", "# 12.5)", "# 13)", "# 15)",
+]
+
+FLAGS = ["DRIVE_DIR", "CACHE_OK", "B2_OK", "B3_CACHE_OK", "B3_OK", "B4_OK", "B5_OK", "VA_OK", "LEGACY_OK"]
+
+
+def _cells():
+    nb = json.loads(NOTEBOOK.read_text(encoding="utf-8"))
+    return nb["cells"]
+
+
+def test_notebook_loads_and_has_all_markers():
+    cells = _cells()
+    assert len(cells) >= 35
+    firsts = [
+        "".join(c.get("source", [])).strip().splitlines()[0]
+        for c in cells
+        if "".join(c.get("source", [])).strip()
+    ]
+    for marker in REQUIRED_MARKERS:
+        assert any(f.startswith(marker) for f in firsts), f"missing cell {marker}"
+
+
+def test_every_python_invocation_points_to_existing_file():
+    cells = _cells()
+    pattern = re.compile(r"python (src/[\w/]+\.py)")
+    found = 0
+    for c in cells:
+        src = "".join(c.get("source", []))
+        for m in pattern.findall(src):
+            assert (ROOT / m).exists(), f"{m} referenced but not in repo"
+            found += 1
+    assert found >= 10
+
+
+def test_drive_cache_imports_resolve():
+    from colab import drive_cache
+
+    cells = _cells()
+    for c in cells:
+        src = "".join(c.get("source", []))
+        for m in re.findall(r"from colab\.drive_cache import ([\w, ]+)", src):
+            for name in m.replace(" ", "").split(","):
+                assert hasattr(drive_cache, name), f"{name} missing from drive_cache"
+
+
+def test_restore_config_hash_dotted_keys(tmp_path):
+    """Config keys contain dots (features_full.parquet); the walk must match
+    the longest literal remainder instead of splitting the dotted filename."""
+    from colab import drive_cache
+
+    parquet = tmp_path / "features_full.parquet"
+    parquet.write_bytes(b"feat-bytes")
+    h = drive_cache.sha256_file(parquet)
+    cfg = tmp_path / "b2_run_config.json"
+    cfg.write_text('{"inputs": {"features_full.parquet": "%s"}}' % h, encoding="utf-8")
+    assert drive_cache.b2_restore_valid(cfg, parquet) is True
+    assert drive_cache.b4_restore_valid(cfg, parquet) is False  # different key -> missing
+
+    other = tmp_path / "other.parquet"
+    other.write_bytes(b"different")
+    assert drive_cache.b2_restore_valid(cfg, other) is False  # genuine hash mismatch
+
+
+def test_restore_flags_defined_before_use():
+    """Every flag used in a run cell must be defined by an earlier restore cell."""
+    cells = _cells()
+    defined = set()
+    for c in cells:
+        src = "".join(c.get("source", []))
+        for flag in FLAGS:
+            if re.search(rf"^\s*{flag}\s*=", src, re.M):
+                defined.add(flag)
+        for flag in FLAGS:
+            if re.search(rf"\b{flag}\b", src) and flag not in defined:
+                # DRIVE_DIR is set by cell 1; tolerate only first-cell references
+                if flag == "DRIVE_DIR":
+                    continue
+                raise AssertionError(f"{flag} used in cell before being defined:\n{src[:300]}")
+    assert defined >= {"DRIVE_DIR", "CACHE_OK", "B2_OK", "B3_CACHE_OK", "B3_OK", "B4_OK"}
+
+
+def test_all_code_cells_compile():
+    """Every code cell without shell magics must be valid Python (no indent bugs)."""
+    cells = _cells()
+    checked = 0
+    for c in cells:
+        src = "".join(c.get("source", []))
+        if c["cell_type"] != "code" or not src.strip():
+            continue
+        if any(line.lstrip().startswith("!") or line.lstrip().startswith("%") for line in src.splitlines()):
+            continue  # cells with IPython magics are not pure Python
+        compile(src, "<cell>", "exec")
+        checked += 1
+    assert checked >= 10
+
+
+def test_self_contained_cell3_embeds_all_runtime_files():
+    """Cell 3 must be self-contained: it writes every runtime file from EMBEDDED."""
+    cells = _cells()
+    cell3 = next(c for c in cells if "".join(c.get("source", [])).strip().startswith("# 3)"))
+    src3 = "".join(cell3["source"])
+    assert "EMBEDDED" in src3 and "base64" in src3 and "HASHES" in src3
+    assert "halurisc_src.zip" not in src3, "source zip upload must be gone from cell 3"
+
+    # every `python src/...` script invoked by any cell must be embedded
+    script_paths = set()
+    for c in cells:
+        src = "".join(c.get("source", []))
+        for m in re.findall(r"python (src/[\w/]+\.py)", src):
+            script_paths.add(m)
+    for rel in script_paths:
+        assert f'"{rel}"' in src3, f"{rel} invoked but not embedded in cell 3"
+    for rel in ("colab/drive_cache.py", "colab/requirements-colab.txt",
+                "src/models/run_b2_baselines.py", "src/models/run_b3_cross_domain.py",
+                "src/models/run_b4_calibration_shift.py", "src/models/verify_artifacts.py"):
+        assert f'"{rel}"' in src3, f"{rel} not embedded in cell 3"
+
+
+def test_final_package_excludes_external_cache():
+    cells = _cells()
+    pkg = next(c for c in cells if "".join(c.get("source", [])).strip().startswith("# 15)"))
+    src = "".join(pkg["source"])
+    assert "b3_external_features.parquet" not in src
+    assert "unified_records" not in src
+
+
+def test_legacy_cells_skip_when_outputs_exist():
+    cells = _cells()
+    for marker in ("# 8)", "# 9)", "# 10)", "# 11)", "# 12)"):
+        c = next(c for c in cells if "".join(c.get("source", [])).strip().startswith(marker))
+        assert "already present - skipping" in "".join(c["source"]), f"{marker} lacks skip guard"
+
+
+def test_l4_batch_sizes():
+    cells = _cells()
+    cell2 = next(c for c in cells if "".join(c.get("source", [])).strip().startswith("# 2)"))
+    src2 = "".join(cell2["source"])
+    assert "BATCH_SIZE = 512 if any(k in GPU_NAME" in src2, "cell 2 must define adaptive BATCH_SIZE"
+    for marker in ("# 6)", "# 7e)"):
+        c = next(c for c in cells if "".join(c.get("source", [])).strip().startswith(marker))
+        src = "".join(c["source"])
+        assert "{BATCH_SIZE}" in src, f"{marker} must use {{BATCH_SIZE}}"
+        assert "# L4: 22.5 GB VRAM {flag}" not in src, f"{marker} has shell-comment bug swallowing flags"
