@@ -14,6 +14,7 @@ import {
   Presentation,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { ProjectorToggle } from "@/components/projector-toggle";
 
 const NAV_ITEMS = [
   { href: "/chat", label: "Chat Mode", icon: MessageSquare },
@@ -32,7 +33,7 @@ export function NavBar({ version }: { version?: string | null }) {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/40 glass-panel">
-      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div className="max-w-[88rem] mx-auto px-4 h-16 flex items-center justify-between">
         {/* Brand */}
         <Link
           href="/"
@@ -79,6 +80,7 @@ export function NavBar({ version }: { version?: string | null }) {
               );
             })}
           </nav>
+          <ProjectorToggle />
           <ThemeToggle />
 
           {/* Mobile menu button */}

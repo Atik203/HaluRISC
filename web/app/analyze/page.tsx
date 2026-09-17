@@ -9,15 +9,18 @@ import {
   AlertTriangle,
   ChevronDown,
   CircleCheck,
+  ClipboardCopy,
   Cpu,
   GitBranch,
   Hash,
   Info,
+  ListChecks,
   Play,
   RefreshCw,
   Scale,
   Sparkles,
 } from "lucide-react";
+import { toast } from "@/components/ui/toast";
 
 interface FeatureImpact {
   feature: string;
@@ -239,19 +242,18 @@ export default function AnalyzePage() {
       .catch(() => setMeta(null));
   }, []);
 
-  const analyzeOne = useCallback(
-    async (answer: string): Promise<AnalysisResult> => {
-      const payload = { question, context, answer };
+  const analyzeInput = useCallback(
+    async (input: { question: string; context: string; answer: string }): Promise<AnalysisResult> => {
       const [predRes, expRes] = await Promise.all([
         fetch("/api/ml/predict", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(input),
         }),
         fetch("/api/ml/explain", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(input),
         }),
       ]);
       if (!predRes.ok) {
@@ -262,7 +264,7 @@ export default function AnalyzePage() {
       const explanation = expRes.ok ? ((await expRes.json()) as Explanation) : null;
       return { prediction, explanation };
     },
-    [question, context],
+    [],
   );
 
   const handleAnalyze = async (e?: React.FormEvent) => {
@@ -275,14 +277,72 @@ export default function AnalyzePage() {
     setError(null);
     setResults(null);
     try {
-      const a = await analyzeOne(answerA);
-      const b = compare ? await analyzeOne(answerB) : undefined;
+      const a = await analyzeInput({ question, context, answer: answerA });
+      const b = compare ? await analyzeInput({ question, context, answer: answerB }) : undefined;
       setResults({ a, b });
     } catch (err) {
       console.error("API error:", err);
       setError(err instanceof Error ? err.message : "Failed to reach the ML backend.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  interface SummaryRow {
+    title: string;
+    label: string;
+    score: number;
+    latency?: number;
+  }
+  const [summary, setSummary] = useState<SummaryRow[] | null>(null);
+  const [progress, setProgress] = useState<string | null>(null);
+
+  const runAllExamples = async () => {
+    setLoading(true);
+    setError(null);
+    setResults(null);
+    setSummary(null);
+    try {
+      const rows: SummaryRow[] = [];
+      let firstResult: AnalysisResult | null = null;
+      for (let i = 0; i < SAMPLE_SCENARIOS.length; i++) {
+        const scenario = SAMPLE_SCENARIOS[i];
+        setProgress(`Running example ${i + 1} of ${SAMPLE_SCENARIOS.length}: ${scenario.title}`);
+        const result = await analyzeInput({ question: scenario.q, context: scenario.c, answer: scenario.a });
+        if (!firstResult) firstResult = result;
+        rows.push({
+          title: scenario.title,
+          label: result.prediction.label,
+          score: result.prediction.calibrated_score,
+          latency: result.prediction.latency_ms,
+        });
+      }
+      setSummary(rows);
+      applyScenario(SAMPLE_SCENARIOS[0]);
+      if (firstResult) setResults({ a: firstResult });
+      toast("Three examples scored. Copy the summary when you need it.");
+    } catch (err) {
+      console.error("API error:", err);
+      setError(err instanceof Error ? err.message : "Failed to reach the ML backend.");
+    } finally {
+      setProgress(null);
+      setLoading(false);
+    }
+  };
+
+  const copySummary = async () => {
+    if (!summary) return;
+    const lines = summary.map(
+      (row) =>
+        `${row.title}: ${LABEL_TEXT[row.label] ?? row.label} · ${Math.round(row.score * 100)}% calibrated${
+          row.latency != null ? ` · ${row.latency.toFixed(0)} ms` : ""
+        }`,
+    );
+    try {
+      await navigator.clipboard.writeText(`HaluRISC example sweep\n${lines.join("\n")}`);
+      toast("Summary copied to clipboard");
+    } catch {
+      toast("Copy failed. The browser blocked clipboard access.", "error");
     }
   };
 
@@ -338,7 +398,17 @@ export default function AnalyzePage() {
                   </button>
                 );
               })}
+              <button
+                type="button"
+                onClick={runAllExamples}
+                disabled={loading}
+                className="inline-flex items-center gap-2 rounded-xl border border-primary/40 bg-primary/10 px-3 py-2 text-xs font-semibold transition-colors hover:bg-primary/15 disabled:opacity-60"
+              >
+                <ListChecks className="w-3.5 h-3.5 text-violet-600 dark:text-purple-400" aria-hidden />
+                Run all three
+              </button>
             </div>
+            {progress && <p className="text-[11px] text-muted-foreground">{progress}</p>}
           </div>
 
           <div className="space-y-4">
@@ -457,6 +527,46 @@ export default function AnalyzePage() {
                 <div className="h-3 w-2/3 rounded-full bg-secondary/60 animate-pulse-soft [animation-delay:120ms]" />
                 <div className="h-3 w-1/2 rounded-full bg-secondary/60 animate-pulse-soft [animation-delay:240ms]" />
               </div>
+            </div>
+          )}
+
+          {summary && (
+            <div className="glass-panel space-y-3 rounded-2xl p-4 animate-fade">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="text-sm font-bold">Example sweep</h3>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={copySummary}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-secondary/60 px-3 py-1.5 text-[11px] font-semibold transition-colors hover:bg-secondary"
+                  >
+                    <ClipboardCopy className="h-3.5 w-3.5" aria-hidden /> Copy summary
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSummary(null)}
+                    className="rounded-xl px-2 py-1.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+              <ul className="divide-y divide-border/40">
+                {summary.map((row) => (
+                  <li key={row.title} className="flex flex-wrap items-center justify-between gap-2 py-2 text-xs">
+                    <span className="font-semibold">{row.title}</span>
+                    <span className="flex items-center gap-2">
+                      <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${riskTone(row.label)}`}>
+                        {LABEL_TEXT[row.label] ?? row.label}
+                      </span>
+                      <span className="font-mono tnum">{Math.round(row.score * 100)}%</span>
+                      {row.latency != null && (
+                        <span className="font-mono text-[10px] text-muted-foreground">{row.latency.toFixed(0)} ms</span>
+                      )}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 

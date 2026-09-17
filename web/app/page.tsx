@@ -14,6 +14,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { loadDashboardData, fmt, featureCount } from "@/lib/results";
+import { DemoReadiness } from "@/components/demo-readiness";
 
 function truncate(text: string, max: number): string {
   return text.length > max ? `${text.slice(0, max)}…` : text;
@@ -29,7 +30,8 @@ export default function Home() {
   const judgeCost = d.legacy.judge?.cost_per_1000_usd;
   const haluriscCost = d.legacy.latency?.cost_per_1000_predictions_usd?.halurisc_local;
   const costRatio = judgeCost && haluriscCost ? Math.round(judgeCost / haluriscCost) : null;
-  const nFeatures = featureCount() ?? 26;
+  const featureCountValue = featureCount();
+  const nFeatures = featureCountValue ?? 26;
 
   const review = d.b5.reviewCases ?? [];
   const hallucinated = review.find((c) => c.calibrated_score >= 0.7) ?? null;
@@ -204,6 +206,13 @@ export default function Home() {
           </div>
         ))}
       </section>
+
+      {/* Booth preflight */}
+      <DemoReadiness
+        artifactsReady={Boolean(d.manifest)}
+        modelsReady={featureCountValue != null}
+        resultsReady={Boolean(d.b2.comparison && d.b4.metrics && d.b5.importance)}
+      />
 
       {/* How it works */}
       <section className="space-y-6">

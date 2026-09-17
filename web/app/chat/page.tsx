@@ -1,11 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { AssistantRuntimeProvider } from "@assistant-ui/react";
-import { useChatRuntime } from "@assistant-ui/react-ai-sdk";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { AssistantRuntimeProvider, useAui, useAuiState } from "@assistant-ui/react";
 import { Thread } from "@/components/assistant-ui/thread";
 import { AutoAnalysisProvider } from "@/components/assistant-ui/auto-analysis-context";
 import { ContextBar } from "@/components/chat/context-bar";
+import { ThreadSidebar } from "@/components/chat/thread-sidebar";
+import { useChatThreadsRuntime } from "@/components/chat/use-chat-threads-runtime";
+import { toast } from "@/components/ui/toast";
 
 const SUGGESTIONS = [
   {
@@ -33,14 +35,52 @@ const SUGGESTIONS = [
   },
 ];
 
+/** Refreshes sidebar titles/order once a run finishes (server-side auto-title). */
+function ThreadListSync() {
+  const aui = useAui();
+  const isRunning = useAuiState((s) => s.thread.isRunning);
+  const wasRunning = useRef(false);
+
+  useEffect(() => {
+    if (isRunning) {
+      wasRunning.current = true;
+      return;
+    }
+    if (!wasRunning.current) return;
+    wasRunning.current = false;
+    void aui.threads.reload().catch(() => {});
+  }, [isRunning, aui]);
+
+  return null;
+}
+
 export default function ChatPage() {
-  const runtime = useChatRuntime();
+  const [threadId, setThreadId] = useState<string | undefined>(undefined);
+
+  // Deep links: /chat?thread=<id> opens a saved conversation.
+  useEffect(() => {
+    const fromUrl = new URLSearchParams(window.location.search).get("thread");
+    if (!fromUrl) return;
+    queueMicrotask(() => setThreadId(fromUrl));
+  }, []);
+
+  const runtime = useChatThreadsRuntime({
+    threadId,
+    onThreadIdChange: (id) => {
+      const url = new URL(window.location.href);
+      if (id) url.searchParams.set("thread", id);
+      else url.searchParams.delete("thread");
+      window.history.replaceState(null, "", url.toString());
+    },
+  });
+
   const [evidence, setEvidence] = useState("");
   const [autoEnabled, setAutoEnabled] = useState(true);
   const [webEnabled, setWebEnabled] = useState(false);
   const [docCount, setDocCount] = useState(0);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/ml/index", { cache: "no-store" })
@@ -63,9 +103,13 @@ export default function ChatPage() {
         throw new Error(detail || `upload failed (${res.status})`);
       }
       const body = (await res.json()) as { indexed?: Array<{ source: string; added: number }> };
-      setDocCount((n) => n + (body.indexed ?? []).reduce((a, b) => a + b.added, 0));
+      const added = (body.indexed ?? []).reduce((a, b) => a + b.added, 0);
+      setDocCount((n) => n + added);
+      toast(added > 0 ? `${added} passage${added === 1 ? "" : "s"} indexed` : "Files processed, no new passages found");
     } catch (err) {
-      setUploadError(err instanceof Error ? err.message : "Upload failed.");
+      const message = err instanceof Error ? err.message : "Upload failed.";
+      setUploadError(message);
+      toast(message, "error");
     } finally {
       setUploading(false);
     }
@@ -81,7 +125,7 @@ export default function ChatPage() {
   }, []);
 
   return (
-    <div className="flex flex-col h-[calc(100dvh-13rem)] min-h-[30rem] gap-3">
+    <div className="flex flex-col gap-3 h-[calc(100dvh-13rem)] min-h-[30rem]">
       <ContextBar
         evidence={evidence}
         onEvidenceChange={setEvidence}
@@ -95,6 +139,7 @@ export default function ChatPage() {
         uploadError={uploadError}
         onUpload={uploadFiles}
         onClearDocuments={clearDocuments}
+        onOpenHistory={() => setHistoryOpen(true)}
       />
 
       <AssistantRuntimeProvider runtime={runtime}>
@@ -106,7 +151,26 @@ export default function ChatPage() {
             hasDocuments: docCount > 0,
           }}
         >
-          <Thread starters={SUGGESTIONS} />
+          <ThreadListSync />
+          <div className="flex min-h-0 flex-1 gap-3">
+            <ThreadSidebar className="hidden w-64 shrink-0 lg:flex" />
+            <Thread starters={SUGGESTIONS} />
+          </div>
+
+          {/* Mobile history drawer */}
+          {historyOpen && (
+            <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Chat history">
+              <button
+                type="button"
+                aria-label="Close chat history"
+                onClick={() => setHistoryOpen(false)}
+                className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              />
+              <div className="absolute left-0 top-0 h-full w-72 max-w-[85vw] p-3">
+                <ThreadSidebar className="h-full" onNavigate={() => setHistoryOpen(false)} />
+              </div>
+            </div>
+          )}
         </AutoAnalysisProvider>
       </AssistantRuntimeProvider>
     </div>

@@ -18,6 +18,7 @@ import {
 import { buildAnalysisInput, type Turn } from "@/lib/analysis-input";
 import { useAutoAnalysis } from "@/components/assistant-ui/auto-analysis-context";
 import { Term } from "@/components/ui/term";
+import { toast } from "@/components/ui/toast";
 
 interface FeatureImpact {
   feature: string;
@@ -85,6 +86,7 @@ function FeedbackButtons({ payload }: { payload: () => Record<string, string> | 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...body, feedback }),
       });
+      toast("Feedback saved locally");
     } catch {
       /* feedback is best-effort */
     }

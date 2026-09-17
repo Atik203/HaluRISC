@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { NavBar } from "@/components/nav-bar";
 import { Footer } from "@/components/footer";
+import { Toaster } from "@/components/ui/toast";
 import { readJson } from "@/lib/results";
 
 const instrument = localFont({
@@ -64,7 +65,7 @@ export default function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem("halurisc-theme");if(t==="light"){document.documentElement.classList.remove("dark")}else{document.documentElement.classList.add("dark")}}catch(e){document.documentElement.classList.add("dark")}})();`,
+            __html: `(function(){try{var t=localStorage.getItem("halurisc-theme");if(t==="light"){document.documentElement.classList.remove("dark")}else{document.documentElement.classList.add("dark")}}catch(e){document.documentElement.classList.add("dark")}try{if(localStorage.getItem("halurisc-projector")==="on"){document.documentElement.classList.add("projector")}}catch(e){}})();`,
           }}
         />
       </head>
@@ -78,10 +79,11 @@ export default function RootLayout({
           Skip to main content
         </a>
         <NavBar version={version} />
-        <main id="main-content" className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6">
+        <main id="main-content" className="flex-1 max-w-[88rem] w-full mx-auto p-4 md:p-6">
           {children}
         </main>
         <Footer />
+        <Toaster />
       </body>
     </html>
   );

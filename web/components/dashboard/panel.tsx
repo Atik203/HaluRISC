@@ -1,20 +1,23 @@
 import type { ReactNode } from "react";
+import { FigureLightbox } from "@/components/ui/figure-lightbox";
 
 /** Server-safe dashboard building blocks (no interactivity). */
 
 export function Panel({
+  id,
   title,
   subtitle,
   children,
   className = "",
 }: {
+  id?: string;
   title?: string;
   subtitle?: string;
   children: ReactNode;
   className?: string;
 }) {
   return (
-    <section className={`glass-panel p-5 md:p-6 rounded-2xl space-y-4 ${className}`}>
+    <section id={id} className={`glass-panel p-5 md:p-6 rounded-2xl space-y-4 ${className}`}>
       {title && (
         <div className="border-b border-border/50 pb-3">
           <h2 className="text-sm font-bold tracking-tight">{title}</h2>
@@ -91,15 +94,7 @@ export function Figure({
   alt: string;
   className?: string;
 }) {
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={src}
-      alt={alt}
-      loading="lazy"
-      className={`rounded-xl border border-border/60 bg-secondary/30 ${className}`}
-    />
-  );
+  return <FigureLightbox src={src} alt={alt} className={className} />;
 }
 
 export function DataTable<T extends Record<string, unknown>>({

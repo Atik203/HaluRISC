@@ -39,6 +39,9 @@ web/build/
 web/.vercel/
 web/*.log
 
+# Local chat history database (created at runtime)
+web/data/
+
 # IDE & OS
 .vscode/
 .idea/
