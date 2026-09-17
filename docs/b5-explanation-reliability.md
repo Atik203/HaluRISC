@@ -4,6 +4,17 @@ Phase B5 defends SHAP as *evaluated evidence* rather than decoration. It runs on
 the **B2 `xgboost_seed_42` model** (CPU-portable) with the **B4 Platt source
 calibrator** (the predeclared deployable, roadmap B4.2).
 
+## Contents
+
+- [What B5 measured](#what-b5-measured)
+- [Reproduce](#reproduce)
+- [Manual Review Guide (B5.5)](#manual-review-guide-b55--do-this-by-hand)
+- [Result (AI-assisted audit, 2026-09-17)](#result-ai-assisted-audit-2026-09-17)
+- [Interpreting failure cases (B5.6)](#interpreting-failure-cases-b56)
+
+Headline numbers and their interpretation live in
+[02-experiments-and-results.md](02-experiments-and-results.md) §8–§9.
+
 ## What B5 measured
 
 | Experiment | Roadmap | Output |

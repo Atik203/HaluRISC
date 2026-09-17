@@ -1,9 +1,25 @@
 # B7 — Research UI & Demo
 
 The web app (Next.js 16 + assistant-ui + Tailwind v4, package manager **pnpm**)
-renders the Version B evidence: a six-tab experiment dashboard over all B1–B5
+renders the project evidence: a six-tab experiment dashboard over all B1–B5
 artifacts, a two-answer compare analyzer, an offline presenter demo, and the
 assistant-ui chat.
+
+## Contents
+
+- [Run it](#run-it)
+- [Routes](#routes)
+- [API contract](#api-contract-apiml-via-nextconfig-rewrites-to-fastapi)
+- [Figures route](#figures-route)
+- [Offline demo](#offline-demo)
+- [Mobile & accessibility](#mobile--accessibility)
+- [Chat auto-analysis (Tier 1)](#chat-auto-analysis-b75-tier-1)
+- [Claim-level verdicts (Tier 2)](#claim-level-verdicts-b75-tier-2)
+- [Retrieval & citations (Tier 3)](#retrieval--citations-b75-tier-3)
+- [Hybrid judge & feedback (Tier 4)](#hybrid-judge--feedback-b75-tier-4)
+- [Deployment notes](#deployment-notes)
+
+System overview: [01-project-and-methods.md](01-project-and-methods.md) §5.
 
 ## Run it
 
@@ -45,13 +61,18 @@ from `artifacts/results/` by the server-side data layer `web/lib/results.ts`
 |---|---|
 | `GET /health` | status, model/feature version, artifacts loaded, feature models ready, device |
 | `GET /meta` | thresholds, warning, device, `feature_groups`, versions (frontend reads this — nothing hardcoded) |
-| `POST /predict` | `{risk_score, calibrated_score, label, thresholds, latency_ms, model_version, feature_version, warning, features{...}}` |
+| `POST /predict` | `{risk_score, calibrated_score, legacy_score, label, thresholds, latency_ms, model_version, feature_version, warning, features{...}}` |
 | `POST /explain` | `{top_features[{feature,value,impact}], base_value}` |
-| `POST /judge` | LLM-as-judge (needs `OPENAI_API_KEY`) |
+| `POST /verify` | Per-claim verdicts and evidence quotes; adjusts `calibrated_score` |
+| `POST /index` / `POST /retrieve` | Document indexing and passage retrieval (BM25 + FAISS + reranker) |
+| `POST /judge` | LLM-as-judge for borderline claims (needs `OPENAI_API_KEY`) |
+| `POST /feedback` | Stores chat verdict feedback for threshold tuning |
 
-- **Deployable model**: B2 `xgboost_seed_42` + B4 Platt source calibrator
-  (the B-run deployable); falls back to the Version A bundle if B-run files are
-  missing. SHAP = TreeExplainer on the **raw** B2 model — the UI labels this.
+- **Deployed bundle**: the current `artifacts/models/` set is served, with the
+  evidence-domain display calibrator (`models/b4/calibrator_display.joblib`)
+  producing `calibrated_score` and the HaluEval-Platt calibrator kept as
+  `legacy_score`. Older bundles are used only as a fallback when current files
+  are missing. SHAP = TreeExplainer on the **raw** B2 model — the UI labels this.
 - Thresholds: UI risk bands low/medium/high at 0.30/0.70 are **UI guidance**;
   the paper threshold is fixed at 0.5 (B2/B3/B4).
 - Feature vectors are LRU-cached (256 entries) — repeated predict/explain of
