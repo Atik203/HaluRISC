@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { buildAnalysisInput, type Turn } from "@/lib/analysis-input";
 import { useAutoAnalysis } from "@/components/assistant-ui/auto-analysis-context";
+import { Term } from "@/components/ui/term";
 
 interface FeatureImpact {
   feature: string;
@@ -584,7 +585,8 @@ export function AutoRiskCard() {
               ))}
             </ul>
             <p className="text-[10px] leading-relaxed text-muted-foreground">
-              SHAP values explain the raw XGBoost model, not the calibrated score. Red raises risk, green lowers it.
+              <Term def="SHAP assigns each feature a contribution to the model output.">SHAP</Term> values explain the raw
+              XGBoost model, not the calibrated score. Red raises risk, green lowers it.
             </p>
           </div>
         )}
@@ -614,6 +616,37 @@ export function AutoRiskCard() {
             </p>
           </details>
         )}
+
+        <details className="group">
+          <summary className="flex cursor-pointer items-center justify-between text-[11px] font-semibold text-muted-foreground hover:text-foreground">
+            <span>How to read this card</span>
+            <ChevronDown className="w-3.5 h-3.5 transition-transform group-open:rotate-180" aria-hidden />
+          </summary>
+          <ul className="mt-2 space-y-1.5 text-[10px] leading-relaxed text-muted-foreground">
+            <li>
+              <span className="font-semibold text-foreground">Headline.</span> When claims were checked, the claim
+              evidence decides the verdict. The percentage is the calibrated model score shown for reference, and the
+              two can disagree.
+            </li>
+            <li>
+              <span className="font-semibold text-foreground">Meter.</span> The small ticks mark the low, medium, and
+              high cutoffs that the API uses to pick the label.
+            </li>
+            <li>
+              <span className="font-semibold text-foreground">Claim verdicts.</span> Supported means the evidence backs
+              the claim. Contradicted means the evidence says the opposite. Unsupported means the evidence does not
+              speak to it. Not judged means no evidence was retrieved.
+            </li>
+            <li>
+              <span className="font-semibold text-foreground">Why this score.</span> The bars are SHAP contributions
+              from the raw model, so they show what moved the score, not whether the answer is true.
+            </li>
+            <li>
+              <span className="font-semibold text-foreground">Thumbs.</span> Feedback is appended to a local file on
+              this machine only. Nothing is sent to an external service.
+            </li>
+          </ul>
+        </details>
       </section>
     );
   }
