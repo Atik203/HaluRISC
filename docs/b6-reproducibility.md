@@ -1,9 +1,19 @@
 # B6 — Reproducible Publication Artifact
 
-B6 turns the Version B pipeline into a single reproducible protocol: a
-config-driven orchestrator, an enriched frozen manifest, and a CPU-compatible
-Docker path. No hidden local paths: a clean clone + the documented downloads
-regenerate the required artifacts.
+B6 turns the full pipeline into a single reproducible protocol: a config-driven
+orchestrator, an enriched frozen manifest, and a CPU-compatible Docker path. No
+hidden local paths: a clean clone + the documented downloads regenerate the
+required artifacts.
+
+## Contents
+
+- [1. Config-driven orchestrator](#1-config-driven-orchestrator)
+- [2. Manifest (`artifacts/results/manifest.json`)](#2-manifest-artifactsresultsmanifestjson)
+- [3. CPU-compatible Docker path (backend only)](#3-cpu-compatible-docker-path-backend-only)
+- [4. Regenerate-from-scratch checklist](#4-regenerate-from-scratch-checklist)
+
+The short reproduction guide (artifact inventory, environment pins, failure
+modes) is [03-reproduction-and-defense.md](03-reproduction-and-defense.md) §1–§8.
 
 ## 1. Config-driven orchestrator
 
@@ -18,7 +28,7 @@ regenerate the required artifacts.
 & .venv\Scripts\python.exe src\models\run_all_experiments.py --from b3 --to b5 --keep-going
 ```
 
-- Config: `configs/version_b.yaml` (schema `b6-run-all-v1`). Phases: HaluEval
+- Config: `configs/version_b.yaml` (schema `b6-run-all-v1`; the filename is a historical identifier). Phases: HaluEval
   download/prepare → official RAGTruth + FaithBench downloads → B1 unified build
   → feature extraction → B2 → B3 → B4 → B5 → manifest → verify.
 - Each phase subprocess-invokes the existing per-phase runner (`run_b2_baselines.py`,

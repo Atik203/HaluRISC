@@ -125,7 +125,7 @@ HaluRISC/
 
 ## 5. Environment & Secrets Configuration (.env Placement)
 
-- **Template Reference File:** Root [**.env.example**](file:///d:/ML/HaluRISC/.env.example) contains all environment variable keys and descriptions.
+- **Template Reference File:** Root [**.env.example**](.env.example) contains all environment variable keys and descriptions.
 - **Next.js Frontend Environment:**
   - **Location:** `web/.env.local`
   - **Keys:** `OPENAI_API_KEY`, `OPENAI_MODEL`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_ML_API_URL`
