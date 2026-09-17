@@ -1,0 +1,11 @@
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.spl
+*.synctex.gz
+*.abs
+out/
+halurisc.pdf
+cas-sc-template.pdf

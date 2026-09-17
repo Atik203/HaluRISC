@@ -127,7 +127,7 @@ HaluRISC/
   - **Security Rule:** Server-only variables (`OPENAI_API_KEY`) must NEVER start with `NEXT_PUBLIC_`. They are strictly accessed in `app/api/chat/route.ts` (server side).
 - **FastAPI Python Backend Environment:**
   - **Location:** Root `.env` or system environment variables loaded via `python-dotenv`.
-  - **Keys:** `FASTAPI_HOST`, `FASTAPI_PORT`, `FASTAPI_DEBUG`, `OPENAI_API_KEY` (for `/judge`), `OPENAI_MODEL`, `DEEPSEEK_API_KEY` (optional fallback judge), `HALU_API_DEVICE` (`cuda`|`cpu`, default `cpu`; `cuda` auto-falls back to CPU if torch has no CUDA, models load fp16 on CUDA), `HALU_API_PRELOAD` (default `1`; `0` skips the startup preload of heavy spaCy/NLI/SBERT models), `HALU_XGB_DEVICE` (`cuda`|`cpu`|`auto`; set `cpu` in Colab so saved XGBoost models are portable across platforms — CUDA-trained boosters do not unserialize cross-platform).
+  - **Keys:** `FASTAPI_HOST`, `FASTAPI_PORT`, `OPENAI_API_KEY` (for `/judge`), `OPENAI_MODEL`, `TAVILY_API_KEY` (Tier 3 web search, server-side only), `HALU_API_DEVICE` (`cuda`|`cpu`, default `cpu`; `cuda` auto-falls back to CPU if torch has no CUDA, models load fp16 on CUDA), `HALU_API_PRELOAD` (default `1`; `0` skips the startup preload of heavy spaCy/NLI/SBERT models), `HALU_XGB_DEVICE` (`cuda`|`cpu`|`auto`; set `cpu` in Colab so saved XGBoost models are portable across platforms — CUDA-trained boosters do not unserialize cross-platform), `HALU_JUDGE_CONF_LOW`/`HALU_JUDGE_CONF_HIGH`/`HALU_JUDGE_MAX_CLAIMS`, `HALU_RATE_*` (Tier 4 judge routing and rate limits).
 - **Git Security Rule:** Neither `.env` nor `.env.local` are ever committed to Git (`.gitignore` protects both).
 
 ### 5.1 Dependency Pinning Rule
