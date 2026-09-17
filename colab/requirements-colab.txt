@@ -6,7 +6,7 @@ pandas==3.0.5
 pyarrow==25.0.0
 joblib==1.5.3
 scikit-learn==1.9.0
-xgboost==3.4.0
+xgboost==3.3.0
 scipy==1.17.1
 statsmodels==0.14.6
 shap==0.52.0
@@ -18,3 +18,11 @@ huggingface-hub==1.26.0
 matplotlib==3.11.1
 openai==2.53.0
 python-dotenv==1.2.2
+pyyaml==6.0.3
+tavily-python==0.7.27
+faiss-cpu==1.15.0
+pypdf==6.15.0
+python-docx==1.2.0
+rank_bm25==0.2.2
+python-multipart==0.0.32
+slowapi==0.1.10

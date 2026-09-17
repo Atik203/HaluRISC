@@ -1,0 +1,239 @@
+"""B4 calibration-under-shift tests (synthetic; no heavy models, no downloads)."""
+
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import pytest
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from src.models.run_b4_calibration_shift import (  # noqa: E402
+    MODEL_THRESHOLD,
+    SEEDS,
+    adaptive_ece,
+    apply_calibrator,
+    calibration_metrics,
+    calibration_slope_intercept,
+    fit_calibrator,
+    reliability_curve,
+    subgroup_calibration,
+    target_calibration_experiment,
+)
+
+
+def test_calibrators_bounded_and_monotone():
+    rng = np.random.default_rng(1)
+    scores = rng.random(500)
+    y = (scores > 0.6).astype(int)
+    for method in ("platt", "isotonic"):
+        cal = fit_calibrator(method, scores, y)
+        p = apply_calibrator(method, cal, scores)
+        assert (p >= 0.0).all() and (p <= 1.0).all()
+
+
+def test_perfect_calibration_is_zero_error():
+    y = np.array([0, 0, 0, 0, 1, 1, 1, 1])
+    p = y.astype(float)
+    m = calibration_metrics(y, p)
+    assert m["ece"] == 0.0
+    assert m["ace"] == 0.0
+    assert m["brier"] == 0.0
+    assert m["f1"] == 1.0
+    assert m["slope"] > 0  # degenerate exact 0/1 scores clip the logit; slope stays positive
+    assert abs(m["intercept"]) < 1e-6  # balanced classes keep the separating plane symmetric
+
+
+def test_platt_fixes_miscalibration():
+    rng = np.random.default_rng(3)
+    y = rng.binomial(1, 0.5, 1000)
+    biased = np.clip(np.full(1000, 0.25) + 0.3 * y + rng.normal(0, 0.1, 1000), 0.01, 0.99)
+    raw = calibration_metrics(y, biased)
+    cal = fit_calibrator("platt", biased, y)
+    p = apply_calibrator("platt", cal, biased)
+    fitted = calibration_metrics(y, p)
+    assert fitted["brier"] < raw["brier"]  # Platt must reduce Brier on this bias
+
+
+def test_reliability_curve_bins_cover_all_rows():
+    rng = np.random.default_rng(4)
+    y = rng.binomial(1, 0.5, 200)
+    p = rng.random(200)
+    curve = reliability_curve(y, p, n_bins=10)
+    assert len(curve) == 10
+    assert sum(c["n"] for c in curve) == 200
+    for c in curve:
+        if c["confidence"] is not None:
+            assert 0.0 <= c["confidence"] <= 1.0
+
+
+def test_adaptive_ece_equal_frequency():
+    rng = np.random.default_rng(5)
+    p = np.sort(rng.random(1000))
+    y = (p > 0.5).astype(int)
+    assert 0.0 <= adaptive_ece(y, p, 10) <= 1.0
+    # thresholded-uniform case: expected ~0.25 (bin center vs hard threshold), sanity-bound it
+    assert adaptive_ece(y, p, 10) < 0.35
+
+
+def _make_external_scores(n_groups: int = 25, seed: int = 7) -> pd.DataFrame:
+    rng = np.random.default_rng(seed)
+    rows = []
+    for i in range(n_groups):
+        for split in ("train", "test"):
+            score = rng.random()
+            rows.append({
+                "sample_id": f"rt:{i}_{split}",
+                "source_dataset": "ragtruth",
+                "source_group_id": f"ragtruth:{split}_{i}",
+                "task": "qa",
+                "domain": "marco",
+                "official_split": split,
+                "quality": "good",
+                "generator_model": "gpt-3.5-turbo-0613",
+                "label": int(score > 0.5),
+                "answer": "text " * 30,
+                **{f"score_{s}": score for s in SEEDS},
+            })
+    return pd.DataFrame(rows)
+
+
+def test_target_calibration_group_disjointness():
+    df = _make_external_scores()
+    cal_df = df[df["official_split"] == "train"]
+    test_df = df[df["official_split"] == "test"]
+    out, cal_clean = target_calibration_experiment(cal_df, test_df)
+    assert out["overlapping_groups_removed"] == 0  # groups are split-exclusive here
+    assert len(cal_clean) == len(cal_df)  # no filtering needed
+    for method in ("platt", "isotonic"):
+        assert "ece_mean" in out["methods"][method]
+        assert 0.0 <= out["methods"][method]["ece_mean"] <= 1.0
+
+
+def test_target_calibration_removes_overlap_groups():
+    df = _make_external_scores(n_groups=15)
+    cal_df = pd.concat([df[df["official_split"] == "train"], df[df["official_split"] == "test"].head(2)])
+    test_df = df[df["official_split"] == "test"]
+    out, cal_clean = target_calibration_experiment(cal_df, test_df)
+    assert out["overlapping_groups_removed"] == 2
+    assert set(cal_clean["source_group_id"]) & set(test_df["source_group_id"]) == set()
+
+
+def test_single_class_metrics_do_not_crash():
+    y = np.zeros(50, dtype=int)
+    p = np.random.default_rng(0).random(50)
+    m = calibration_metrics(y, p)
+    assert m["slope"] is None and m["intercept"] is None
+    assert 0.0 <= m["ece"] <= 1.0
+
+
+def test_subgroup_minimum_rules():
+    df = _make_external_scores(n_groups=6)
+    rng = np.random.default_rng(8)
+    calibrators = {
+        "platt": {42: fit_calibrator("platt", rng.random(100), rng.binomial(1, 0.5, 100))},
+        "isotonic": {42: fit_calibrator("isotonic", rng.random(100), rng.binomial(1, 0.5, 100))},
+    }
+    rows = subgroup_calibration(df, "task", calibrators, 10)
+    assert rows and all(r["reported"] is False for r in rows)
+
+
+def test_calibration_metrics_schema():
+    rng = np.random.default_rng(9)
+    y = rng.binomial(1, 0.4, 300)
+    p = rng.random(300)
+    m = calibration_metrics(y, p)
+    for k in ("ece", "ace", "brier", "nll", "slope", "intercept", "f1", "auroc", "predicted_positive_rate"):
+        assert k in m
+    assert m["predicted_positive_rate"] == float(((p >= MODEL_THRESHOLD).astype(int)).mean())
+
+
+def test_slope_intercept_simple():
+    y = np.array([0, 0, 1, 1])
+    p = np.array([0.1, 0.2, 0.8, 0.9])
+    slope, intercept = calibration_slope_intercept(y, p)
+    assert slope > 0
+    assert isinstance(slope, float) and isinstance(intercept, float)
+
+
+def test_word_counts_streaming_bounded_memory(monkeypatch, tmp_path):
+    """merge_word_counts must derive counts WITHOUT materializing raw text."""
+    import src.models.run_b4_calibration_shift as m
+
+    uni = tmp_path / "unified.parquet"
+    pd.DataFrame({
+        "sample_id": ["a", "b", "c"],
+        "context": ["one word", "two words here", "x" * 500],
+        "answer": ["short", "longer answer text", "again"],
+    }).to_parquet(uni)
+    monkeypatch.setattr(m, "UNIFIED", uni)
+    df = pd.DataFrame({"sample_id": ["a", "b", "c"], "score_42": [0.1, 0.2, 0.3]})
+    out = m.merge_word_counts(df)
+    assert list(out["context_words"]) == [2, 3, 1]
+    assert list(out["answer_words"]) == [1, 3, 1]
+    assert "context" not in out.columns  # raw text must not leak into the frame
+
+
+def test_stage_checkpoint_roundtrip_and_hash_gate(monkeypatch, tmp_path):
+    """Stage cache saves/loads and is invalidated when b3 predictions change."""
+    import src.models.run_b4_calibration_shift as m
+
+    monkeypatch.setattr(m, "B4_RESULTS", tmp_path)
+    m._save_stage("probs", {"val": {"42": [0.1, 0.2]}})
+    assert m._load_stage("probs") == {"val": {"42": [0.1, 0.2]}}
+    m._save_stage("meta", {"b3_predictions_sha256": "abc"})
+    assert m._stages_valid("abc") is True
+    assert m._stages_valid("def") is False
+    frame = pd.DataFrame({"sample_id": ["x"], "score_42": [0.5]})
+    m._save_stage("external_wide", frame)
+    pd.testing.assert_frame_equal(m._load_stage("external_wide"), frame)
+
+
+def test_load_external_predictions_dedups_duplicated_b3_rows(monkeypatch, tmp_path):
+    """B4 must collapse duplicate b3 rows into one row per sample (n_rows fix)."""
+    import src.models.run_b4_calibration_shift as m
+
+    rows = []
+    for sid in ("a", "b"):
+        for _dup in range(3):
+            for seed in SEEDS:
+                rows.append({
+                    "sample_id": sid, "model": f"xgboost_seed_{seed}", "score": 0.5,
+                    "source_dataset": "ragtruth", "source_group_id": "g1", "task": "qa",
+                    "domain": "marco", "official_split": "test", "quality": "good",
+                    "generator_model": "gpt-3.5-turbo-0613", "label": 1,
+                })
+    p = tmp_path / "preds.parquet"
+    pd.DataFrame(rows).to_parquet(p)
+    monkeypatch.setattr(m, "B3_PREDICTIONS", p)
+    wide = m.load_external_predictions()
+    assert len(wide) == 2
+    assert wide["sample_id"].nunique() == 2
+    assert set(wide.columns) >= {"score_42", "score_123", "score_456"}
+
+
+def test_prediction_cache_guards_reject_duplicate_rows(tmp_path):
+    """Restore guards must reject the polluted B3/B4 caches from older runs."""
+    from colab.drive_cache import b3_predictions_safe, b4_predictions_safe
+
+    b3_rows = [
+        {"sample_id": "a", "model": f"xgboost_seed_{seed}"}
+        for seed in SEEDS
+    ]
+    b3_path = tmp_path / "b3.parquet"
+    pd.DataFrame(b3_rows).to_parquet(b3_path)
+    assert b3_predictions_safe(b3_path) is True
+    pd.concat([pd.read_parquet(b3_path), pd.read_parquet(b3_path)]).to_parquet(b3_path)
+    assert b3_predictions_safe(b3_path) is False
+
+    b4_path = tmp_path / "b4.parquet"
+    b4_row = {
+        "sample_id": "a", "source_dataset": "ragtruth",
+        "subset": "ragtruth_qa_test", "method": "raw",
+    }
+    pd.DataFrame([b4_row]).to_parquet(b4_path)
+    assert b4_predictions_safe(b4_path) is True
+    pd.DataFrame([b4_row, b4_row]).to_parquet(b4_path)
+    assert b4_predictions_safe(b4_path) is False

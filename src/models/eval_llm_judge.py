@@ -1,5 +1,5 @@
 """
-HaluRISC LLM-as-judge comparison (blueprint A10 external baseline + cost table).
+HaluRISC LLM-as-judge comparison (blueprint §8.4 external baseline + cost table).
 
 Runs GPT 5.6 Luna as a hallucination judge on a balanced sample of the test set
 and compares against the XGBoost model: accuracy/precision/recall/F1, agreement,

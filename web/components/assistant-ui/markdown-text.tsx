@@ -16,10 +16,36 @@ function getHighlighter() {
   if (!highlighterPromise) {
     highlighterPromise = createHighlighter({
       themes: ["github-light", "github-dark"],
-      langs: ["json", "python", "javascript", "typescript", "bash", "sql", "yaml", "markdown", "text"],
+      langs: [
+        "json", "python", "javascript", "typescript", "bash", "sql", "yaml",
+        "markdown", "text", "cpp", "c", "java", "go", "rust", "css", "html",
+        "xml", "shell", "plaintext", "diff", "dockerfile", "toml", "ini",
+      ],
     });
   }
   return highlighterPromise;
+}
+
+async function highlightCode(
+  highlighter: Awaited<ReturnType<typeof getHighlighter>>,
+  code: string,
+  language: string | undefined,
+  theme: "github-light" | "github-dark",
+) {
+  const wanted = language === "unknown" ? "text" : language || "text";
+  try {
+    return highlighter.codeToHtml(code, { lang: wanted, theme });
+  } catch {
+    // language not bundled: load on demand, then fall back to plain text
+    try {
+      if (typeof (highlighter as { loadLanguage?: unknown }).loadLanguage === "function") {
+        await (highlighter as { loadLanguage: (l: string) => Promise<void> }).loadLanguage(wanted);
+      }
+      return highlighter.codeToHtml(code, { lang: wanted, theme });
+    } catch {
+      return highlighter.codeToHtml(code, { lang: "text", theme });
+    }
+  }
 }
 
 function useIsDark() {
@@ -45,12 +71,9 @@ function ShikiCodeBlock({ language, code }: SyntaxHighlighterProps) {
     let cancelled = false;
     getHighlighter().then((highlighter) => {
       if (cancelled) return;
-      setHtml(
-        highlighter.codeToHtml(code, {
-          lang: language === "unknown" ? "text" : language || "text",
-          theme: isDark ? "github-dark" : "github-light",
-        })
-      );
+      highlightCode(highlighter, code, language, isDark ? "github-dark" : "github-light").then((html) => {
+        if (!cancelled) setHtml(html);
+      });
     });
     return () => {
       cancelled = true;

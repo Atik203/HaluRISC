@@ -1,0 +1,542 @@
+% HaluRISC journal manuscript — Elsevier CAS single-column format.
+%
+% Structure mirrors Journal_Paper/cas-sc-template.tex: six sections
+% (Introduction, Conventional Method, Proposed Method, Experiment, Results,
+% Conclusion) followed by Declarations and the bibliography.
+%
+% Numbers in this manuscript come from the frozen Version B artifacts
+% (docs/manifest.frozen.json, artifacts/results/b2..b5). Do not edit numbers
+% here without regenerating and re-verifying the artifact manifest.
+%
+% Compile from Journal_Paper/:
+%   latexmk -pdf -outdir=out halurisc.tex
+%
+% Figures resolve through \graphicspath below. The reference database is the
+% local ref.bib (all entries verified 2026-09-17).
+
+\documentclass[a4paper,fleqn]{cas-sc}
+
+\usepackage{float}
+\usepackage[utf8]{inputenc}
+\usepackage[numbers]{natbib}
+\usepackage{tabularx}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{hyperref}
+\usepackage{subcaption}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{lineno}
+\usepackage[htt]{hyphenat}
+\setlength{\emergencystretch}{2em}
+
+% Preprint footer: drop the "submitted to Elsevier" wording.
+\ExplSyntaxOn
+\cs_set:Npn \__first_footerline:
+  {
+    \group_begin:
+    \small
+    \sffamily
+    \ifnum\theblind>0\relax
+    \else
+    \__short_authors: :~
+    \fi
+    \rmfamily \itshape Preprint
+    \group_end:
+  }
+\ExplSyntaxOff
+% No ORCID identifiers are used, so hide the empty ORCID footnote.
+\RenewDocumentCommand \printorcid { } { }
+%%%Author definitions
+\def\tsc#1{\csdef{#1}{\textsc{\lowercase{#1}}\xspace}}
+%%%
+
+\graphicspath{{../report/figures/}{../report/screenshots/}{../artifacts/figures/}}
+
+\begin{document}
+\let\WriteBookmarks\relax
+\def\floatpagepagefraction{1}
+\def\textpagefraction{.001}
+
+% Short title
+\shorttitle{HaluRISC: Calibrated Hallucination Risk Estimation}
+
+% Short author
+\shortauthors{Rahaman et~al.}
+
+% Main title of the paper
+\title [mode = title]{HaluRISC: Cross-Domain Calibrated and Explainable Hallucination Risk Estimation for Black-Box LLM Responses}
+
+% First author and corresponding author
+\author[1]{Md. Atikur Rahaman}
+\cormark[1]
+\ead{mrahaman2310298@bscse.uiu.ac.bd}
+\credit{Conceptualization, Methodology, Software, Writing - original draft}
+
+% Second author
+\author[1]{Saiful Alam Sabbir}
+\ead{sabbir2310105@bscse.uiu.ac.bd}
+\credit{Data curation, Investigation, Validation, Visualization}
+
+% Third author
+\author[1]{MD. Miraz Ahamed}
+\ead{mahamed2310524@bscse.uiu.ac.bd}
+\credit{Software, Formal analysis, Writing - review \& editing}
+
+% Supervisor
+\author[1]{Ohidujjaman Tuhin}
+\credit{Supervision, Validation, Writing - review \& editing}
+
+% Address/affiliation
+\affiliation[1]{organization={Computer Science and Engineering, United International University},
+    city={Dhaka},
+    citysep={},
+    postcode={1212},
+    country={Bangladesh}}
+
+\cortext[cor1]{Corresponding author: Md. Atikur Rahaman (mrahaman2310298@bscse.uiu.ac.bd)}
+
+% Abstract
+\linenumbers
+\begin{abstract}
+Large language models produce fluent output that is occasionally fabricated, and detecting these hallucinations is expensive, opaque, or requires access to model internals in most existing approaches. This paper presents HaluRISC, a lightweight black-box framework that predicts hallucination risk from the question, a reference context, and the candidate answer. The system builds 26 engineered evidence-consistency features across seven groups, covering lexical overlap, named entities, NLI entailment, numeric consistency, hedging, semantic similarity, and length, then feeds them to a tuned XGBoost classifier with calibrated probabilities and SHAP explanations. On the HaluEval QA benchmark (20{,}000 rows, 70/15/15 stratified split), the calibrated model reaches F1 = 0.9846, AUROC = 0.9979, and MCC = 0.9697, with an expected calibration error of 0.0045 before any recalibration. A small-sample recalibration on natural RAGTruth responses cuts the ECE on that corpus from 0.8185 to 0.1335, which shows the value of re-calibrating for the target domain. Zero-shot transfer to natural RAGTruth QA still fails (F1 = 0.3022), an honest limitation the paper discusses in detail. The full analysis runs in about 62~ms per sample on a CPU and costs roughly 100 times less than an LLM-as-judge baseline while reaching a higher F1 on a measured 200-sample set. The complete system is deployed as a FastAPI backend with a Next.js and assistant-ui web dashboard for live demonstration.
+\end{abstract}
+
+% Keywords
+% Each keyword is separated by \sep
+\begin{keywords}
+Hallucination detection \sep Explainable AI \sep Probability calibration \sep Distribution shift \sep XGBoost \sep SHAP
+\end{keywords}
+
+\maketitle
+\linenumbers
+
+\section{Introduction}\label{sec:intro}
+
+Large language models are increasingly embedded in real products, from chatbots to retrieval-augmented question answering and content review tools, where a confidently wrong answer has a real cost. The models occasionally generate text that is fluent but factually unsupported, an effect known as \emph{hallucination}, and detecting it is a first-class safety problem for anyone deploying these systems. One dominant strategy asks a strong LLM to judge its own output, and SelfCheckGPT implements this by sampling several responses and measuring their consistency without external resources \cite{selfcheck}. Small specialized evaluators such as Luna \cite{luna} make the judge approach cheaper, yet the pattern remains slow because every response needs a full forward pass. Neural classifiers over frozen encoders \cite{ieeeTai} are more accurate, but they require the model weights, GPU inference, and their decisions resist interpretation. This paper takes a different route. HaluRISC treats hallucination detection as a supervised risk-prediction task over engineered evidence-consistency features, which measure how well the answer agrees with the question and the reference context in vocabulary, named entities, logical entailment, numbers, hedging, and semantics. A tuned XGBoost classifier consumes these features and outputs a calibrated probability, and SHAP explains every verdict with the feature contributions that drove it, so the system never inspects the LLM, runs in tens of milliseconds on a CPU, and costs essentially nothing per prediction. The main contributions are a reproducible feature-extraction pipeline with 26 features in seven groups, including bidirectional NLI entailment and contradiction signals, and a rigorous comparison of heuristic, logistic regression, random forest, and XGBoost baselines under 5-fold cross-validation with a three-seed protocol. The study also compares Platt and isotonic calibration fit strictly on the validation split, evaluates zero-shot transfer to the natural RAGTruth corpus, and measures explanation reliability with perturbation analysis and feature-removal correlation. On the HaluEval QA benchmark \cite{haluEval} the model reaches F1 = 0.9846 and AUROC = 0.9979 with an expected calibration error of 0.0045, while transfer to natural RAGTruth QA \cite{ragtruth} is poor (F1 = 0.3022), and this negative result is reported openly rather than hidden. The full system is deployed as a FastAPI backend with a Next.js and assistant-ui dashboard. The rest of the paper is organized as follows. Section~\ref{sec:conventional} reviews the conventional approaches to hallucination detection, Section~\ref{sec:proposed} describes the feature pipeline, the model, and the deployed system, Section~\ref{sec:experiment} details the experimental setup, Section~\ref{sec:results} reports results on calibration, cross-domain transfer, and explanation reliability, and Section~\ref{sec:conclusion} concludes.
+
+\section{Conventional Method}\label{sec:conventional}
+
+\subsection{Preliminaries}
+
+A hallucination is text that is fluent but not supported by the available evidence, and detection quality is usually judged with labeled benchmark splits, precision, recall, F1, and AUROC. Two evaluation choices matter for deployment. The first is calibration, since a risk score is only useful when its numeric value matches the observed frequency of hallucinated answers, and expected calibration error and reliability diagrams expose the gap between the two \cite{guo}. The second is interpretability, since a user who sees a high-risk flag needs to know which evidence signal produced it, and feature-attribution methods such as SHAP provide that view for tabular models \cite{shap}. The present work evaluates both properties in a black-box setting, where the detector reads the question, an optional reference context, and the candidate answer, and never inspects the generating model.
+
+\subsection{Existing Methods}
+
+Hallucination detection is an active research area, and the existing methods fall into three broad families: asking a language model to evaluate output consistency, training neural classifiers over frozen encoders, and building on hand-crafted features and interpretable models. LLM-based detection relies on model-internal signals or on a separate judge model. SelfCheckGPT \cite{selfcheck} samples several responses and treats their agreement as a hallucination signal, and HaluAgent \cite{haluagent} shows that small language models can act as cheaper detectors. Luna \cite{luna} takes the judge idea further with a lightweight evaluation model that matches larger judges at a fraction of the cost, and a calibrated multi-scoring detector reaches competitive accuracy with an explicit cost analysis \cite{costeff}. None of these judge verdicts gives a feature-level reason, which makes a single failure hard to debug.
+
+A second line of work trains classifiers on top of pretrained encoders, and a hybrid framework in \cite{ieeeTai} combines encoder features with lightweight models and reports strong results on hallucination benchmarks. These methods are accurate, but they need the encoder weights, they run on GPUs, and their embeddings are not directly interpretable. The third family keeps the pipeline interpretable by construction. A multi-signal framework in \cite{ijert} combines retrieval grounding, NLI verification, and an XGBoost classifier, and \cite{multimedia} scores hallucination with token-level SHAP-LIME attributions. The present work differs from \cite{multimedia} in an important way, since it explains predictions at the level of semantically meaningful evidence-consistency features rather than raw tokens, and it adds calibrated risk scores and a cross-domain evaluation that both papers lack.
+
+On the benchmark side, HaluEval \cite{haluEval} and TruthfulQA \cite{truthqa} are standard test beds, FActScore \cite{factscore} measures factual precision in long-form generation, and RAGTruth \cite{ragtruth} contributes naturally generated responses with human word-level annotations that are closer to production data. FaithBench \cite{faithbench} shows that current detectors still struggle on challenging modern-LLM outputs, and SpikeScore \cite{spikescore} demonstrates that cross-domain generalization remains an open problem.
+
+\subsection{Research Gap}
+
+Prior work has explored hallucination detection, feature engineering, calibration, and SHAP in isolation. Three gaps remain open. First, token-level attributions in \cite{multimedia} explain raw text rather than semantically meaningful evidence signals, and the attributions are visualized without any reliability measurement. Second, calibration is rarely reported for lightweight detectors, and target-domain behavior is rarely tested, while the closest multi-signal framework \cite{ijert} reports classification metrics only. Third, the benchmark itself imposes limits, since around 85\% of HaluEval is generated with a sampling-then-filtering procedure, and HalluLens \cite{bang-etal-2025-hallulens} notes that such data blurs the line between factually wrong and hallucinated content. Cross-domain evaluation remains open as well, and SpikeScore \cite{spikescore} shows that detectors trained in one domain lose accuracy in another. This study fills these gaps by testing calibrated, explainable risk prediction under domain shift with a reproducible artifact.
+
+\section{Proposed Method}\label{sec:proposed}
+
+Figure~\ref{fig:pipeline} shows the full HaluRISC pipeline at a glance. The system takes a question, an optional reference context, and a candidate answer produced by a black-box LLM, and it returns a calibrated risk probability together with per-feature explanations. Each stage is described in the following subsections.
+
+\begin{figure}[pos=htbp]
+\centering
+\includegraphics[width=\linewidth]{architecture.png}
+\caption{End-to-end HaluRISC pipeline. Evidence-consistency features from the question, context, and answer feed a grouped-CV trained, Platt-calibrated XGBoost model. Outputs include a calibrated risk score, per-claim NLI verdicts, and SHAP explanations, with cross-domain and explanation-reliability evaluation.}
+\label{fig:pipeline}
+\end{figure}
+
+\subsection{Task Definition}
+
+Given a question $q$, an optional reference context $c$ (evidence), and a candidate answer $a$ produced by a black-box LLM, the task is to predict the probability $P(\text{hallucinated} \mid q, c, a)$. HaluRISC predicts risk, not truth. It flags answers that are unsupported by, or contradictory to, the available evidence.
+
+\subsection{Features}
+
+Table~\ref{tab:features} lists the 26 features in seven groups. NLI signals come from a DeBERTa-v3 cross-encoder \cite{deberta} trained on SNLI \cite{snli} and MultiNLI \cite{mnli}, evaluated in both directions, context-to-answer and answer-to-context, which yields six probability features. Semantic similarity uses MiniLM sentence embeddings \cite{sbert,minilm}, entity features use spaCy NER \cite{spacy}, and the numeric and hedging groups are collected with regular expressions and a small hedging lexicon.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Feature groups (26 features total).}
+\label{tab:features}
+\begin{tabular}{@{}p{2.1cm}p{4.6cm}p{4.4cm}@{}}
+\toprule
+\textbf{Group} & \textbf{Features} & \textbf{Source} \\
+\midrule
+Length/style  & n\_chars, n\_words, n\_sentences, avg\_word\_len & regex \\
+Lexical       & overlap vs.\ context \& question, Jaccard $\times$2 & token sets \\
+Entity        & entity counts, overlap ratio, novel-entity ratio & spaCy NER \\
+NLI           & entail/contradict/neutral $\times$ 2 directions & cross-encoder NLI \\
+Numeric       & number counts, overlap ratio, novel numbers & regex \\
+Hedging       & hedge count, hedge density & lexicon \\
+Semantic      & cosine(context,answer), cosine(question,answer) & MiniLM \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Models}
+
+Four baselines are compared. The first is a heuristic that sets risk to one minus the lexical overlap between the answer and the context, with its threshold tuned on validation. The second is logistic regression on standardized features, the third a random forest with 300 trees, and the fourth XGBoost \cite{xgboost}. XGBoost hyperparameters come from a randomized search of 30 iterations over depth, learning rate, tree count, subsample, and column subsampling, scored with 5-fold stratified cross-validation on the training split. The best configuration is depth 4, learning rate 0.01, 500 trees, subsample 0.9, and column subsampling 0.7, with a cross-validated AUROC of 0.9970. Every experiment is repeated with seeds 42, 123, and 456, and results are reported as the mean over seeds.
+
+\subsection{Calibration}
+
+Calibrators are fit on the validation split only. Platt scaling fits a sigmoid to the raw scores \cite{platt}, and isotonic regression fits a step function \cite{isotonic}, and both are compared against the raw model on the test split with expected calibration error over 10 bins \cite{guo}, Brier score, and reliability diagrams. A second step targets a new domain. When a small labeled sample of the target corpus is available, the calibrator is re-fit on that sample, and the effect is measured on a disjoint held-out part of the target corpus.
+
+\subsection{Explainability and Reliability}
+
+Global interpretability comes from SHAP \cite{shap}. A TreeExplainer over the raw XGBoost model produces mean absolute SHAP importance and beeswarm summaries, and local explanations show the feature contributions behind a single verdict. Explanation reliability is measured directly in this work. Each test answer is perturbed in six ways, by replacing entities, numbers, or dates, removing supporting context, inserting irrelevant context, and shuffling clauses, and the calibrated score should stay stable under neutral perturbations and react to semantic ones. Stability is quantified with Spearman and Kendall rank correlation between the original and perturbed scores, the fraction of top-1 flips, and the top-$k$ Jaccard overlap of the SHAP feature rankings.
+
+\subsection{System Implementation}
+
+The methods above are deployed as a two-tier web application, and Figure~\ref{fig:arch} shows the architecture. The Next.js frontend streams an LLM conversation on the chat page using the assistant-ui library, and the FastAPI backend holds the model, the calibrator, the SHAP explainer, and the feature models, all loaded once at startup. Every machine-learning request from the frontend goes through a backend-for-frontend proxy in the Next.js layer to the FastAPI endpoints, which avoids cross-origin issues and keeps the API key on the server side.
+
+\begin{figure}[pos=htbp]
+\centering
+\includegraphics[width=\linewidth]{system_architecture.png}
+\caption{HaluRISC system architecture. The Next.js backend-for-frontend proxies machine-learning requests to FastAPI and streams LLM chat with tool-generated UI widgets.}
+\label{fig:arch}
+\end{figure}
+
+The chat page uses the streaming route of the Vercel AI SDK. A tool call from the conversation model triggers the analysis endpoint, and the result renders as a risk card inside the message thread. The card shows the calibrated score with its threshold band, the per-claim verdicts, the SHAP contribution bars, and a link to a full evidence panel that expands the supporting and contradicting passages.
+
+Beyond the score, the system verifies the answer claim by claim. Each claim is decomposed from the answer text and checked with sentence-level NLI against one of three evidence sources, the provided context, an indexed document collection, or live web search. The verdicts supported, contradicted, and unsupported are rendered per claim, with the driving evidence sentence quoted for contradicted claims. Web search uses the Tavily API, and the document index combines BM25, FAISS dense retrieval, and reciprocal rank fusion with a cross-encoder reranker. When the verification score falls into an uncertain band, the claim is routed to an LLM judge that returns a verdict with a short reasoning note.
+
+The verdict headline leads the card. Any contradicted claim sets the risk to high, an unsupported claim sets it to medium, and fully supported claims set it to low, while the XGBoost score appears as the legacy model score beneath it with a notice when the two disagree. This ordering follows directly from the style-sensitivity result in Section~\ref{sec:results}, where a full-sentence grounded answer can saturate the calibrated score even though every claim is supported. The displayed percentage itself comes from the evidence-domain calibrator, which is fitted on natural RAGTruth responses rather than on HaluEval, and in chat it is adjusted by the claim verdicts, so grounded full-sentence answers score low while answers that contradict the evidence score high.
+
+The analyze page accepts typed text or an uploaded file, runs the pipeline, and shows the risk gauge, the calibrated score, the SHAP bars with the seven feature groups expandable, and a comparison against the raw model score. A demo page walks through the whole flow without an API key. The experiment dashboard renders the tables of Section~\ref{sec:results} directly from the artifacts folder, and an about page reads the frozen manifest to show the model version, the feature version, and the training commit. Feedback on the verdicts is stored in a feedback log, and a threshold-tuning script turns that log into updated verification thresholds.
+
+Figure~\ref{fig:screens} shows two analysis cases from the analyze page, a hallucinated date answer with a high risk score and a grounded answer with a low score, together with the SHAP contribution charts.
+
+\begin{figure}[pos=htbp]
+\centering
+\includegraphics[width=0.62\linewidth]{hallucinated_date.png}\\
+\vspace{0.3em}
+\includegraphics[width=0.62\linewidth]{grounded_correct.png}
+\caption{Analyze page: hallucinated-date case (high risk) and grounded case (low risk) with SHAP contribution charts.}
+\label{fig:screens}
+\end{figure}
+
+\subsection{Reproducibility}
+
+The source repository contains the complete pipeline. \texttt{src/data} holds the download and split scripts, \texttt{src/features} the seven feature groups, \texttt{src/models} the training protocol together with the cross-domain, calibration-shift, and explanation-reliability runs, \texttt{src/explain} the SHAP analysis, and \texttt{src/api} the FastAPI application. \texttt{requirements.txt} pins every dependency with exact versions. The train, validation, and test split indices are saved to \texttt{artifacts/split\_indices.json} and \texttt{.npy}, all seeds are centralized in the run configuration, and the model, calibrator, scaler, and SHAP explainer artifacts are stored under \texttt{artifacts/models/}.
+
+The full experiment protocol is reproducible end to end. A self-contained Colab notebook (\texttt{colab/HaluRISC\_Training\_Version\_B.ipynb}) embeds the runtime source, verifies file hashes before execution, runs the pipeline on a GPU, and persists the artifacts to Google Drive. The \texttt{run\_all\_experiments.py} script reproduces the B-run locally from a frozen configuration (\texttt{configs/version\_b.yaml}), \texttt{make\_manifest.py} freezes the artifact hashes into \texttt{manifest.frozen.json}, and \texttt{verify\_artifacts.py} checks that every reported number matches the frozen artifacts. The manuscript itself is built from the same files that the dashboard reads, so the tables in Section~\ref{sec:results} trace back to the artifact files, including the length-binned error table and the reviewed audit sheet.
+
+The environment is Python 3.12 on Windows 11 with an NVIDIA RTX 3060 6\,GB GPU (CUDA 12.8, torch 2.11.0+cu128) and 32\,GB of RAM, using scikit-learn 1.9.0, XGBoost 3.3.0, SHAP 0.52.0, spaCy 3.8.14, and sentence-transformers 5.6.1. The frontend uses Next.js 16.3.0 with pnpm.
+
+\section{Experiment}\label{sec:experiment}
+
+\subsection{Dataset}
+
+The QA subset of HaluEval \cite{haluEval} is the training source. It contains 10{,}000 questions, each with a knowledge passage, a correct answer, and a hallucinated answer, which gives 20{,}000 labeled rows. The rows are split 70/15/15 at the question-group level, producing 14{,}000 training, 3{,}000 validation, and 3{,}000 test rows. This grouped, leakage-free design matters because both answer variants of a question share the same context, and a random split could otherwise let the model memorize the pairing. The split indices are saved to disk for exact reproducibility.
+
+Transfer is measured on RAGTruth \cite{ragtruth}, a corpus of naturally generated responses with human word-level span annotations, and on FaithBench \cite{faithbench}, a summarization hallucination benchmark built from modern LLM outputs. The RAGTruth QA task contributes 5{,}934 rows in 989 groups, of which 5{,}034 rows (839 groups) form the recalibration set and 900 rows (150 groups) the held-out test, with no overlapping groups between the two. Table~\ref{tab:datasets} summarizes the corpora.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Datasets used for training and evaluation.}
+\label{tab:datasets}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Corpus} & \textbf{Rows} & \textbf{Groups} & \textbf{Use} \\
+\midrule
+HaluEval QA      & 20{,}000 & 10{,}000 & train / validation / test \\
+RAGTruth QA      & 5{,}934   & 989      & zero-shot + recalibration \\
+RAGTruth full    & 17{,}790  & 2{,}965   & zero-shot \\
+FaithBench       & 750       & 750      & zero-shot \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Text is whitespace-normalized. Lexical features operate on lowercased token sets, while NER and NLI keep the original casing. Missing context is handled explicitly, with lexical overlap set to zero and NLI probabilities to one third. All three corpora are used under their original licenses: HaluEval and RAGTruth are MIT-licensed, and FaithBench is distributed under CC BY-NC-SA 4.0. Raw files are not redistributed. The repository ships the download scripts, source revisions, and SHA-256 hashes instead, so every split can be regenerated from the original repositories.
+
+\subsection{Evaluation Protocol}
+
+Models are compared on precision, recall, F1, AUROC, PR-AUC, and MCC, and calibration with expected calibration error over 10 bins, Brier score, and negative log-likelihood. Hyperparameters are chosen by a randomized search of 30 iterations with grouped 5-fold cross-validation on the training split. Every experiment is repeated with seeds 42, 123, and 456 and reported as the mean over seeds. Significance is assessed with McNemar's test on paired test predictions, bootstrap 95\% confidence intervals from 1{,}000 resamples, and a Wilcoxon signed-rank test across seeds. The group structure is respected everywhere, so the two rows of one question never appear in both the training and the evaluation folds.
+
+\subsection{Calibration Protocol}
+
+Calibrators are fit on the validation split only, and the comparison of raw, Platt-scaled, and isotonic probabilities happens on the test split. The target-domain protocol follows the same principle. The recalibration set of 5{,}034 RAGTruth QA rows is used only to fit the target calibrator, and all reported numbers come from the disjoint 900-row test set.
+
+\subsection{Explainability Protocol}
+
+Global explanations come from a SHAP TreeExplainer \cite{shap} over the raw XGBoost model. Three measurements check whether the explanations are trustworthy. First, the mean absolute SHAP ranking is compared against permutation importance with a Kendall tau correlation. Second, the top-5 feature set is re-estimated from 1{,}000 bootstrap resamples and compared with the Jaccard index. Third, two perturbation studies are run on the test answers. Content edits replace entities, numbers, or dates, remove the supporting context, or insert an irrelevant sentence, and each edit should move the calibrated score if it changes the evidence. Structure edits shuffle the clause order, and these should leave the score nearly unchanged. For each operator the mean absolute score change, the fraction of large score changes, the top-1 SHAP flip rate, and the Spearman correlation between the original and perturbed scores are recorded. A neutralization study sets the top-$k$ SHAP features of each sample to its median and tracks the mean score change for $k = 1, 3, 5, 10$.
+
+\subsection{Efficiency and Judge Protocol}
+
+Latency is measured on 200 test samples on the reference laptop with an RTX 3060 6\,GB GPU, where NLI and embeddings run on the GPU and the remaining features on the CPU. The LLM-as-judge comparison uses GPT 5.6 Luna on the same 200 samples with a fixed prompt, and the cost is computed from the recorded token counts.
+
+\section{Results}\label{sec:results}
+
+\subsection{Model comparison}
+
+Table~\ref{tab:models} reports the test-set performance of every baseline, averaged over the three seeds. XGBoost reaches an F1 of 0.9846 with an AUROC of 0.9979, ahead of the random forest by 0.0004 in F1 and the logistic regression by 0.0186. The overlap heuristic, which needs no training beyond its threshold, still reaches an F1 of 0.9352, and a majority baseline that predicts the negative class for everything scores zero, which confirms that the labels are balanced. The NLI-only baseline lags at 0.6714, which shows that the lexical, length, and semantic signals carry information the NLI cross-encoder alone does not. The TF-IDF variants sit between these extremes, with an answer-only linear model at 0.9224 and a full-input model at 0.5999. The margin between XGBoost and the random forest is small but significant in a McNemar test on the paired test predictions ($p = 0.044$), while the comparison against logistic regression ($p = 0.43$) and the heuristic ($p = 0.35$) is not significant. The Wilcoxon test across the three seeds finds no difference, which is expected given that the test compares only three points. Bootstrap confidence intervals for XGBoost are F1 $[0.9812,\,0.9895]$ and AUROC $[0.9964,\,0.9989]$.
+
+The split design is verified against a known confound. A row-level split, where the two rows of one question can fall into different partitions, inflates F1 to 0.9886, and the grouped split corrects this to 0.9846, a drop of 0.004 in F1 and 0.0001 in AUROC. The reported numbers all use the grouped split, so the margin is small but real.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Test-set performance on HaluEval QA, mean over seeds 42/123/456 (n = 3{,}000).}
+\label{tab:models}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+\textbf{Model} & \textbf{P} & \textbf{R} & \textbf{F1} & \textbf{AUROC} & \textbf{PR-AUC} & \textbf{MCC} \\
+\midrule
+Heuristic (1$-$overlap) & 0.947 & 0.923 & 0.935 & 0.913 & 0.820 & 0.872 \\
+Logistic regression     & 0.977 & 0.955 & 0.966 & 0.993 & 0.990 & 0.933 \\
+Random forest           & 0.990 & 0.979 & 0.984 & 0.998 & 0.998 & 0.969 \\
+NLI-only                & 0.648 & 0.697 & 0.671 & 0.718 & 0.753 & 0.319 \\
+XGBoost (ours)          & 0.993 & 0.976 & 0.985 & 0.998 & 0.998 & 0.970 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Calibration on the source domain}
+
+Table~\ref{tab:calib} compares raw, Platt-scaled, and isotonic probabilities on the HaluEval test set. The raw model is already well calibrated, with an ECE of 0.0045, and neither recalibration method improves it. Platt scaling increases the ECE to 0.0091 and isotonic regression to 0.0070, and both raise the negative log-likelihood. This is an honest negative result. XGBoost with a logistic objective produces reliable probabilities on this benchmark, so the calibration stage adds no value in the source domain, and the reliability diagrams in Figure~\ref{fig:reliability} confirm that the raw curve tracks the diagonal closely.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Calibration on the HaluEval test set (mean over seeds).}
+\label{tab:calib}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+\textbf{Method} & \textbf{F1} & \textbf{ECE} & \textbf{Brier} & \textbf{NLL} \\
+\midrule
+Raw XGBoost     & 0.985 & 0.0045 & 0.0117 & 0.045 \\
+Platt (sigmoid) & 0.985 & 0.0091 & 0.0129 & 0.058 \\
+Isotonic        & 0.984 & 0.0070 & 0.0124 & 0.073 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[pos=htbp]
+\centering
+\includegraphics[width=0.8\linewidth]{b4/reliability_diagrams.png}
+\caption{Reliability diagrams of the raw, Platt-calibrated, and isotonic models on the HaluEval test set.}
+\label{fig:reliability}
+\end{figure}
+
+\subsection{Target-domain recalibration}
+
+The calibration story changes completely on RAGTruth. Table~\ref{tab:target} applies the model to the 900-row RAGTruth QA test set and compares the raw scores, the source calibrator fitted on the HaluEval validation split, and calibrators re-fitted on 5{,}034 RAGTruth rows. The raw and source-calibrated probabilities are badly off, with an ECE above 0.8, because almost every sample is predicted with near-certainty. Re-fitting the calibrator on the target data cuts the ECE to 0.1335 (Platt) and 0.1316 (isotonic) and the Brier score from 0.801 to 0.164. Figure~\ref{fig:calibshift} shows the shift. One deployment caveat is visible in the same numbers. After target recalibration the predicted positive rate drops to nearly zero at the fixed 0.5 threshold, so a deployment must also retune the decision threshold. The improvement is real for the probabilities, and the labels follow only after that second step.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Target-domain recalibration on RAGTruth QA (calibration n = 5{,}034, test n = 900).}
+\label{tab:target}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+\textbf{Calibrator} & \textbf{ECE} & \textbf{Brier} & \textbf{NLL} & \textbf{Pred. pos.} \\
+\midrule
+Raw scores             & 0.8185 & 0.8164 & 5.20 & 0.999 \\
+Source Platt (HaluEval)& 0.8089 & 0.8011 & 3.62 & 0.999 \\
+Target Platt (RAGTruth)& 0.1335 & 0.1639 & 0.51 & 0.000 \\
+Target isotonic        & 0.1316 & 0.1663 & 0.53 & 0.000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[pos=htbp]
+\centering
+\includegraphics[width=0.8\linewidth]{b4/calibration_shift.png}
+\caption{Score distributions before and after target-domain recalibration on RAGTruth QA.}
+\label{fig:calibshift}
+\end{figure}
+
+\subsection{Cross-domain zero-shot transfer}
+
+Table~\ref{tab:transfer} reports the zero-shot evaluation with no training or adaptation on the target corpora. The recall of 1.0 on every row tells the main story. The model flags almost everything as hallucinated, the precision lands on the label prior, and the AUROC stays near 0.5. This is the central negative result of the paper. Synthetic HaluEval hallucinations differ systematically from naturally generated responses, and the RAGTruth numbers quantify that gap. FaithBench sits between the two extremes, with an F1 of 0.8130 at an AUROC of 0.5314, since its summaries are shorter and closer to the HaluEval format. The RAGTruth task breakdown shows the same pattern, with F1 of 0.4515 on QA, 0.4603 on summarization, and 0.8140 on data-to-text, where answers mirror the structured input closely. Context length also matters. The F1 rises from 0.4940 on responses with under 128 characters of context to 0.7091 on responses with 128 to 511 characters, which suggests the model needs enough evidence text to work with. Figure~\ref{fig:transferscore} plots the score distributions behind the table.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Zero-shot transfer, mean over seeds (recall is 1.0 on every corpus).}
+\label{tab:transfer}
+\begin{tabular}{@{}lcrrrrr@{}}
+\toprule
+\textbf{Corpus} & \textbf{n} & \textbf{F1} & \textbf{AUROC} & \textbf{PR-AUC} & \textbf{MCC} & \textbf{ECE} \\
+\midrule
+RAGTruth QA  & 900     & 0.302 & 0.540 & 0.190 & 0.016 & 0.819 \\
+RAGTruth all & 17{,}790 & 0.603 & 0.497 & 0.407 & 0.041 & 0.560 \\
+FaithBench   & 750     & 0.813 & 0.531 & 0.683 & 0.107 & 0.301 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[pos=htbp]
+\centering
+\includegraphics[width=0.8\linewidth]{b3/transfer_score_distributions.png}
+\caption{Calibrated score distributions on the source test set and the zero-shot corpora.}
+\label{fig:transferscore}
+\end{figure}
+
+\subsection{Ablation}
+
+Table~\ref{tab:ablation} removes each feature group and retrains from scratch with the same protocol. Lexical features are the dominant group, with the F1 dropping by 0.0247 when they are removed. Length contributes a smaller but consistent amount, NLI a modest one, and the entity, numeric, and hedging groups are neutral, with deltas within 0.0002 of zero. Removing the semantic group slightly improves the F1, a negative result reported rather than hidden. The ranking agrees with the SHAP analysis in the next subsection.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Feature-group ablation, mean over seeds (full model F1 = 0.9846, AUROC = 0.9979).}
+\label{tab:ablation}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{Removed group} & \textbf{F1} & \textbf{$\Delta$F1} & \textbf{AUROC} \\
+\midrule
+length   & 0.9801 & $-$0.0045 & 0.9963 \\
+lexical  & 0.9600 & $-$0.0247 & 0.9923 \\
+entity   & 0.9847 & $+$0.0001 & 0.9982 \\
+nli      & 0.9823 & $-$0.0023 & 0.9973 \\
+numeric  & 0.9844 & $-$0.0002 & 0.9982 \\
+hedging  & 0.9848 & $+$0.0001 & 0.9981 \\
+semantic & 0.9860 & $+$0.0014 & 0.9982 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Explanation reliability}
+
+Figure~\ref{fig:shapimp} shows the mean absolute SHAP values for the top-12 features. The context overlap dominates, followed by the answer length features, the context-to-answer contradiction probability, and the question-to-answer cosine. The explanation set agrees with the ablation in spirit, since lexical and length features carry the largest weights. Three checks assess whether the explanations are stable. The SHAP ranking agrees with permutation importance at a Kendall tau of 0.66. The top-5 feature set is identical across 1{,}000 bootstrap resamples, with a Jaccard of 1.0. Neutralizing the top-$k$ features drops the mean score monotonically from $-$0.079 at $k=1$ to $-$0.412 at $k=10$, which confirms that the top features are actually driving the predictions rather than decorating them.
+
+Table~\ref{tab:perturb} reports the perturbation study. Content edits move the score in proportion to the semantic weight of the edit. Replacing an entity changes the score by 0.360 on average, a number by 0.345, a date by 0.279, and removing the supporting context by 0.272. The irrelevant insert and clause shuffle leave the score nearly untouched, at 0.006 and 0.001. The top-1 SHAP feature never flips under any operator, and the Spearman correlation stays between 0.84 and 0.95. The sample sizes are small for dates and clause shuffles, 13 and 14 respectively, because not every answer contains an edit-able element, and the table reports n openly.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Perturbation stability of the calibrated score and SHAP ranking.}
+\label{tab:perturb}
+\begin{tabular}{@{}lcrrrrr@{}}
+\toprule
+\textbf{Operator} & \textbf{n} & \textbf{$\Delta$score} & \textbf{Large rate} & \textbf{Top-1 flip} & \textbf{Spearman} \\
+\midrule
+Entity replacement    & 78  & 0.360 & 0.372 & 0.000 & 0.840 \\
+Number replacement    & 22  & 0.345 & 0.364 & 0.000 & 0.852 \\
+Date replacement      & 13  & 0.279 & 0.308 & 0.000 & 0.870 \\
+Support removal       & 66  & 0.272 & 0.288 & 0.000 & 0.874 \\
+Irrelevant insert     & 120 & 0.006 & 0.008 & 0.000 & 0.948 \\
+Clause shuffle        & 14  & 0.001 & 0.000 & 0.000 & 0.921 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[pos=htbp]
+\centering
+\includegraphics[width=0.8\linewidth]{fig_shap_importance_b5.png}
+\caption{Mean absolute SHAP values for the top-12 features (B-run, seed 42).}
+\label{fig:shapimp}
+\end{figure}
+
+A structured expert audit tested these explanations case by case. The B5 run exported 26 error-enriched cases, namely 9 false positives, 10 false negatives, and 7 cases inside a calibrated band from 0.35 to 0.65, and two review passes were performed with an AI assistant, which the released sheet records in a review-mode field. Both passes judged the explanation against the answer-context evidence rather than the dataset label. The passes agreed on 23 of 26 cases (88\%), and both marked 15 cases implausible, with the remaining cases split between plausible (6 and 7) and unsure (5 and 4). The three disagreements all sit on borderline scores. The audit adds a qualitative reading to the numbers above. False positives inherit the length confound of the benchmark, and false negatives occur when a wrong answer reuses entities that appear in the context, which keeps lexical overlap high. Two audited cases (items 2251 and 2436) carry a hallucinated label even though the context directly supports the answer, so they look like benchmark label noise rather than model errors. The audit sample is deliberately error-heavy, so these proportions describe the audit and not the test set.
+
+\subsection{Efficiency and cost}
+
+Table~\ref{tab:latency} breaks down the latency over 200 test samples. The NLI cross-encoder and the spaCy entity pass dominate, at 27.1\,ms and 21.1\,ms median, while the model itself needs 1.3\,ms and SHAP 1.9\,ms. The total is 61.8\,ms at the median, and the deployed model artifact weighs 0.82\,MB. The marginal cost of a local prediction is about \$0.001 per 1{,}000 calls, since the only consumable resource is electricity.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Per-component latency in ms (n = 200).}
+\label{tab:latency}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{Component} & \textbf{p50} & \textbf{p95} & \textbf{mean} \\
+\midrule
+Core lexical        & 0.10  & 0.15  & 0.11  \\
+Entity (spaCy NER)  & 21.13 & 47.24 & 25.34 \\
+NLI (2 directions)  & 27.09 & 68.60 & 40.09 \\
+Semantic (MiniLM)   & 9.25  & 15.55 & 12.56 \\
+XGBoost inference   & 1.26  & 8.80  & 2.62  \\
+SHAP explanation    & 1.91  & 15.52 & 3.65  \\
+\midrule
+Total per sample    & 61.77 &       &       \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{LLM-as-judge comparison}
+
+Table~\ref{tab:judge} compares the deployed model with GPT 5.6 Luna as a judge on the same 200 samples. The judge reaches an F1 of 0.841, the XGBoost model 0.985, and the two agree on 84.5\% of the cases. The paired McNemar test is highly significant ($p = 1.6 \times 10^{-5}$), and the discordant pairs are strongly one-sided, with 28 cases where the judge is wrong and the model is right against 3 where the roles are reversed. The cost gap is the more practical difference. The judge costs \$0.105 per 1{,}000 predictions and needs 1.3 seconds at the median, while the model costs about \$0.001 per 1{,}000 and runs in 61.8\,ms.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{LLM-as-judge vs.\ XGBoost on 200 test samples.}
+\label{tab:judge}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+\textbf{Model} & \textbf{Acc} & \textbf{P} & \textbf{R} & \textbf{F1} & \textbf{p50 (ms)} & \textbf{Cost/1K} \\
+\midrule
+GPT 5.6 Luna judge & 0.860 & 0.974 & 0.740 & 0.841 & 1310 & \$0.105 \\
+XGBoost (ours)     & 0.985 & 0.980 & 0.990 & 0.985 & 62   & $\approx$\$0.001 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Error analysis}
+
+The 3{,}000-sample test set contains 48 errors, 12 false positives and 36 false negatives, an error rate of 1.6\%. A manual inspection of 20 sampled errors assigns them to two categories. Short-answer ambiguity covers very short answers where neither the lexical nor the NLI evidence is decisive, and label ambiguity covers answers that are semantically plausible under both labels. Table~\ref{tab:errors} reports the counts. Both categories trace back to the construction of the benchmark, where short answers are frequently hallucinated by design.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Error taxonomy for 20 sampled misclassifications.}
+\label{tab:errors}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+\textbf{Category} & \textbf{FP} & \textbf{FN} \\
+\midrule
+Label ambiguity       & 7 & 4 \\
+Short-answer ambiguity& 3 & 6 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The length distribution behind those errors is the more informative signal. Table~\ref{tab:length} bins the full test set by answer length. The hallucinated share is 2.1\% among one-word answers and rises to 99.2\% above 17 words, so answer length is close to a perfect proxy for the label in HaluEval. The model reproduces the pattern: the mean score climbs from 0.024 to 0.993 across the bins, two-thirds of all false positives fall in the 5-8 word bin at a 10.6\% false-positive rate, and false negatives concentrate in the 1-4 word bins at about an 18\% rate. This mechanism explains the zero-shot transfer result. Natural RAGTruth responses are full sentences, so the model reads their length as evidence of hallucination, which is why recall reaches 1.0 and AUROC stays near 0.5 on that corpus. The deployed interface responds to this failure mode by leading with per-claim evidence verdicts and presenting the model score as a secondary signal.
+
+\begin{table}[pos=htbp]
+\centering
+\caption{Test-set errors by answer length, mean over seeds (17+ contains only two negative rows).}
+\label{tab:length}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+\textbf{Words} & \textbf{Rows} & \textbf{Hallucinated} & \textbf{FP rate} & \textbf{FN rate} & \textbf{Mean score} \\
+\midrule
+1     & 524 & 0.021 & 0.004 & 0.182 & 0.024 \\
+2     & 514 & 0.033 & 0.000 & 0.176 & 0.035 \\
+3--4  & 474 & 0.127 & 0.002 & 0.178 & 0.126 \\
+5--8  & 641 & 0.902 & 0.106 & 0.031 & 0.888 \\
+9--16 & 600 & 0.982 & 0.000 & 0.003 & 0.980 \\
+17+   & 247 & 0.992 & 0.333 & 0.000 & 0.993 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Discussion and limitations}
+
+The results need to be read against several limitations. Around 85\% of HaluEval is generated with a sampling-then-filtering procedure, so its hallucination patterns are synthetic by construction, and the zero-shot transfer result on RAGTruth shows how far in-distribution performance is from natural responses. Length and overlap statistics are highly informative on HaluEval but they are benchmark artifacts that may not carry over to other settings, a warning that the ablation study and the SHAP analysis both reinforce. The benchmark also reduces hallucination to a binary label, which leaves graded severity and partially supported answers out of scope. The audit in Section~\ref{sec:results} found two cases where the hallucinated label contradicts the context, so a small amount of label noise remains in the benchmark. Every feature in the pipeline is English-centric because the NER, NLI, and embedding models are trained on English data, and the supervised model itself is trained on a single dataset, so domain adaptation remains open work. Calibration deserves one more honest note. On the source benchmark the raw probabilities are already well calibrated, and neither Platt nor isotonic regression improves them, while the target-domain recalibration on RAGTruth cuts the ECE there from 0.8185 to 0.1335. The deployed artifact ships the Platt-calibrated model to follow the project default. Finally, the calibrated score is style-sensitive in conversational use, since full-sentence answers can saturate it even when the per-claim evidence verdicts are supported. The interface therefore leads with the evidence verdicts and presents the model score as a secondary signal.
+
+\subsection{Ethical considerations}
+
+A hallucination-risk score predicts risk, not truth, and it must not be treated as a fact-checker. Over-reliance on automated detectors creates false trust, especially when scores are confidently wrong out of domain, which is exactly what the RAGTruth result demonstrates. Detection quality varies across domains and languages, and the current system is English-only. The interface therefore labels scores as risk estimates and shows a training-data warning with every prediction.
+
+\section{Conclusion}\label{sec:conclusion}
+
+Hallucination detection needs to be cheap, fast, and explainable before it is useful in practice. This paper presented HaluRISC, a lightweight black-box risk predictor that combines 26 engineered evidence-consistency features with a tuned XGBoost classifier, calibrated probabilities, and SHAP explanations. On HaluEval QA it reaches an F1 of 0.9846 and an AUROC of 0.9979 at an expected calibration error of 0.0045, runs in 61.8\,ms per analysis at the median, and costs about \$0.001 per 1{,}000 predictions, roughly 100 times less than a GPT 5.6 Luna judge that it outperforms on the same 200 samples. A target-domain recalibration on 5{,}034 RAGTruth rows cuts the ECE on that corpus from 0.8185 to 0.1335, which shows that the calibration stage pays off exactly where the source-domain result said it would not.
+
+The negative results are reported with the same care as the positive ones. The raw model needs no recalibration on HaluEval, the entity and hedging features add no measurable value, and zero-shot transfer to natural RAGTruth responses fails, with an F1 of 0.3022 on the QA split. The paper therefore frames the supervised risk model as a source-domain estimator, and the deployed system adds claim-level verification with evidence retrieval to cover the transfer gap. Future work targets multicalibration under distribution shift, cross-domain evaluation on FaithBench \cite{faithbench}, and neural baselines for comparison.
+
+%%% SECTION-INSERT-POINT %%%
+
+\section*{Declarations}
+\begin{itemize}
+\item \textbf{Conflicts of Interest:} The authors declare no conflicts of interest.
+
+\item \textbf{Data availability:} The raw evaluation corpora are not redistributed. The repository ships the download scripts, source revisions, SHA-256 hashes, and license notes for HaluEval (MIT), RAGTruth (MIT), and FaithBench (CC BY-NC-SA 4.0), so every split and feature matrix can be regenerated from the original sources. Model artifacts, split indices, and the frozen experiment manifest are included with the code release.
+
+\item \textbf{Code availability:} The training pipeline, FastAPI inference service, and Next.js dashboard are available in the project repository.
+\end{itemize}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\printcredits
+
+\newpage
+\bibliographystyle{elsarticle-num}
+\bibliography{ref}
+
+\vspace{12pt}
+\end{document}

@@ -1,0 +1,73 @@
+# HaluRISC Version B — full reproducibility protocol (B6)
+# Consumed by: python src/models/run_all_experiments.py --config configs/version_b.yaml
+#
+# Each phase subprocess-invokes the existing per-phase runner so the runners
+# remain the single source of truth. {device} / {batch_size} placeholders are
+# resolved from defaults or CLI overrides (--device / --batch-size).
+
+schema: "b6-run-all-v1"
+
+defaults:
+  device: cpu          # cpu|cuda|auto (Colab runs typically pass --device cuda)
+  batch_size: 256
+
+phases:
+  # ---- B1 data acquisition + unified build (deterministic) ----
+  - id: download_halueval
+    script: src/data/download.py
+    args: []
+    description: HaluEval download (skips when raw data present)
+  - id: prepare_halueval
+    script: src/data/prepare.py
+    args: []
+    description: Group-aware splits + split-integrity report
+  - id: download_ragtruth
+    script: src/data/download_ragtruth.py
+    args: []
+    description: Official RAGTruth response/source files (+ revision hashes)
+  - id: download_faithbench
+    script: src/data/download_faithbench.py
+    args: []
+    description: Official FaithBench annotation batches
+  - id: b1_unified
+    script: src/data/prepare_unified.py
+    args: []
+    description: Unified dataset + mapping/export/license reports
+  - id: extract_features
+    script: src/features/extract_features.py
+    args: ["--device", "{device}", "--batch-size", "{batch_size}"]
+    description: 26 features x 20K HaluEval rows (7 groups, NLI on GPU)
+
+  # ---- B2 corrected baselines (grouped CV, seeds 42/123/456) ----
+  - id: b2
+    script: src/models/run_b2_baselines.py
+    args: []
+    description: Baselines + artifact controls + leakage comparison
+
+  # ---- B3 zero-shot cross-domain evaluation ----
+  - id: b3
+    script: src/models/run_b3_cross_domain.py
+    args: ["--device", "{device}", "--batch-size", "{batch_size}"]
+    description: External feature extraction (resumable) + zero-shot eval
+
+  # ---- B4 calibration under distribution shift ----
+  - id: b4
+    script: src/models/run_b4_calibration_shift.py
+    args: ["--resume"]
+    description: Source/target calibrators, ECE/Brier/NLL, subgroups
+
+  # ---- B5 explanation reliability + error analysis ----
+  - id: b5
+    script: src/models/run_b5_explanation_reliability.py
+    args: ["--device", "{device}", "--n-perturb", "120"]
+    description: SHAP triangulation, neutralization, perturbations, review cases
+
+  # ---- publication artifacts ----
+  - id: manifest
+    script: src/models/make_manifest.py
+    args: []
+    description: artifact_manifest.json (hashes, versions, seeds, hardware)
+  - id: verify
+    script: src/models/verify_artifacts.py
+    args: []
+    description: "Gate: every artifact loads and predicts on THIS machine"
