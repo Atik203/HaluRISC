@@ -35,13 +35,31 @@ The verdict headline leads the card. Any contradicted claim sets the risk to hig
 
 The analyze page accepts typed text or an uploaded file, runs the pipeline, and shows the risk gauge, the calibrated score, the SHAP bars with the seven feature groups expandable, and a comparison against the raw model score. A demo page walks through the whole flow without an API key. The experiment dashboard renders the tables of Chapter~5 directly from the artifacts folder, and an about page reads the frozen manifest to show the model version, the feature version, and the training commit. Feedback on the verdicts is stored in a feedback log, and a threshold-tuning script turns that log into updated verification thresholds.
 
-Figure~\ref{fig:screens} shows two analysis cases from the analyze page, a hallucinated date answer with a high risk score and a grounded answer with a low score, together with the SHAP contribution charts.
+Figure~\ref{fig:screens} shows two analysis cases from the analyze page, a hallucinated number that the raw model scores at 0.999 and the evidence-domain calibrator reports at 0.47, and a grounded answer that scores below 0.01, together with the SHAP contribution charts from the raw model.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.62\textwidth]{hallucinated_date.png}\\
-\vspace{0.3em}
-\includegraphics[width=0.62\textwidth]{grounded_correct.png}
-\caption{Analyze page: hallucinated-date case (high risk) and grounded case (low risk) with SHAP contribution charts.}
+\begin{subfigure}[t]{0.58\textwidth}
+\centering
+\includegraphics[width=\linewidth]{hallucinated_date.png}
+\caption{Hallucinated number: evidence-domain score 0.47}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.40\textwidth}
+\centering
+\includegraphics[width=\linewidth]{hallucinated_shap.png}
+\caption{SHAP contributions, hallucinated}
+\end{subfigure}
+\\[0.8em]
+\begin{subfigure}[t]{0.58\textwidth}
+\centering
+\includegraphics[width=\linewidth]{grounded_correct.png}
+\caption{Grounded: score below 0.01}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.40\textwidth}
+\centering
+\includegraphics[width=\linewidth]{ground_shap.png}
+\caption{SHAP contributions, grounded}
+\end{subfigure}
+\caption{Analyze page cases with the raw-model SHAP contribution charts. Top: a hallucinated number, where the context states 5 days per decade and the answer states 10. Bottom: a grounded answer.}
 \label{fig:screens}
 \end{figure}

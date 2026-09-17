@@ -48,7 +48,7 @@ Isotonic        & 0.984 & 0.0070 & 0.0124 & 0.073 \\
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.8\textwidth]{b4/reliability_diagrams.png}
-\caption{Reliability diagrams of the raw, Platt-calibrated, and isotonic models on the HaluEval test set.}
+\caption{Reliability diagrams of the raw, Platt-calibrated, and isotonic models on the HaluEval test set (left), RAGTruth QA (middle), and FaithBench (right).}
 \label{fig:reliability}
 \end{figure}
 
@@ -76,7 +76,7 @@ Target isotonic        & 0.1316 & 0.1663 & 0.53 & 0.000 \\
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.8\textwidth]{b4/calibration_shift.png}
-\caption{Score distributions before and after target-domain recalibration on RAGTruth QA.}
+\caption{Target-domain recalibration on RAGTruth QA. Left and middle: raw and target-calibrated score distributions on the 900-row test set, with the 0.5 threshold marked. Right: ECE and Brier before and after recalibration.}
 \label{fig:calibshift}
 \end{figure}
 
@@ -103,7 +103,7 @@ FaithBench   & 750     & 0.813 & 0.531 & 0.683 & 0.107 & 0.301 \\
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.8\textwidth]{b3/transfer_score_distributions.png}
-\caption{Calibrated score distributions on the source test set and the zero-shot corpora.}
+\caption{Raw model score distributions on the HaluEval test set and the zero-shot corpora, with the 0.5 threshold marked. The source panel separates the classes, while every zero-shot panel piles both labels at 1.0.}
 \label{fig:transferscore}
 \end{figure}
 

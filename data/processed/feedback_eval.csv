@@ -1,0 +1,3 @@
+sample_id,claim_id,claim_text,context,model_verdict,model_confidence,human_verdict,notes
+feedback:0,0,The capital of France is Paris.,France is a country in Europe. Its capital city is Paris.,supported,,,feedback=agree
+feedback:1,0,The capital of Bangladesh is **Dhaka**.,User: What is the capital of Bangladesh?,unsupported,,,feedback=agree

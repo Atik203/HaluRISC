@@ -307,6 +307,9 @@ The papers disclose these, and defense answers should too:
 
 # Unified canonical schema (38,540 rows) + mapping + license manifest
 & .venv\Scripts\python.exe src\data\prepare_unified.py
+
+# 50-sample manual label audit: build the review sheet (fill by hand)
+& .venv\Scripts\python.exe src\data\build_audit_review_sheet.py
 ```
 
 Verify provenance at any time by reading `data/raw/*/revision.json` and
