@@ -28,6 +28,7 @@ Supporting sources of truth:
 | [`b6-reproducibility.md`](b6-reproducibility.md) | Run-all orchestrator, manifest, Docker |
 | [`b7-research-ui.md`](b7-research-ui.md) | Web routes, dashboard tabs, API contract, offline demo |
 | [`04-interface-guide.md`](04-interface-guide.md) | Plain-language guide to the UI: risk card, gauge cutoffs, SHAP chart, dashboard tabs, troubleshooting |
+| [`title_explanations.md`](title_explanations.md) | Word-by-word justification of the journal title, with the artifact behind every word and a title-defense Q&A |
 | [`manifest.frozen.json`](manifest.frozen.json) | Frozen artifact hashes, seeds, hardware, environment |
 
 ## Quick reference
@@ -63,4 +64,5 @@ cd web; pnpm install; pnpm run dev
 - **Results deep dive:** 02 → `artifacts/results/*` and `docs/manifest.frozen.json`.
 - **Web/system deep dive:** 01 §5 → `b7-research-ui.md`.
 - **Demo walkthrough:** 04 → `b7-research-ui.md` (Offline demo).
+- **Title defense:** `title_explanations.md` → 03 §9–§13 (Q&A and do-not-say).
 - **Explanation reliability:** 02 §8–§9 → `b5-explanation-reliability.md`.
