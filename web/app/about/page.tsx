@@ -1,4 +1,5 @@
-import { Info, Layers, Cpu, ShieldCheck } from "lucide-react";
+import Link from "next/link";
+import { Info, Layers, Cpu, ShieldCheck, MessageSquare, BarChart2, LayoutDashboard, Presentation } from "lucide-react";
 import { featureCount, readJson } from "@/lib/results";
 
 interface ManifestForAbout {
@@ -89,6 +90,64 @@ export default function AboutPage() {
           In-domain test F1 ≈ 0.98 with leakage-free grouped splits (B2) · zero-shot transfer drops on RAGTruth QA (AUROC ≈ 0.54)
           while FaithBench stays usable (F1 ≈ 0.81) (B3) · ECE 0.81 → 0.13 after target calibration (B4) · SHAP top-5 set
           Jaccard = 1.0 and top-1 feature never flips under perturbation (B5). Open the <a className="underline text-violet-600 dark:text-purple-400" href="/dashboard/overview">Dashboard</a> for the full tables.
+        </p>
+      </div>
+
+      {/* Reading the interface */}
+      <div className="glass-panel p-6 rounded-2xl space-y-4">
+        <h2 className="text-base font-bold flex items-center gap-2">
+          <ShieldCheck className="w-5 h-5 text-violet-600 dark:text-purple-400" /> Reading the interface
+        </h2>
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          Short version for a first demo. Every screen also carries its own &quot;How to read&quot; notes next to the
+          numbers, and the repository guide <code className="font-mono">docs/04-interface-guide.md</code> explains each
+          element with examples.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {[
+            {
+              href: "/chat",
+              icon: MessageSquare,
+              title: "Chat mode",
+              body: "Ask a question and every answer gets a risk card: headline verdict, claim-level supported or contradicted checks, citations, and the features that moved the score.",
+            },
+            {
+              href: "/analyze",
+              icon: BarChart2,
+              title: "Analyze mode",
+              body: "Score one answer, or two side by side. The gauge shows the calibrated probability with its low, medium, and high cutoffs. The SHAP chart shows what pushed the raw score up or down.",
+            },
+            {
+              href: "/dashboard/overview",
+              icon: LayoutDashboard,
+              title: "Dashboard",
+              body: "One tab per research question, from baselines to calibration and failure cases. A glossary at the top of the page defines every metric name.",
+            },
+            {
+              href: "/demo",
+              icon: Presentation,
+              title: "Presenter demo",
+              body: "The same evidence in one offline page. No API key and no network, so it works on a clean clone.",
+            },
+          ].map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="surface-inset rounded-xl p-4 transition-colors hover:border-primary/40"
+              >
+                <h3 className="flex items-center gap-2 text-sm font-bold">
+                  <Icon className="w-4 h-4 text-violet-600 dark:text-purple-400" aria-hidden /> {item.title}
+                </h3>
+                <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{item.body}</p>
+              </Link>
+            );
+          })}
+        </div>
+        <p className="text-[11px] text-muted-foreground">
+          The thumbs buttons on a chat risk card record your agreement into a local feedback file on this machine. They
+          feed the error-analysis appendix, not the model.
         </p>
       </div>
 

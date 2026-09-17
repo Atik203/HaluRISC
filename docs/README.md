@@ -11,6 +11,9 @@ repo-root-relative and assume the `.venv` environment described in the README.
    experiment with numbers and artifact paths, including negative results.
 3. [`03-reproduction-and-defense.md`](03-reproduction-and-defense.md) — rebuild
    and verify, demo script, numbers cheat sheet, defense Q&A, glossary.
+4. [`04-interface-guide.md`](04-interface-guide.md) — what every UI element
+   means (chat risk card, gauge and cutoffs, SHAP chart, dashboard tabs), written
+   for a first-time viewer of the demo.
 
 Supporting sources of truth:
 
@@ -24,6 +27,7 @@ Supporting sources of truth:
 | [`b5-explanation-reliability.md`](b5-explanation-reliability.md) | Explanation-reliability experiments, outputs, and the expert audit procedure (B5.5) |
 | [`b6-reproducibility.md`](b6-reproducibility.md) | Run-all orchestrator, manifest, Docker |
 | [`b7-research-ui.md`](b7-research-ui.md) | Web routes, dashboard tabs, API contract, offline demo |
+| [`04-interface-guide.md`](04-interface-guide.md) | Plain-language guide to the UI: risk card, gauge cutoffs, SHAP chart, dashboard tabs, troubleshooting |
 | [`manifest.frozen.json`](manifest.frozen.json) | Frozen artifact hashes, seeds, hardware, environment |
 
 ## Quick reference
@@ -58,4 +62,5 @@ cd web; pnpm install; pnpm run dev
 - **Method deep dive:** 01 §2–§4 → `blueprint.md` §5–§8.
 - **Results deep dive:** 02 → `artifacts/results/*` and `docs/manifest.frozen.json`.
 - **Web/system deep dive:** 01 §5 → `b7-research-ui.md`.
+- **Demo walkthrough:** 04 → `b7-research-ui.md` (Offline demo).
 - **Explanation reliability:** 02 §8–§9 → `b5-explanation-reliability.md`.

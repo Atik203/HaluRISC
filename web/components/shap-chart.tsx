@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { Info } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -51,28 +52,62 @@ export function ShapChart({ features, baseValue }: ShapChartProps) {
 
   return (
     <div className="w-full glass-panel p-5 rounded-2xl">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-start gap-3 mb-3">
         <div>
-          <h3 className="text-sm font-semibold tracking-wide">SHAP Feature Contributions</h3>
+          <h3 className="text-sm font-semibold tracking-wide">SHAP feature contributions</h3>
           <p className="text-xs text-muted-foreground">
-            Red increases hallucination risk · Green decreases risk
+            Red pushed the score up · Green pulled it down
           </p>
         </div>
         {baseValue !== undefined && (
-          <span className="text-xs text-muted-foreground bg-secondary px-2.5 py-1 rounded-md">
-            Base value: {baseValue.toFixed(2)}
+          <span
+            title="The score the model would give if no feature spoke for or against the answer."
+            className="shrink-0 text-xs text-muted-foreground bg-secondary px-2.5 py-1 rounded-md"
+          >
+            Model average {baseValue.toFixed(2)}
           </span>
         )}
       </div>
+
+      <details className="group mb-4">
+        <summary className="flex cursor-pointer items-center gap-1.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground">
+          <Info className="h-3.5 w-3.5" aria-hidden /> How to read this chart
+        </summary>
+        <ul className="mt-2 space-y-1 text-[11px] leading-relaxed text-muted-foreground">
+          <li>
+            Each bar is one measured feature of this answer. The bar length is how much that feature moved the raw
+            model output away from the model average.
+          </li>
+          <li>
+            Red bars raised the hallucination risk. Green bars lowered it. Only the largest contributions are shown,
+            so small effects are hidden.
+          </li>
+          <li>
+            SHAP explains how the model reasoned about this answer. It is not proof that the answer is true or false.
+            The calibrated score is the number the system reports, and the two can disagree.
+          </li>
+        </ul>
+      </details>
 
       <div className="h-60 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={data}
             layout="vertical"
-            margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
+            margin={{ top: 5, right: 30, left: 100, bottom: 20 }}
           >
-            <XAxis type="number" stroke="var(--muted-foreground)" fontSize={11} />
+            <XAxis
+              type="number"
+              stroke="var(--muted-foreground)"
+              fontSize={11}
+              label={{
+                value: "SHAP value (impact on the raw risk score)",
+                fontSize: 10,
+                position: "insideBottom",
+                offset: -8,
+                fill: "var(--muted-foreground)",
+              }}
+            />
             <YAxis
               type="category"
               dataKey="name"

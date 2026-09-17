@@ -12,6 +12,7 @@ import {
   Cpu,
   GitBranch,
   Hash,
+  Info,
   Play,
   RefreshCw,
   Scale,
@@ -111,6 +112,30 @@ function RiskPanel({ result, meta, title }: { result: AnalysisResult; meta: Meta
           <span className="rounded-full border border-border bg-secondary/40 px-2 py-0.5">high ≥ {thresholds.medium?.toFixed(2)}</span>
         </div>
       )}
+
+      <details className="group">
+        <summary className="flex cursor-pointer items-center justify-center gap-1.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground">
+          <Info className="h-3.5 w-3.5" aria-hidden /> How to read this result
+        </summary>
+        <ul className="mt-2 space-y-1.5 text-[11px] leading-relaxed text-muted-foreground">
+          <li>
+            The percentage is a calibrated probability. On the calibration data, answers that scored near this value
+            were hallucinated about this often.
+          </li>
+          <li>
+            The notches on the gauge are the low, medium, and high decision cutoffs. The needle points at this
+            answer&apos;s score, and the label above uses the same cutoffs.
+          </li>
+          <li>
+            Low risk is not a guarantee of correctness. It means the measured evidence did not look contradictory or
+            unsupported.
+          </li>
+          <li>
+            The SHAP chart under the gauge explains what moved the raw score. It is separate from the calibrated
+            percentage, so the two can point in different directions.
+          </li>
+        </ul>
+      </details>
 
       {prediction.warning && (
         <p className="rounded-xl border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-[11px] leading-relaxed text-amber-700 dark:text-amber-300">
