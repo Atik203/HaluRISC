@@ -56,7 +56,30 @@ export default function DemoPage() {
         </p>
       </div>
 
-      <Panel title="01 · The problem in one line">
+      {/* Section jump nav for presenting */}
+      <nav
+        aria-label="Demo sections"
+        className="glass-panel sticky top-[4.5rem] z-30 -mt-2 flex gap-1.5 overflow-x-auto rounded-2xl p-2 print:hidden"
+      >
+        {[
+          ["01", "The problem", "demo-01"],
+          ["02", "Real cases", "demo-02"],
+          ["03", "A real failure", "demo-03"],
+          ["04", "Calibration", "demo-04"],
+          ["05", "Transfer", "demo-05"],
+        ].map(([num, label, id]) => (
+          <a
+            key={id}
+            href={`#${id}`}
+            className="shrink-0 rounded-xl border border-border/60 px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+          >
+            <span className="mr-1.5 font-mono text-[10px]">{num}</span>
+            {label}
+          </a>
+        ))}
+      </nav>
+
+      <Panel id="demo-01" className="scroll-mt-32" title="01 · The problem in one line">
         <p className="text-sm leading-relaxed text-foreground/90">
           Black-box LLMs hallucinate; you cannot inspect their weights. HaluRISC scores candidate answers against the
           provided context with <strong>26 calibrated, explainable features</strong> — and measures honestly where that
@@ -72,7 +95,7 @@ export default function DemoPage() {
         </div>
       </Panel>
 
-      <Panel title="02 · Three real cases (from the B5 reviewer export)" subtitle="Sampled from b5_review_cases.json — real scores, no staging data.">
+      <Panel id="demo-02" className="scroll-mt-32" title="02 · Three real cases (from the B5 reviewer export)" subtitle="Sampled from b5_review_cases.json — real scores, no staging data.">
         {[grounded, hallucinated, borderline].map((case_) =>
           case_ ? (
             <div key={case_.sample_id} className="border border-border/60 rounded-xl p-4 space-y-2 bg-secondary/20">
@@ -105,7 +128,7 @@ export default function DemoPage() {
         )}
       </Panel>
 
-      <Panel title="03 · A real failure (B5 perturbation protocol)" subtitle="Controlled edit that flipped or moved the model's score.">
+      <Panel id="demo-03" className="scroll-mt-32" title="03 · A real failure (B5 perturbation protocol)" subtitle="Controlled edit that flipped or moved the model's score.">
         {failure ? (
           <p className="text-xs text-muted-foreground leading-relaxed">
             Sample <code className="font-mono">{failure.sample_id}</code> under <strong>{failure.perturbation}</strong>{" "}
@@ -125,7 +148,7 @@ export default function DemoPage() {
         )}
       </Panel>
 
-      <Panel title="04 · Calibration under shift, the key evidence (B4)">
+      <Panel id="demo-04" className="scroll-mt-32" title="04 · Calibration under shift, the key evidence (B4)">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Figure src="/api/figures/b4/calibration_shift.png" alt="Calibration shift across subsets and methods" className="w-full" />
           <Figure src="/api/figures/b4/reliability_diagrams.png" alt="Reliability diagrams for HaluEval, RAGTruth QA and FaithBench" className="w-full" />
@@ -140,7 +163,7 @@ export default function DemoPage() {
         </p>
       </Panel>
 
-      <Panel title="05 · Transfer robustness (B3)" subtitle="Zero-shot on external data — figures from artifacts/figures/b3.">
+      <Panel id="demo-05" className="scroll-mt-32" title="05 · Transfer robustness (B3)" subtitle="Zero-shot on external data — figures from artifacts/figures/b3.">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Figure src="/api/figures/b3/transfer_score_distributions.png" alt="Score distributions in-domain versus out-of-domain" className="w-full" />
           <Figure src="/api/figures/b3/context_length_robustness.png" alt="F1 by context length" className="w-full" />

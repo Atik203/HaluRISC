@@ -74,6 +74,14 @@ const analyzeTool = {
   },
 };
 
+/** Readiness probe for the presenter demo: whether the chat model is configured. */
+export async function GET() {
+  return Response.json({
+    configured: Boolean(process.env.OPENAI_API_KEY),
+    model: process.env.OPENAI_MODEL || "gpt-5.6-luna",
+  });
+}
+
 export async function POST(req: Request) {
   try {
     const { messages } = await req.json();

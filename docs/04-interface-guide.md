@@ -20,8 +20,9 @@ For the technical architecture of the web app (routes, API contract), read
 5. [Presenter demo](#5-presenter-demo)
 6. [About page](#6-about-page)
 7. [Reading the numbers correctly](#7-reading-the-numbers-correctly)
-8. [Troubleshooting](#8-troubleshooting)
-9. [Where the numbers come from](#9-where-the-numbers-come-from)
+8. [Presenter aids for the project show](#8-presenter-aids-for-the-project-show)
+9. [Troubleshooting](#9-troubleshooting)
+10. [Where the numbers come from](#10-where-the-numbers-come-from)
 
 ---
 
@@ -89,6 +90,26 @@ The card under each answer is the actual HaluRISC check. It reads top to bottom.
 
 The card also has a "How to read this card" section at the bottom with the same
 information in short form.
+
+### 2.4 Chat history sidebar
+
+The left column lists saved conversations. It survives reloads, machine
+restarts, and backend downtime.
+
+- **New chat** starts a fresh conversation. The previous one stays in the list.
+- Each entry shows the title and the last activity time. The title comes from
+  the first user message in that conversation.
+- **Rename** (pencil) edits the title inline. **Delete** (trash) asks for a
+  quick confirmation and removes the conversation and its messages.
+- On small screens the list lives behind the **Chats** button above the thread.
+
+Where the data lives: conversations are stored in a local SQLite file at
+`web/data/chat.sqlite`, created automatically on first use. Nothing is sent to
+an external service. Deleting the file resets the history.
+
+One conversation can be opened directly with a link: `/chat?thread=<id>`. The
+address bar always mirrors the active conversation, so a presenter can prepare
+a conversation in advance and open it in one click.
 
 ## 3. Analyze mode
 
@@ -202,7 +223,26 @@ section that links to the screens above and to this guide.
 - **Transfer is harder than the in-domain number suggests.** The dashboard
   shows the drop on external data on purpose. Quote both when asked.
 
-## 8. Troubleshooting
+## 8. Presenter aids for the project show
+
+These controls exist for booth and presentation settings.
+
+| Aid | Where | What it does |
+|---|---|---|
+| Projector view | icon in the top bar | Scales the whole interface up for big screens. The setting is remembered per browser. |
+| Live demo readiness | landing page panel | Checks the ML backend, chat key, artifact files, and document index, with fix hints and a Recheck button. Run it before visitors arrive. |
+| Figure zoom | hover a figure, press Zoom | Opens any chart or screenshot in a larger overlay. Escape or the X closes it. |
+| Example sweep | Analyze mode, Run all three | Scores the three built-in examples in sequence and lists the labels, scores, and latencies. Copy summary puts the same table on the clipboard. |
+| Section jump nav | Presenter demo page | Sticky links 01 to 05 so you can jump between story sections while talking. |
+| Print styles | any page | Printing uses a light, ink-friendly theme, hides the navigation and footer, and keeps tables and figures readable. Handouts and paper screenshots come out clean. |
+| Toasts | bottom right corner | Small confirmations for uploads, feedback, copies, and chat deletions. |
+
+Suggested booth flow: open the landing page, run the readiness checks, click
+through to Analyze, press **Run all three** for an instant result table, then
+open Chat and ask one prepared question so the risk card appears with claim
+verdicts. Keep the Presenter demo as the fallback if the network misbehaves.
+
+## 9. Troubleshooting
 
 | Symptom | Cause | Fix |
 |---|---|---|
@@ -212,8 +252,10 @@ section that links to the screens above and to this guide.
 | Risk card says "could not reach the local ML service" | Backend stopped mid-session | restart the backend and resend the message |
 | Analyze mode shows "Analysis failed" | Backend offline or the request was rejected | press Retry, then check the technical details line |
 | Charts look empty on a screenshot | They render instantly now, so a reload fixes a partial capture | reload the page |
+| Chat history is empty after a restart | The SQLite file was deleted, or the app runs in a different folder | check for `web/data/chat.sqlite`; the file is created on first use |
+| Rename or delete does nothing | The write request was blocked | reload the page and try again; the local database must be writable |
 
-## 9. Where the numbers come from
+## 10. Where the numbers come from
 
 | Screen element | Source |
 |---|---|
@@ -223,6 +265,8 @@ section that links to the screens above and to this guide.
 | Presenter demo | the same artifact files, no network calls |
 | Version badge in the header | `artifacts/results/manifest.json` |
 | Feedback thumbs | appended to `data/processed/feedback_log.jsonl` (local, gitignored) |
+| Chat titles and message history | `web/data/chat.sqlite` (local SQLite, gitignored, created on first use) |
+| Readiness checks | live probes of `/api/ml/health`, `/api/chat`, `/api/ml/index`, plus the artifact files |
 
 Nothing in the interface is typed by hand. If an artifact is missing, the
 screen shows a dash or an empty state instead of a fake number.

@@ -5,6 +5,7 @@ import {
   ChevronDown,
   FileText,
   Globe,
+  History,
   Info,
   Loader2,
   MessagesSquare,
@@ -29,6 +30,7 @@ export interface ContextBarProps {
   uploadError: string | null;
   onUpload: (files: FileList | File[]) => void;
   onClearDocuments: () => void;
+  onOpenHistory?: () => void;
 }
 
 export function ContextBar({
@@ -44,6 +46,7 @@ export function ContextBar({
   uploadError,
   onUpload,
   onClearDocuments,
+  onOpenHistory,
 }: ContextBarProps) {
   const [open, setOpen] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -79,6 +82,16 @@ export function ContextBar({
       {/* Controls row */}
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-border/40 px-4 py-2.5">
         <div className="flex flex-wrap items-center gap-1.5">
+          {onOpenHistory && (
+            <button
+              type="button"
+              onClick={onOpenHistory}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border/70 bg-secondary/50 px-2.5 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground lg:hidden"
+            >
+              <History className="w-3.5 h-3.5" aria-hidden />
+              Chats
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
