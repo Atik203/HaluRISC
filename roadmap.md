@@ -8,7 +8,7 @@
 >
 > Both phases are finished and verified end to end. Version A: leakage-free grouped split, corrected artifacts (XGBoost F1 0.9842 / AUROC 0.9982), API + tests + portable Colab notebook. Version B: B1 unified data, B2 baselines, B3 cross-domain, B4 calibration under shift, B5 explanation reliability, B6 reproducibility, B7 research UI, B7.5 conversational tiers 1–4, B7.6 evidence-domain display score (206 tests, build + lint green, `ALL ARTIFACTS VERIFIED`).
 >
-> **Manuscripts are complete in two formats.** `report/paper.tex` (course format, 15-page clean build, hyperlinked citations, all Version B numbers) with `report/proposal.tex`, and `Journal_Paper/halurisc.tex` (Elsevier CAS single-column, 14-page clean build, six-section journal skeleton, 25 verified references). The API serves the evidence-domain display score (B4 natural isotonic + per-claim adjustment) instead of the blanket-99% HaluEval-Platt score.
+> **Manuscript is complete.** `Journal_Paper/halurisc.tex` (Elsevier CAS single-column, 15-page clean build, six-section journal skeleton, 25 verified references) is the submission draft. The earlier course-format manuscript (`report/paper.tex` with `report/proposal.tex`) was retired in September 2026; its sources remain in git history. The API serves the evidence-domain display score (B4 natural isotonic + per-claim adjustment) instead of the blanket-99% HaluEval-Platt score.
 >
 > **Later additions (2026-09-17):** the B5.5 expert audit was completed (AI-assisted two passes, 23/26 agreement; sheet and tally in `artifacts/results/b5/`), the HaluEval answer-length confound was quantified (`b5_length_error_analysis.csv`) and folded into the journal manuscript, and HaluEval provenance was pinned (commit + SHA-256 in `revision.json` and the license manifest). `blueprint.md` is now a single unified design document.
 >
@@ -61,8 +61,7 @@ HaluRISC/
 ├── blueprint.md            # research blueprint (source of truth)
 ├── proposal.md             # supervisor proposal (Markdown copy)
 ├── roadmap.md              # this file
-├── report/                 # course-format manuscript (paper.tex) + proposal + figures/screenshots
-├── Journal_Paper/          # journal-format manuscript (halurisc.tex, CAS single column) + ref.bib + class files
+├── Journal_Paper/          # journal manuscript (halurisc.tex, CAS single column) + ref.bib + class files + figures/screenshots
 ├── docs/                   # phase guides: b5 (manual review), b6 (reproducibility), b7 (UI), frozen manifest
 ├── configs/                # version_b.yaml (run_all protocol)
 ├── data/
@@ -151,6 +150,7 @@ All four tiers live: auto risk cards per answer (T1), per-claim NLI verdicts wit
 
 ### B8 — Manuscript & delivery — ✅ DONE (2026-08-10/11)
 `report/paper.tex` rewritten as a modular document (intro, literature review, methodology, experimental setup, results, system, discussion, conclusion, reproducibility) with only verified Version B numbers, student-register prose (`report/paper_prompt.md`), hyperlinked citations, and vendored figures (pipeline infographic, system architecture, reliability/calibration/transfer diagrams). `report/proposal.tex` and `proposal.pdf` updated to Version B. All five 2026 citations verified against live sources and fixed in `ref.bib` (Luna authors, IJERT authors, IEEE TAI authors, Multimedia authors, SpikeScore ICLR). Later addition: the journal-format manuscript `Journal_Paper/halurisc.tex` (Elsevier CAS single-column, six-section skeleton, 25 references verified 2026-09-17, 14-page clean build) with the length-confound table and the audit paragraph.
+_(Superseded 2026-09-20: the course-format sources were retired, its figures and screenshots moved into `Journal_Paper/`, and the journal manuscript is now the single submission artifact. The paths above describe the state at the time.)_
 
 ---
 
@@ -211,8 +211,8 @@ The manuscript is written; everything left is manual review and final pre-submis
 ### 17.2 Pre-submission delivery (paper work only)
 
 1. The B5.5 sheet is filled (17.1). Claim-eval and feedback labels remain optional inputs if those numbers should appear in the paper.
-2. Click through every DOI/URL at submission time: `report/ref.bib` (18 entries, verified 2026-08-11; `ieeeTai` DOI must be re-checked on ieeexplore, which blocks scraping) and `Journal_Paper/ref.bib` (25 entries, verified 2026-09-17).
-3. If desired, update the System chapter screenshots (`report/screenshots/*.png`) to the latest chat auto-risk card, then rebuild both manuscripts: `latexmk -pdf -outdir=out paper.tex` (from `report/`) and `latexmk -pdf -outdir=out halurisc.tex` (from `Journal_Paper/`).
+2. Click through every DOI/URL at submission time in `Journal_Paper/ref.bib` (25 entries, verified 2026-09-17); the `ieeeTai` DOI must be re-checked on ieeexplore, which blocks scraping.
+3. If desired, update the System screenshots (`Journal_Paper/screenshots/*.png`) to the latest chat auto-risk card, then rebuild: `latexmk -pdf -outdir=out halurisc.tex` (from `Journal_Paper/`).
 4. Prepare the 5-minute demo script: problem → grounded example → unsupported example → explanation → calibration/shift result → failure case → efficiency. The offline `/demo` page already contains the material.
 5. Pick the journal venue and recheck scope, quartile, APC, and author guidelines at submission time. The CAS single-column manuscript in `Journal_Paper/` is the submission draft.
 
