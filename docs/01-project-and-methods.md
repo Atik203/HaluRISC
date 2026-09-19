@@ -542,7 +542,7 @@ Three calibration layers exist, and they are separate by design:
 
 ### 5.1 Architecture
 
-![HaluRISC pipeline](../report/figures/architecture.png)
+![HaluRISC pipeline](../Journal_Paper/figures/architecture.png)
 
 Two tiers, one process boundary:
 
@@ -556,7 +556,7 @@ Two tiers, one process boundary:
   SBERT) **once at startup**. One worker, no `--reload`, an inference lock for
   CUDA feature extraction, bounded inputs, and an LRU feature cache.
 
-![System architecture](../report/figures/system_architecture.png)
+![System architecture](../Journal_Paper/figures/system_architecture.png)
 
 The publication architecture is intentionally a monolith: no microservices, no
 database beyond JSON/JSONL logs, and no authentication or user management.

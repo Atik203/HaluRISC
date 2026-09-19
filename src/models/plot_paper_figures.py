@@ -9,8 +9,8 @@ Regenerate the two figures whose plotted content did not match their captions.
   2. b3/transfer_score_distributions.png raw model scores, source + zero-shot corpora
      Panels: HaluEval test | RAGTruth QA test | RAGTruth all | FaithBench
 
-Both files are written to artifacts/figures/ and copied into report/figures/
-(both manuscripts resolve figures from report/figures first).
+Both files are written to artifacts/figures/ and copied into Journal_Paper/figures/
+(the journal manuscript resolves figures from Journal_Paper/figures first).
 
 Run (repo root, .venv):
   python src/models/plot_paper_figures.py
@@ -30,7 +30,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[2]
 FIG_ARTIFACTS = ROOT / "artifacts" / "figures"
-FIG_REPORT = ROOT / "report" / "figures"
+FIG_PAPER = ROOT / "Journal_Paper" / "figures"
 
 THRESHOLD = 0.5
 SEED = 42
@@ -99,8 +99,8 @@ def calibration_shift() -> None:
     out = FIG_ARTIFACTS / "b4" / "calibration_shift.png"
     fig.savefig(out, dpi=DPI)
     plt.close(fig)
-    shutil.copyfile(out, FIG_REPORT / "b4" / "calibration_shift.png")
-    print(f"wrote {out.relative_to(ROOT)} and report/figures/b4/calibration_shift.png")
+    shutil.copyfile(out, FIG_PAPER / "b4" / "calibration_shift.png")
+    print(f"wrote {out.relative_to(ROOT)} and Journal_Paper/figures/b4/calibration_shift.png")
 
 
 def transfer_scores() -> None:
@@ -139,8 +139,8 @@ def transfer_scores() -> None:
     out = FIG_ARTIFACTS / "b3" / "transfer_score_distributions.png"
     fig.savefig(out, dpi=DPI)
     plt.close(fig)
-    shutil.copyfile(out, FIG_REPORT / "b3" / "transfer_score_distributions.png")
-    print(f"wrote {out.relative_to(ROOT)} and report/figures/b3/transfer_score_distributions.png")
+    shutil.copyfile(out, FIG_PAPER / "b3" / "transfer_score_distributions.png")
+    print(f"wrote {out.relative_to(ROOT)} and Journal_Paper/figures/b3/transfer_score_distributions.png")
 
 
 if __name__ == "__main__":
