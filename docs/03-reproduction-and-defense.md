@@ -383,7 +383,7 @@ brings the artifacts back.
 **Q: What exactly is frozen?**
 `docs/manifest.frozen.json` plus the artifact hashes, split indices, dataset
 revisions and SHA-256 hashes, seeds, package versions, and hardware. Every
-number in both manuscripts traces to a file covered by that manifest.
+number in the manuscript traces to a file covered by that manifest.
 
 ## 12. Do-Not-Say List
 

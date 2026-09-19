@@ -1,9 +1,9 @@
 # HaluRISC — Project Blueprint (Unified)
 
-**Status: complete.** All experiments, the deployed system, and both manuscripts
-(course format and journal format) are finished and verified against frozen
-artifacts. This document is the **single source of truth** for the research
-design, scientific claims, and scope.
+**Status: complete.** All experiments, the deployed system, and the journal
+manuscript are finished and verified against frozen artifacts. This document is
+the **single source of truth** for the research design, scientific claims, and
+scope.
 
 The earlier two-version structure is historical, not operational. Version A was
 the 8-week course deliverable, frozen on branch `version-A`; Version B was the
@@ -70,14 +70,17 @@ and a presentation-quality web dashboard.
 **Name:** HaluRISC (Hallucination Risk Scoring and Calibration). Always expand
 the acronym on first use.
 
-**Titles in use:**
+**Title in use:**
 
-- Course-format manuscript (`report/`): *HaluRISC: A Calibrated and Explainable
-  Machine Learning Framework for Hallucination Risk Prediction in Black-Box LLM
-  Outputs*
-- Journal-format manuscript (`Journal_Paper/halurisc.tex`, Elsevier CAS
-  single-column): *HaluRISC: Cross-Domain Calibrated and Explainable
-  Hallucination Risk Estimation for Black-Box LLM Responses*
+- Journal manuscript (`Journal_Paper/halurisc.tex`, Elsevier CAS single-column):
+  *HaluRISC: Cross-Domain Calibrated and Explainable Hallucination Risk
+  Estimation for Black-Box LLM Responses*
+
+The earlier course-format manuscript (*HaluRISC: A Calibrated and Explainable
+Machine Learning Framework for Hallucination Risk Prediction in Black-Box LLM
+Outputs*, formerly in `report/`) was retired in September 2026. Its sources
+remain available in git history, and the journal manuscript is now the single
+submission artifact.
 
 **Framing rule:** predict **risk**, not truth. HaluRISC flags answers that are
 unsupported by, or contradictory to, the available evidence. It never inspects
@@ -492,25 +495,27 @@ and 1,310 ms median, versus 0.985 at 61.8 ms for HaluRISC (McNemar
 
 ## 12. Paper and submission plan
 
-### 12.1 Manuscripts (both complete)
+### 12.1 Manuscript (complete)
 
 | Format | Entry point | Build |
 | --- | --- | --- |
-| Course/term (article class, 15 pages) | `report/paper.tex` (`\input` modules) | `latexmk -pdf -outdir=out paper.tex` from `report/` |
-| Journal (Elsevier CAS single column, 14 pages) | `Journal_Paper/halurisc.tex` | `latexmk -pdf -outdir=out halurisc.tex` from `Journal_Paper/` |
+| Journal (Elsevier CAS single column, 15 pages) | `Journal_Paper/halurisc.tex` | `latexmk -pdf -outdir=out halurisc.tex` from `Journal_Paper/` |
 
-- `report/proposal.tex` + PDF is the supervisor proposal.
-- Writing register follows `report/paper_prompt.md` in both manuscripts.
+- Figures resolve from `Journal_Paper/figures/` and `Journal_Paper/screenshots/`;
+  `src/models/plot_paper_figures.py` refreshes the shift and transfer figures.
+- The retired course-format manuscript, its proposal, and its reference database
+  remain in git history only.
+- Writing register follows `docs/prompt.md` (student register).
 - The journal manuscript uses the CAS sample's six-section skeleton
   (Introduction, Conventional Method, Proposed Method, Experiment, Results,
   Conclusion) plus Declarations, and cites 25 verified references.
 
 ### 12.2 Submission checklist
 
-1. Click through every DOI/URL in `report/ref.bib` (18 entries) and
-   `Journal_Paper/ref.bib` (25 entries) at submission time; the `ieeeTai` DOI
-   in particular must be re-checked on IEEE Xplore, which blocks scraping.
-2. Confirm every number in both manuscripts against the frozen manifest
+1. Click through every DOI/URL in `Journal_Paper/ref.bib` (25 entries) at
+   submission time; the `ieeeTai` DOI in particular must be re-checked on IEEE
+   Xplore, which blocks scraping.
+2. Confirm every number in the manuscript against the frozen manifest
    (`docs/manifest.frozen.json`).
 3. Decide the venue, then check scope, quartile, APC, and author guidelines.
 4. Optional: refresh the System chapter screenshots and the 5-minute demo
@@ -577,7 +582,7 @@ these are the only references currently cited in the manuscripts.
 
 ## 16. Final verdict
 
-Both phases succeeded on their own terms. The course-format deliverable is a
+Both phases succeeded on their own terms. The course phase produced a
 paper-first applied ML project with a working demo, clean experiments,
 statistical tests, SHAP explanations, and a polished dashboard. The publication
 extension adds leakage-controlled cross-domain evaluation, calibration under
