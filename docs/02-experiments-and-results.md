@@ -11,6 +11,10 @@ explains what was measured and what it means. The normative claims live in
 heuristic) run once. The test split is used once; tuning and calibration fitting
 never touch it.
 
+<!-- Figures below are committed copies under docs/figures/ because
+artifacts/figures/ is gitignored and GitHub cannot render ignored files.
+When a figure is regenerated, update the copy here as well. -->
+
 ## Contents
 
 - [1. Reading Guide and Artifact Map](#1-reading-guide-and-artifact-map)
@@ -70,7 +74,7 @@ Test set: HaluEval QA, n = 3,000, grouped split, mean over seeds. Source:
 | Random forest | 0.9897 | 0.9789 | 0.9842 | 0.9980 | 0.9983 | 0.9687 |
 | **XGBoost (ours)** | **0.9932** | **0.9762** | **0.9846** | **0.9979** | **0.9983** | **0.9697** |
 
-![ROC and PR curves](../artifacts/figures/fig_roc_pr.png)
+![ROC and PR curves](figures/fig_roc_pr.png)
 
 **Significance (McNemar on paired test predictions, `b2_statistical_tests.json`):**
 
@@ -126,7 +130,7 @@ Source: `b4/b4_calibration_metrics.csv`, `b4/b4_reliability_data.json`.
 | Platt (sigmoid) | 0.985 | 0.0091 | 0.0129 | 0.058 |
 | Isotonic | 0.984 | 0.0070 | 0.0124 | 0.073 |
 
-![Reliability diagrams](../artifacts/figures/b4/reliability_diagrams.png)
+![Reliability diagrams](figures/reliability_diagrams.png)
 
 **This is a negative result, and it is reported as one.** XGBoost with a
 logistic objective is already well calibrated on HaluEval; Platt and isotonic
@@ -146,7 +150,7 @@ RAGTruth QA rows; all numbers are on the disjoint 900-row test set.
 | **Target Platt (fitted on RAGTruth)** | **0.1335** | 0.1639 | 0.51 | 0.000 |
 | **Target isotonic (fitted on RAGTruth)** | **0.1316** | 0.1663 | 0.53 | 0.000 |
 
-![Calibration shift](../artifacts/figures/b4/calibration_shift.png)
+![Calibration shift](figures/calibration_shift.png)
 
 **Interpretation.** Out of domain the raw model is badly miscalibrated: it
 predicts near-certainty for almost every sample, so ECE sits above 0.8. A
@@ -178,14 +182,14 @@ AUROC stays near chance (0.5). This is the **central negative result** of the
 project: synthetic HaluEval patterns do not transfer to naturally generated
 responses.
 
-![Transfer score distributions](../artifacts/figures/b3/transfer_score_distributions.png)
+![Transfer score distributions](figures/transfer_score_distributions.png)
 
 **Task breakdown (RAGTruth):** F1 0.4515 on QA, 0.4603 on summarization, 0.8140
 on data-to-text (where answers closely mirror the structured input).
 **Context length:** F1 rises from 0.4940 (context < 128 chars) to 0.7091
 (128–511 chars), suggesting the model needs enough evidence text to work with.
 
-![In-domain vs out-of-domain](../artifacts/figures/b3/in_domain_vs_ood.png)
+![In-domain vs out-of-domain](figures/in_domain_vs_ood.png)
 
 **Label sensitivity:** the FaithBench worst-severity mapping was pre-registered,
 and a sensitivity check confirms that changing the mapping changes labels but
@@ -227,7 +231,7 @@ Sources: `b5/b5_feature_importance.json`, `b5/b5_stability_bootstrap.json`,
 `b5/b5_neutralization.json`, `b5/b5_perturbations.csv`,
 `b5/b5_perturbation_aggregates.csv`, `b5/b5_failure_cases.json`.
 
-![Mean absolute SHAP importance](../artifacts/figures/fig_shap_importance_b5.png)
+![Mean absolute SHAP importance](figures/shap_importance_b5.png)
 
 **Importance triangulation.** The mean-|SHAP| ranking agrees with permutation
 importance at **Kendall τ = 0.66**. Disagreement is concentrated in

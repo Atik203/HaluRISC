@@ -100,8 +100,7 @@ HaluRISC/
 ├── blueprint.md          # unified research source of truth
 ├── roadmap.md            # implementation record (guidance only)
 ├── requirements.txt      # EXACT pins only (==)
-├── report/               # course-format manuscript (paper.tex) + proposal + figures/screenshots
-├── Journal_Paper/        # journal-format manuscript (halurisc.tex, CAS single column) + ref.bib
+├── Journal_Paper/        # journal manuscript (halurisc.tex, CAS single column) + ref.bib + figures/screenshots
 ├── docs/                 # phase guides (b5/b6/b7) + frozen manifest
 ├── configs/              # version_b.yaml (run_all protocol)
 ├── colab/                # self-contained training notebook
@@ -203,8 +202,8 @@ pnpm run lint   # eslint (flat config, eslint 9)
 
 ## 9. Paper Writing Rules
 
-1. **Student-register guide:** `report/paper_prompt.md` is the operative writing guide for the paper. Load it at the start of any paper-writing session and follow every rule (burstiness, vocabulary blacklist, no em-dashes/semicolons, max one transition per 2–3 paragraphs, inline citations, active voice, no first-person in formal sections).
-2. **Source of truth:** all numbers in `report/*.tex` and `Journal_Paper/halurisc.tex` MUST come from verified artifacts (`artifacts/results/*`, `docs/manifest.frozen.json`). The old draft numbers (0.9886, 0.4822, 137 ms, ECE 0.0115) are stale and must not be reintroduced.
-3. **Build:** compile both manuscripts with TeX Live 2025: `latexmk -pdf -outdir=out paper.tex` from `report/`, and `latexmk -pdf -outdir=out halurisc.tex` from `Journal_Paper/`. Verify clean builds (no unresolved citations; 12-16 pages course format, 13-16 pages journal format) before finishing paper work.
-4. **References:** `report/ref.bib` (18 entries) and `Journal_Paper/ref.bib` (25 entries) are all verified against real publications. Do not add references without web verification. The course manuscript uses `Literature Review` (never `Related Work`); the journal manuscript follows the CAS sample and names that chapter `Conventional Method`.
+1. **Student-register guide:** `docs/prompt.md` is the operative writing guide for the paper. Load it at the start of any paper-writing session and follow every rule (burstiness, vocabulary blacklist, no em-dashes/semicolons, max one transition per 2–3 paragraphs, inline citations, active voice, no first-person in formal sections).
+2. **Source of truth:** all numbers in `Journal_Paper/halurisc.tex` MUST come from verified artifacts (`artifacts/results/*`, `docs/manifest.frozen.json`). The old draft numbers (0.9886, 0.4822, 137 ms, ECE 0.0115) are stale and must not be reintroduced.
+3. **Build:** compile the manuscript with TeX Live 2025: `latexmk -pdf -outdir=out halurisc.tex` from `Journal_Paper/`. Verify a clean build (no unresolved citations; 13-16 pages journal format) before finishing paper work. Figures resolve from `Journal_Paper/figures/` and `Journal_Paper/screenshots/` first; `src/models/plot_paper_figures.py` refreshes the two shift/transfer figures.
+4. **References:** `Journal_Paper/ref.bib` (25 entries) is verified against real publications. Do not add references without web verification. The manuscript follows the CAS sample and names that chapter `Conventional Method`.
 5. **Audit provenance:** the B5.5 explanation audit was performed with an AI assistant (two review passes, `review_mode = ai-expert` in `artifacts/results/b5/b5_review_cases_reviewed.csv`). Never describe it as a two-human-reviewer study, and always state the error-enriched sampling caveat wherever its numbers appear.
