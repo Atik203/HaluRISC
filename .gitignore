@@ -12,6 +12,9 @@ data/raw/
 data/processed/*.parquet
 !data/processed/.gitkeep
 
+# Runtime retrieval index built from uploaded documents (Chat mode)
+data/processed/retrieval_index/
+
 # Models & Artifacts
 artifacts/models/*
 !artifacts/models/.gitkeep
