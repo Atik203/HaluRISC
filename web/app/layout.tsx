@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import localFont from "next/font/local";
 import "./globals.css";
 import { NavBar } from "@/components/nav-bar";
@@ -63,15 +64,18 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem("halurisc-theme");if(t==="light"){document.documentElement.classList.remove("dark")}else{document.documentElement.classList.add("dark")}}catch(e){document.documentElement.classList.add("dark")}try{if(localStorage.getItem("halurisc-projector")==="on"){document.documentElement.classList.add("projector")}}catch(e){}})();`,
-          }}
-        />
+        {/* HaluRISC ships its own dark theme; keep Dark Reader from injecting
+            inline attributes that break React hydration. */}
+        <meta name="darkreader-lock" />
       </head>
       <body
         className={`${instrument.variable} ${newsreader.variable} ${jetbrains.variable} font-sans min-h-screen flex flex-col bg-background text-foreground antialiased`}
       >
+        {/* Applied before hydration to avoid a theme flash; Next hoists this
+            into the document head (raw <script> in a component logs an error). */}
+        <Script id="halurisc-theme-init" strategy="beforeInteractive">
+          {`(function(){try{var t=localStorage.getItem("halurisc-theme");if(t==="light"){document.documentElement.classList.remove("dark")}else{document.documentElement.classList.add("dark")}}catch(e){document.documentElement.classList.add("dark")}try{if(localStorage.getItem("halurisc-projector")==="on"){document.documentElement.classList.add("projector")}}catch(e){}})();`}
+        </Script>
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-primary focus:text-primary-foreground"
