@@ -51,6 +51,13 @@
 \ExplSyntaxOff
 % No ORCID identifiers are used, so hide the empty ORCID footnote.
 \RenewDocumentCommand \printorcid { } { }
+% The CAS class draws email/URL icons from a thumbnails/ folder. Uploads that
+% do not carry that folder fail with "File `thumbnails/cas-email.jpeg' not
+% found" and the author footnote breaks. The class has a no-logo mode, so the
+% email footnote prints as plain text and the document needs no image assets.
+\ExplSyntaxOn
+\bool_gset_true:N \g_stm_nologo_bool
+\ExplSyntaxOff
 %%%Author definitions
 \def\tsc#1{\csdef{#1}{\textsc{\lowercase{#1}}\xspace}}
 %%%
@@ -98,7 +105,7 @@
     postcode={1212},
     country={Bangladesh}}
 
-\cortext[cor1]{Corresponding author: Md. Atikur Rahaman (mrahaman2310298@bscse.uiu.ac.bd)}
+\cortext[cor1]{Corresponding author: Md. Atikur Rahaman}
 
 % Abstract
 \linenumbers
