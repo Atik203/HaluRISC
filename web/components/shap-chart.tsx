@@ -130,7 +130,7 @@ export function ShapChart({ features, baseValue }: ShapChartProps) {
               {data.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={entry.impact >= 0 ? "#ef4444" : "#22c55e"}
+                  fill={entry.impact >= 0 ? "var(--risk-high)" : "var(--risk-low)"}
                 />
               ))}
             </Bar>
