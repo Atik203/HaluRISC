@@ -38,38 +38,59 @@
   --atmosphere-2: rgba(56, 189, 248, 0.08);
   --atmosphere-3: rgba(99, 102, 241, 0.07);
   --grain-opacity: 0.015;
+  /* Semantic risk + chart colors (shared by gauge, cards, tables, charts) */
+  --risk-low: hsl(160 84% 33%);
+  --risk-medium: hsl(35 92% 44%);
+  --risk-high: hsl(347 77% 46%);
+  --chart-violet: hsl(262 83% 58%);
+  --chart-indigo: hsl(243 75% 59%);
+  --chart-cyan: hsl(199 89% 48%);
+  --chart-rose: hsl(347 77% 50%);
+  --chart-emerald: hsl(160 84% 39%);
+  --chart-gray: hsl(215 16% 47%);
 }
 
 .dark {
   color-scheme: dark;
-  --background: hsl(248 26% 5%);
-  --foreground: hsl(250 20% 97%);
-  --card: hsl(248 22% 9%);
-  --card-foreground: hsl(250 20% 97%);
-  --popover: hsl(248 22% 9%);
-  --popover-foreground: hsl(250 20% 97%);
-  --primary: hsl(255 86% 70%);
-  --primary-foreground: hsl(255 60% 12%);
-  --secondary: hsl(248 16% 14%);
-  --secondary-foreground: hsl(250 20% 95%);
-  --muted: hsl(248 16% 14%);
-  --muted-foreground: hsl(250 12% 70%);
-  --accent: hsl(255 86% 70%);
-  --accent-foreground: hsl(255 60% 12%);
-  --destructive: hsl(0 84% 62%);
+  /* Deeper base + brighter surfaces give the panels visible elevation */
+  --background: hsl(250 32% 4%);
+  --foreground: hsl(250 24% 98%);
+  --card: hsl(249 26% 8.5%);
+  --card-foreground: hsl(250 24% 98%);
+  --popover: hsl(249 26% 10%);
+  --popover-foreground: hsl(250 24% 98%);
+  --primary: hsl(256 92% 74%);
+  --primary-foreground: hsl(255 60% 10%);
+  --secondary: hsl(249 20% 13%);
+  --secondary-foreground: hsl(250 22% 96%);
+  --muted: hsl(249 20% 13%);
+  --muted-foreground: hsl(251 18% 74%);
+  --accent: hsl(256 92% 74%);
+  --accent-foreground: hsl(255 60% 10%);
+  --destructive: hsl(0 84% 66%);
   --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(248 14% 19%);
-  --input: hsl(248 14% 19%);
-  --ring: hsl(255 86% 70%);
-  --gauge-track: rgba(255, 255, 255, 0.09);
-  --gauge-needle: hsl(250 20% 97%);
-  --glass: rgba(19, 18, 28, 0.68);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-highlight: rgba(255, 255, 255, 0.04);
-  --atmosphere-1: rgba(124, 58, 237, 0.16);
-  --atmosphere-2: rgba(56, 189, 248, 0.09);
-  --atmosphere-3: rgba(99, 102, 241, 0.11);
-  --grain-opacity: 0.03;
+  --border: hsl(249 18% 17%);
+  --input: hsl(249 18% 17%);
+  --ring: hsl(256 92% 74%);
+  --gauge-track: rgba(255, 255, 255, 0.10);
+  --gauge-needle: hsl(250 24% 98%);
+  --glass: rgba(17, 16, 27, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.09);
+  --glass-highlight: rgba(255, 255, 255, 0.05);
+  --atmosphere-1: rgba(124, 58, 237, 0.20);
+  --atmosphere-2: rgba(56, 189, 248, 0.10);
+  --atmosphere-3: rgba(99, 102, 241, 0.14);
+  --grain-opacity: 0.035;
+  /* Semantic risk + chart colors (shared by gauge, cards, tables, charts) */
+  --risk-low: hsl(158 68% 54%);
+  --risk-medium: hsl(43 96% 60%);
+  --risk-high: hsl(351 92% 68%);
+  --chart-violet: hsl(258 92% 74%);
+  --chart-indigo: hsl(239 88% 74%);
+  --chart-cyan: hsl(198 95% 68%);
+  --chart-rose: hsl(351 92% 68%);
+  --chart-emerald: hsl(160 84% 56%);
+  --chart-gray: hsl(250 14% 64%);
 }
 
 @theme inline {
@@ -197,6 +218,10 @@
     background: var(--border);
     border-radius: 999px;
     border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in oklab, var(--primary) 45%, var(--border));
     background-clip: content-box;
   }
 

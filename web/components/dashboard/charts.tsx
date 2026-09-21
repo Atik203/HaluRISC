@@ -16,12 +16,12 @@ import {
 
 /** Client chart components (recharts) for the dashboard tabs. */
 
-const VIOLET = "#8b5cf6";
-const INDIGO = "#6366f1";
-const CYAN = "#38bdf8";
-const ROSE = "#f43f5e";
-const EMERALD = "#10b981";
-const GRAY = "#94a3b8";
+const VIOLET = "var(--chart-violet)";
+const INDIGO = "var(--chart-indigo)";
+const CYAN = "var(--chart-cyan)";
+const ROSE = "var(--chart-rose)";
+const EMERALD = "var(--chart-emerald)";
+const GRAY = "var(--chart-gray)";
 
 const AXIS = "var(--muted-foreground)";
 const GRID = "rgba(148, 163, 184, 0.18)";

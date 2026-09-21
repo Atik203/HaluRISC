@@ -134,20 +134,20 @@ function tone(label: string): {
   if (label === "high_risk")
     return {
       cls: "border-rose-500/40 bg-rose-500/10 text-rose-700 dark:text-rose-300",
-      bar: "#ef4444",
+      bar: "var(--risk-high)",
       headline: "Likely hallucinated",
       Icon: ShieldAlert,
     };
   if (label === "medium_risk")
     return {
       cls: "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300",
-      bar: "#eab308",
+      bar: "var(--risk-medium)",
       headline: "Needs a closer look",
       Icon: ShieldQuestion,
     };
   return {
     cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
-    bar: "#22c55e",
+      bar: "var(--risk-low)",
     headline: "Grounded in the evidence",
     Icon: ShieldCheck,
   };

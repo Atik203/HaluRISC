@@ -10,10 +10,19 @@ interface RiskGaugeProps {
 }
 
 const LABELS: Record<string, { color: string; text: string }> = {
-  low_risk: { color: "#22c55e", text: "Low Risk" },
-  medium_risk: { color: "#eab308", text: "Medium Risk" },
-  high_risk: { color: "#ef4444", text: "High Risk" },
+  low_risk: { color: "var(--risk-low)", text: "Low Risk" },
+  medium_risk: { color: "var(--risk-medium)", text: "Medium Risk" },
+  high_risk: { color: "var(--risk-high)", text: "High Risk" },
 };
+
+function riskColor(label?: string, percentage?: number): string {
+  const fromLabel = label ? LABELS[label]?.color : undefined;
+  if (fromLabel) return fromLabel;
+  const pct = percentage ?? 0;
+  if (pct >= 70) return "var(--risk-high)";
+  if (pct >= 30) return "var(--risk-medium)";
+  return "var(--risk-low)";
+}
 
 /** Polar point on the semicircle: f=0 → left, f=0.5 → top, f=1 → right. */
 function arcPoint(fraction: number, radius: number): { x: number; y: number } {
@@ -27,7 +36,7 @@ export function RiskGauge({ score, label, thresholds, latencyMs }: RiskGaugeProp
 
   // API label is authoritative; fall back to percentage bands only if absent
   const fromLabel = label ? LABELS[label] : undefined;
-  const statusColor = fromLabel?.color ?? (percentage >= 70 ? "#ef4444" : percentage >= 30 ? "#eab308" : "#22c55e");
+  const statusColor = riskColor(label, percentage);
   const statusText = fromLabel?.text ?? (percentage >= 70 ? "High Risk" : percentage >= 30 ? "Medium Risk" : "Low Risk");
 
   const ticks = [thresholds?.low, thresholds?.medium].filter(
@@ -45,9 +54,9 @@ export function RiskGauge({ score, label, thresholds, latencyMs }: RiskGaugeProp
         <svg viewBox="0 0 200 110" className="w-full h-full" aria-hidden>
           <defs>
             <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#22c55e" />
-              <stop offset="50%" stopColor="#eab308" />
-              <stop offset="100%" stopColor="#ef4444" />
+              <stop offset="0%" stopColor="var(--risk-low)" />
+              <stop offset="50%" stopColor="var(--risk-medium)" />
+              <stop offset="100%" stopColor="var(--risk-high)" />
             </linearGradient>
           </defs>
 
@@ -95,9 +104,9 @@ export function RiskGauge({ score, label, thresholds, latencyMs }: RiskGaugeProp
       <div
         className="mt-3 rounded-full px-4 py-1 text-xs font-semibold uppercase tracking-wider"
         style={{
-          backgroundColor: `${statusColor}1f`,
+          backgroundColor: `color-mix(in srgb, ${statusColor} 12%, transparent)`,
           color: statusColor,
-          border: `1px solid ${statusColor}55`,
+          border: `1px solid color-mix(in srgb, ${statusColor} 34%, transparent)`,
         }}
       >
         {statusText}
