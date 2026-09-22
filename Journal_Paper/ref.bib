@@ -1,7 +1,9 @@
 % HaluRISC journal manuscript references.
 % Citation keys match \cite{} usage in halurisc.tex.
-% Every entry verified against ACL Anthology / arXiv / DOI before insertion
-% (2026-09-17). Re-check DOIs at submission time (roadmap §17.3).
+% Every entry verified against ACL Anthology / arXiv / DOI / Crossref before
+% insertion (first pass 2026-09-17; extended 2026-09-23 with the survey,
+% semantic-entropy, MiniCheck, and RAGAs entries).
+% Re-check DOIs at submission time (roadmap §17.3).
 
 @inproceedings{haluEval,
   author    = {Li, Junyi and Cheng, Xiaoxue and Zhao, Wayne Xin and Nie, Jian-Yun and Wen, Ji-Rong},
@@ -236,4 +238,61 @@
   year      = {2020},
   doi       = {10.5281/zenodo.1212303},
   url       = {https://spacy.io/},
+}
+
+% --- Added 2026-09-23 (verified via Crossref) ---
+
+@article{farquhar2024semantic,
+  author  = {Farquhar, Sebastian and Kossen, Jannik and Kuhn, Lorenz and Gal, Yarin},
+  title   = {Detecting hallucinations in large language models using semantic entropy},
+  journal = {Nature},
+  volume  = {630},
+  number  = {8017},
+  pages   = {625--630},
+  year    = {2024},
+  doi     = {10.1038/s41586-024-07421-0},
+  url     = {https://doi.org/10.1038/s41586-024-07421-0},
+}
+
+@article{huang2025survey,
+  author  = {Huang, Lei and Yu, Weijiang and Ma, Weitao and Zhong, Weihong and Feng, Zhangyin and Wang, Haotian and Chen, Qianglong and Peng, Weihua and Feng, Xiaocheng and Qin, Bing and Liu, Ting},
+  title   = {A Survey on Hallucination in Large Language Models: Principles, Taxonomy, Challenges, and Open Questions},
+  journal = {ACM Transactions on Information Systems},
+  volume  = {43},
+  number  = {2},
+  pages   = {1--55},
+  year    = {2025},
+  doi     = {10.1145/3703155},
+  url     = {https://doi.org/10.1145/3703155},
+}
+
+@article{alansari2026survey,
+  author  = {Alansari, Aisha and Luqman, Hamzah},
+  title   = {Large language models hallucination: A comprehensive survey},
+  journal = {Computer Science Review},
+  volume  = {61},
+  pages   = {100970},
+  year    = {2026},
+  doi     = {10.1016/j.cosrev.2026.100970},
+  url     = {https://doi.org/10.1016/j.cosrev.2026.100970},
+}
+
+@inproceedings{minicheck2024,
+  author    = {Tang, Liyan and Laban, Philippe and Durrett, Greg},
+  title     = {MiniCheck: Efficient Fact-Checking of LLMs on Grounding Documents},
+  booktitle = {Proceedings of EMNLP},
+  pages     = {8818--8847},
+  year      = {2024},
+  doi       = {10.18653/v1/2024.emnlp-main.499},
+  url       = {https://aclanthology.org/2024.emnlp-main.499/},
+}
+
+@inproceedings{ragas2024,
+  author    = {Es, Shahul and James, Jithin and Espinosa Anke, Luis and Schockaert, Steven},
+  title     = {RAGAs: Automated Evaluation of Retrieval Augmented Generation},
+  booktitle = {Proceedings of EACL: System Demonstrations},
+  pages     = {150--158},
+  year      = {2024},
+  doi       = {10.18653/v1/2024.eacl-demo.16},
+  url       = {https://aclanthology.org/2024.eacl-demo.16/},
 }

@@ -513,11 +513,11 @@ and 1,310 ms median, versus 0.985 at 61.8 ms for HaluRISC (McNemar
 - Writing register follows `docs/prompt.md` (student register).
 - The journal manuscript uses the CAS sample's six-section skeleton
   (Introduction, Conventional Method, Proposed Method, Experiment, Results,
-  Conclusion) plus Declarations, and cites 25 verified references.
+  Conclusion) plus Declarations, and cites 30 verified references.
 
 ### 12.2 Submission checklist
 
-1. Click through every DOI/URL in `Journal_Paper/ref.bib` (25 entries) at
+1. Click through every DOI/URL in `Journal_Paper/ref.bib` (30 entries) at
    submission time; the `ieeeTai` DOI in particular must be re-checked on IEEE
    Xplore, which blocks scraping.
 2. Confirm every number in the manuscript against the frozen manifest

@@ -199,7 +199,40 @@ Changing words alone does not fix detectors. Changing edges and order does.
 
 ---
 
-## 10. Pre-Delivery Checklist
+## 10. Introduction Structure and Citation Placement (faculty requirement)
+
+The Introduction follows three paragraphs, in this order:
+
+**Paragraph 1 (current work and framing):**
+
+1. Current or ongoing work, with 3 to 4 reference papers.
+2. The research gaps or challenges.
+3. What this study does, and how.
+4. The scope of the dataset and the proposed methods.
+
+**Paragraph 2 (literature review):**
+
+- Cover 5 to 6 papers.
+- For each paper, write 1 to 2 sentences: its finding, then its lack.
+- Do not stack many papers into one sentence. One paper, one or two clear sentences.
+
+**Paragraph 3 (gap and resolution):**
+
+1. What was not done, mitigated, or solved in the literature, and why.
+2. How this study resolves those unsolved issues.
+3. Why the chosen methods and dataset suit these issues.
+4. The accepted outcomes after the experimental journey (real numbers).
+
+**Citation placement rules (apply everywhere, not only the Introduction):**
+
+- Cite at the exact claim. The citation sits in the same sentence as the borrowed fact.
+- Never write four or five lines of borrowed facts and leave a single citation at the end of the paragraph.
+- Do not cite one paper for claims that come from another paper.
+- Do not use a citation to support a claim the paper does not make. If the claim is this study's own analysis, no citation is needed.
+- When a sentence builds on two sources, cite both in that sentence.
+- Verify every new reference with a DOI, an ACL Anthology page, or a Crossref record before adding it to `ref.bib`.
+
+## 11. Pre-Delivery Checklist
 
 Check every section before Overleaf:
 
@@ -215,6 +248,7 @@ Check every section before Overleaf:
 10. **Similarity:** No pasted textbook definition. Dataset/model described in one fresh sentence + citation.
 11. **Puff check:** No `pivotal moment / broader landscape / significant shift / testament to` vague praise. Just fact + citation.
 12. **Trailing `-ing`:** No sentence ends with `, highlighting... / , demonstrating... / , ensuring...`
+13. **Citations:** Every borrowed fact is cited in its own sentence. No paragraph ends with one trailing citation for several borrowed claims. The Introduction follows the three-paragraph structure in section 10.
 
 ---
 
