@@ -67,20 +67,25 @@ features, models, system),
 LLM outputs using lightweight machine learning, evidence-consistency features,
 and a presentation-quality web dashboard.
 
-**Name:** HaluRISC (Hallucination Risk Scoring and Calibration). Always expand
-the acronym on first use.
+**Name:** HaluRISC (Hallucination Risk Scoring and Calibration). The name is kept
+for the repository, the API, and the deployed application. The manuscript title
+and text do not lead with it: the paper uses "this study" and "the proposed
+model".
 
 **Title in use:**
 
 - Journal manuscript (`Journal_Paper/halurisc.tex`, Elsevier CAS single-column):
-  *HaluRISC: Cross-Domain Calibrated and Explainable Hallucination Risk
-  Estimation for Black-Box LLM Responses*
+  *Estimating Hallucination Risk in Black-Box Large Language Model Answers with
+  Calibrated and Explainable Machine Learning*
 
-The earlier course-format manuscript (*HaluRISC: A Calibrated and Explainable
-Machine Learning Framework for Hallucination Risk Prediction in Black-Box LLM
-Outputs*, formerly in `report/`) was retired in September 2026. Its sources
-remain available in git history, and the journal manuscript is now the single
-submission artifact.
+Title rules from supervisor feedback: no colon construction, no product name in
+the title, problem stated first, method family stated second, readable as one
+sentence. Earlier titles (*HaluRISC: Cross-Domain Calibrated and Explainable
+Hallucination Risk Estimation for Black-Box LLM Responses* for the journal
+manuscript, and the retired course-format title *HaluRISC: A Calibrated and
+Explainable Machine Learning Framework for Hallucination Risk Prediction in
+Black-Box LLM Outputs*) are historical; the course-format sources remain in git
+history.
 
 **Framing rule:** predict **risk**, not truth. HaluRISC flags answers that are
 unsupported by, or contradictory to, the available evidence. It never inspects

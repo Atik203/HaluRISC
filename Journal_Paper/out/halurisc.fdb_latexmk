@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex out/halurisc"] 1789844823.50696 "out/halurisc.aux" "out/halurisc.bbl" "out/halurisc" 1790016891.4213 0
+["bibtex out/halurisc"] 1790102351.67479 "out/halurisc.aux" "out/halurisc.bbl" "out/halurisc" 1790102706.52269 0
   "./ref.bib" 1789655824 10525 5e0e510865217109ecbca5199b5c7d4c ""
   "c:/texlive/2025/texmf-dist/bibtex/bst/elsarticle/elsarticle-num.bst" 1761153866 29462 3b2a1af2ce1e224a3b46ee048ffd4b98 ""
-  "out/halurisc.aux" 1790016890 14367 48aa66be3f33abbbddc9341f92f60fc4 "pdflatex"
+  "out/halurisc.aux" 1790102705 14419 45eec9e5fac609e081bd62c29ba9aca5 "pdflatex"
   (generated)
   "out/halurisc.bbl"
   "out/halurisc.blg"
   (rewritten before read)
-["pdflatex"] 1790016881.16431 "halurisc.tex" "out/halurisc.pdf" "halurisc" 1790016891.42248 0
+["pdflatex"] 1790102696.27156 "halurisc.tex" "out/halurisc.pdf" "halurisc" 1790102706.52388 0
   "c:/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1761152797 2971 def0b6c1f0b107b3b936def894055589 ""
   "c:/texlive/2025/texmf-dist/fonts/enc/dvips/stix/stix-t1.enc" 1761161519 7013 c55cc8669071ac14036c4a0c96c16202 ""
   "c:/texlive/2025/texmf-dist/fonts/enc/dvips/stix/stix-ts1.enc" 1761161519 2836 154e6b0061f9b8cb549144b55b268339 ""
@@ -165,11 +165,11 @@
   "figures/b4/reliability_diagrams.png" 1789655824 158830 0f518e1b8ff1098f43828f8315a9730d ""
   "figures/fig_shap_importance_b5.png" 1789655824 49661 ef555181e88b2555724775842387b395 ""
   "figures/system_architecture.png" 1789655824 3572630 fed5cdcd0652be343865a5b58da8bc7b ""
-  "halurisc.tex" 1790016864 54445 b0b0b58ba664b8eca6997da3671e64cb ""
-  "out/halurisc.abs" 1790016882 1853 ae1bf769858f03f5198bc132015dd2d6 "pdflatex"
-  "out/halurisc.aux" 1790016890 14367 48aa66be3f33abbbddc9341f92f60fc4 "pdflatex"
-  "out/halurisc.bbl" 1789844824 9627 0457c2f087087c410e85b5fba2ff2b3e "bibtex out/halurisc"
-  "out/halurisc.out" 1790016882 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "halurisc.tex" 1790102681 54470 22565ca26f8f889a45864531befc24e4 ""
+  "out/halurisc.abs" 1790102697 1853 a089bddd6c7737325a3ce19a16a102dd "pdflatex"
+  "out/halurisc.aux" 1790102705 14419 45eec9e5fac609e081bd62c29ba9aca5 "pdflatex"
+  "out/halurisc.bbl" 1790102352 9627 0457c2f087087c410e85b5fba2ff2b3e "bibtex out/halurisc"
+  "out/halurisc.out" 1790102697 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
   "screenshots/ground_shap.png" 1789655824 31209 7c197481b7d43c07d2bb52979d90b610 ""
   "screenshots/grounded_correct.png" 1789655824 127347 a3599d5ddd1ca2575c00e2dc0cc9cc24 ""
   "screenshots/hallucinated_date.png" 1789655824 107987 bac44fda7e9a5e364b7fef48834c0475 ""
