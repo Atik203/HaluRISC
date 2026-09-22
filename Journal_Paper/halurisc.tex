@@ -58,13 +58,13 @@
 \def\textpagefraction{.001}
 
 % Short title
-\shorttitle{HaluRISC: Calibrated Hallucination Risk Estimation}
+\shorttitle{Calibrated Hallucination Risk Estimation}
 
 % Short author
 \shortauthors{Rahaman et~al.}
 
 % Main title of the paper
-\title [mode = title]{HaluRISC: Cross-Domain Calibrated and Explainable Hallucination Risk Estimation for Black-Box LLM Responses}
+\title [mode = title]{Estimating Hallucination Risk in Black-Box Large Language Model Answers with Calibrated and Explainable Machine Learning}
 
 % First author and corresponding author
 \author[1]{Md. Atikur Rahaman}
@@ -98,13 +98,13 @@
 % Abstract
 \linenumbers
 \begin{abstract}
-  Large language models answer in fluent text, and some answers are not supported by the evidence that is available. A confidently wrong answer can mislead users in question answering and content review. Current detectors have limits. Judge models are slow and costly. Encoder classifiers need model weights and a GPU. Feature-based systems rarely report calibration or cross-domain results. This paper presents HaluRISC, a lightweight black-box model that estimates hallucination risk, $P(\text{hallucinated}\mid q, c, a)$, from a question, a reference context, and a candidate answer. The aim is a score that is accurate, calibrated, explainable, and fast without access to model internals. HaluRISC extracts 26 evidence-consistency features in seven groups: lexical overlap, entities, bidirectional NLI entailment and contradiction, numbers, hedging, semantic similarity, and length. A tuned XGBoost classifier consumes these features. Platt and isotonic calibrators are fitted on the validation split only. SHAP attributions explain single predictions. Every experiment runs on a grouped 70/15/15 split with seeds 42, 123, and 456. Group-aware splits keep both answer variants of a question in one partition. This removes a leakage path that raises F1 by 0.004. The feature design keeps inference on a CPU and keeps each explanation readable. On HaluEval QA (20{,}000 rows), the model reaches F1 = 0.9846, AUROC = 0.9979, and ECE = 0.0045. Target recalibration cuts the ECE on natural RAGTruth QA from 0.8185 to 0.1335. Zero-shot transfer still fails (F1 = 0.3022), and the paper reports that failure with its length-related cause. One analysis takes 61.8~ms and costs near \$0.001 per 1{,}000 predictions, about 100 times less than the measured LLM judge. A FastAPI service and a Next.js dashboard deploy the system with claim-level evidence checks.
+  Large language models answer in fluent text, and some answers are not supported by the evidence that is available. A confidently wrong answer can mislead users in question answering and content review. Current detectors have limits. Judge models are slow and costly. Encoder classifiers need model weights and a GPU. Feature-based systems rarely report calibration or cross-domain results. This study presents a lightweight black-box model that estimates hallucination risk, $P(\text{hallucinated}\mid q, c, a)$, from a question, a reference context, and a candidate answer. The aim is a score that is accurate, calibrated, explainable, and fast without access to model internals. The proposed model extracts 26 evidence-consistency features in seven groups: lexical overlap, entities, bidirectional NLI entailment and contradiction, numbers, hedging, semantic similarity, and length. A tuned XGBoost classifier consumes these features. Platt and isotonic calibrators are fitted on the validation split only. SHAP attributions explain single predictions. Every experiment runs on a grouped 70/15/15 split with seeds 42, 123, and 456. Group-aware splits keep both answer variants of a question in one partition. This removes a leakage path that raises F1 by 0.004. The feature design keeps inference on a CPU and keeps each explanation readable. On HaluEval QA (20{,}000 rows), the model reaches F1 = 0.9846, AUROC = 0.9979, and ECE = 0.0045. Target recalibration cuts the ECE on natural RAGTruth QA from 0.8185 to 0.1335. Zero-shot transfer still fails (F1 = 0.3022), and the paper reports that failure with its length-related cause. One analysis takes 61.8~ms and costs near \$0.001 per 1{,}000 predictions, about 100 times less than the measured LLM judge. A FastAPI service and a Next.js dashboard deploy the system with claim-level evidence checks.
 \end{abstract}
 
 % Keywords
 % Each keyword is separated by \sep
 \begin{keywords}
-  Hallucination detection \sep Explainable AI \sep Probability calibration \sep Distribution shift \sep XGBoost \sep SHAP
+  Hallucination risk estimation \sep Explainable AI \sep Probability calibration \sep Distribution shift \sep XGBoost \sep SHAP
 \end{keywords}
 
 \maketitle
@@ -112,7 +112,7 @@
 
 \section{Introduction}\label{sec:intro}
 
-Hallucination detection is an active research area. SelfCheckGPT samples multiple responses and measures their consistency without an external database \cite{selfcheck}. Luna uses a small evaluation model that costs less than a large judge \cite{luna}. A hybrid framework combines frozen encoder features with lightweight classifiers and reports strong benchmark scores \cite{ieeeTai}. Two practical problems remain. Judge models are slow and expensive, and encoder models are hard to interpret. Feature-based detectors are cheaper, but their probabilities are rarely calibrated and their behavior outside the training domain is rarely tested. This paper builds HaluRISC, a black-box model that reads a question, a reference context, and a candidate answer and estimates $P(\text{hallucinated}\mid q,c,a)$. The model uses 26 evidence-consistency features in seven groups and a tuned XGBoost classifier, with Platt and isotonic calibration and SHAP explanations. HaluEval QA provides the training and in-domain test data. RAGTruth supplies natural responses for the transfer and recalibration checks, and FaithBench adds a summarization stress test.
+Hallucination detection is an active research area. SelfCheckGPT samples multiple responses and measures their consistency without an external database \cite{selfcheck}. Luna uses a small evaluation model that costs less than a large judge \cite{luna}. A hybrid framework combines frozen encoder features with lightweight classifiers and reports strong benchmark scores \cite{ieeeTai}. Two practical problems remain. Judge models are slow and expensive, and encoder models are hard to interpret. Feature-based detectors are cheaper, but their probabilities are rarely calibrated and their behavior outside the training domain is rarely tested. This study builds a black-box model that reads a question, a reference context, and a candidate answer and estimates $P(\text{hallucinated}\mid q,c,a)$. The model uses 26 evidence-consistency features in seven groups and a tuned XGBoost classifier, with Platt and isotonic calibration and SHAP explanations. HaluEval QA provides the training and in-domain test data. RAGTruth supplies natural responses for the transfer and recalibration checks, and FaithBench adds a summarization stress test.
 
 Six recent studies are closest to this work. HaluAgent shows that small language models can select tools and detect multiple hallucination types, yet each answer needs multiple tool calls \cite{haluagent}. Valentin et al. report a calibrated multi-scoring detector with a clear cost analysis, and the detector still depends on LLM scoring for its main signal \cite{costeff}. Sundaragiri et al. combine retrieval grounding, NLI verification, and an XGBoost classifier, and their evaluation reports classification metrics only \cite{ijert}. Haq et al. score hallucination with token-level SHAP-LIME attributions, without testing whether those attributions stay stable \cite{multimedia}. Deng et al. study cross-domain detection and show that detectors lose accuracy outside their training domain, and their method targets multi-turn dialogue signals \cite{spikescore}. FaithBench reports that modern LLMs still produce hard summarization hallucinations, and it is a summarization benchmark with no risk-calibration study \cite{faithbench}.
 
@@ -138,18 +138,18 @@ Prior work has explored hallucination detection, feature engineering, calibratio
 
 \section{Proposed Method}\label{sec:proposed}
 
-Figure~\ref{fig:pipeline} shows the full HaluRISC pipeline at a glance. The system takes a question, an optional reference context, and a candidate answer produced by a black-box LLM, and it returns a calibrated risk probability together with per-feature explanations. Each stage is described in the following subsections.
+Figure~\ref{fig:pipeline} shows the full proposed pipeline at a glance. The system takes a question, an optional reference context, and a candidate answer produced by a black-box LLM, and it returns a calibrated risk probability together with per-feature explanations. Each stage is described in the following subsections.
 
 \begin{figure}[pos=htbp]
   \centering
   \includegraphics[width=\linewidth]{architecture.png}
-  \caption{End-to-end HaluRISC pipeline. Evidence-consistency features from the question, context, and answer feed a grouped-CV trained, Platt-calibrated XGBoost model. Outputs include a calibrated risk score, per-claim NLI verdicts, and SHAP explanations, with cross-domain and explanation-reliability evaluation.}
+  \caption{End-to-end pipeline of the proposed model. Evidence-consistency features from the question, context, and answer feed a grouped-CV trained, Platt-calibrated XGBoost model. Outputs include a calibrated risk score, per-claim NLI verdicts, and SHAP explanations, with cross-domain and explanation-reliability evaluation.}
   \label{fig:pipeline}
 \end{figure}
 
 \subsection{Task Definition}
 
-Given a question $q$, an optional reference context $c$ (evidence), and a candidate answer $a$ produced by a black-box LLM, the task is to predict the probability $P(\text{hallucinated} \mid q, c, a)$. HaluRISC predicts risk, not truth. It flags answers that are unsupported by, or contradictory to, the available evidence.
+Given a question $q$, an optional reference context $c$ (evidence), and a candidate answer $a$ produced by a black-box LLM, the task is to predict the probability $P(\text{hallucinated} \mid q, c, a)$. The proposed model predicts risk, not truth. It flags answers that are unsupported by, or contradictory to, the available evidence.
 
 \subsection{Features}
 
@@ -199,7 +199,7 @@ The methods above are deployed as a two-tier web application, and Figure~\ref{fi
 \begin{figure}[pos=htbp]
   \centering
   \includegraphics[width=\linewidth]{system_architecture.png}
-  \caption{HaluRISC system architecture. The Next.js backend-for-frontend proxies machine-learning requests to FastAPI and streams LLM chat with tool-generated UI widgets.}
+  \caption{System architecture of the proposed model. The Next.js backend-for-frontend proxies machine-learning requests to FastAPI and streams LLM chat with tool-generated UI widgets.}
   \label{fig:arch}
 \end{figure}
 
@@ -577,7 +577,7 @@ A hallucination-risk score predicts risk, not truth, and it must not be treated 
 
 \section{Conclusion}\label{sec:conclusion}
 
-Hallucination detection needs to be cheap, fast, and explainable before it is useful in practice. This paper presented HaluRISC, a lightweight black-box risk predictor that combines 26 engineered evidence-consistency features with a tuned XGBoost classifier, calibrated probabilities, and SHAP explanations. On HaluEval QA it reaches an F1 of 0.9846 and an AUROC of 0.9979 at an expected calibration error of 0.0045, runs in 61.8\,ms per analysis at the median, and costs about \$0.001 per 1{,}000 predictions, roughly 100 times less than a GPT 5.6 Luna judge that it outperforms on the same 200 samples. A target-domain recalibration on 5{,}034 RAGTruth rows cuts the ECE on that corpus from 0.8185 to 0.1335, which shows that the calibration stage pays off exactly where the source-domain result said it would not.
+Hallucination detection needs to be cheap, fast, and explainable before it is useful in practice. This study presented a lightweight black-box risk predictor that combines 26 engineered evidence-consistency features with a tuned XGBoost classifier, calibrated probabilities, and SHAP explanations. On HaluEval QA it reaches an F1 of 0.9846 and an AUROC of 0.9979 at an expected calibration error of 0.0045, runs in 61.8\,ms per analysis at the median, and costs about \$0.001 per 1{,}000 predictions, roughly 100 times less than a GPT 5.6 Luna judge that it outperforms on the same 200 samples. A target-domain recalibration on 5{,}034 RAGTruth rows cuts the ECE on that corpus from 0.8185 to 0.1335, which shows that the calibration stage pays off exactly where the source-domain result said it would not.
 
 The negative results are reported with the same care as the positive ones. The raw model needs no recalibration on HaluEval, the entity and hedging features add no measurable value, and zero-shot transfer to natural RAGTruth responses fails, with an F1 of 0.3022 on the QA split. The paper therefore frames the supervised risk model as a source-domain estimator, and the deployed system adds claim-level verification with evidence retrieval to cover the transfer gap. Future work targets multicalibration under distribution shift, cross-domain evaluation on FaithBench \cite{faithbench}, and neural baselines for comparison.
 
