@@ -129,6 +129,13 @@ The contribution is compound, not any single component:
 5. A deployed, reproducible artifact: FastAPI inference service, claim-level
    evidence verification, and a Next.js/assistant-ui dashboard, backed by a
    frozen manifest and a CPU-compatible Dockerfile.
+6. An evidence-consistent XGBoost variant (EC-XGB): log-scaled length features
+   under monotone evidence constraints, eight claim-level NLI aggregates,
+   multi-source training on RAGTruth non-QA tasks with a source indicator, and
+   a dedicated display calibrator. It preserves in-domain F1 (0.9858 vs 0.9844
+   standard) and fixes shift over-flagging (99.9% to 61.3% flagged on RAGTruth,
+   AUROC 0.475 to 0.573, ECE 0.635 to 0.283; QA ECE 0.735 to 0.126 with the
+   display calibrator). Deployed as the API default with version b6-ec-xgb-v1.0.
 
 **Honesty rules:**
 

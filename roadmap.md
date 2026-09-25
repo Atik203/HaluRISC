@@ -109,7 +109,7 @@ Platt/isotonic (fit on validation only), all metrics, statistics (McNemar, boots
 SHAP global + local figures, and its reliability is now measured in B5 (importance triangulation, neutralization, perturbation stability, bootstrap CIs).
 
 ### 10. Phase 7 — Backend API — ✅ DONE
-FastAPI live and verified end-to-end: `/health /predict /explain /judge /meta /verify /index /feedback`, serving the B-run deployable (B2 XGBoost + B4 display isotonic fitted on natural RAGTruth data; HaluEval-Platt kept as `legacy_score`). One worker, no `--reload`, inference lock, bounded inputs, LRU feature cache.
+FastAPI live and verified end-to-end: `/health /predict /explain /judge /meta /verify /index /feedback /predict/compare /answer`, serving EC-XGB (B9; artifact namespace `b6/`) with its own Platt display calibrator fitted on the RAGTruth QA calibration split. The standard B2 XGBoost stays loaded as `legacy_score` and as a comparison baseline; the other B2 baselines appear in `/predict/compare`. One worker, no `--reload`, inference lock, bounded inputs, LRU feature cache.
 
 ### 11. Phase 8 — Frontend Dashboard — ✅ DONE
 Chat with auto risk cards, Analyze with compare mode, the 6-tab experiment dashboard, the offline `/demo` walkthrough, mobile nav and accessibility. `pnpm build` + `lint` pass. Runbook: `docs/b7-research-ui.md`.
@@ -144,6 +144,9 @@ Six-tab evidence dashboard, Analyze compare mode, offline `/demo` walkthrough, m
 
 ### B7.5 — Conversational auto-analysis (Tiers 1–4) — ✅ DONE (2026-08-09/10)
 All four tiers live: auto risk cards per answer (T1), per-claim NLI verdicts with "Evidence says" quotes (T2), Brave (LLM Context) web + document retrieval with citations (T3), LLM-judge routing + feedback loop + threshold tuning + rate limits (T4). 206 tests pass.
+
+### B9 — EC-XGB (evidence-consistent XGBoost) — ✅ DONE (2026-09-25)
+`run_b6_modified.py` (working file name; artifacts under `artifacts/{models,results}/b6/`) implements the m0-m3 variants with grouped tuning, seeds 42/123/456, strict recall-under-5%-FPR operating points, and shift evaluation. Results: in-domain F1 0.9844 to 0.9858 (not significant, McNemar p=0.63); RAGTruth all-task flag rate 99.9% to 61.3%, AUROC 0.475 to 0.573, ECE 0.635 to 0.283; FaithBench flag rate 99.5% to 7.2%, AUROC 0.509 to 0.587, F1 drops (conservative regime, reported as a limitation). `fit_ec_xgb_calibrator.py` fits the deployed Platt display calibrator (QA ECE 0.735 to 0.126). The API serves it as `b6-ec-xgb-v1.0`; the web compare card shows EC-XGB beside the standard baselines.
 
 ### B7.6 — Evidence-domain display score — ✅ DONE (2026-08-10)
 `calibrated_score` no longer saturates at 99% on full-sentence inputs. `src/models/fit_display_calibrator.py` fits the B4 display calibrator (isotonic) on 5,034 natural RAGTruth QA rows (ECE 0.133 on the disjoint 900-row test, vs 0.819 raw); `/verify` further adjusts the score from per-claim verdicts (contradicted up, supported down). Verified live: grounded full-sentence answer 0.31 (low), contradicted-claim answer 0.80 (high).
