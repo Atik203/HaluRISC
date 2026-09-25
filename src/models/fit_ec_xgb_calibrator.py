@@ -39,7 +39,7 @@ from src.features.claim_features import FEATURE_COLUMNS as CLAIM_COLUMNS
 from src.features.claim_features import extract_claim_features_df
 from src.features.extract_features import extract_full_feature_set, load_heavy_models
 from src.models.config import DATA_PROCESSED, MODELS_DIR, RESULTS_DIR
-from src.models.run_b6_modified import SOURCE_COLUMN, feature_matrix, variant_features
+from src.models.run_b6_modified import BASE_COLUMNS, SOURCE_COLUMN, feature_matrix, variant_features
 from src.models.train_pipeline import ece
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -47,7 +47,11 @@ logger = logging.getLogger("ec_xgb_calibrator")
 
 UNIFIED = DATA_PROCESSED / "unified_records.parquet"
 CAL_IDS = RESULTS_DIR / "b4" / "_stages" / "qa_cal_clean.parquet"
-CAL_FEATURES = DATA_PROCESSED / "calibration_features.parquet"
+# Base (26) and claim (8) features are cached separately so a claim-splitter
+# change only re-runs the cheap claim pass.
+CAL_BASE = DATA_PROCESSED / "calibration_base.parquet"
+CAL_CLAIMS = DATA_PROCESSED / "calibration_claim_features.parquet"
+CAL_FEATURES = DATA_PROCESSED / "calibration_features.parquet"  # legacy merged cache
 EC_XGB_MODEL = MODELS_DIR / "b6" / "xgboost_m3_seed_42.joblib"
 B6_PREDICTIONS = RESULTS_DIR / "b6" / "b6_predictions.parquet"
 OUT_BUNDLE = MODELS_DIR / "b6" / "ec_xgb_display_calibrator.joblib"
@@ -68,30 +72,65 @@ def build_calibration_frame() -> pd.DataFrame:
     return df
 
 
-def ensure_calibration_features(df: pd.DataFrame) -> pd.DataFrame:
+def ensure_base_features(df: pd.DataFrame) -> pd.DataFrame:
+    if CAL_BASE.exists():
+        base = pd.read_parquet(CAL_BASE)
+        logger.info(f"Reusing calibration base features: {base.shape}")
+        return base
     if CAL_FEATURES.exists():
-        cached = pd.read_parquet(CAL_FEATURES)
-        logger.info(f"Reusing calibration features: {cached.shape}")
-        return cached
+        # Seed the split cache from the legacy merged file: the base columns are
+        # unaffected by claim-splitter changes.
+        legacy = pd.read_parquet(CAL_FEATURES)
+        keep = [c for c in legacy.columns if c in set(BASE_COLUMNS) | {"sample_id", "item_idx", "label", "split"}]
+        base = legacy[keep]
+        base.to_parquet(CAL_BASE, index=False)
+        logger.info(f"Seeded calibration base cache from legacy file: {base.shape}")
+        return base
     models = load_heavy_models(device=os.environ.get("HALU_EXTERNAL_DEVICE", "cuda"))
     t0 = time.time()
     base = extract_full_feature_set(df, models, batch_size=64)
     logger.info(f"Base features done in {time.time() - t0:.1f}s")
+    base.to_parquet(CAL_BASE, index=False)
+    return base
+
+
+def ensure_claim_features(df: pd.DataFrame) -> pd.DataFrame:
+    if CAL_CLAIMS.exists():
+        claims = pd.read_parquet(CAL_CLAIMS)
+        logger.info(f"Reusing calibration claim features: {claims.shape}")
+        return claims
+    models = load_heavy_models(device=os.environ.get("HALU_EXTERNAL_DEVICE", "cuda"))
     t0 = time.time()
     claims = extract_claim_features_df(
-        df, models["nli"], partial_path=None, checkpoint_every=500,
-        batch_size=16, chunk_samples=24,
+        df, models["nli"], partial_path=DATA_PROCESSED / "calibration_claims.partial.parquet",
+        checkpoint_every=500, batch_size=16, chunk_samples=24,
     )
     logger.info(f"Claim features done in {time.time() - t0:.1f}s")
+    claims.to_parquet(CAL_CLAIMS, index=False)
+    return claims
+
+
+def ensure_calibration_features(df: pd.DataFrame) -> pd.DataFrame:
+    base = ensure_base_features(df)
+    claims = ensure_claim_features(df)
     out = base.merge(claims, on="sample_id", how="left")
     out.to_parquet(CAL_FEATURES, index=False)
-    logger.info(f"Cached calibration features to {CAL_FEATURES}")
+    logger.info(f"Calibration features ready: {out.shape}")
     return out
 
 
 def main() -> None:
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Fit the EC-XGB display calibrator")
+    parser.add_argument("--features-only", action="store_true", help="extract and cache features, then stop")
+    args = parser.parse_args()
+
     df = build_calibration_frame()
     feats = ensure_calibration_features(df)
+    if args.features_only:
+        logger.info("Features cached; stopping before the calibrator fit (--features-only).")
+        return
     frame = df.merge(feats.drop(columns=["item_idx", "label", "split"], errors="ignore"),
                      on="sample_id", how="left", validate="one_to_one")
     frame[SOURCE_COLUMN] = 1.0  # natural-response convention (same as B6 external)
