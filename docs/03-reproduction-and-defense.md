@@ -179,7 +179,7 @@ remains an optional host-side acceleration (`HALU_API_DEVICE=cuda`).
 # API health with real artifacts
 & .venv\Scripts\python.exe -m uvicorn src.api.main:app --port 8000
 # GET /health →
-# {"status":"ok","model":"b2-xgboost-v1.0","feature_version":"course-v1.0",
+# {"status":"ok","model":"b6-ec-xgb-v1.0","feature_version":"course-v1.0",
 #  "artifacts_loaded":true,"feature_models_ready":true,"explainer_ready":true,
 #  "n_features":26,"device":"cuda"}
 

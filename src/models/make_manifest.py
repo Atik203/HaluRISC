@@ -180,11 +180,16 @@ def main():
     }
     source_fingerprint = os.environ.get("HALU_SOURCE_FINGERPRINT")
 
+    # The deployed model is EC-XGB when the B6 artifacts exist; the frozen
+    # params.json still describes the B2 base model.
+    ec_model = RESULTS_DIR.parent / "models" / "b6" / "xgboost_m3_seed_42.joblib"
+
     manifest = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "git_commit": git_commit(),
         "source_fingerprint": source_fingerprint,
-        "model_version": params.get("model_version"),
+        "model_version": "b6-ec-xgb-v1.0" if ec_model.exists() else params.get("model_version"),
+        "deployed_model": "EC-XGB (Evidence-Consistent XGBoost)" if ec_model.exists() else "B2 XGBoost",
         "feature_version": "course-v1.0",
         "n_features": params.get("n_features"),
         "nli_model": params.get("nli_model"),

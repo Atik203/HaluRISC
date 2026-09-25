@@ -17,11 +17,33 @@ const DATASET_LABELS: Record<string, string> = {
   ragtruth_train: "RAGTruth train (covariate)",
 };
 
+const EC_DATASETS: Record<string, string> = {
+  ragtruth_all_test: "RAGTruth (all test tasks)",
+  ragtruth_qa_test: "RAGTruth QA test (held out)",
+  faithbench: "FaithBench",
+};
+
+const EC_VARIANTS: Record<string, string> = {
+  m0: "Standard XGBoost",
+  m1: "m1 debias + constraints",
+  m2: "m2 + claim features",
+  m3: "m3 EC-XGB (deployed)",
+};
+
 export default function RobustnessTab() {
   const d = loadDashboardData();
   const metrics = d.b3.datasetMetrics;
   const transfer = d.b3.transfer ?? [];
   const inDomain = d.b2.comparison?.find((r) => r.model === "xgboost");
+  const ecExternal = d.b6.external ?? [];
+  const ecComparison = d.b6.comparison ?? [];
+  const ecStrictRuns = d.b6.strict ? Object.values(d.b6.strict.per_run) : [];
+  const ecCalibration = d.b6.calibration;
+  const ecComponents = d.b6.runConfig?.component_map ?? {};
+  const strictMin = (pick: (r: (typeof ecStrictRuns)[number]) => number) =>
+    ecStrictRuns.length > 0 ? Math.min(...ecStrictRuns.map(pick)) : null;
+  const strictMax = (pick: (r: (typeof ecStrictRuns)[number]) => number) =>
+    ecStrictRuns.length > 0 ? Math.max(...ecStrictRuns.map(pick)) : null;
 
   const metricRows = metrics
     ? Object.entries(metrics)
@@ -40,6 +62,88 @@ export default function RobustnessTab() {
 
   return (
     <div className="space-y-6">
+      <Panel
+        title="EC-XGB under domain shift (B6) — deployed model"
+        subtitle="m3 variant (Evidence-Consistent XGBoost), seeds 42/123/456, threshold 0.5. Standard = B2 XGBoost trained on HaluEval only; EC-XGB adds the RAGTruth non-QA training rows. Flagged = share above 0.5."
+      >
+        {ecExternal.length > 0 ? (
+          <DataTable
+            rowKey={(r) => `${r.dataset}-${r.model}`}
+            highlight={(r) => r.model.startsWith("m3")}
+            columns={[
+              { key: "dataset", label: "Corpus" },
+              { key: "model", label: "Model" },
+              { key: "n", label: "Rows", align: "right" },
+              { key: "f1", label: "F1", align: "right" },
+              { key: "auroc", label: "AUROC", align: "right" },
+              { key: "flagged", label: "Flagged", align: "right" },
+              { key: "ece", label: "ECE", align: "right" },
+            ]}
+            rows={["ragtruth_all_test", "ragtruth_qa_test", "faithbench"].flatMap((dataset) =>
+              ["m0", "m3"].map((variant) => {
+                const row = ecExternal.find((r) => r.dataset === dataset && r.variant === variant);
+                return {
+                  dataset: EC_DATASETS[dataset] ?? dataset,
+                  model: EC_VARIANTS[variant] ?? variant,
+                  n: row?.n ?? "—",
+                  f1: fmt(row?.f1),
+                  auroc: fmt(row?.auroc),
+                  flagged: fmtPct(row?.predicted_positive_rate),
+                  ece: fmt(row?.ece),
+                };
+              }),
+            )}
+          />
+        ) : (
+          <p className="text-xs text-muted-foreground">b6_external_metrics.csv not present.</p>
+        )}
+      </Panel>
+
+      <Panel
+        title="EC-XGB ablation, operating point, and display calibration (B6)"
+        subtitle="b6_model_comparison.csv · b6_strict_mode.json · b6_calibration.json"
+      >
+        {ecComparison.length > 0 ? (
+          <DataTable
+            rowKey={(r) => r.variant}
+            highlight={(r) => r.variant.startsWith("m3")}
+            columns={[
+              { key: "variant", label: "Variant" },
+              { key: "n_features", label: "Features", align: "right" },
+              { key: "f1", label: "F1", align: "right" },
+              { key: "auroc", label: "AUROC", align: "right" },
+              { key: "mcc", label: "MCC", align: "right" },
+              { key: "ece", label: "ECE", align: "right" },
+            ]}
+            rows={ecComparison.map((r) => ({
+              variant: EC_VARIANTS[r.variant] ?? ecComponents[r.variant] ?? r.variant,
+              n_features: r.n_features ?? "—",
+              f1: fmt(r.f1_mean),
+              auroc: fmt(r.auroc_mean),
+              mcc: fmt(r.mcc_mean),
+              ece: fmt(r.ece_mean),
+            }))}
+          />
+        ) : (
+          <p className="text-xs text-muted-foreground">b6_model_comparison.csv not present.</p>
+        )}
+        <div className="mt-3 space-y-1.5 border-t border-border/40 pt-3 text-xs text-muted-foreground">
+          {ecStrictRuns.length > 0 && (
+            <p>
+              Operating point at a {fmtPct(d.b6.strict?.alpha)} false-positive budget: test FPR{" "}
+              {fmtPct(strictMin((r) => r.test_fpr))}–{fmtPct(strictMax((r) => r.test_fpr))} with recall{" "}
+              {fmtPct(strictMin((r) => r.test_recall))}–{fmtPct(strictMax((r) => r.test_recall))}.
+            </p>
+          )}
+          {ecCalibration && (
+            <p>
+              Deployed display score ({ecCalibration.chosen} on {ecCalibration.calibration_rows.toLocaleString()} RAGTruth
+              QA calibration rows): held-out ECE {fmt(ecCalibration.test_raw.ece, 3)} → {fmt(ecCalibration.test_platt.ece, 3)}.
+            </p>
+          )}
+        </div>
+      </Panel>
+
       <Panel
         title="Zero-shot transfer — B2 XGBoost on external RAGTruth + FaithBench (B3)"
         subtitle="No training on external data; threshold fixed at 0.5; source-group bootstrap CIs (1,000 resamples)."

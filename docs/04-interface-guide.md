@@ -174,7 +174,7 @@ top of every tab defines the metric names.
 | Tab | Question it answers |
 |---|---|
 | Overview | How good is the model on the in-domain test split, and how does it compare with baselines? Also shows leakage-removal impact and the manifest provenance. |
-| Robustness | What happens on external data (RAGTruth, FaithBench) with no retraining? Includes per-subgroup results and label-mapping sensitivity. |
+| Robustness | EC-XGB under shift (B6): standard XGBoost vs EC-XGB flag rate, AUROC, and ECE on RAGTruth and FaithBench, the component ablation, the 5% false-positive operating point, and the deployed display calibration. Below it, the original B3 zero-shot transfer panel with per-subgroup results and label-mapping sensitivity. |
 | Calibration | Do the probabilities mean what they say? Compares raw, Platt, and isotonic calibration per subset, and shows target calibration on RAGTruth QA. |
 | Explainability | Are the explanations stable? Group importance, neutralization curve, perturbation stability, bootstrap stability, and the reviewer export. |
 | Failures | Which cases failed and how? Perturbation-induced failures, zero-shot error cases, and the Version A error analysis. |
