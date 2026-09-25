@@ -38,7 +38,7 @@ def test_feedback_endpoint_appends_jsonl(client, monkeypatch, tmp_path):
     rows = [json.loads(l) for l in log.read_text(encoding="utf-8").splitlines()]
     assert len(rows) == 1
     assert rows[0]["feedback"] == "disagree"
-    assert rows[0]["model_version"] == "b2-xgboost-v1.0"
+    assert rows[0]["model_version"] == api._model_version()
     assert "ts" in rows[0]
 
 
