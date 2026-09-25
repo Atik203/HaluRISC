@@ -172,7 +172,7 @@ remains an optional host-side acceleration (`HALU_API_DEVICE=cuda`).
 ## 7. Tests and Expected Outputs
 
 ```powershell
-# Python test suite (206 tests)
+# Python test suite (227 tests)
 & .venv\Scripts\python.exe -m pytest tests -q
 # → 206 passed
 

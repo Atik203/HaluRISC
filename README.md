@@ -52,6 +52,13 @@ significant margin over the controls (McNemar p = 1.3e-06 vs answer-only,
 p = 0.044 vs random forest; bootstrap 95% CI F1 [0.9812, 0.9895], AUROC
 [0.9964, 0.9989]).
 
+**Deployed model (EC-XGB, B9):** the served model adds monotone evidence
+constraints, eight claim-level NLI aggregates over atomic clauses, and RAGTruth
+non-QA multi-source training (35 features). It preserves in-domain F1 (0.9858),
+cuts the RAGTruth all-task flag rate from 99.9% to 61.6% (AUROC 0.475 -> 0.568,
+ECE 0.635 -> 0.286), and its Platt display calibrator drops the RAGTruth QA ECE
+from 0.743 to 0.126. Contract: `b6-ec-xgb-v1.0`; artifacts: `artifacts/results/b6/`.
+
 **Calibration on the source domain:** raw XGBoost probabilities are already
 well calibrated (ECE 0.0045), and Platt (0.0091) and isotonic (0.0070) do not
 improve them — an honest negative result. Calibration pays off only after the
@@ -337,7 +344,7 @@ HaluRISC/
 │   ├── models/             # model, calibrator, scaler, SHAP explainer artifacts
 │   ├── results/            # b2..b5 metric tables + audit sheet + length analysis
 │   └── split_indices.json  # Saved grouped 70/15/15 split indices
-├── tests/                  # pytest suites (206 tests)
+├── tests/                  # pytest suites (227 tests)
 └── web/                    # Next.js App Router frontend
     ├── app/                # /chat, /analyze, /dashboard, /demo, /about, /api/chat
     ├── components/         # RiskGauge, ShapChart, NavBar, ThemeToggle, assistant-ui/thread
