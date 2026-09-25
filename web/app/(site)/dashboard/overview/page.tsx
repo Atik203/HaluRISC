@@ -1,5 +1,5 @@
 import { Award, DollarSign, ShieldCheck, TrendingUp, Zap } from "lucide-react";
-import { loadDashboardData, fmt, modelVersionFromManifest } from "@/lib/results";
+import { loadDashboardData, fmt, fmtPct, modelVersionFromManifest } from "@/lib/results";
 import { Panel, KpiCard, DataTable, EmptyState } from "@/components/dashboard/panel";
 
 interface LeakageComparison {
@@ -32,6 +32,13 @@ export default function OverviewTab() {
   const bestBaseline = rows.find((r) => r.model === stats?.best_baseline);
   const leak = d.b2.leakageComparison as LeakageComparison | null;
 
+  const ec = d.b6.comparison?.find((r) => r.variant === "m3");
+  const ecShift = d.b6.external ?? [];
+  const flagRate = (variant: string, dataset: string) =>
+    ecShift.find((r) => r.variant === variant && r.dataset === dataset)?.predicted_positive_rate ?? null;
+  const stdFlag = flagRate("m0", "ragtruth_all_test");
+  const ecFlag = flagRate("m3", "ragtruth_all_test");
+
   const b4Ece = d.b4.metrics?.["halueval_test"]?.platt?.ece_mean;
   const judgeCost = d.legacy.judge?.cost_per_1000_usd;
   const haluriscCost = d.legacy.latency?.cost_per_1000_predictions_usd?.halurisc_local;
@@ -44,8 +51,8 @@ export default function OverviewTab() {
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <KpiCard icon={<Award className="w-5 h-5" />} label="Test F1 (B2 XGBoost, seeds 42/123/456)" value={fmt(xgb.f1_mean)} accent="purple" sub={`± ${fmt(xgb.f1_std)} std`} />
-            <KpiCard icon={<TrendingUp className="w-5 h-5" />} label="AUROC" value={fmt(xgb.auroc_mean)} accent="emerald" sub={`± ${fmt(xgb.auroc_std)} std`} />
+            <KpiCard icon={<Award className="w-5 h-5" />} label="Test F1 (EC-XGB, seeds 42/123/456)" value={fmt(ec?.f1_mean ?? xgb.f1_mean)} accent="purple" sub={`± ${fmt(ec?.f1_std ?? xgb.f1_std)} std`} />
+            <KpiCard icon={<TrendingUp className="w-5 h-5" />} label="AUROC" value={fmt(ec?.auroc_mean ?? xgb.auroc_mean)} accent="emerald" sub={stdFlag != null && ecFlag != null ? `flags ${fmtPct(stdFlag)} → ${fmtPct(ecFlag)} on RAGTruth` : `± ${fmt(ec?.auroc_std ?? xgb.auroc_std)} std`} />
             <KpiCard icon={<Zap className="w-5 h-5" />} label="ECE after Platt (HaluEval test, B4)" value={b4Ece != null ? b4Ece.toFixed(4) : "—"} accent="blue" />
             <KpiCard icon={<DollarSign className="w-5 h-5" />} label="Cheaper than LLM Judge (measured)" value={costRatio ? `${costRatio}×` : "—"} accent="amber" />
           </div>

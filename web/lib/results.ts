@@ -295,6 +295,67 @@ export interface B5FailureCase {
 }
 
 /* ------------------------------------------------------------------ */
+/* B6 — EC-XGB (evidence-consistent XGBoost)                          */
+/* ------------------------------------------------------------------ */
+
+export interface B6ComparisonRow {
+  variant: string;
+  n_features?: number;
+  f1_mean?: number;
+  f1_std?: number;
+  auroc_mean?: number;
+  auroc_std?: number;
+  mcc_mean?: number;
+  ece_mean?: number;
+  brier_mean?: number;
+}
+
+export interface B6ExternalRow {
+  variant: string;
+  dataset: string;
+  n: number;
+  recall?: number;
+  precision?: number;
+  f1?: number;
+  auroc?: number;
+  predicted_positive_rate?: number;
+  ece?: number;
+  brier?: number;
+}
+
+export interface B6StrictRun {
+  threshold: number;
+  val_fpr: number;
+  val_recall: number;
+  test_f1: number;
+  test_recall: number;
+  test_fpr: number;
+}
+
+export interface B6StrictMode {
+  alpha: number;
+  per_run: Record<string, B6StrictRun>;
+}
+
+export interface B6Calibration {
+  calibration_rows: number;
+  test_rows: number;
+  model: string;
+  chosen: string;
+  test_raw: { ece: number; brier: number };
+  test_platt: { ece: number; brier: number };
+  test_isotonic: { ece: number; brier: number };
+}
+
+export interface B6RunConfig {
+  model_name?: string;
+  model_full_name?: string;
+  component_map?: Record<string, string>;
+  variants?: string[];
+  seeds?: number[];
+}
+
+/* ------------------------------------------------------------------ */
 /* Manifest + legacy VA analysis                                      */
 /* ------------------------------------------------------------------ */
 
@@ -400,6 +461,13 @@ export interface DashboardData {
     reviewCases: B5ReviewCase[] | null;
     failureCases: B5FailureCase[] | null;
   };
+  b6: {
+    comparison: B6ComparisonRow[] | null;
+    external: B6ExternalRow[] | null;
+    strict: B6StrictMode | null;
+    calibration: B6Calibration | null;
+    runConfig: B6RunConfig | null;
+  };
   manifest: Manifest | null;
   legacy: {
     errorAnalysis: ErrorAnalysis | null;
@@ -447,6 +515,20 @@ export function loadDashboardData(): DashboardData {
       perturbations: readCsv<B5PerturbationAggregate>("b5/b5_perturbation_aggregates.csv"),
       reviewCases: readJson<B5ReviewCase[]>("b5/b5_review_cases.json"),
       failureCases: readJson<B5FailureCase[]>("b5/b5_failure_cases.json"),
+    },
+    b6: {
+      // pandas wrote the variant name into an unnamed index column.
+      comparison: (() => {
+        const rows = readCsv<Record<string, unknown>>("b6/b6_model_comparison.csv");
+        if (!rows) return null;
+        return rows
+          .map((r) => ({ ...(r as unknown as B6ComparisonRow), variant: String(r[""] ?? "") }))
+          .filter((r) => r.variant);
+      })(),
+      external: readCsv<B6ExternalRow>("b6/b6_external_metrics.csv"),
+      strict: readJson<B6StrictMode>("b6/b6_strict_mode.json"),
+      calibration: readJson<B6Calibration>("b6/b6_calibration.json"),
+      runConfig: readJson<B6RunConfig>("b6/b6_run_config.json"),
     },
     manifest: readJson<Manifest>("manifest.json"),
     legacy: {

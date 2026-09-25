@@ -43,7 +43,7 @@ pnpm run dev        # http://localhost:3000
 | `/chat` | assistant-ui Thread + `/api/chat` streaming; tool runs the calibrated model; real backend health dot |
 | `/analyze` | Form → `/api/ml/predict` + `/api/ml/explain`; **compare mode** = two answers vs same question/context; expandable seven-group feature inspector; SHAP labeled as raw-model attribution |
 | `/dashboard/overview` | B2 baselines (grouped CV, McNemar, CIs, tuning, leakage impact) + manifest provenance |
-| `/dashboard/robustness` | B3 zero-shot transfer (per-dataset metrics, Δ vs in-domain, subgroups, bootstrap CIs, label sensitivity) |
+| `/dashboard/robustness` | EC-XGB under shift (B6: standard vs EC-XGB flag rate, AUROC, ECE; ablation; operating point; display calibration) plus B3 zero-shot transfer (per-dataset metrics, Δ vs in-domain, subgroups, bootstrap CIs, label sensitivity) |
 | `/dashboard/calibration` | B4 ECE/ACE/Brier/NLL per subset × method, target-calibration story (0.81 → 0.13), reliability diagrams |
 | `/dashboard/explainability` | B5 Kendall τ, group SHAP vs ablation, neutralization curve, perturbation stability, bootstrap Jaccard, reviewer export |
 | `/dashboard/failures` | B3 error cases (FaithBench redacted), B5 failure cases, manual review sheet |
