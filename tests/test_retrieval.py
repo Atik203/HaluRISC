@@ -116,17 +116,58 @@ def test_index_add_dedupes_exact_chunks(tmp_path):
 # ---------------------------------------------------------------- web search
 def test_web_search_disabled_without_key(monkeypatch):
     monkeypatch.delenv("TAVILY_API_KEY", raising=False)
+    monkeypatch.delenv("BRAVE_SEARCH_API_KEY", raising=False)
     ws = WebSearch(api_key="")
     assert ws.enabled is False
     assert ws.search("anything") == []
 
 
-def test_web_search_mocked(monkeypatch):
+def test_auto_provider_prefers_brave(monkeypatch):
+    monkeypatch.setenv("BRAVE_SEARCH_API_KEY", "b")
+    assert WebSearch().provider == "brave"
+    monkeypatch.delenv("BRAVE_SEARCH_API_KEY", raising=False)
+    monkeypatch.setenv("TAVILY_API_KEY", "t")
+    assert WebSearch().provider == "tavily"
+
+
+def test_brave_context_parses_chunks(monkeypatch):
+    payload = {
+        "grounding": {
+            "generic": [
+                {
+                    "url": "https://example.com/paris",
+                    "title": "Paris",
+                    "snippets": ["Paris is the capital of France.", "It sits on the Seine."],
+                }
+            ]
+        }
+    }
+    ws = WebSearch(provider="brave", brave_api_key="fake")
+    monkeypatch.setattr(ws, "_brave_call", lambda path, params: payload)
+    hits = ws.search("capital of France")
+    assert hits and hits[0]["source"] == "web:https://example.com/paris"
+    assert "capital of France" in hits[0]["text"]
+    assert hits[0]["score"] > 0.9
+
+
+def test_brave_falls_back_to_web_snippets(monkeypatch):
+    ws = WebSearch(provider="brave", brave_api_key="fake")
+    monkeypatch.setattr(ws, "_brave_context", lambda q: [])
+    monkeypatch.setattr(
+        ws,
+        "_brave_web",
+        lambda q: [{"source": "web:https://e.com", "url": "https://e.com", "text": "chunk", "score": 0.8}],
+    )
+    hits = ws.search("q")
+    assert hits and hits[0]["url"] == "https://e.com"
+
+
+def test_tavily_mocked(monkeypatch):
     class FakeTavily:
         def search(self, query, max_results, search_depth):
             return {"results": [{"url": "https://example.com", "content": "Paris facts", "score": 0.9}]}
 
-    ws = WebSearch(api_key="fake")
+    ws = WebSearch(api_key="fake", provider="tavily")
     monkeypatch.setattr(ws, "_tavily", lambda: FakeTavily())
     hits = ws.search("capital of France")
     assert hits and hits[0]["source"] == "web:https://example.com"
@@ -141,10 +182,35 @@ def test_web_search_caches_per_query(monkeypatch):
             calls["n"] += 1
             return {"results": [{"url": "https://e.com", "content": "c", "score": 0.5}]}
 
-    ws = WebSearch(api_key="fake")
+    ws = WebSearch(api_key="fake", provider="tavily")
     monkeypatch.setattr(ws, "_tavily", lambda: FakeTavily())
     assert ws.search("q") == ws.search("q")
     assert calls["n"] == 1
+
+
+# ---------------------------------------------------------------- brave answers
+def test_brave_answers_parse_stream():
+    from src.retrieval.brave_answers import parse_stream
+
+    lines = [
+        'data: {"choices":[{"delta":{"content":"Paris is the capital"}}]}',
+        'data: {"choices":[{"delta":{"content":" of France."}}]}',
+        'data: {"choices":[{"delta":{"content":"<citation>{\\"number\\": 1, \\"url\\": \\"https://e.com\\", \\"snippet\\": \\"s\\"}</citation>"}}]}',
+        'data: {"choices":[{"delta":{"content":"<usage>{\\"X-Request-Queries\\": 1}</usage>"}}]}',
+        "data: [DONE]",
+    ]
+    answer, citations, usage = parse_stream(lines)
+    assert answer == "Paris is the capital of France."
+    assert citations[0]["url"] == "https://e.com"
+    assert usage["X-Request-Queries"] == 1
+
+
+def test_brave_answers_disabled_without_key(monkeypatch):
+    from src.retrieval.brave_answers import BraveAnswers
+
+    monkeypatch.delenv("BRAVE_ANSWERS_API_KEY", raising=False)
+    monkeypatch.delenv("BRAVE_SEARCH_API_KEY", raising=False)
+    assert BraveAnswers().enabled is False
 
 
 # ---------------------------------------------------------------- rerank

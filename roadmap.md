@@ -143,7 +143,7 @@ Importance triangulation, neutralization, perturbations, stability, and the revi
 Six-tab evidence dashboard, Analyze compare mode, offline `/demo` walkthrough, mobile nav + accessibility, verified (build + lint green). Guide: `docs/b7-research-ui.md`.
 
 ### B7.5 — Conversational auto-analysis (Tiers 1–4) — ✅ DONE (2026-08-09/10)
-All four tiers live: auto risk cards per answer (T1), per-claim NLI verdicts with "Evidence says" quotes (T2), Tavily web + document retrieval with citations (T3), LLM-judge routing + feedback loop + threshold tuning + rate limits (T4). 206 tests pass.
+All four tiers live: auto risk cards per answer (T1), per-claim NLI verdicts with "Evidence says" quotes (T2), Brave (LLM Context) web + document retrieval with citations (T3), LLM-judge routing + feedback loop + threshold tuning + rate limits (T4). 206 tests pass.
 
 ### B7.6 — Evidence-domain display score — ✅ DONE (2026-08-10)
 `calibrated_score` no longer saturates at 99% on full-sentence inputs. `src/models/fit_display_calibrator.py` fits the B4 display calibrator (isotonic) on 5,034 natural RAGTruth QA rows (ECE 0.133 on the disjoint 900-row test, vs 0.819 raw); `/verify` further adjusts the score from per-claim verdicts (contradicted up, supported down). Verified live: grounded full-sentence answer 0.31 (low), contradicted-claim answer 0.80 (high).

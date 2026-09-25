@@ -370,7 +370,8 @@ the most informative published signal across feature-importance analyses.
 2. **Tier 2 — per-claim NLI verdicts** (`supported` / `contradicted` /
    `unsupported`) with the driving evidence sentence quoted.
 3. **Tier 3 — retrieval**: document index (BM25 + FAISS + reciprocal rank
-   fusion + cross-encoder reranker) and Tavily web search.
+   fusion + cross-encoder reranker) and Brave web search (LLM Context + Web
+   Search, with Tavily as the legacy fallback).
 4. **Tier 4 — LLM judge routing** for borderline claims, feedback capture, and
    threshold tuning from labelled feedback.
 
