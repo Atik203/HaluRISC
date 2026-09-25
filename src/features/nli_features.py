@@ -103,14 +103,19 @@ def extract_nli_features(question: str, context: str, answer: str, model) -> dic
     }
 
 
-def extract_nli_features_df(df: pd.DataFrame, model, batch_size: int = 64) -> pd.DataFrame:
+def extract_nli_features_df(df: pd.DataFrame, model, batch_size: int = 64, log_every: int = 1000) -> pd.DataFrame:
     """Batch NLI features; processes both (ctx, ans) and (ans, ctx) directions."""
-    logger.info(f"Extracting NLI features for {len(df)} samples (2 directions each)...")
+    import time
+
+    total = len(df)
+    logger.info(f"Extracting NLI features for {total} samples (2 directions each)...")
     rows = []
     batch_ctx_ans, batch_ans_ctx, batch_idx = [], [], []
+    t0 = time.time()
+    logged = 0
 
     def flush():
-        nonlocal batch_ctx_ans, batch_ans_ctx, batch_idx
+        nonlocal batch_ctx_ans, batch_ans_ctx, batch_idx, logged
         if not batch_idx:
             return
         all_probs = model.predict(batch_ctx_ans + batch_ans_ctx, batch_size=batch_size, apply_softmax=True)
@@ -127,6 +132,15 @@ def extract_nli_features_df(df: pd.DataFrame, model, batch_size: int = 64) -> pd
                 "nli_ans_neutral_ctx": round(p_ans["neutral"], 6),
             }))
         batch_ctx_ans, batch_ans_ctx, batch_idx = [], [], []
+        if log_every and len(rows) - logged >= log_every:
+            logged = len(rows)
+            elapsed = time.time() - t0
+            rate = len(rows) / elapsed if elapsed > 0 else 0.0
+            eta = (total - len(rows)) / rate if rate > 0 else 0.0
+            logger.info(
+                f"NLI features: {len(rows)}/{total} ({100 * len(rows) / total:.1f}%) | "
+                f"{rate:.1f} samples/s | ETA {eta / 60:.1f} min"
+            )
 
     for idx, row in df.iterrows():
         context, answer = str(row["context"]), str(row["answer"])

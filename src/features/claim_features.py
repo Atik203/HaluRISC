@@ -33,6 +33,7 @@ every --checkpoint-every samples and already-computed sample_ids are skipped.
 import argparse
 import logging
 import os
+import re
 import sys
 import time
 from pathlib import Path
@@ -62,7 +63,12 @@ FEATURE_COLUMNS = [
 
 ENTAIL_CUTOFF = 0.5
 CONTRA_CUTOFF = 0.5
-MAX_CONTEXT_SENTENCES = 12
+MAX_CONTEXT_SENTENCES = 8
+_TOKEN_RE = re.compile(r"[a-z0-9]+")
+
+
+def _tokens(text: str) -> set:
+    return set(_TOKEN_RE.findall(text.lower()))
 
 DEFAULT_INPUT = DATA_PROCESSED / "qa_clean.parquet"
 DEFAULT_OUTPUT = DATA_PROCESSED / "claim_features.parquet"
@@ -84,16 +90,37 @@ def _empty_row(n_claims: int = 0) -> dict:
     }
 
 
-def _pairs_for_sample(question: str, context: str, answer: str) -> tuple[list, list]:
-    """Build (sentence, claim) NLI pairs plus (claim_index, sentence_index) meta."""
+def _pairs_for_sample(
+    question: str, context: str, answer: str, top_k: int = MAX_CONTEXT_SENTENCES
+) -> tuple[list, list]:
+    """Build (sentence, claim) NLI pairs plus (claim_index, sentence_index) meta.
+
+    Long contexts (RAGTruth summaries) keep the top-k sentences by lexical
+    overlap with each claim, so the evidence search stays local and bounded.
+    Short contexts use every sentence.
+    """
     claims = split_claims(answer or "")
-    sentences = split_sentences(context or "")[:MAX_CONTEXT_SENTENCES]
+    sentences = split_sentences(context or "")
     if not claims or not sentences:
         return [], []
     pairs, meta = [], []
+    if len(sentences) <= top_k:
+        for ci, claim in enumerate(claims):
+            for si, sentence in enumerate(sentences):
+                pairs.append((sentence, claim))
+                meta.append((ci, si))
+        return pairs, meta
+
+    sentence_tokens = [_tokens(s) for s in sentences]
     for ci, claim in enumerate(claims):
-        for si, sentence in enumerate(sentences):
-            pairs.append((sentence, claim))
+        claim_tokens = _tokens(claim)
+        scored = []
+        for si, tokens in enumerate(sentence_tokens):
+            union = len(claim_tokens | tokens) or 1
+            scored.append((len(claim_tokens & tokens) / union, si))
+        picked = sorted(si for _, si in sorted(scored, key=lambda t: (-t[0], t[1]))[:top_k])
+        for si in picked:
+            pairs.append((sentences[si], claim))
             meta.append((ci, si))
     return pairs, meta
 
@@ -155,6 +182,7 @@ def extract_claim_features_df(
     total = len(df)
     t0 = time.time()
     processed = 0
+    last_log = 0
     next_checkpoint = checkpoint_every
 
     def flush_rows(rows: list) -> None:
@@ -196,13 +224,16 @@ def extract_claim_features_df(
             flush_rows(pending)
             pending = []
             next_checkpoint += checkpoint_every
+        if processed - last_log >= 1000 or processed == total:
+            last_log = processed
             elapsed = time.time() - t0
             rate = processed / elapsed if elapsed > 0 else 0.0
             remaining = total - processed
             logger.info(
-                f"{processed}/{total} samples | {rate:.1f}/s | ETA {remaining / rate / 60:.1f} min"
+                f"Claim features: {processed}/{total} ({100 * processed / total:.1f}%) | "
+                f"{rate:.1f} samples/s | ETA {remaining / rate / 60:.1f} min"
                 if rate > 0
-                else f"{processed}/{total} samples"
+                else f"Claim features: {processed}/{total} samples"
             )
 
     if pending:
