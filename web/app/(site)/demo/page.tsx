@@ -59,7 +59,7 @@ export default function DemoPage() {
       {/* Section jump nav for presenting */}
       <nav
         aria-label="Demo sections"
-        className="glass-panel sticky top-[4.5rem] z-30 -mt-2 flex gap-1.5 overflow-x-auto rounded-2xl p-2 print:hidden"
+        className="glass-panel sticky top-2 z-30 -mt-2 flex gap-1.5 overflow-x-auto rounded-2xl p-2 print:hidden"
       >
         {[
           ["01", "The problem", "demo-01"],

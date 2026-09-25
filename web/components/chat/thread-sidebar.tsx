@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useAui, useAuiState } from "@assistant-ui/react";
-import { Check, MessageSquarePlus, Pencil, Trash2, X } from "lucide-react";
+import { Check, MessageSquarePlus, PanelLeftClose, Pencil, ShieldCheck, Trash2, X } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { toast } from "@/components/ui/toast";
 
 function formatWhen(date?: Date): string {
@@ -16,10 +18,14 @@ function formatWhen(date?: Date): string {
 
 export function ThreadSidebar({
   className = "",
+  flush = false,
   onNavigate,
+  onToggleCollapse,
 }: {
   className?: string;
+  flush?: boolean;
   onNavigate?: () => void;
+  onToggleCollapse?: () => void;
 }) {
   const aui = useAui();
   const items = useAuiState((s) => s.threads.threadItems);
@@ -63,24 +69,49 @@ export function ThreadSidebar({
     toast("Chat deleted");
   };
 
+  const surface = flush ? "border-r border-border/40 bg-card/20" : "glass-panel rounded-2xl";
+
   return (
-    <aside
-      className={`glass-panel flex min-h-0 flex-col rounded-2xl ${className}`}
-      aria-label="Chat history"
-    >
-      <div className="flex items-center justify-between gap-2 border-b border-border/40 px-3 py-2.5">
-        <span className="eyebrow">Chats</span>
+    <aside className={`flex min-h-0 flex-col ${surface} ${className}`} aria-label="Chat history">
+      {/* Brand */}
+      <div className="flex items-center justify-between gap-2 px-3 py-3">
+        <Link
+          href="/"
+          className="flex min-w-0 items-center gap-2 rounded-lg px-1 py-0.5 transition-opacity hover:opacity-80"
+        >
+          <ShieldCheck className="h-4 w-4 shrink-0 text-violet-600 dark:text-purple-400" aria-hidden />
+          <span className="gradient-text truncate text-sm font-bold tracking-tight">HaluRISC</span>
+        </Link>
+        {onToggleCollapse && (
+          <button
+            type="button"
+            onClick={onToggleCollapse}
+            aria-label="Collapse sidebar"
+            title="Collapse sidebar (Ctrl+B)"
+            className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+          >
+            <PanelLeftClose className="h-4 w-4" aria-hidden />
+          </button>
+        )}
+      </div>
+
+      {/* New chat */}
+      <div className="px-3 pb-2">
         <button
           type="button"
           onClick={() => {
             aui.threads.switchToNewThread();
             onNavigate?.();
           }}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-border/70 bg-secondary/50 px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+          className="inline-flex w-full items-center gap-2 rounded-xl border border-border/70 bg-secondary/40 px-3 py-2 text-xs font-semibold transition-colors hover:border-primary/40 hover:bg-secondary"
         >
-          <MessageSquarePlus className="h-3.5 w-3.5" aria-hidden />
+          <MessageSquarePlus className="h-3.5 w-3.5 text-violet-600 dark:text-purple-400" aria-hidden />
           New chat
         </button>
+      </div>
+
+      <div className="px-3 pb-1">
+        <span className="eyebrow">Chats</span>
       </div>
 
       <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto p-2">
@@ -209,9 +240,20 @@ export function ThreadSidebar({
         })}
       </nav>
 
-      <p className="border-t border-border/40 px-3 py-2 text-[10px] leading-relaxed text-muted-foreground">
-        Saved in a local SQLite file on this machine.
-      </p>
+      <div className="space-y-2 border-t border-border/40 px-3 py-2.5">
+        <div className="flex items-center justify-between gap-2">
+          <ThemeToggle />
+          <Link
+            href="/analyze"
+            className="text-[11px] font-semibold text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Open analyze mode
+          </Link>
+        </div>
+        <p className="text-[10px] leading-relaxed text-muted-foreground">
+          Chats are saved in a local SQLite file on this machine.
+        </p>
+      </div>
     </aside>
   );
 }
