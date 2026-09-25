@@ -27,6 +27,7 @@ import argparse
 import json
 import logging
 import sys
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -272,6 +273,8 @@ def run_b6(cfg: B6Config) -> dict:
     strict_report = {}
     tuning_report = {}
     predictions_by_variant_seed = {}
+    total_jobs = len(cfg.variants) * len(cfg.seeds)
+    job = 0
 
     for variant in cfg.variants:
         names = variant_features(variant)
@@ -296,10 +299,17 @@ def run_b6(cfg: B6Config) -> dict:
 
         tuning_report[variant] = {}
         for seed in cfg.seeds:
+            job += 1
+            logger.info(
+                f"[{job}/{total_jobs}] {variant} seed {seed}: tuning {cfg.n_iter} iters x 5 folds "
+                f"on {len(X_train)} rows x {len(names)} features..."
+            )
+            t_job = time.time()
             params, cv_auc = tune_variant(X_train, y_train, groups, seed, constraints, cfg)
             tuning_report[variant][str(seed)] = {"params": params, "cv_auc": cv_auc}
             model = make_variant_xgb(params, seed, constraints, early_stopping=True)
             model.fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=False)
+            logger.info(f"[{job}/{total_jobs}] {variant} seed {seed}: tuned+fit in {time.time() - t_job:.0f}s")
             p_val = model.predict_proba(X_val)[:, 1]
             p_test = model.predict_proba(X_test)[:, 1]
 
