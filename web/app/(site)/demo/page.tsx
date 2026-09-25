@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Presentation, ShieldCheck, AlertTriangle, Gauge, Scale } from "lucide-react";
-import { loadDashboardData, fmt } from "@/lib/results";
+import { loadDashboardData, fmt, fmtPct } from "@/lib/results";
 import { Panel, Figure, DataTable } from "@/components/dashboard/panel";
 
 /**
@@ -12,12 +12,19 @@ export default function DemoPage() {
   const review = d.b5.reviewCases ?? [];
   const errors = d.b3.errorCases ?? [];
   const b5Failures = d.b5.failureCases ?? [];
-  const inDomain = d.b2.comparison?.find((r) => r.model === "xgboost");
-  const qaTest = d.b3.datasetMetrics?.ragtruth_qa_test;
-  const faith = d.b3.datasetMetrics?.faithbench;
   const target = d.b4.target;
   const sourceRef = target?.methods.raw_reference?.ece_mean;
   const targetEce = target?.methods.platt?.ece_mean;
+
+  const ec = d.b6.comparison?.find((r) => r.variant === "m3");
+  const ecShift = d.b6.external ?? [];
+  const ecCalibration = d.b6.calibration;
+  const shiftValue = (variant: string, dataset: string, key: "predicted_positive_rate" | "auroc") =>
+    ecShift.find((r) => r.variant === variant && r.dataset === dataset)?.[key] ?? null;
+  const stdFlag = shiftValue("m0", "ragtruth_all_test", "predicted_positive_rate");
+  const ecFlag = shiftValue("m3", "ragtruth_all_test", "predicted_positive_rate");
+  const stdFbAuroc = shiftValue("m0", "faithbench", "auroc");
+  const ecFbAuroc = shiftValue("m3", "faithbench", "auroc");
 
   const grounded = review.find((c) => c.calibrated_score < 0.3);
   const hallucinated = review.find((c) => c.calibrated_score >= 0.7);
@@ -29,10 +36,19 @@ export default function DemoPage() {
   const b3Error = errors.find((c) => c.source_dataset === "ragtruth") ?? errors[0] ?? null;
 
   const stats = [
-    { label: "In-domain test F1 (B2, leakage-free)", value: inDomain ? fmt(inDomain.f1_mean) : "—" },
-    { label: "RAGTruth QA zero-shot F1 (B3)", value: qaTest ? fmt(qaTest.f1_mean) : "—" },
-    { label: "FaithBench zero-shot F1 (B3)", value: faith ? fmt(faith.f1_mean) : "—" },
-    { label: "ECE on QA test: raw → target-calibrated (B4)", value: sourceRef != null && targetEce != null ? `${fmt(sourceRef)} → ${fmt(targetEce)}` : "—" },
+    { label: "Deployed test F1 (EC-XGB, B9)", value: ec ? fmt(ec.f1_mean) : "—" },
+    {
+      label: "RAGTruth flagged: standard → EC-XGB",
+      value: stdFlag != null && ecFlag != null ? `${fmtPct(stdFlag)} → ${fmtPct(ecFlag)}` : "—",
+    },
+    {
+      label: "Display ECE on RAGTruth QA: raw → calibrated (B9)",
+      value: ecCalibration ? `${fmt(ecCalibration.test_raw.ece)} → ${fmt(ecCalibration.test_platt.ece)}` : "—",
+    },
+    {
+      label: "FaithBench AUROC: standard → EC-XGB",
+      value: stdFbAuroc != null && ecFbAuroc != null ? `${fmt(stdFbAuroc)} → ${fmt(ecFbAuroc)}` : "—",
+    },
   ];
 
   const riskTone = (s: number) =>
@@ -66,7 +82,8 @@ export default function DemoPage() {
           ["02", "Real cases", "demo-02"],
           ["03", "A real failure", "demo-03"],
           ["04", "Calibration", "demo-04"],
-          ["05", "Transfer", "demo-05"],
+          ["05", "EC-XGB shift", "demo-05"],
+          ["06", "Transfer", "demo-06"],
         ].map(([num, label, id]) => (
           <a
             key={id}
@@ -82,8 +99,8 @@ export default function DemoPage() {
       <Panel id="demo-01" className="scroll-mt-32" title="01 · The problem in one line">
         <p className="text-sm leading-relaxed text-foreground/90">
           Black-box LLMs hallucinate; you cannot inspect their weights. HaluRISC scores candidate answers against the
-          provided context with <strong>26 calibrated, explainable features</strong> — and measures honestly where that
-          works and where it breaks.
+          provided context with <strong>26 evidence-consistency features plus 8 claim-level NLI aggregates</strong>{" "}
+          (35 features in the deployed EC-XGB model) — and measures honestly where that works and where it breaks.
         </p>
         <div className="flex flex-wrap gap-2 pt-2">
           {stats.map((s) => (
@@ -163,7 +180,55 @@ export default function DemoPage() {
         </p>
       </Panel>
 
-      <Panel id="demo-05" className="scroll-mt-32" title="05 · Transfer robustness (B3)" subtitle="Zero-shot on external data — figures from artifacts/figures/b3.">
+      <Panel
+        id="demo-05"
+        className="scroll-mt-32"
+        title="05 · EC-XGB under shift (B9)"
+        subtitle="Standard XGBoost (HaluEval only) vs EC-XGB (multi-source). Flagged = share above the 0.5 threshold."
+      >
+        {ecShift.length > 0 ? (
+          <DataTable
+            rowKey={(r) => `${r.dataset}-${r.model}`}
+            highlight={(r) => r.model.startsWith("EC-XGB")}
+            columns={[
+              { key: "dataset", label: "Corpus" },
+              { key: "model", label: "Model" },
+              { key: "f1", label: "F1", align: "right" },
+              { key: "auroc", label: "AUROC", align: "right" },
+              { key: "flagged", label: "Flagged", align: "right" },
+              { key: "ece", label: "ECE", align: "right" },
+            ]}
+            rows={["ragtruth_all_test", "ragtruth_qa_test", "faithbench"].flatMap((dataset) =>
+              ["m0", "m3"].map((variant) => {
+                const row = ecShift.find((r) => r.dataset === dataset && r.variant === variant);
+                return {
+                  dataset:
+                    dataset === "ragtruth_all_test"
+                      ? "RAGTruth (all test tasks)"
+                      : dataset === "ragtruth_qa_test"
+                        ? "RAGTruth QA test (held out)"
+                        : "FaithBench",
+                  model: variant === "m0" ? "Standard XGBoost" : "EC-XGB (deployed)",
+                  f1: fmt(row?.f1),
+                  auroc: fmt(row?.auroc),
+                  flagged: fmtPct(row?.predicted_positive_rate),
+                  ece: fmt(row?.ece),
+                };
+              }),
+            )}
+          />
+        ) : (
+          <p className="text-xs text-muted-foreground">b6_external_metrics.csv not present.</p>
+        )}
+        {ecCalibration && (
+          <p className="text-[11px] text-muted-foreground pt-2">
+            Display calibrator: {ecCalibration.chosen} on {ecCalibration.calibration_rows.toLocaleString()} RAGTruth QA
+            rows, held-out ECE {fmt(ecCalibration.test_raw.ece)} → {fmt(ecCalibration.test_platt.ece)}.
+          </p>
+        )}
+      </Panel>
+
+      <Panel id="demo-06" className="scroll-mt-32" title="06 · Transfer robustness (B3)" subtitle="Zero-shot on external data — figures from artifacts/figures/b3.">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Figure src="/api/figures/b3/transfer_score_distributions.png" alt="Score distributions in-domain versus out-of-domain" className="w-full" />
           <Figure src="/api/figures/b3/context_length_robustness.png" alt="F1 by context length" className="w-full" />

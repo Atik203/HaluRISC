@@ -130,7 +130,9 @@ The contribution is compound, not any single component:
 
 | Result | Value | Artifact |
 |---|---|---|
-| In-domain (HaluEval QA test, n = 3,000) | F1 **0.9846**, AUROC **0.9979**, MCC 0.9697, ECE **0.0045** | `b2/b2_model_comparison.csv`, `b4/b4_calibration_metrics.csv` |
+| In-domain (HaluEval QA test, n = 3,000) | F1 **0.9846**, AUROC **0.9979**, MCC 0.9697, ECE **0.0045** (standard B2 model) | `b2/b2_model_comparison.csv`, `b4/b4_calibration_metrics.csv` |
+| Deployed model (EC-XGB, B9) | F1 **0.9857**, AUROC **0.9985**, MCC 0.9717 on HaluEval QA; RAGTruth all-task flag rate **99.9% → 61.4%**, AUROC 0.475 → 0.573, ECE 0.635 → 0.283 | `b6/b6_model_comparison.csv`, `b6/b6_external_metrics.csv` |
+| Deployed display score (EC-XGB, B9) | Platt calibrator on RAGTruth QA: ECE **0.737 → 0.128**; atomic conjunction-aware claim splitting | `b6/b6_calibration.json`, `src/claims/decompose.py` |
 | Source-domain calibration | Raw already calibrated; Platt 0.0091 and isotonic 0.0070 do **not** improve it | `b4/b4_calibration_metrics.csv` |
 | Target recalibration (RAGTruth QA) | ECE **0.8185 → 0.1335** (Platt) / 0.1316 (isotonic) | `b4/b4_target_calibration.json` |
 | Zero-shot transfer | RAGTruth QA F1 0.302; RAGTruth all 0.603; FaithBench 0.813 (recall 1.0 everywhere) | `b3/b3_dataset_metrics.csv` |
@@ -531,9 +533,13 @@ Three calibration layers exist, and they are separate by design:
   judge is ~100x more expensive and slower, and scores lower F1 on the same 200
   samples. It remains in the system as a routed adjudicator for borderline
   claims.
-- **Why 26 features and not more?** Every feature must survive an ablation. The
-  entity, numeric, and hedging groups are neutral on HaluEval and are kept
-  because they are interpretable and cheap, with the negative result disclosed.
+- **Why 26 base features, and 35 in the deployed model?** Every feature must
+  survive an ablation. The entity, numeric, and hedging groups are neutral on
+  HaluEval and are kept because they are interpretable and cheap, with the
+  negative result disclosed. The deployed EC-XGB adds eight claim-level NLI
+  aggregates (Table `tab:claim` in the manuscript) plus a natural-response
+  source indicator, which lift the vector to 35 features and drive the
+  over-flagging fix under domain shift.
 - **Why does the heuristic baseline score 0.935?** HaluEval's hallucinated
   answers often reduce lexical overlap by construction. That is exactly why
   artifact controls exist and why the discussion of shortcuts is central.
@@ -584,10 +590,12 @@ probability, `calibrated_score` is the evidence-domain display score, and
 The headline percentage in the UI is **not** the raw model score. Two things
 happen:
 
-1. **Evidence-domain calibration.** An isotonic calibrator fitted on 5,034
-   natural RAGTruth QA rows maps raw scores to an evidence-domain probability
-   (ECE 0.133 on the disjoint 900-row test, versus 0.819 raw). This removes the
-   blanket-99% saturation that HaluEval-Platt produced on full sentences.
+1. **Evidence-domain calibration.** The deployed EC-XGB ships a Platt
+   calibrator fitted on 5,034 natural RAGTruth QA rows (ECE 0.128 on the
+   disjoint 900-row test, versus 0.737 raw). This removes the blanket-99%
+   saturation that HaluEval-Platt produced on full sentences. The claim
+   splitter is atomic and conjunction-aware, so compound claims are verified as
+   separate clauses.
 2. **Per-claim adjustment.** In `/verify`, claims are decomposed from the answer
    and checked with sentence-level NLI against the context, an indexed document
    collection, or web search. Contradicted claims push the score up, supported

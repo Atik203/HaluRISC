@@ -279,7 +279,13 @@ the most informative published signal across feature-importance analyses.
    `max_depth`, `learning_rate`, `n_estimators`, `subsample`,
    `colsample_bytree`; best configuration depth 4, learning rate 0.01, 500
    trees, subsample 0.9, column subsample 0.7 (CV AUROC 0.9970).
-5. Controls: NLI-only, TF-IDF answer-only, TF-IDF full-input, majority, and
+5. EC-XGB (deployed, B9): the same learner with log-scaled length features
+   under monotone evidence constraints, eight claim-level NLI aggregates over
+   atomic clauses, RAGTruth non-QA multi-source training with a source
+   indicator (35 features), a Platt display calibrator fitted on the RAGTruth
+   QA calibration split, and a recall-first operating point at a 5%
+   false-positive budget.
+6. Controls: NLI-only, TF-IDF answer-only, TF-IDF full-input, majority, and
    overlap-heuristic models quantify benchmark shortcuts.
 
 ### 7.2 Protocol discipline

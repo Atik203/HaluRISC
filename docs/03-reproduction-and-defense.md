@@ -226,7 +226,11 @@ The offline `/demo` page contains all of this material and needs no API key.
 
 | Question | Answer |
 |---|---|
-| In-domain F1 / AUROC / MCC | 0.9846 / 0.9979 / 0.9697 |
+| In-domain F1 / AUROC / MCC (standard B2) | 0.9846 / 0.9979 / 0.9697 |
+| Deployed EC-XGB F1 / AUROC / MCC | 0.9857 / 0.9985 / 0.9717 |
+| Shift flag rate, RAGTruth all: standard → EC-XGB | 99.9% → 61.4% |
+| Shift AUROC / ECE, RAGTruth all: standard → EC-XGB | 0.475 → 0.573 / 0.635 → 0.283 |
+| Display ECE on RAGTruth QA: raw → EC-XGB Platt | 0.737 → 0.128 |
 | Source ECE raw / Platt / isotonic | 0.0045 / 0.0091 / 0.0070 |
 | Target ECE raw → recalibrated | 0.8185 → 0.1335 |
 | Transfer F1 QA / all / FaithBench | 0.302 / 0.603 / 0.813 |
@@ -242,7 +246,7 @@ The offline `/demo` page contains all of this material and needs no API key.
 | Length: hallucinated share 1 → 17+ words | 2.1% → 99.2% |
 | Latency p50 / artifact size | 61.8 ms / 0.82 MB |
 | Judge F1 / cost / latency | 0.841 / $0.105 per 1K / 1,310 ms |
-| Tests | 206 passed |
+| Tests | 224 passed |
 
 ## 11. Anticipated Defense Q&A
 
@@ -254,6 +258,14 @@ stay in one partition, and an automated check proves zero cross-partition
 groups. Leakage was found and removed: the invalid row-level split gave 0.9886,
 the grouped split gives 0.9846. Artifact controls (answer-only TF-IDF 0.9224,
 heuristic 0.9352) show why the benchmark is easy, and we report that openly.
+
+**Q: Why does a long grounded answer show a lower risk score now?**
+The claim splitter is atomic and conjunction-aware, so "X, and Y" becomes two
+claims and each is verified against the evidence on its own. Previously a
+compound claim had no single supporting sentence, and the NLI cross-encoder
+returned a false contradiction that pushed the score into the medium band. The
+deployed display calibrator stays strictly monotone in the raw score, so the
+fix comes from the verdict layer instead of loosening the calibration.
 
 **Q: Why is the overlap heuristic so strong?**
 Because HaluEval's hallucinated answers are generated to be plausible but often
@@ -444,8 +456,9 @@ number in the manuscript traces to a file covered by that manifest.
 | **Ablation** | Removing a component (here, a feature group) and retraining to measure its contribution |
 | **Neutralization** | Setting top SHAP features to their median to test whether they drive predictions |
 | **Perturbation stability** | Editing answer text and checking that semantic edits move the score while neutral edits do not |
-| **Display score** | Evidence-domain calibrated score shown to users (isotonic on RAGTruth + per-claim adjustment) |
-| **Legacy score** | HaluEval-Platt source-domain score kept as a labelled secondary signal |
+| **EC-XGB** | Deployed evidence-consistent XGBoost (monotone constraints, atomic claim-level features, multi-source training; B9 artifacts under `b6/`) |
+| **Display score** | Evidence-domain calibrated score shown to users (EC-XGB Platt on RAGTruth QA + per-claim adjustment) |
+| **Legacy score** | Standard B2 model's HaluEval-Platt score kept as a labelled secondary signal |
 | **Tier 1–4** | Verification layers: risk card, per-claim NLI, retrieval, LLM-judge routing |
 | **BFF** | Backend-for-frontend: the Next.js layer that proxies API calls and hides server keys |
 | **fp16** | Half-precision inference used on the 6 GB GPU to fit the NLI/SBERT models |
