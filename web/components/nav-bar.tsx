@@ -32,7 +32,7 @@ export function NavBar({ version }: { version?: string | null }) {
     pathname === href || (href === "/dashboard" && pathname.startsWith("/dashboard/"));
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/40 glass-panel">
+    <header className="border-b border-border/40 bg-background">
       <div className="max-w-[88rem] mx-auto px-4 h-16 flex items-center justify-between">
         {/* Brand */}
         <Link

@@ -195,6 +195,7 @@ export function AutoRiskCard() {
 
   const [state, setState] = useState<"idle" | "loading" | "done" | "error" | "timeout">("idle");
   const [result, setResult] = useState<VerifyResult | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState<boolean | null>(null);
   const [grounding, setGrounding] = useState<"evidence" | "conversation">("conversation");
   const analyzedRef = useRef<string | null>(null);
   const inputRef = useRef<{ question: string; context: string; answer: string } | null>(null);
@@ -341,6 +342,9 @@ export function AutoRiskCard() {
     const legacyConflict = claimRisk != null && claimRisk !== "high_risk" && score >= 0.6;
     const maxAbs = top.length > 0 ? Math.max(...top.map((f) => Math.abs(f.impact)), 1e-6) : 1;
     const thresholds = p.thresholds;
+    // Details stay collapsed unless the verdict is high risk; the header button
+    // overrides that choice for the rest of the message lifetime.
+    const open = detailsOpen ?? headlineLabel === "high_risk";
 
     return (
       <section
@@ -443,6 +447,24 @@ export function AutoRiskCard() {
           </p>
         )}
 
+        <button
+          type="button"
+          onClick={() => setDetailsOpen(!open)}
+          aria-expanded={open}
+          className="flex w-full items-center justify-between gap-2 rounded-lg py-0.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <span>
+            {open
+              ? "Hide verdicts and explanation"
+              : hasClaims
+                ? `Show ${claims.length} claim verdict${claims.length > 1 ? "s" : ""} and explanation`
+                : "Show explanation and features"}
+          </span>
+          <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`} aria-hidden />
+        </button>
+
+        {open && (
+          <>
         {/* Claim verdicts */}
         {hasClaims && agg && (
           <div className="space-y-2">
@@ -649,6 +671,8 @@ export function AutoRiskCard() {
             </li>
           </ul>
         </details>
+          </>
+        )}
       </section>
     );
   }

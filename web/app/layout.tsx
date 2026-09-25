@@ -2,10 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import localFont from "next/font/local";
 import "./globals.css";
-import { NavBar } from "@/components/nav-bar";
-import { Footer } from "@/components/footer";
 import { Toaster } from "@/components/ui/toast";
-import { readJson } from "@/lib/results";
 
 const instrument = localFont({
   src: [
@@ -57,10 +54,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Server-side: version badge comes from the frozen manifest, never hardcoded.
-  const manifest = readJson<{ model_version?: string | null }>("manifest.json");
-  const version = manifest?.model_version ?? null;
-
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -76,17 +69,7 @@ export default function RootLayout({
         <Script id="halurisc-theme-init" strategy="beforeInteractive">
           {`(function(){try{var t=localStorage.getItem("halurisc-theme");if(t==="light"){document.documentElement.classList.remove("dark")}else{document.documentElement.classList.add("dark")}}catch(e){document.documentElement.classList.add("dark")}try{if(localStorage.getItem("halurisc-projector")==="on"){document.documentElement.classList.add("projector")}}catch(e){}})();`}
         </Script>
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-primary focus:text-primary-foreground"
-        >
-          Skip to main content
-        </a>
-        <NavBar version={version} />
-        <main id="main-content" className="flex-1 max-w-[88rem] w-full mx-auto p-4 md:p-6">
-          {children}
-        </main>
-        <Footer />
+        {children}
         <Toaster />
       </body>
     </html>

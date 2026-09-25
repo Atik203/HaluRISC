@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { RiskGauge } from "@/components/risk-gauge";
 import { ShapChart } from "@/components/shap-chart";
+import { ModelComparisonCard, type ModelComparisonInput } from "@/components/model-comparison-card";
 import { Switch } from "@/components/ui/switch";
 import { MlStatus } from "@/components/ml-status";
 import {
@@ -232,6 +233,7 @@ export default function AnalyzePage() {
 
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<{ a: AnalysisResult; b?: AnalysisResult } | null>(null);
+  const [submitted, setSubmitted] = useState<{ a: ModelComparisonInput; b?: ModelComparisonInput } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [meta, setMeta] = useState<Meta | null>(null);
 
@@ -276,10 +278,13 @@ export default function AnalyzePage() {
     setLoading(true);
     setError(null);
     setResults(null);
+    const inputA: ModelComparisonInput = { question, context, answer: answerA };
+    const inputB: ModelComparisonInput | undefined = compare ? { question, context, answer: answerB } : undefined;
     try {
-      const a = await analyzeInput({ question, context, answer: answerA });
-      const b = compare ? await analyzeInput({ question, context, answer: answerB }) : undefined;
+      const a = await analyzeInput(inputA);
+      const b = inputB ? await analyzeInput(inputB) : undefined;
       setResults({ a, b });
+      setSubmitted({ a: inputA, b: inputB });
     } catch (err) {
       console.error("API error:", err);
       setError(err instanceof Error ? err.message : "Failed to reach the ML backend.");
@@ -320,6 +325,13 @@ export default function AnalyzePage() {
       setSummary(rows);
       applyScenario(SAMPLE_SCENARIOS[0]);
       if (firstResult) setResults({ a: firstResult });
+      setSubmitted({
+        a: {
+          question: SAMPLE_SCENARIOS[0].q,
+          context: SAMPLE_SCENARIOS[0].c,
+          answer: SAMPLE_SCENARIOS[0].a,
+        },
+      });
       toast("Three examples scored. Copy the summary when you need it.");
     } catch (err) {
       console.error("API error:", err);
@@ -597,6 +609,16 @@ export default function AnalyzePage() {
                 <RiskPanel result={results.a} meta={meta} title="Answer A" />
                 {results.b && <RiskPanel result={results.b} meta={meta} title="Answer B" />}
               </div>
+
+              {submitted && (
+                <div className={`grid gap-6 ${submitted.b ? "lg:grid-cols-2" : "grid-cols-1"}`}>
+                  <ModelComparisonCard
+                    input={submitted.a}
+                    title={submitted.b ? "Answer A · model comparison" : "Model comparison"}
+                  />
+                  {submitted.b && <ModelComparisonCard input={submitted.b} title="Answer B · model comparison" />}
+                </div>
+              )}
             </div>
           )}
 
