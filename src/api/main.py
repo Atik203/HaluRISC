@@ -78,6 +78,16 @@ B2_LR = MODELS_DIR / "b2" / "logistic_regression_full_seed_42.joblib"
 B2_SCALER = MODELS_DIR / "b2" / "scaler_full.joblib"
 HEURISTIC_OVERLAP_THRESHOLD = 0.97
 
+# B6/EC-XGB deployable (Evidence-Consistent XGBoost, multi-source variant m3)
+# with its own display calibrator fit on the RAGTruth QA calibration split.
+# The standard B2 model stays loaded as the legacy_score source and as a
+# comparison baseline.
+B6_EC_MODEL = MODELS_DIR / "b6" / "xgboost_m3_seed_42.joblib"
+B6_EC_DISPLAY = MODELS_DIR / "b6" / "ec_xgb_display_calibrator.joblib"
+B6_EC_FEATURES = ROOT / "artifacts" / "results" / "b6" / "b6_feature_names.json"
+EC_MODEL_VERSION = "b6-ec-xgb-v1.0"
+EC_SOURCE_VALUE = 1.0  # natural-response indicator, same convention as the B6 external runs
+
 # Heavy models (spaCy + NLI + SBERT) are preloaded at startup and loaded lazily
 # on first request only if startup failed. The lock prevents concurrent
 # double-loading, which previously caused memory spikes and process exits.
@@ -95,7 +105,7 @@ FEATURE_CACHE: "OrderedDict[str, Dict[str, float]]" = OrderedDict()
 FEATURE_CACHE_MAX = 256
 
 STATE = {"model": None, "explainer": None, "feature_models": None, "feature_cols": None,
-         "params": None, "baselines": {}}
+         "params": None, "baselines": {}, "ec_model": None, "model_version": MODEL_VERSION}
 
 # T3: lazy retrieval singletons (document index + Brave/Tavily web search).
 RETRIEVAL_LOCK = threading.Lock()
@@ -419,6 +429,43 @@ def _load_baseline_models() -> dict:
     return baselines
 
 
+def _ec_feature_names() -> list:
+    """EC-XGB feature order: 26 base + 8 claim-level + source indicator."""
+    if B6_EC_FEATURES.exists():
+        names = json.loads(B6_EC_FEATURES.read_text()).get("m3")
+        if names:
+            return names
+    from src.features.claim_features import FEATURE_COLUMNS as CLAIM_COLUMNS
+    from src.models.train_pipeline import FEATURE_GROUPS
+
+    base = [c for cols in FEATURE_GROUPS.values() for c in cols]
+    return base + list(CLAIM_COLUMNS) + ["source_ragtruth"]
+
+
+def _load_ec_model():
+    """EC-XGB m3 + its display calibrator. None when the artifacts are absent."""
+    if not (B6_EC_MODEL.exists() and B6_EC_DISPLAY.exists()):
+        return None
+    import joblib
+
+    raw = joblib.load(B6_EC_MODEL)
+    bundle = joblib.load(B6_EC_DISPLAY)
+    method, cal = bundle["method"], bundle["calibrator"]
+
+    def predict_proba_display(X):
+        p_raw = raw.predict_proba(X)[:, 1]
+        if method == "isotonic":
+            res = cal.predict(p_raw)
+        else:
+            res = cal.predict_proba(p_raw.reshape(-1, 1))[:, 1]
+        pos = np.asarray(res).reshape(-1, 1)
+        return np.hstack([1.0 - pos, pos])
+
+    logger.info(f"EC-XGB deployable loaded (m3 seed 42, display={method})")
+    return {"raw": raw, "predict_proba_display": predict_proba_display,
+            "feature_cols": _ec_feature_names()}
+
+
 def load_artifacts():
     def _missing(name: str) -> bool:
         return not (MODELS_DIR / name).exists()
@@ -439,20 +486,25 @@ def load_artifacts():
     STATE["params"] = json.loads((MODELS_DIR / "params.json").read_text())
     STATE["feature_cols"] = json.loads((MODELS_DIR / "feature_names.json").read_text())
     STATE["baselines"] = _load_baseline_models()
+    STATE["ec_model"] = _load_ec_model()
+    STATE["model_version"] = EC_MODEL_VERSION if STATE["ec_model"] is not None else MODEL_VERSION
 
     try:
         import joblib
 
-        explainer_path = MODELS_DIR / "shap_explainer.joblib"
-        if explainer_path.exists():
-            STATE["explainer"] = joblib.load(explainer_path)
-            logger.info("Loaded saved SHAP explainer")
-        else:
-            import shap
+        import shap
 
-            raw = STATE["model"]["raw"]
-            STATE["explainer"] = shap.TreeExplainer(raw)
-            logger.info("Built SHAP explainer from raw model")
+        if STATE["ec_model"] is not None:
+            STATE["explainer"] = shap.TreeExplainer(STATE["ec_model"]["raw"])
+            logger.info("Built SHAP explainer from the EC-XGB model")
+        else:
+            explainer_path = MODELS_DIR / "shap_explainer.joblib"
+            if explainer_path.exists():
+                STATE["explainer"] = joblib.load(explainer_path)
+                logger.info("Loaded saved SHAP explainer")
+            else:
+                STATE["explainer"] = shap.TreeExplainer(STATE["model"]["raw"])
+                logger.info("Built SHAP explainer from raw model")
     except Exception as e:
         logger.warning(f"SHAP explainer not loaded: {e}")
 
@@ -501,8 +553,9 @@ async def lifespan(app: FastAPI):
     else:
         logger.info("HALU_API_PRELOAD=0 -> heavy models will load lazily on first /predict.")
     yield
-    STATE.update({"model": None, "explainer": None, "feature_models": None,
-                  "feature_cols": None, "params": None, "baselines": {}})  # reset schema, not clear()
+    STATE.update({"model": None, "explainer": None, "feature_models": None, "feature_cols": None,
+                  "params": None, "baselines": {}, "ec_model": None,
+                  "model_version": MODEL_VERSION})  # reset schema, not clear()
 
 
 # T4: per-IP rate limits (slowapi; env-tunable).
@@ -550,6 +603,14 @@ def _feature_vector(req: AnalysisRequest) -> Dict[str, float]:
         except Exception as e:
             raise HTTPException(status_code=503, detail=f"Feature models unavailable: {e}")
         feats = extract_all_features_single(req.question or "", req.context or "", req.answer, models)
+        if STATE.get("ec_model") is not None:
+            from src.features.claim_features import compute_claim_features
+
+            nli = models.get("nli")
+            if nli is None:
+                raise HTTPException(status_code=503, detail="NLI model unavailable for EC-XGB features.")
+            feats.update(compute_claim_features(req.answer, req.context or "", nli))
+            feats["source_ragtruth"] = EC_SOURCE_VALUE
         missing = [c for c in STATE["feature_cols"] if c not in feats]
         if missing:
             raise HTTPException(status_code=500, detail=f"Feature extractor missing columns: {missing}")
@@ -568,6 +629,17 @@ def _risk_label(p: float) -> str:
     return "low_risk"
 
 
+def _model_version() -> str:
+    return STATE.get("model_version") or MODEL_VERSION
+
+
+def _active_prediction_cols() -> list:
+    """Feature columns of the model that leads /predict (EC-XGB when loaded)."""
+    if STATE.get("ec_model") is not None:
+        return STATE["ec_model"]["feature_cols"]
+    return STATE["feature_cols"] or []
+
+
 FEEDBACK_LOG = ROOT / "data" / "processed" / "feedback_log.jsonl"
 
 
@@ -577,14 +649,16 @@ FEEDBACK_LOG = ROOT / "data" / "processed" / "feedback_log.jsonl"
 @app.get("/health")
 def health_check():
     artifacts_ok = STATE["model"] is not None
+    active_cols = _active_prediction_cols()
     return {
         "status": "ok" if artifacts_ok and STATE["feature_models"] is not None else "degraded",
-        "model": MODEL_VERSION,
+        "model": _model_version(),
         "feature_version": FEATURE_VERSION,
         "artifacts_loaded": artifacts_ok,
         "feature_models_ready": STATE["feature_models"] is not None,
         "explainer_ready": STATE["explainer"] is not None,
-        "n_features": len(STATE["feature_cols"]) if STATE["feature_cols"] else 0,
+        "ec_xgb_ready": STATE.get("ec_model") is not None,
+        "n_features": len(active_cols),
         "baselines_loaded": sorted((STATE.get("baselines") or {}).keys()),
         "device": _active_device(),
     }
@@ -615,18 +689,24 @@ def api_meta():
     try:
         from src.models.train_pipeline import FEATURE_GROUPS
 
-        feature_groups = FEATURE_GROUPS
+        feature_groups = {group: list(cols) for group, cols in FEATURE_GROUPS.items()}
+        if STATE.get("ec_model") is not None:
+            from src.features.claim_features import FEATURE_COLUMNS as CLAIM_COLUMNS
+
+            feature_groups["claim"] = list(CLAIM_COLUMNS)
     except Exception:
         pass
+    active_cols = _active_prediction_cols()
     return {
-        "model_version": MODEL_VERSION,
+        "model_version": _model_version(),
         "feature_version": FEATURE_VERSION,
-        "n_features": len(STATE["feature_cols"]) if STATE["feature_cols"] else 0,
+        "n_features": len(active_cols),
         "thresholds": THRESHOLDS,
         "warning": WARNING,
         "device": _active_device(),
         "feature_groups": feature_groups,
         "features_available": STATE["model"] is not None,
+        "ec_xgb_ready": STATE.get("ec_model") is not None,
         "web_search": _web_search_meta(),
     }
 
@@ -650,14 +730,22 @@ def predict_risk(req: AnalysisRequest):
 
     t0 = time.time()
     feats = _feature_vector(req)
-    X = np.array([[feats[c] for c in STATE["feature_cols"]]], dtype=np.float64)
 
-    p_raw = float(STATE["model"]["raw"].predict_proba(X)[0, 1])
-    p_raw = min(0.999, max(0.001, p_raw))
-    p_disp = float(STATE["model"]["predict_proba_display"](X)[0, 1])
-    p_disp = min(0.999, max(0.001, p_disp))
-    p_leg = float(STATE["model"]["predict_proba"](X)[0, 1])
+    # Legacy score: the B2 model on its own 26 base features.
+    X_base = np.array([[feats[c] for c in STATE["feature_cols"]]], dtype=np.float64)
+    p_leg = float(STATE["model"]["predict_proba"](X_base)[0, 1])
     p_leg = min(0.999, max(0.001, p_leg))
+
+    if STATE.get("ec_model") is not None:
+        ec = STATE["ec_model"]
+        X = np.array([[feats[c] for c in ec["feature_cols"]]], dtype=np.float64)
+        p_raw = float(ec["raw"].predict_proba(X)[0, 1])
+        p_disp = float(ec["predict_proba_display"](X)[0, 1])
+    else:
+        p_raw = float(STATE["model"]["raw"].predict_proba(X_base)[0, 1])
+        p_disp = float(STATE["model"]["predict_proba_display"](X_base)[0, 1])
+    p_raw = min(0.999, max(0.001, p_raw))
+    p_disp = min(0.999, max(0.001, p_disp))
 
     latency = round((time.time() - t0) * 1000, 2)
 
@@ -668,7 +756,7 @@ def predict_risk(req: AnalysisRequest):
         label=_risk_label(p_disp),
         thresholds=THRESHOLDS,
         latency_ms=latency,
-        model_version=MODEL_VERSION,
+        model_version=_model_version(),
         feature_version=FEATURE_VERSION,
         warning=WARNING,
         features={k: float(v) for k, v in feats.items()},
@@ -681,7 +769,8 @@ def explain_risk(req: AnalysisRequest):
         raise HTTPException(status_code=503, detail="Explainer not loaded. Run training first.")
 
     feats = _feature_vector(req)
-    X = np.array([[feats[c] for c in STATE["feature_cols"]]], dtype=np.float64)
+    cols = _active_prediction_cols()
+    X = np.array([[feats[c] for c in cols]], dtype=np.float64)
 
     shap_values = STATE["explainer"].shap_values(X)[0]
     base_value = float(STATE["explainer"].expected_value)
@@ -689,7 +778,7 @@ def explain_risk(req: AnalysisRequest):
 
     top_features = [
         FeatureImpact(
-            feature=STATE["feature_cols"][i],
+            feature=cols[i],
             value=round(float(X[0, i]), 6),
             impact=round(float(shap_values[i]), 6),
         )
@@ -719,23 +808,31 @@ def analyze_risk(req: AnalysisRequest):
 
 @app.post("/predict/compare", response_model=CompareResponse)
 def predict_compare(req: AnalysisRequest):
-    """Score the same input with the B2 comparison baselines.
+    """Score the same input with EC-XGB and the B2 comparison baselines.
 
-    Every served model uses the raw probability from its saved B2 artifact.
-    The decision_threshold field reports the paper's decision rule (0.5 for
-    the learned models, 1 - 0.97 for the overlap heuristic), while label uses
-    the deployed display bands. The deployed calibrated/legacy/raw triple is
-    returned separately. Additive endpoint; /predict is unchanged.
+    Every model uses its raw probability. EC-XGB (the deployed model) leads
+    with its own 35 features; the standard XGBoost and the other baselines use
+    the 26 base features. The decision_threshold field reports the paper's
+    decision rule (0.5 for learned models, 1 - 0.97 for the heuristic), while
+    label uses the deployed display bands. Additive endpoint.
     """
     pred = predict_risk(req)
     feats = pred.features
     X = np.array([[feats[c] for c in STATE["feature_cols"]]], dtype=np.float64)
 
-    models: Dict[str, CompareModelScore] = {
-        "xgboost": CompareModelScore(score=pred.risk_score,
-                                     label=_risk_label(pred.risk_score),
-                                     decision_threshold=0.5),
-    }
+    models: Dict[str, CompareModelScore] = {}
+    if STATE.get("ec_model") is not None:
+        ec = STATE["ec_model"]
+        X_ec = np.array([[feats[c] for c in ec["feature_cols"]]], dtype=np.float64)
+        p_ec = float(ec["raw"].predict_proba(X_ec)[0, 1])
+        p_ec = min(0.999, max(0.001, p_ec))
+        models["ec_xgb"] = CompareModelScore(score=round(p_ec, 4), label=_risk_label(p_ec),
+                                             decision_threshold=0.5)
+    # Standard B2 XGBoost baseline, always on the 26 base features.
+    p_std = float(STATE["model"]["raw"].predict_proba(X)[0, 1])
+    p_std = min(0.999, max(0.001, p_std))
+    models["xgboost"] = CompareModelScore(score=round(p_std, 4), label=_risk_label(p_std),
+                                          decision_threshold=0.5)
     for name, entry in (STATE.get("baselines") or {}).items():
         scaler = entry.get("scaler")
         Xm = scaler.transform(X) if scaler is not None else X
@@ -761,7 +858,7 @@ def predict_compare(req: AnalysisRequest):
         ),
         thresholds=THRESHOLDS,
         latency_ms=pred.latency_ms,
-        model_version=MODEL_VERSION,
+        model_version=_model_version(),
         feature_version=FEATURE_VERSION,
         warning=WARNING,
     )
@@ -944,7 +1041,7 @@ def submit_feedback(request: Request, req: FeedbackRequest):
     row = {
         **req.model_dump(),
         "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "model_version": MODEL_VERSION,
+        "model_version": _model_version(),
     }
     FEEDBACK_LOG.parent.mkdir(parents=True, exist_ok=True)
     with open(FEEDBACK_LOG, "a", encoding="utf-8") as f:

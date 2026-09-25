@@ -28,8 +28,11 @@ def test_health(client):
     assert r.status_code == 200
     body = r.json()
     assert body["status"] in ("ok", "degraded")
-    assert body["model"] == "b2-xgboost-v1.0"
+    # The deployed model is EC-XGB when its artifacts exist, else the B2 model.
+    assert body["model"] == api._model_version()
+    assert body["model"] in ("b6-ec-xgb-v1.0", "b2-xgboost-v1.0")
     assert "artifacts_loaded" in body
+    assert "ec_xgb_ready" in body
 
 
 def test_predict_empty_answer_400(client):
@@ -176,17 +179,24 @@ def test_predict_compare_contract(client, monkeypatch):
         "feature_models": object(),
         "feature_cols": ["overlap_answer_context", "b"],
         "params": {},
+        "model_version": "b6-ec-xgb-v1.0",
         "baselines": {
             "random_forest": {"model": FakeRaw(0.081)},
             "logistic_regression": {"model": FakeRaw(0.521), "scaler": FakeScaler()},
         },
+        "ec_model": {
+            "raw": FakeRaw(0.135),
+            "predict_proba_display": lambda X: np.tile([[0.98, 0.02]], (len(X), 1)),
+            "feature_cols": ["overlap_answer_context", "b", "c"],
+        },
     })
     monkeypatch.setattr(api, "_feature_vector",
-                        lambda req: {"overlap_answer_context": 0.9, "b": 0.0})
+                        lambda req: {"overlap_answer_context": 0.9, "b": 0.0, "c": 0.0})
     r = client.post("/predict/compare", json={"question": "q", "context": "c", "answer": "a"})
     assert r.status_code == 200
     body = r.json()
-    assert set(body["models"]) == {"xgboost", "random_forest", "logistic_regression", "heuristic_overlap"}
+    assert set(body["models"]) == {"ec_xgb", "xgboost", "random_forest", "logistic_regression", "heuristic_overlap"}
+    assert body["models"]["ec_xgb"]["score"] == 0.135
     assert body["models"]["xgboost"]["score"] == 0.62
     assert body["models"]["xgboost"]["label"] == "high_risk"
     assert body["models"]["random_forest"]["score"] == 0.081
@@ -194,10 +204,10 @@ def test_predict_compare_contract(client, monkeypatch):
     assert body["models"]["random_forest"]["decision_threshold"] == 0.5
     assert body["models"]["heuristic_overlap"]["score"] == 0.1
     assert body["models"]["heuristic_overlap"]["decision_threshold"] == 0.03
-    assert body["deployed"]["calibrated_score"] == 0.62
-    assert body["deployed"]["risk_score"] == 0.62
-    assert body["deployed"]["legacy_score"] == 0.62
-    assert body["deployed"]["label"] == "high_risk"
+    assert body["deployed"]["calibrated_score"] == 0.02   # EC-XGB display
+    assert body["deployed"]["risk_score"] == 0.135        # EC-XGB raw
+    assert body["deployed"]["legacy_score"] == 0.62       # B2 legacy
+    assert body["deployed"]["label"] == "low_risk"
     assert body["thresholds"] == {"low": 0.35, "medium": 0.60, "high": 1.0}
 
 
@@ -222,6 +232,32 @@ def test_predict_compare_without_baselines(client, monkeypatch):
 def test_predict_compare_400_empty_answer(client):
     r = client.post("/predict/compare", json={"question": "q", "context": "c", "answer": "  "})
     assert r.status_code == 400
+
+
+def test_predict_uses_ec_xgb_when_loaded(client, monkeypatch):
+    """Deployed path: EC-XGB raw + EC display + B2 legacy, version bumped."""
+    monkeypatch.setattr(api, "STATE", {
+        "model": _fake_model(0.9),
+        "explainer": None,
+        "feature_models": object(),
+        "feature_cols": ["a", "b"],
+        "params": {},
+        "model_version": "b6-ec-xgb-v1.0",
+        "ec_model": {
+            "raw": FakeRaw(0.31),
+            "predict_proba_display": lambda X: np.tile([[0.78, 0.22]], (len(X), 1)),
+            "feature_cols": ["a", "b", "c"],
+        },
+    })
+    monkeypatch.setattr(api, "_feature_vector", lambda req: {"a": 1.0, "b": 0.0, "c": 0.0})
+    r = client.post("/predict", json={"question": "q", "context": "c", "answer": "a"})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["risk_score"] == 0.31
+    assert body["calibrated_score"] == 0.22
+    assert body["legacy_score"] == 0.9
+    assert body["model_version"] == "b6-ec-xgb-v1.0"
+    assert body["label"] == "low_risk"
 
 
 def test_verify_claims_endpoint(client, monkeypatch):
