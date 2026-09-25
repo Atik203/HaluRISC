@@ -7,18 +7,18 @@
   "Journal_Paper/out/halurisc.bbl"
   "Journal_Paper/out/halurisc.blg"
   (rewritten before read)
-["pdflatex"] 1790360727.40639 "Journal_Paper/halurisc.tex" "Journal_Paper/out/halurisc.pdf" "halurisc" 1790360738.04921 0
+["pdflatex"] 1790365086.85819 "Journal_Paper/halurisc.tex" "Journal_Paper/out/halurisc.pdf" "halurisc" 1790365097.55661 0
   "Journal_Paper/figures/architecture.png" 1789655824 499290 6f32db651de3211f8f92374cb6025467 ""
   "Journal_Paper/figures/b3/transfer_score_distributions.png" 1789655824 79303 b223d5bb192cab27de364d0781018396 ""
   "Journal_Paper/figures/b4/calibration_shift.png" 1789655824 65028 300a4979e20fa757913474137ba6ba3a ""
   "Journal_Paper/figures/b4/reliability_diagrams.png" 1789655824 158830 0f518e1b8ff1098f43828f8315a9730d ""
   "Journal_Paper/figures/fig_shap_importance_b5.png" 1789655824 49661 ef555181e88b2555724775842387b395 ""
   "Journal_Paper/figures/system_architecture.png" 1789655824 3572630 fed5cdcd0652be343865a5b58da8bc7b ""
-  "Journal_Paper/halurisc.tex" 1790360677 63844 1016b77d34798f03767c9315262cec98 ""
-  "Journal_Paper/out/halurisc.abs" 1790360728 2208 f8b535c1f99ffeb5bf14b23ec6aebf82 "pdflatex"
-  "Journal_Paper/out/halurisc.aux" 1790360736 17086 4a7bd7f142c0b726a5f5b4b6b749660b "pdflatex"
+  "Journal_Paper/halurisc.tex" 1790365041 63977 6a37dab4ea3bee55903b278efff8ec82 ""
+  "Journal_Paper/out/halurisc.abs" 1790365088 2208 036c60f5ec6e317c25b2617ae5907461 "pdflatex"
+  "Journal_Paper/out/halurisc.aux" 1790365096 17086 4a7bd7f142c0b726a5f5b4b6b749660b "pdflatex"
   "Journal_Paper/out/halurisc.bbl" 1790356677 9900 cae9102c2c3aa52c2c892fa2bf36d067 "bibtex Journal_Paper/out/halurisc"
-  "Journal_Paper/out/halurisc.out" 1790360728 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "Journal_Paper/out/halurisc.out" 1790365088 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
   "Journal_Paper/screenshots/ground_shap.png" 1789655824 31209 7c197481b7d43c07d2bb52979d90b610 ""
   "Journal_Paper/screenshots/grounded_correct.png" 1789655824 127347 a3599d5ddd1ca2575c00e2dc0cc9cc24 ""
   "Journal_Paper/screenshots/hallucinated_date.png" 1789655824 107987 bac44fda7e9a5e364b7fef48834c0475 ""

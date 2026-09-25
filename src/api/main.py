@@ -918,24 +918,41 @@ def retrieve_passages(req: RetrieveRequest):
     )
 
 
-def _passages_for_claims(claims: List[str], mode: str):
+def _clip_query(text: str, max_words: int = 70, max_chars: int = 580) -> str:
+    """Trim a search query to the Brave LLM Context limits (75 words / 600 chars)."""
+    clipped = " ".join(text.split()[:max_words])
+    return clipped[:max_chars].strip()
+
+
+def _claim_query(question: str, claim: str) -> str:
+    """Claim query enriched with the user question for on-topic retrieval."""
+    q = (question or "").strip()
+    return _clip_query(f"{q} {claim}".strip()) if q else _clip_query(claim)
+
+
+def _passages_for_claims(claims: List[str], mode: str, question: str = ""):
     """Tier 3 evidence selection -> (evidence_mode, passages_by_claim | None).
 
     None = use the pasted context; otherwise a per-claim passage list.
+    Retrieval queries combine the user question with the claim, which keeps
+    per-claim web searches on topic.
     """
     if mode == "context":
         return "context", None
     if mode in ("auto", "index"):
         index = get_retrieval_index()
         if index.status()["n_passages"] > 0:
-            per_claim = [index.search(c, top_k=3, rerank_fn=_maybe_rerank) for c in claims]
+            per_claim = [
+                index.search(_claim_query(question, c), top_k=3, rerank_fn=_maybe_rerank)
+                for c in claims
+            ]
             return "index", per_claim
         if mode == "index":
             return "index", [[] for _ in claims]  # abstain everything
     if mode in ("auto", "web"):
         web = get_web_search()
         if web.enabled:
-            per_claim = [web.search(c) for c in claims]
+            per_claim = [web.search(_claim_query(question, c)) for c in claims]
             # rerank web passages too (relevance; lazy cross-encoder, offline fallback)
             per_claim = [_maybe_rerank(c, ps, 3) if ps else ps for c, ps in zip(claims, per_claim)]
             return "web", per_claim
@@ -966,7 +983,9 @@ def verify_claims_endpoint(request: Request, req: VerifyRequest):
     if nli_model is None:
         raise HTTPException(status_code=503, detail="NLI model not loaded.")
 
-    evidence_mode, passages_by_claim = _passages_for_claims(claims, req.evidence_mode)
+    evidence_mode, passages_by_claim = _passages_for_claims(
+        claims, req.evidence_mode, req.question or ""
+    )
     with INFERENCE_LOCK:  # CUDA-safe: NLI batching serialized like feature extraction
         if passages_by_claim is None:
             from src.claims.decompose import split_sentences

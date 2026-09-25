@@ -65,6 +65,16 @@ class FakeAnswersService:
         }
 
 
+def test_claim_query_includes_question_and_respects_limits():
+    from src.api.main import _claim_query
+
+    query = _claim_query("Who won the 2026 World Cup?", "Spain won the championship.")
+    assert query.startswith("Who won the 2026 World Cup?")
+    long_query = _claim_query("Question?", " ".join(f"word{i}" for i in range(200)))
+    assert len(long_query.split()) <= 70
+    assert len(long_query) <= 580
+
+
 def test_brave_answer_contract(client, monkeypatch):
     monkeypatch.setattr(api, "get_brave_answers", lambda: FakeAnswersService())
     r = client.post("/answer", json={"question": "What is the capital of France?"})

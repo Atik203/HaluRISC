@@ -54,10 +54,12 @@ p = 0.044 vs random forest; bootstrap 95% CI F1 [0.9812, 0.9895], AUROC
 
 **Deployed model (EC-XGB, B9):** the served model adds monotone evidence
 constraints, eight claim-level NLI aggregates over atomic clauses, and RAGTruth
-non-QA multi-source training (35 features). It preserves in-domain F1 (0.9858),
-cuts the RAGTruth all-task flag rate from 99.9% to 61.6% (AUROC 0.475 -> 0.568,
-ECE 0.635 -> 0.286), and its Platt display calibrator drops the RAGTruth QA ECE
-from 0.743 to 0.126. Contract: `b6-ec-xgb-v1.0`; artifacts: `artifacts/results/b6/`.
+non-QA multi-source training (35 features). It preserves in-domain F1 (0.9855),
+cuts the RAGTruth all-task flag rate from 99.9% to 61.3% (AUROC 0.475 -> 0.582,
+ECE 0.635 -> 0.278), and its Platt display calibrator drops the RAGTruth QA ECE
+from 0.726 to 0.126. Verdicts are support-first and gated by evidence
+relevance, so off-topic retrieved pages cannot decide a claim. Contract:
+`b6-ec-xgb-v1.0`; artifacts: `artifacts/results/b6/`.
 
 **Calibration on the source domain:** raw XGBoost probabilities are already
 well calibrated (ECE 0.0045), and Platt (0.0091) and isotonic (0.0070) do not

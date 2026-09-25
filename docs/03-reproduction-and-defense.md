@@ -227,10 +227,10 @@ The offline `/demo` page contains all of this material and needs no API key.
 | Question | Answer |
 |---|---|
 | In-domain F1 / AUROC / MCC (standard B2) | 0.9846 / 0.9979 / 0.9697 |
-| Deployed EC-XGB F1 / AUROC / MCC | 0.9858 / 0.9985 / 0.9719 |
-| Shift flag rate, RAGTruth all: standard → EC-XGB | 99.9% → 61.6% |
-| Shift AUROC / ECE, RAGTruth all: standard → EC-XGB | 0.475 → 0.568 / 0.635 → 0.286 |
-| Display ECE on RAGTruth QA: raw → EC-XGB Platt | 0.743 → 0.126 |
+| Deployed EC-XGB F1 / AUROC / MCC | 0.9855 / 0.9984 / 0.9715 |
+| Shift flag rate, RAGTruth all: standard → EC-XGB | 99.9% → 61.3% |
+| Shift AUROC / ECE, RAGTruth all: standard → EC-XGB | 0.475 → 0.582 / 0.635 → 0.278 |
+| Display ECE on RAGTruth QA: raw → EC-XGB Platt | 0.726 → 0.126 |
 | Source ECE raw / Platt / isotonic | 0.0045 / 0.0091 / 0.0070 |
 | Target ECE raw → recalibrated | 0.8185 → 0.1335 |
 | Transfer F1 QA / all / FaithBench | 0.302 / 0.603 / 0.813 |
