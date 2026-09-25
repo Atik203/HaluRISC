@@ -227,10 +227,10 @@ The offline `/demo` page contains all of this material and needs no API key.
 | Question | Answer |
 |---|---|
 | In-domain F1 / AUROC / MCC (standard B2) | 0.9846 / 0.9979 / 0.9697 |
-| Deployed EC-XGB F1 / AUROC / MCC | 0.9857 / 0.9985 / 0.9717 |
-| Shift flag rate, RAGTruth all: standard → EC-XGB | 99.9% → 61.4% |
-| Shift AUROC / ECE, RAGTruth all: standard → EC-XGB | 0.475 → 0.573 / 0.635 → 0.283 |
-| Display ECE on RAGTruth QA: raw → EC-XGB Platt | 0.737 → 0.128 |
+| Deployed EC-XGB F1 / AUROC / MCC | 0.9858 / 0.9985 / 0.9719 |
+| Shift flag rate, RAGTruth all: standard → EC-XGB | 99.9% → 61.6% |
+| Shift AUROC / ECE, RAGTruth all: standard → EC-XGB | 0.475 → 0.568 / 0.635 → 0.286 |
+| Display ECE on RAGTruth QA: raw → EC-XGB Platt | 0.743 → 0.126 |
 | Source ECE raw / Platt / isotonic | 0.0045 / 0.0091 / 0.0070 |
 | Target ECE raw → recalibrated | 0.8185 → 0.1335 |
 | Transfer F1 QA / all / FaithBench | 0.302 / 0.603 / 0.813 |
@@ -263,7 +263,7 @@ heuristic 0.9352) show why the benchmark is easy, and we report that openly.
 The claim splitter is atomic and conjunction-aware, so "X, and Y" becomes two
 claims and each is verified against the evidence on its own. Previously a
 compound claim had no single supporting sentence, and the NLI cross-encoder
-returned a false contradiction that pushed the score into the medium band. The
+could return a false contradiction that pushed the score into the medium band. Verdicts are now decided support-first: any entailing sentence supports the claim, and a contradiction decides only when no sentence supports it, so the all-supported answer scores low. The
 deployed display calibrator stays strictly monotone in the raw score, so the
 fix comes from the verdict layer instead of loosening the calibration.
 

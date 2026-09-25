@@ -462,31 +462,31 @@ conjunction-aware, so compound clauses are verified separately. Artifacts:
 |---|---|---|---|---|---|
 | m0 standard XGBoost | 26 | 0.9844 | 0.9980 | 0.9693 | 0.0066 |
 | m1 + log length + monotone | 26 | 0.9852 | 0.9976 | 0.9708 | 0.0051 |
-| m2 + claim features | 34 | 0.9848 | 0.9985 | 0.9699 | 0.0053 |
-| **m3 EC-XGB (deployed)** | **35** | **0.9857** | **0.9985** | **0.9717** | 0.0075 |
+| m2 + claim features | 34 | 0.9857 | 0.9985 | 0.9716 | 0.0051 |
+| **m3 EC-XGB (deployed)** | **35** | **0.9858** | **0.9985** | **0.9719** | 0.0077 |
 
 **Zero-shot shift (threshold 0.5, mean over seeds)**
 
 | Corpus | Model | F1 | AUROC | Flagged | ECE |
 |---|---|---|---|---|---|
 | RAGTruth all | standard | 0.5181 | 0.4753 | 99.9% | 0.6346 |
-| RAGTruth all | EC-XGB | 0.5594 | 0.5727 | 61.4% | 0.2826 |
+| RAGTruth all | EC-XGB | 0.5618 | 0.5684 | 61.6% | 0.2861 |
 | RAGTruth QA (held out) | standard | 0.3022 | 0.5465 | 99.9% | 0.8149 |
-| RAGTruth QA (held out) | EC-XGB | 0.3063 | 0.5270 | 98.3% | 0.7560 |
+| RAGTruth QA (held out) | EC-XGB | 0.3058 | 0.5311 | 98.5% | 0.7630 |
 | FaithBench | standard | 0.8130 | 0.5089 | 99.5% | 0.2917 |
-| FaithBench | EC-XGB | 0.1125 | 0.5909 | 6.8% | 0.4543 |
+| FaithBench | EC-XGB | 0.1150 | 0.5886 | 7.4% | 0.4546 |
 
 **Calibration and operating point**
 
 - Platt calibrator on 5,034 RAGTruth QA calibration rows: held-out ECE
-  0.737 -> 0.128 and Brier 0.696 -> 0.161.
-- Recall-first operating point at a 5% false-positive budget: test FPR 4.2-5.0%
+  0.743 -> 0.126 and Brier 0.705 -> 0.161.
+- Recall-first operating point at a 5% false-positive budget: test FPR 4.1-5.0%
   with recall 99.0-99.5% (about one point of F1 traded).
 
 **Honest limits**
 
-- In-domain gains are not significant (McNemar m0 vs m3, p = 0.82).
-- FaithBench becomes conservative: the flag rate drops to 6.8% and the AUROC
-  rises to 0.591, while the F1 falls from 0.813 to 0.113 at the fixed threshold.
+- In-domain gains are not significant (McNemar m0 vs m3, p = 0.80).
+- FaithBench becomes conservative: the flag rate drops to 7.4% and the AUROC
+  rises to 0.589, while the F1 falls from 0.813 to 0.113 at the fixed threshold.
 - The held-out RAGTruth QA task improves mainly in calibration, so multi-source
   training does not transfer a new task for free.

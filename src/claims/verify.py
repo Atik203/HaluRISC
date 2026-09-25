@@ -1,11 +1,21 @@
 """T2: per-claim NLI verification against evidence.
 
 For every claim the NLI cross-encoder scores (claim, evidence_sentence) pairs
-for every evidence sentence; the verdict uses the strongest sentence signal:
+for every evidence sentence. Verdicts are decided per pair and then aggregated
+with support priority:
 
-  supported      entailment  >= ENTAIL_THRESHOLD and beats contradiction
-  contradicted   contradiction >= CONTRA_THRESHOLD
-  unsupported    neither (neutral / no supporting evidence)
+  per pair     entailment >= ENTAIL_THRESHOLD and entailment >= contradiction
+               -> support candidate
+               contradiction >= CONTRA_THRESHOLD and contradiction > entailment
+               -> contradiction candidate
+  per claim    any support candidate       -> supported
+               else any contradiction      -> contradicted
+               else                        -> unsupported
+
+The support-first aggregation matters because a compound or mismatched claim
+can draw a high contradiction score from an unrelated sentence while another
+sentence entails it with high confidence. Comparing the maxima across
+different sentences used to turn such claims into false contradictions.
 
 Evidence sentence = the one that drove the verdict (surfaced in the UI).
 Verdict thresholds are documented constants (roadmap B7.5 T2) and are
@@ -42,24 +52,33 @@ def _effective_thresholds() -> tuple:
         return ENTAIL_THRESHOLD, CONTRA_THRESHOLD
 
 
+def score_block(entail: np.ndarray, contra: np.ndarray) -> tuple:
+    """One claim's verdict from its per-sentence entailment/contradiction arrays.
+
+    Support priority: a claim is grounded when any evidence sentence entails
+    it (entailment >= threshold and entailment >= that pair's contradiction).
+    A contradiction only decides when no sentence supports the claim.
+    Returns (verdict, confidence, best_sentence_index).
+    """
+    ent_thr, con_thr = _effective_thresholds()
+    support = (entail >= ent_thr) & (entail >= contra)
+    contradict = (contra >= con_thr) & (contra > entail)
+    if support.any():
+        best = int(np.argmax(np.where(support, entail, -1.0)))
+        return "supported", float(entail[best]), best
+    if contradict.any():
+        best = int(np.argmax(np.where(contradict, contra, -1.0)))
+        return "contradicted", float(contra[best]), best
+    best = int(np.argmax(np.maximum(entail, contra)))
+    return "unsupported", float(max(entail[best], contra[best])), best
+
+
 def _score_claim_blocks(probs: np.ndarray, n_sents: int):
     """Per-claim verdict decision from an (n_claims * n_sents, 3) prob block."""
-    ent_thr, con_thr = _effective_thresholds()
     out = []
     for ci in range(len(probs) // n_sents if n_sents else 0):
         block = probs[ci * n_sents : (ci + 1) * n_sents]
-        contra = block[:, 0]
-        entail = block[:, 1]
-        best_ent = int(np.argmax(entail))
-        best_con = int(np.argmax(contra))
-        ent_prob = float(entail[best_ent])
-        con_prob = float(contra[best_con])
-        if ent_prob >= ent_thr and ent_prob >= con_prob:
-            out.append(("supported", ent_prob, best_ent))
-        elif con_prob >= con_thr:
-            out.append(("contradicted", con_prob, best_con))
-        else:
-            out.append(("unsupported", max(ent_prob, con_prob), best_ent))
+        out.append(score_block(block[:, 1], block[:, 0]))
     return out
 
 
@@ -79,7 +98,8 @@ def _aggregate(out_claims: list) -> dict:
         "contradicted": counts["contradicted"],
         "unsupported": counts["unsupported"],
         "overall": overall,
-        "rule": f"entailment>={ent_thr} beats contradiction | contradiction>={con_thr} | else unsupported",
+        "rule": (f"supported if any sentence entails (>={ent_thr} and >= its contradiction) | "
+                 f"contradicted if none supports and a sentence contradicts (>{con_thr} and > its entailment) | else unsupported"),
     }
 
 
@@ -121,10 +141,10 @@ def verify_claims_against_passages(claims: list, passages_by_claim: list, nli_mo
     """Per-claim verification against retrieved passages (Tier 3).
 
     SENTENCE-LEVEL: each passage is split into sentences and every
-    (evidence_sentence, claim) pair is scored; the verdict uses the strongest
-    sentence (max entailment beats contradiction, else contradiction, else
-    unsupported). The driving sentence becomes the evidence/quote, so long
-    passages cannot drown a supporting sentence (fixes 'Dhaka' neutral bug).
+    (evidence_sentence, claim) pair is scored with the same support-first rule
+    as verify_claims (any entailing sentence wins, contradiction only decides
+    when no sentence supports). The driving sentence becomes the evidence or
+    quote, so long passages cannot drown a supporting sentence.
     Claims without passages abstain (unsupported, abstained=True).
     """
     claims = [c for c in claims if c.strip()]
@@ -163,19 +183,7 @@ def verify_claims_against_passages(claims: list, passages_by_claim: list, nli_mo
                 continue
             block = probs[cursor : cursor + n]
             cursor += n
-            contra = block[:, 0]
-            entail = block[:, 1]
-            ent_thr, con_thr = _effective_thresholds()
-            best_ent = int(np.argmax(entail))
-            best_con = int(np.argmax(contra))
-            ent_prob = float(entail[best_ent])
-            con_prob = float(contra[best_con])
-            if ent_prob >= ent_thr and ent_prob >= con_prob:
-                verdict, confidence, sent_idx = "supported", ent_prob, best_ent
-            elif con_prob >= con_thr:
-                verdict, confidence, sent_idx = "contradicted", con_prob, best_con
-            else:
-                verdict, confidence, sent_idx = "unsupported", max(ent_prob, con_prob), best_ent
+            verdict, confidence, sent_idx = score_block(block[:, 1], block[:, 0])
 
             _, pi = sent_passage[cursor - n + sent_idx]
             passage = ps[pi]
