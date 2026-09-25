@@ -90,7 +90,7 @@ user question
 
 Layer 3 is the part that exists today (FastAPI `/verify`, `/judge`, `/index`,
 `/feedback`, plus the chat risk card and the analyze dashboard). Layer 1 exists
-partially: pasted context, uploaded documents, and Tavily web search. Layers 2
+partially: pasted context, uploaded documents, and Brave web search. Layers 2
 and 4 are the extension the plan proposes.
 
 ## 4. The routing policy
@@ -116,7 +116,7 @@ medium and high bands keeps quality while staying cheap.
 | Evidence | Okapi BM25 (Elasticsearch / OpenSearch) | exact term retrieval for names, numbers, dates | cheap and strong on rare tokens |
 | Evidence | Dense retrieval: FAISS, Qdrant, pgvector with E5 or BGE embeddings | semantic match when wording differs | combine with BM25 in a hybrid score |
 | Evidence | Cross-encoder reranker (for example BGE-reranker) | reorder top candidates by true relevance | small latency cost, large precision gain |
-| Evidence | Knowledge sources: Wikipedia / Wikidata APIs, domain databases, Tavily search | authoritative grounding material | our Tier 3 already calls Tavily |
+| Evidence | Knowledge sources: Wikipedia / Wikidata APIs, domain databases, Brave search | authoritative grounding material | our Tier 3 already calls Brave (LLM Context) |
 | Generation | Cite-as-you-write prompting and structured outputs | force the model to attach evidence spans | easy to add to the existing `/api/chat` prompt |
 | Generation | Tool calling for arithmetic, dates, and lookups | removes a whole class of numeric hallucinations | our chat already defines a tool schema |
 | Generation | Self-consistency or self-check sampling (SelfCheckGPT style) | catch unstable answers by disagreement | costs multiple samples, use only on risky bands |

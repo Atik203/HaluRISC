@@ -72,6 +72,12 @@ B2_MODEL = MODELS_DIR / "b2" / "xgboost_seed_42.joblib"
 B4_PLATT = MODELS_DIR / "b4" / "calibrator_platt_source_seed_42.joblib"
 B4_DISPLAY = MODELS_DIR / "b4" / "calibrator_display.joblib"
 
+# B2 comparison baselines for /predict/compare (seed 42, serving only).
+B2_RF = MODELS_DIR / "b2" / "random_forest_seed_42.joblib"
+B2_LR = MODELS_DIR / "b2" / "logistic_regression_full_seed_42.joblib"
+B2_SCALER = MODELS_DIR / "b2" / "scaler_full.joblib"
+HEURISTIC_OVERLAP_THRESHOLD = 0.97
+
 # Heavy models (spaCy + NLI + SBERT) are preloaded at startup and loaded lazily
 # on first request only if startup failed. The lock prevents concurrent
 # double-loading, which previously caused memory spikes and process exits.
@@ -88,12 +94,14 @@ INFERENCE_LOCK = threading.Lock()
 FEATURE_CACHE: "OrderedDict[str, Dict[str, float]]" = OrderedDict()
 FEATURE_CACHE_MAX = 256
 
-STATE = {"model": None, "explainer": None, "feature_models": None, "feature_cols": None, "params": None}
+STATE = {"model": None, "explainer": None, "feature_models": None, "feature_cols": None,
+         "params": None, "baselines": {}}
 
-# T3: lazy retrieval singletons (document index + Tavily web search).
+# T3: lazy retrieval singletons (document index + Brave/Tavily web search).
 RETRIEVAL_LOCK = threading.Lock()
 RETRIEVAL_INDEX = None
 WEB_SEARCH = None
+BRAVE_ANSWERS = None
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024
 MAX_TOTAL_UPLOAD_BYTES = 25 * 1024 * 1024
 
@@ -123,7 +131,7 @@ def get_retrieval_index():
 
 
 def get_web_search():
-    """Lazy singleton Tavily web search (key from root .env)."""
+    """Lazy singleton web search (Brave preferred, Tavily fallback; root .env)."""
     global WEB_SEARCH
     if WEB_SEARCH is None:
         with RETRIEVAL_LOCK:
@@ -132,6 +140,18 @@ def get_web_search():
 
                 WEB_SEARCH = WebSearch()
     return WEB_SEARCH
+
+
+def get_brave_answers():
+    """Lazy singleton Brave Answers client (optional /answer endpoint)."""
+    global BRAVE_ANSWERS
+    if BRAVE_ANSWERS is None:
+        with RETRIEVAL_LOCK:
+            if BRAVE_ANSWERS is None:
+                from src.retrieval import BraveAnswers
+
+                BRAVE_ANSWERS = BraveAnswers()
+    return BRAVE_ANSWERS
 
 
 def _maybe_rerank(query: str, candidates: list, top_k: int) -> list:
@@ -178,6 +198,32 @@ class AnalyzeResponse(BaseModel):
     """B7.5 Tier 1: combined predict + explain for auto-analysis cards."""
     prediction: PredictionResponse
     explanation: Optional[ExplanationResponse] = None
+
+
+class CompareModelScore(BaseModel):
+    """One B2 model's score for the same input (raw probability)."""
+    score: float
+    label: str
+    decision_threshold: float
+
+
+class DeployedComparison(BaseModel):
+    """The deployed score triple from /predict, kept for reference."""
+    calibrated_score: float
+    risk_score: float
+    legacy_score: float
+    label: str
+
+
+class CompareResponse(BaseModel):
+    """Same input scored by every served model (additive endpoint)."""
+    models: Dict[str, CompareModelScore]
+    deployed: DeployedComparison
+    thresholds: Dict[str, float]
+    latency_ms: float
+    model_version: str
+    feature_version: str
+    warning: str
 
 
 class ClaimVerdict(BaseModel):
@@ -249,6 +295,30 @@ class FeedbackRequest(BaseModel):
     evidence_sentence: str = ""
     feedback: Literal["agree", "disagree"] = "agree"
     note: str = ""
+
+
+class AnswerRequest(BaseModel):
+    """Brave Answers query (grounded, cited reply; requires the Answers plan)."""
+    question: str = Field(..., max_length=2000)
+    country: str = Field("us", max_length=3)
+    language: str = Field("en", max_length=8)
+    research: bool = False
+
+
+class AnswerCitation(BaseModel):
+    number: Optional[int] = None
+    url: str = ""
+    snippet: str = ""
+    start_index: Optional[int] = None
+    end_index: Optional[int] = None
+
+
+class AnswerResponse(BaseModel):
+    answer: str
+    citations: List[AnswerCitation]
+    usage: Dict[str, object]
+    model: str
+    latency_ms: float
 
 
 class JudgeRequest(BaseModel):
@@ -323,6 +393,32 @@ def _load_calibrated_model():
             "predict_proba_display": lambda X: bundle.predict_proba(X)}
 
 
+def _load_baseline_models() -> dict:
+    """B2 seed-42 comparison baselines for /predict/compare (load only, never train).
+
+    Only models with saved artifacts are served: random forest and logistic
+    regression (with its StandardScaler). NLI-only and TF-IDF control models
+    were not exported during B2, so they appear in the paper tables only.
+    """
+    import joblib
+
+    baselines: dict = {}
+    try:
+        if B2_RF.exists():
+            baselines["random_forest"] = {"model": joblib.load(B2_RF)}
+        if B2_LR.exists() and B2_SCALER.exists():
+            baselines["logistic_regression"] = {
+                "model": joblib.load(B2_LR),
+                "scaler": joblib.load(B2_SCALER),
+            }
+    except Exception as e:
+        logger.warning(f"Baseline comparison models not loaded: {e}")
+        return {}
+    if baselines:
+        logger.info(f"Baseline comparison models loaded: {sorted(baselines)}")
+    return baselines
+
+
 def load_artifacts():
     def _missing(name: str) -> bool:
         return not (MODELS_DIR / name).exists()
@@ -342,6 +438,7 @@ def load_artifacts():
     STATE["model"] = _load_calibrated_model()
     STATE["params"] = json.loads((MODELS_DIR / "params.json").read_text())
     STATE["feature_cols"] = json.loads((MODELS_DIR / "feature_names.json").read_text())
+    STATE["baselines"] = _load_baseline_models()
 
     try:
         import joblib
@@ -405,7 +502,7 @@ async def lifespan(app: FastAPI):
         logger.info("HALU_API_PRELOAD=0 -> heavy models will load lazily on first /predict.")
     yield
     STATE.update({"model": None, "explainer": None, "feature_models": None,
-                  "feature_cols": None, "params": None})  # reset schema, not clear()
+                  "feature_cols": None, "params": None, "baselines": {}})  # reset schema, not clear()
 
 
 # T4: per-IP rate limits (slowapi; env-tunable).
@@ -413,6 +510,7 @@ RATE_LIMIT_VERIFY = os.environ.get("HALU_RATE_VERIFY", "30/minute")
 RATE_LIMIT_INDEX = os.environ.get("HALU_RATE_INDEX", "10/minute")
 RATE_LIMIT_JUDGE = os.environ.get("HALU_RATE_JUDGE", "10/minute")
 RATE_LIMIT_FEEDBACK = os.environ.get("HALU_RATE_FEEDBACK", "30/minute")
+RATE_LIMIT_ANSWER = os.environ.get("HALU_RATE_ANSWER", "5/minute")
 
 limiter = Limiter(key_func=get_remote_address, default_limits=[])
 
@@ -487,6 +585,7 @@ def health_check():
         "feature_models_ready": STATE["feature_models"] is not None,
         "explainer_ready": STATE["explainer"] is not None,
         "n_features": len(STATE["feature_cols"]) if STATE["feature_cols"] else 0,
+        "baselines_loaded": sorted((STATE.get("baselines") or {}).keys()),
         "device": _active_device(),
     }
 
@@ -528,7 +627,18 @@ def api_meta():
         "device": _active_device(),
         "feature_groups": feature_groups,
         "features_available": STATE["model"] is not None,
+        "web_search": _web_search_meta(),
     }
+
+
+def _web_search_meta() -> dict:
+    """Provider info for the frontend (never raises)."""
+    try:
+        search = get_web_search()
+        return {"provider": search.provider, "enabled": search.enabled,
+                "answers_enabled": get_brave_answers().enabled}
+    except Exception:
+        return {"provider": None, "enabled": False, "answers_enabled": False}
 
 
 @app.post("/predict", response_model=PredictionResponse)
@@ -605,6 +715,56 @@ def analyze_risk(req: AnalysisRequest):
         else:
             raise
     return AnalyzeResponse(prediction=prediction, explanation=explanation)
+
+
+@app.post("/predict/compare", response_model=CompareResponse)
+def predict_compare(req: AnalysisRequest):
+    """Score the same input with the B2 comparison baselines.
+
+    Every served model uses the raw probability from its saved B2 artifact.
+    The decision_threshold field reports the paper's decision rule (0.5 for
+    the learned models, 1 - 0.97 for the overlap heuristic), while label uses
+    the deployed display bands. The deployed calibrated/legacy/raw triple is
+    returned separately. Additive endpoint; /predict is unchanged.
+    """
+    pred = predict_risk(req)
+    feats = pred.features
+    X = np.array([[feats[c] for c in STATE["feature_cols"]]], dtype=np.float64)
+
+    models: Dict[str, CompareModelScore] = {
+        "xgboost": CompareModelScore(score=pred.risk_score,
+                                     label=_risk_label(pred.risk_score),
+                                     decision_threshold=0.5),
+    }
+    for name, entry in (STATE.get("baselines") or {}).items():
+        scaler = entry.get("scaler")
+        Xm = scaler.transform(X) if scaler is not None else X
+        p = float(entry["model"].predict_proba(Xm)[0, 1])
+        p = min(0.999, max(0.001, p))
+        models[name] = CompareModelScore(score=round(p, 4), label=_risk_label(p),
+                                         decision_threshold=0.5)
+
+    heuristic_score = round(min(0.999, max(0.001, 1.0 - float(feats.get("overlap_answer_context", 0.0)))), 4)
+    models["heuristic_overlap"] = CompareModelScore(
+        score=heuristic_score,
+        label=_risk_label(heuristic_score),
+        decision_threshold=round(1.0 - HEURISTIC_OVERLAP_THRESHOLD, 4),
+    )
+
+    return CompareResponse(
+        models=models,
+        deployed=DeployedComparison(
+            calibrated_score=pred.calibrated_score,
+            risk_score=pred.risk_score,
+            legacy_score=pred.legacy_score,
+            label=pred.label,
+        ),
+        thresholds=THRESHOLDS,
+        latency_ms=pred.latency_ms,
+        model_version=MODEL_VERSION,
+        feature_version=FEATURE_VERSION,
+        warning=WARNING,
+    )
 
 
 @app.get("/index", response_model=IndexStatusResponse)
@@ -840,6 +1000,43 @@ def judge_answer(request: Request, req: JudgeRequest):
         )
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"LLM judge failed: {e}")
+
+
+@app.post("/answer", response_model=AnswerResponse)
+@limiter.limit(RATE_LIMIT_ANSWER)
+def brave_answer(request: Request, req: AnswerRequest):
+    """Brave Answers: a grounded, cited reply for one question.
+
+    Separate from /verify on purpose. The reply is model-generated, so it must
+    not enter the claim-verification evidence chain (that would make the
+    verification circular). Costly endpoint (searches + tokens), so it has its
+    own tighter rate limit.
+    """
+    service = get_brave_answers()
+    if not service.enabled:
+        raise HTTPException(status_code=503, detail="BRAVE_ANSWERS_API_KEY not configured in .env")
+    if not req.question.strip():
+        raise HTTPException(status_code=400, detail="Question string cannot be empty.")
+    t0 = time.time()
+    try:
+        result = service.ask(req.question, country=req.country, language=req.language, research=req.research)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Brave Answers failed: {e}")
+    latency = round((time.time() - t0) * 1000, 2)
+    citations = [
+        AnswerCitation(**(c if isinstance(c, dict) else {}))
+        for c in (result.get("citations") or [])
+        if isinstance(c, dict)
+    ]
+    return AnswerResponse(
+        answer=result.get("answer", ""),
+        citations=citations,
+        usage=result.get("usage") or {},
+        model=result.get("model", "brave"),
+        latency_ms=latency,
+    )
 
 
 if __name__ == "__main__":

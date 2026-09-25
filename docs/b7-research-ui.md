@@ -155,7 +155,7 @@ per answer via `evidence_mode: auto | context | index | web` on `/verify`
   `GET /api/ml/index` (status), `DELETE /api/ml/index` (clear),
   `POST /api/ml/retrieve` (hybrid BM25 + dense + RRF fusion, optional
   cross-encoder rerank `cross-encoder/ms-marco-MiniLM-L-6-v2`).
-- **Web search**: `TAVILY_API_KEY` in the root `.env` (server-side only,
+- **Web search**: `BRAVE_SEARCH_API_KEY` in the root `.env` (Tavily stays as the legacy fallback), server-side only,
   never committed — `.env.example` holds the placeholder); per-claim queries,
   LRU-cached, ~1,000 credits/month on the free tier.
 - **Citations**: each claim records `evidence_source` (`web:<url>` |

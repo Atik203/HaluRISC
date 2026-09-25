@@ -602,7 +602,7 @@ The UI shows the raw model score as a labelled secondary signal
 |---|---|---|
 | 1 | Auto risk card per answer | Calibrated score, band, SHAP bars, evidence link |
 | 2 | Per-claim NLI verdicts | `supported` / `contradicted` / `unsupported` with the driving evidence sentence quoted |
-| 3 | Retrieval | Document index (BM25 + FAISS dense + reciprocal rank fusion + cross-encoder reranker) and Tavily web search |
+| 3 | Retrieval | Document index (BM25 + FAISS dense + reciprocal rank fusion + cross-encoder reranker) and Brave web search (LLM Context, Tavily fallback) |
 | 4 | LLM judge routing | Borderline claims (`HALU_JUDGE_CONF_LOW/HIGH`, default 0.50–0.75) routed to an LLM verdict with a reasoning note; feedback stored for threshold tuning |
 
 The verdict headline leads the card: any contradicted claim sets risk high, an
@@ -641,7 +641,7 @@ pnpm run dev        # http://localhost:3000
 
 | File | Keys | Notes |
 |---|---|---|
-| Root `.env` (backend) | `OPENAI_API_KEY`, `OPENAI_MODEL`, `TAVILY_API_KEY`, `FASTAPI_HOST`, `FASTAPI_PORT`, `HALU_API_DEVICE`, `HALU_API_PRELOAD`, `HALU_XGB_DEVICE`, `HALU_JUDGE_*`, `HALU_RATE_*` | loaded by `python-dotenv`; `.env` is gitignored |
+| Root `.env` (backend) | `OPENAI_API_KEY`, `OPENAI_MODEL`, `BRAVE_SEARCH_API_KEY`, `BRAVE_ANSWERS_API_KEY`, `TAVILY_API_KEY` (legacy), `HALU_WEB_SEARCH_PROVIDER`, `FASTAPI_HOST`, `FASTAPI_PORT`, `HALU_API_DEVICE`, `HALU_API_PRELOAD`, `HALU_XGB_DEVICE`, `HALU_JUDGE_*`, `HALU_RATE_*` | loaded by `python-dotenv`; `.env` is gitignored |
 | `web/.env.local` (frontend) | `OPENAI_API_KEY` (server-only), `OPENAI_MODEL`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_ML_API_URL` | server-only keys never use the `NEXT_PUBLIC_` prefix |
 | `.env.example` | template for both | copy to the two locations; no secrets committed |
 
