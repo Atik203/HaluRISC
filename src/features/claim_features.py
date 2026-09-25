@@ -18,8 +18,10 @@ Features (8):
   claim_mean_entails        mean of the per-claim max entailment
   n_claims                  number of atomic claims in the answer
 
-The verdict cutoffs match src/claims/verify.py (entail >= 0.5, contra >= 0.5).
-Empty context uses the neutral 1/3 row, exactly like the base NLI features.
+The ratio features use the same support-first per-pair verdict rule as
+src/claims/verify.py (entail >= 0.5 and >= that pair's contradiction counts as
+support; contradiction only decides when no sentence supports). Empty context
+uses the neutral 1/3 row, exactly like the base NLI features.
 
 Run (repo root, .venv):
   python src/features/claim_features.py                    # full qa_clean (20k)
@@ -128,7 +130,14 @@ def _pairs_for_sample(
 
 
 def _aggregate(probs: np.ndarray, meta: list, n_claims: int) -> dict:
-    """Reduce pair probabilities into the eight claim-level features."""
+    """Reduce pair probabilities into the eight claim-level features.
+
+    Ratio features use the same support-first per-pair rule as
+    src/claims/verify.py; the raw max/mean probability features stay as raw
+    aggregates so the model sees the underlying confidences too.
+    """
+    from src.claims.verify import score_block
+
     best_ent = np.zeros(n_claims)
     best_con = np.zeros(n_claims)
     for k, (ci, _si) in enumerate(meta):
@@ -138,8 +147,20 @@ def _aggregate(probs: np.ndarray, meta: list, n_claims: int) -> dict:
         if con > best_con[ci]:
             best_con[ci] = con
 
-    contradicted = best_con >= CONTRA_CUTOFF
-    supported = (~contradicted) & (best_ent >= ENTAIL_CUTOFF)
+    ent_all = probs[:, LABELS.index("entailment")]
+    con_all = probs[:, LABELS.index("contradiction")]
+    counts = [0] * n_claims
+    for ci, _si in meta:
+        counts[ci] += 1
+    verdicts = []
+    cursor = 0
+    for ci in range(n_claims):
+        block = slice(cursor, cursor + counts[ci])
+        cursor += counts[ci]
+        verdicts.append(score_block(ent_all[block], con_all[block])[0] if counts[ci] else "unsupported")
+
+    contradicted = np.array([v == "contradicted" for v in verdicts]) if verdicts else np.zeros(0, dtype=bool)
+    supported = np.array([v == "supported" for v in verdicts]) if verdicts else np.zeros(0, dtype=bool)
     unsupported = ~contradicted & ~supported
 
     return {

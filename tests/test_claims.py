@@ -107,6 +107,36 @@ def test_verify_evidence_sentence_attribution():
     assert "2 million people" in c["evidence_sentence"]
 
 
+def test_claim_support_beats_cross_sentence_contradiction():
+    """A sentence that entails the claim wins over an unrelated sentence that
+    scores near-certain contradiction (the old max-vs-max rule flagged the
+    claim as contradicted)."""
+    claims = ["The region is at its warmest for at least 40,000 years."]
+    probs = np.array([
+        [0.00, 0.996, 0.004],  # entails the claim
+        [1.00, 0.000, 0.000],  # unrelated sentence, spurious contradiction
+    ])
+    out = verify_claims(claims, "It has been established that the region is at its warmest for at least 40,000 years. The lengthening is dominated by a later autumn freezeup.", FakeNLI(probs))
+    assert out["claims"][0]["verdict"] == "supported"
+    assert out["claims"][0]["confidence"] > 0.9
+
+
+def test_claim_contradicted_when_no_sentence_supports():
+    claims = ["The capital of France is Lyon."]
+    probs = np.array([[0.90, 0.05, 0.05]])
+    out = verify_claims(claims, "Paris is the capital of France.", FakeNLI(probs))
+    assert out["claims"][0]["verdict"] == "contradicted"
+
+
+def test_low_entailment_does_not_block_contradiction():
+    """Entailment below the threshold is not support, so a per-pair
+    contradiction still decides."""
+    claims = ["Claim text."]
+    probs = np.array([[0.55, 0.40, 0.05]])
+    out = verify_claims(claims, "Evidence sentence.", FakeNLI(probs))
+    assert out["claims"][0]["verdict"] == "contradicted"
+
+
 def test_verify_empty_claims():
     out = verify_claims([], _ctx(), FakeNLI(np.empty((0, 3))))
     assert out["claims"] == []
