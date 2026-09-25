@@ -28,7 +28,8 @@ export interface ModelComparisonInput {
 }
 
 const MODEL_ORDER: Array<[string, string]> = [
-  ["xgboost", "XGBoost (raw)"],
+  ["ec_xgb", "EC-XGB (deployed)"],
+  ["xgboost", "XGBoost (standard)"],
   ["random_forest", "Random forest"],
   ["logistic_regression", "Logistic regression"],
   ["heuristic_overlap", "Overlap heuristic"],
@@ -180,9 +181,10 @@ export function ModelComparisonCard({
           </div>
 
           <p className="text-[10px] leading-relaxed text-muted-foreground">
-            Bars are raw model probabilities from the saved B2 seed-42 artifacts. The tick on each bar is that model&apos;s
-            decision rule (0.5 for the learned models, 0.03 for the overlap heuristic). The highlighted row is the
-            calibrated score the deployed system shows, with band markers at 0.35 and 0.60.
+            Bars are raw model probabilities. EC-XGB is the deployed evidence-consistent model (m3, seed 42); the other
+            rows come from the saved B2 seed-42 artifacts. The tick on each bar is that model&apos;s decision rule (0.5 for
+            the learned models, 0.03 for the overlap heuristic). The highlighted row is the calibrated score the deployed
+            system shows, with band markers at 0.35 and 0.60.
           </p>
         </div>
       )}
