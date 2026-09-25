@@ -1,13 +1,18 @@
 """
-B6 — Modified XGBoost variants (M1 length debias + monotone constraints,
-M2 claim-verdict features, M3 multi-source training) against the standard
-B2 XGBoost, under the project protocol.
+B6 — EC-XGB (Evidence-Consistent XGBoost) against the standard B2 XGBoost,
+under the project protocol.
 
-Variants:
+EC-XGB keeps the standard XGBoost learner and changes three things, added
+cumulatively in the variants:
+
   m0  standard XGBoost on the 26 base features (reference, mirrors B2)
   m1  m0 + log-scaled length features + domain monotone constraints
   m2  m1 + 8 claim-level NLI aggregation features (34 total)
   m3  m2 + RAGTruth non-QA train rows and a source indicator (35 total)
+
+The paper name for the full variant (m3) is EC-XGB, Evidence-Consistent
+XGBoost. The m0/m1/m2 rows are the component ablations that show which part
+earns the name.
 
 Protocol: grouped 5-fold randomized tuning per seed (30 iterations), seeds
 42/123/456, early stopping on the HaluEval validation split, raw probabilities
@@ -53,6 +58,9 @@ from src.models.train_pipeline import (  # noqa: E402
     ece,
     xgb_device,
 )
+
+MODEL_NAME = "EC-XGB"
+MODEL_FULL_NAME = "Evidence-Consistent XGBoost"
 
 BASE_COLUMNS = [c for cols in FEATURE_GROUPS.values() for c in cols]
 FEATURES_FULL = DATA_PROCESSED / "features_full.parquet"
@@ -431,6 +439,14 @@ def run_b6(cfg: B6Config) -> dict:
 
     config_out = {
         "schema": "b6-config-v1",
+        "model_name": MODEL_NAME,
+        "model_full_name": MODEL_FULL_NAME,
+        "component_map": {
+            "m0": "standard tuned XGBoost (reference)",
+            "m1": "log-scaled length features + domain monotone constraints",
+            "m2": "m1 + claim-level NLI aggregation features",
+            "m3": MODEL_NAME + " (m2 + RAGTruth non-QA multi-source training)",
+        },
         "generated_at_utc": pd.Timestamp.now("UTC").isoformat(),
         "variants": list(cfg.variants),
         "seeds": cfg.seeds,
@@ -445,7 +461,8 @@ def run_b6(cfg: B6Config) -> dict:
     }
     (cfg.results_dir / "b6_run_config.json").write_text(json.dumps(config_out, indent=2))
 
-    logger.info(f"Saved B6 artifacts to {cfg.results_dir}")
+    logger.info(f"Saved {MODEL_NAME} ({MODEL_FULL_NAME}) artifacts to {cfg.results_dir}")
+    print(f"\n{MODEL_FULL_NAME} ({MODEL_NAME}) — test-set comparison")
     print(comparison_df.round(4).to_string())
     return {"comparison": summary, "external": external_summary.to_dict(), "stats": stats}
 
