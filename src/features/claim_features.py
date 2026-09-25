@@ -63,7 +63,9 @@ FEATURE_COLUMNS = [
 
 ENTAIL_CUTOFF = 0.5
 CONTRA_CUTOFF = 0.5
-MAX_CONTEXT_SENTENCES = 8
+MAX_CONTEXT_SENTENCES = 4
+MAX_CLAIMS = 6
+MAX_PAIR_CHARS = 400
 _TOKEN_RE = re.compile(r"[a-z0-9]+")
 
 
@@ -99,7 +101,7 @@ def _pairs_for_sample(
     overlap with each claim, so the evidence search stays local and bounded.
     Short contexts use every sentence.
     """
-    claims = split_claims(answer or "")
+    claims = split_claims(answer or "", max_claims=MAX_CLAIMS)
     sentences = split_sentences(context or "")
     if not claims or not sentences:
         return [], []
@@ -107,7 +109,7 @@ def _pairs_for_sample(
     if len(sentences) <= top_k:
         for ci, claim in enumerate(claims):
             for si, sentence in enumerate(sentences):
-                pairs.append((sentence, claim))
+                pairs.append((sentence[:MAX_PAIR_CHARS], claim[:MAX_PAIR_CHARS]))
                 meta.append((ci, si))
         return pairs, meta
 
@@ -120,7 +122,7 @@ def _pairs_for_sample(
             scored.append((len(claim_tokens & tokens) / union, si))
         picked = sorted(si for _, si in sorted(scored, key=lambda t: (-t[0], t[1]))[:top_k])
         for si in picked:
-            pairs.append((sentences[si], claim))
+            pairs.append((sentences[si][:MAX_PAIR_CHARS], claim[:MAX_PAIR_CHARS]))
             meta.append((ci, si))
     return pairs, meta
 
@@ -155,7 +157,7 @@ def _aggregate(probs: np.ndarray, meta: list, n_claims: int) -> dict:
 def compute_claim_features(answer: str, context: str, model, batch_size: int = 128) -> dict:
     """Single-sample API (mirrors extract_all_features_single)."""
     pairs, meta = _pairs_for_sample("", context, answer)
-    claims = split_claims(answer or "")
+    claims = split_claims(answer or "", max_claims=MAX_CLAIMS)
     if not pairs:
         return _empty_row(len(claims) if context.strip() else 0)
     probs = np.asarray(model.predict(pairs, batch_size=batch_size, apply_softmax=True))
@@ -205,7 +207,7 @@ def extract_claim_features_df(
             sample_pairs, sample_meta = _pairs_for_sample(
                 str(record.get("question", "")), str(record.get("context", "")), str(record.get("answer", ""))
             )
-            n_claims = len(split_claims(str(record.get("answer", ""))))
+            n_claims = len(split_claims(str(record.get("answer", "")), max_claims=MAX_CLAIMS))
             offset = len(pairs)
             pairs.extend(sample_pairs)
             meta.extend(sample_meta)
