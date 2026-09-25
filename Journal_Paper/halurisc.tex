@@ -182,7 +182,7 @@ Table~\ref{tab:features} lists the 26 features in seven groups. NLI signals come
 
 \subsection{Models}
 
-Four baselines are compared. The first is a heuristic that sets risk to one minus the lexical overlap between the answer and the context, with its threshold tuned on validation. The second is logistic regression on standardized features, the third a random forest with 300 trees, and the fourth XGBoost \cite{xgboost}. XGBoost hyperparameters come from a randomized search of 30 iterations over depth, learning rate, tree count, subsample, and column subsampling, scored with 5-fold stratified cross-validation on the training split. The best configuration is depth 4, learning rate 0.01, 500 trees, subsample 0.9, and column subsampling 0.7, with a cross-validated AUROC of 0.9970. Every experiment is repeated with seeds 42, 123, and 456, and results are reported as the mean over seeds.
+Eight models are compared. The overlap heuristic sets risk to one minus the lexical overlap between the answer and the context, and its threshold is tuned on validation. Logistic regression on standardized features and a random forest with 300 trees are the two standard classifiers. The proposed classifier is XGBoost \cite{xgboost}, trained on the same features. Three controls isolate the value of the feature design, an NLI-only logistic regression that sees only the six NLI probabilities, an answer-only TF-IDF linear model, and a TF-IDF linear model over the full input. A majority baseline that predicts the negative class for every row confirms the balance of the labels. XGBoost hyperparameters come from a randomized search of 30 iterations over depth, learning rate, tree count, subsample, and column subsampling, scored with 5-fold stratified cross-validation on the training split. The best configuration is depth 4, learning rate 0.01, 500 trees, subsample 0.9, and column subsampling 0.7, with a cross-validated AUROC of 0.9970. Every experiment is repeated with seeds 42, 123, and 456, and results are reported as the mean over seeds.
 
 \subsection{Calibration}
 
@@ -303,21 +303,58 @@ The split design is verified against a known confound. A row-level split, where 
 
 \begin{table}[pos=htbp]
   \centering
-  \caption{Test-set performance on HaluEval QA, mean over seeds 42/123/456 (n = 3{,}000).}
+  \caption{Test-set performance on HaluEval QA, mean over seeds 42/123/456 (n = 3{,}000). The ECE and Brier columns measure the reliability of each model's risk score.}
   \label{tab:models}
-  \begin{tabular}{|l|r|r|r|r|r|r|}
+  \footnotesize
+  \setlength{\tabcolsep}{3.5pt}
+  \begin{tabular}{|l|r|r|r|r|r|r|r|r|}
     \hline
-    \textbf{Model}          & \textbf{P} & \textbf{R} & \textbf{F1} & \textbf{AUROC} & \textbf{PR-AUC} & \textbf{MCC} \\
+    \textbf{Model}          & \textbf{P} & \textbf{R} & \textbf{F1} & \textbf{AUROC} & \textbf{PR-AUC} & \textbf{MCC} & \textbf{ECE} & \textbf{Brier} \\
     \hline
-    Heuristic (1$-$overlap) & 0.947      & 0.923      & 0.935       & 0.913          & 0.820           & 0.872        \\
+    Heuristic (1$-$overlap) & 0.947      & 0.923      & 0.935       & 0.913          & 0.820           & 0.872        & 0.354        & 0.267          \\
     \hline
-    Logistic regression     & 0.977      & 0.955      & 0.966       & 0.993          & 0.990           & 0.933        \\
+    Logistic regression     & 0.977      & 0.955      & 0.966       & 0.993          & 0.990           & 0.933        & 0.010        & 0.025          \\
     \hline
-    Random forest           & 0.990      & 0.979      & 0.984       & 0.998          & 0.998           & 0.969        \\
+    Random forest           & 0.990      & 0.979      & 0.984       & 0.998          & 0.998           & 0.969        & 0.014        & 0.013          \\
     \hline
-    NLI-only                & 0.648      & 0.697      & 0.671       & 0.718          & 0.753           & 0.319        \\
+    NLI-only                & 0.648      & 0.697      & 0.671       & 0.718          & 0.753           & 0.319        & 0.068        & 0.218          \\
     \hline
-    XGBoost (ours)          & 0.993      & 0.976      & 0.985       & 0.998          & 0.998           & 0.970        \\
+    TF-IDF (answer-only)    & 0.955      & 0.892      & 0.922       & 0.970          & 0.967           & 0.852        & 0.083        & 0.066          \\
+    \hline
+    TF-IDF (full input)     & 0.640      & 0.565      & 0.600       & 0.675          & 0.679           & 0.248        & 0.068        & 0.233          \\
+    \hline
+    XGBoost (ours)          & 0.993      & 0.976      & 0.985       & 0.998          & 0.998           & 0.970        & 0.004        & 0.012          \\
+    \hline
+  \end{tabular}
+\end{table}
+
+The comparison so far uses aggregate metrics. Table~\ref{tab:cases} shows how the same evidence produces different risk scores at the level of single answers. Cases 1 and 2 share one question and one context. Case 1 is a grounded answer span, and case 2 is a hallucinated sentence that reuses words from the context. The overlap heuristic separates the pair poorly (0.0000 against 0.0769), because the hallucinated sentence copies context words, and the NLI-only model fails in the same way (0.3928 against 0.3950). The answer-only TF-IDF model flags the hallucinated case at 0.9121 but also puts the grounded span at 0.7490. Logistic regression, random forest, and XGBoost separate the pair, with 0.4975 against 0.9990, 0.5593 against 0.9924, and 0.4541 against 0.9996. Case 3 is a grounded one-word answer. The heuristic scores it at 1.0000, logistic regression at 0.7109, the random forest at 0.7634, and the raw XGBoost at 0.9135, so four models flag a correct answer as risky. The deployed calibrator maps these raw probabilities to 0.0000 and removes the false alarm, which is why the system displays the calibrated score and keeps the raw model score as a secondary signal.
+
+\begin{table}[pos=htbp]
+  \centering
+  \caption{Risk scores for three HaluEval test cases, seed 42. Cases 1 and 2 share one question and one context: case 1 is a grounded answer span, and case 2 is a hallucinated sentence that reuses context words. Case 3 is a grounded one-word answer. The last row is the deployed calibrated score. A low score is correct for cases 1 and 3, and a high score is correct for case 2. Values are read from \texttt{b2\_case\_scores.csv}.}
+  \label{tab:cases}
+  \footnotesize
+  \setlength{\tabcolsep}{6pt}
+  \begin{tabular}{|l|r|r|r|}
+    \hline
+    \textbf{Model} & \multicolumn{3}{c|}{\textbf{Risk score}} \\
+    \hline
+                    & \textbf{Case 1} & \textbf{Case 2} & \textbf{Case 3} \\
+    \hline
+    Overlap heuristic     & 0.0000          & 0.0769          & 1.0000          \\
+    \hline
+    Logistic regression   & 0.4975          & 0.9990          & 0.7109          \\
+    \hline
+    Random forest         & 0.5593          & 0.9924          & 0.7634          \\
+    \hline
+    NLI-only              & 0.3928          & 0.3950          & 0.3058          \\
+    \hline
+    TF-IDF (answer-only)  & 0.7490          & 0.9121          & 0.1694          \\
+    \hline
+    XGBoost (raw)         & 0.4541          & 0.9996          & 0.9135          \\
+    \hline
+    Deployed (calibrated) & 0.0000          & 0.4265          & 0.0000          \\
     \hline
   \end{tabular}
 \end{table}
