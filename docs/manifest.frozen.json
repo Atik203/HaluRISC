@@ -261,5 +261,110 @@
     "data\\processed\\nli_model_used.json",
     "data\\processed\\qa_clean.parquet",
     "data\\processed\\unified_records.parquet"
-  ]
+  ],
+  "ec_xgb_artifacts_sha256": {
+    "artifacts/results/b6/b6_calibration.json": "350b13b95155f172a94998594e7f275a9ff4e66304636ee476ae04949d1ef891",
+    "artifacts/results/b6/b6_confusion_matrices.json": "2597546118289674548cff6b5870ee3c8e43ddc4c854825f3f69e7a677effbcd",
+    "artifacts/results/b6/b6_external_metrics.csv": "47043be32541d744727b0a61bb1f9f77e895f8e39727a27d46df82511688f33f",
+    "artifacts/results/b6/b6_feature_names.json": "58e8e27c30eec098d84038b68341b688b27f320a1ffcf9b9dbb784e879e63940",
+    "artifacts/results/b6/b6_model_comparison.csv": "41383f6579cbf5cff551b10ce24e28844f17e1d4c375a9b1ad26b29c3fea8177",
+    "artifacts/results/b6/b6_per_seed_metrics.csv": "c11837fce9c9d4ac346c9083eabdd51cd342e371ed7c47fff3f0b554d0b4ccb4",
+    "artifacts/results/b6/b6_predictions.parquet": "99a249f050e231aeb16a078b58316b90f7928194d4f0833e6dffcd446fec1fa4",
+    "artifacts/results/b6/b6_run_config.json": "648349d6abd2b01e716eb2ee0a3c8a60ccc776eedab9f6e2c09686f2df87a4f7",
+    "artifacts/results/b6/b6_statistical_tests.json": "4a471362ff98435ee76fa8b1f1e6b9a84a6a36ffeeb90ffd92da686d0d155425",
+    "artifacts/results/b6/b6_strict_mode.json": "9f13dbccd4e3e3f807a427455984774972fda139b57cb9d6b4290061ffed01e3",
+    "artifacts/results/b6/b6_tuning.json": "cfdc0f2a67402ed45e1e9f2562e38b039356e5f6b265e19d42c495354678c799",
+    "artifacts/models/b6/ec_xgb_display_calibrator.joblib": "fbf83b32cc3d3b06c802c7ffb0e051a8c9287a53208656eedd5cb2d2d79afdad",
+    "artifacts/models/b6/xgboost_m0_seed_123.joblib": "03c832bf7e6fe5f6d81ee2e1f8f55f57db752b12157b25fece8b19ec7e4b342c",
+    "artifacts/models/b6/xgboost_m0_seed_42.joblib": "cd90f91ce810cca94ad3fb4d67b3019d61653844bfda827552619b9c5252a029",
+    "artifacts/models/b6/xgboost_m0_seed_456.joblib": "96326a9ae5583a3b27b7ba877324ff28c3f20ae4bd2a7de9847e432a2bbf16cd",
+    "artifacts/models/b6/xgboost_m1_seed_123.joblib": "df8886da844fceec1975a433a41a8bea51c879c77de788e757c7ab335dd345e5",
+    "artifacts/models/b6/xgboost_m1_seed_42.joblib": "c389230a38869531743bf4e4dd686659645c0692dd4b3bfb0b22ecd577cb03a4",
+    "artifacts/models/b6/xgboost_m1_seed_456.joblib": "81d69c371a480ca0bd56f6abae16c8448bcc9c86ec777a34eb9ac462423caeb2",
+    "artifacts/models/b6/xgboost_m2_seed_123.joblib": "f11afa91775241d36f87d0e714ced669b2ff0fb059dfde6ccc91941d75075923",
+    "artifacts/models/b6/xgboost_m2_seed_42.joblib": "d52ffb3c5dff29ee2dec1dc347da10b92f3187d51812305b06ad370e19e25d2c",
+    "artifacts/models/b6/xgboost_m2_seed_456.joblib": "af48b5711b04a962d68eeff6cb8875bc6439145d78eecd804d8f694cb96f0123",
+    "artifacts/models/b6/xgboost_m3_seed_123.joblib": "63c43025fc2914ce542303df3ff40db8d01836c4b013ea7a415bc1d5d5767955",
+    "artifacts/models/b6/xgboost_m3_seed_42.joblib": "aae9e79af86ba52e7e4447e7260b5735434c5db3b8887aec8919a2910e3645ec",
+    "artifacts/models/b6/xgboost_m3_seed_456.joblib": "b353004fd9c248d17584558b8f1f362e737a5522b916f7d996529f2716d0cf41"
+  },
+  "ec_xgb": {
+    "model_name": "EC-XGB",
+    "model_full_name": "Evidence-Consistent XGBoost",
+    "api_version": "b6-ec-xgb-v1.0",
+    "components": {
+      "m1": "log-scaled length features + monotone evidence constraints",
+      "m2": "m1 + 8 claim-level NLI aggregates (top-4 sentences, max 6 claims, 400-char cap)",
+      "m3": "m2 + RAGTruth non-QA training rows with a source indicator (35 features)"
+    },
+    "in_domain": {
+      "m0_f1": 0.9844189772387352,
+      "m0_auroc": 0.9980244444444444,
+      "m3_f1": 0.9857639023195608,
+      "m3_auroc": 0.9985305185185184,
+      "m3_mcc": 0.9719276084673972,
+      "m3_ece": 0.0077721775059277,
+      "mcnemar_m0_vs_m3_p": 0.6276258050283593,
+      "wilcoxon_m0_vs_m3_p": 0.25
+    },
+    "shift": {
+      "ragtruth_all": {
+        "standard_flag_rate": 0.998888888888889,
+        "standard_auroc": 0.4753375529845471,
+        "standard_ece": 0.6345889345363335,
+        "ec_xgb_flag_rate": 0.6130864197530864,
+        "ec_xgb_auroc": 0.5731118851363218,
+        "ec_xgb_ece": 0.2826902392520397
+      },
+      "ragtruth_qa": {
+        "standard_f1": 0.3021718602455146,
+        "ec_xgb_f1": 0.306922255465988,
+        "standard_ece": 0.8148609976084145,
+        "ec_xgb_ece": 0.7554745677030749
+      },
+      "faithbench": {
+        "standard_flag_rate": 0.9946666666666668,
+        "standard_f1": 0.8130469371519492,
+        "standard_auroc": 0.5088567552888067,
+        "ec_xgb_flag_rate": 0.072,
+        "ec_xgb_f1": 0.119166663455494,
+        "ec_xgb_auroc": 0.5865996883077184
+      }
+    },
+    "strict_mode": {
+      "alpha": 0.05,
+      "test_fpr_range": [
+        0.042,
+        0.050666666666666665
+      ],
+      "test_recall_range": [
+        0.99,
+        0.9946666666666667
+      ]
+    },
+    "display_calibration": {
+      "calibration_rows": 5034,
+      "test_rows": 900,
+      "source_indicator": 1.0,
+      "model": "ec-xgb-m3-seed-42",
+      "calibration_raw": {
+        "ece": 0.6147156564558031,
+        "brier": 0.5901840329170227
+      },
+      "test_raw": {
+        "ece": 0.7349652795493602,
+        "brier": 0.693129451037743
+      },
+      "test_platt": {
+        "ece": 0.1262551406801874,
+        "brier": 0.16115310337794528
+      },
+      "test_isotonic": {
+        "ece": 0.12628929239594272,
+        "brier": 0.16239416599273682
+      },
+      "chosen": "platt"
+    },
+    "updated_at_git_commit": "ac99a9bc860086707521c0bee3376e0c57ea6abb"
+  }
 }
