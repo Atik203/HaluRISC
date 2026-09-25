@@ -353,6 +353,9 @@ export interface B6RunConfig {
   component_map?: Record<string, string>;
   variants?: string[];
   seeds?: number[];
+  n_iter_tuning?: number;
+  base_features?: string[];
+  claim_features?: string[];
 }
 
 /* ------------------------------------------------------------------ */
