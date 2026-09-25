@@ -129,14 +129,14 @@ def _pairs_for_sample(
     return pairs, meta
 
 
-def _aggregate(probs: np.ndarray, meta: list, n_claims: int) -> dict:
+def _aggregate(probs: np.ndarray, meta: list, n_claims: int, pairs: list) -> dict:
     """Reduce pair probabilities into the eight claim-level features.
 
-    Ratio features use the same support-first per-pair rule as
-    src/claims/verify.py; the raw max/mean probability features stay as raw
+    Ratio features use the same support-first per-pair rule and relevance gate
+    as src/claims/verify.py; the raw max/mean probability features stay as raw
     aggregates so the model sees the underlying confidences too.
     """
-    from src.claims.verify import score_block
+    from src.claims.verify import evidence_gate, score_block
 
     best_ent = np.zeros(n_claims)
     best_con = np.zeros(n_claims)
@@ -149,6 +149,10 @@ def _aggregate(probs: np.ndarray, meta: list, n_claims: int) -> dict:
 
     ent_all = probs[:, LABELS.index("entailment")]
     con_all = probs[:, LABELS.index("contradiction")]
+    coverage = np.empty(len(meta))
+    shared = np.empty(len(meta), dtype=bool)
+    for k, (sentence, claim) in enumerate(pairs):
+        coverage[k], shared[k] = evidence_gate(claim, sentence)
     counts = [0] * n_claims
     for ci, _si in meta:
         counts[ci] += 1
@@ -157,7 +161,10 @@ def _aggregate(probs: np.ndarray, meta: list, n_claims: int) -> dict:
     for ci in range(n_claims):
         block = slice(cursor, cursor + counts[ci])
         cursor += counts[ci]
-        verdicts.append(score_block(ent_all[block], con_all[block])[0] if counts[ci] else "unsupported")
+        verdicts.append(
+            score_block(ent_all[block], con_all[block], coverage[block], shared[block])[0]
+            if counts[ci] else "unsupported"
+        )
 
     contradicted = np.array([v == "contradicted" for v in verdicts]) if verdicts else np.zeros(0, dtype=bool)
     supported = np.array([v == "supported" for v in verdicts]) if verdicts else np.zeros(0, dtype=bool)
@@ -182,7 +189,7 @@ def compute_claim_features(answer: str, context: str, model, batch_size: int = 1
     if not pairs:
         return _empty_row(len(claims) if context.strip() else 0)
     probs = np.asarray(model.predict(pairs, batch_size=batch_size, apply_softmax=True))
-    return _aggregate(probs, meta, len(claims))
+    return _aggregate(probs, meta, len(claims), pairs)
 
 
 def extract_claim_features_df(
@@ -239,7 +246,12 @@ def extract_claim_features_df(
             if count == 0:
                 row = _empty_row(n_claims if has_context else 0)
             else:
-                row = _aggregate(probs[offset : offset + count], meta[offset : offset + count], n_claims)
+                row = _aggregate(
+                    probs[offset : offset + count],
+                    meta[offset : offset + count],
+                    n_claims,
+                    pairs[offset : offset + count],
+                )
             pending.append({"sample_id": sample_id, **row})
 
         processed += len(chunk)

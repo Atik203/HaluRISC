@@ -263,30 +263,30 @@
     "data\\processed\\unified_records.parquet"
   ],
   "ec_xgb_artifacts_sha256": {
-    "artifacts/results/b6/b6_calibration.json": "10a24eab54e157f00553d8e10e5bb83a8e28d464fbab837b2175b3089948941e",
-    "artifacts/results/b6/b6_confusion_matrices.json": "c72682a6c4efeeb0bb898467c5888a9428e36fc674e1922c1d0ba7a619d0b123",
-    "artifacts/results/b6/b6_external_metrics.csv": "6d39fc8c84f130b5934dd9c7367f6dd019bf99efdbf88cee524a1a01c5b3d647",
+    "artifacts/results/b6/b6_calibration.json": "9de099e90d45ec802d1f79c9734f6d486a1223458476be000d344eb47d27e83c",
+    "artifacts/results/b6/b6_confusion_matrices.json": "b1a1525c755bf7e9199178c683ad1123782ef4cdcce81a77dcf4c359e1550463",
+    "artifacts/results/b6/b6_external_metrics.csv": "df1cd024479f636cd0fff00a7fcf165cff2c0b84e0f60422e711457195496cc2",
     "artifacts/results/b6/b6_feature_names.json": "58e8e27c30eec098d84038b68341b688b27f320a1ffcf9b9dbb784e879e63940",
-    "artifacts/results/b6/b6_model_comparison.csv": "99d3fa84ead28e5806e35ca8adeeffd8ce740c619d52d975ef856dba7abfdb83",
-    "artifacts/results/b6/b6_per_seed_metrics.csv": "24789ec9c2e176e785208c8ff8a6299d20498c8399964099d7db68bbfa7517d6",
-    "artifacts/results/b6/b6_predictions.parquet": "61125b22830e5b27ebbc3d989180eaf8b14fc48b632cf5aa853485747eb7e82e",
-    "artifacts/results/b6/b6_run_config.json": "144d834b51d18c0e6d98f0a5b43c7f24fe636a65582d39b4e1ad1d485f249b3b",
-    "artifacts/results/b6/b6_statistical_tests.json": "b0550a6630c49b7678f62f9550630dae0e6a0e39ef6466ba7aaa640181d7cafd",
-    "artifacts/results/b6/b6_strict_mode.json": "7014d5668d35bf85c4dbd8bae9ec06948e9187900b303132f1a5bea60937313f",
-    "artifacts/results/b6/b6_tuning.json": "bdbdf895663bfad4c40f7d234f13425dbc7f42d3257799bc47b2656092bafeb4",
-    "artifacts/models/b6/ec_xgb_display_calibrator.joblib": "dcc53b8fa0b1462909d34ba2b7ea0546cc97b526c3f53fb822950fe2cc7c30ab",
+    "artifacts/results/b6/b6_model_comparison.csv": "74230f33e425bcc77093142d2b1b7ed5d35ecdc5a51d2967812be341453536cb",
+    "artifacts/results/b6/b6_per_seed_metrics.csv": "b4f4f00ef2768c76ff360205736a0cb104e24322ff9dca0574c665a610937d33",
+    "artifacts/results/b6/b6_predictions.parquet": "a7f9a8db3e594e8ce91aa5f6edeb32386241299ffbbd015015ad7553bdfb3732",
+    "artifacts/results/b6/b6_run_config.json": "756f95b751de0efa8a370f5edfba7a36f6772e9ecde6dc807e9bcbe825e09c38",
+    "artifacts/results/b6/b6_statistical_tests.json": "c185c8d70fb08cf375cad7934b3b35b32f8baba1bb904c2f88422469e63ed883",
+    "artifacts/results/b6/b6_strict_mode.json": "a2d24e02352167bc73f5abb687fe8cca6c54d8fbf0c1f81731368d9a3ee5b4fa",
+    "artifacts/results/b6/b6_tuning.json": "4c2c1c8fd7c769089fe6ace1bf645fa340fd94d0d7dc0561643806c0aa83fdc6",
+    "artifacts/models/b6/ec_xgb_display_calibrator.joblib": "8c43f47953be91dea285b2cbba1b77c1344ebe65b0883dcc7d1656e98aed9990",
     "artifacts/models/b6/xgboost_m0_seed_123.joblib": "03c832bf7e6fe5f6d81ee2e1f8f55f57db752b12157b25fece8b19ec7e4b342c",
     "artifacts/models/b6/xgboost_m0_seed_42.joblib": "cd90f91ce810cca94ad3fb4d67b3019d61653844bfda827552619b9c5252a029",
     "artifacts/models/b6/xgboost_m0_seed_456.joblib": "96326a9ae5583a3b27b7ba877324ff28c3f20ae4bd2a7de9847e432a2bbf16cd",
     "artifacts/models/b6/xgboost_m1_seed_123.joblib": "df8886da844fceec1975a433a41a8bea51c879c77de788e757c7ab335dd345e5",
     "artifacts/models/b6/xgboost_m1_seed_42.joblib": "c389230a38869531743bf4e4dd686659645c0692dd4b3bfb0b22ecd577cb03a4",
     "artifacts/models/b6/xgboost_m1_seed_456.joblib": "81d69c371a480ca0bd56f6abae16c8448bcc9c86ec777a34eb9ac462423caeb2",
-    "artifacts/models/b6/xgboost_m2_seed_123.joblib": "fee397721ca4d7c216bf5dc924b9a7970e1295cde9fbae7fe196c1a746f01708",
-    "artifacts/models/b6/xgboost_m2_seed_42.joblib": "dde460313f9e5843ad706f285c570531fb2e6ff53c472b546caa18bd16720318",
-    "artifacts/models/b6/xgboost_m2_seed_456.joblib": "56cbb0a21737ba72241252a76496249fa1a56010f75de08d48d67863145f7612",
-    "artifacts/models/b6/xgboost_m3_seed_123.joblib": "456a015f216823811b5b34536ac0d78f9c79e9d1c4cdee4408b78334e57d40f7",
-    "artifacts/models/b6/xgboost_m3_seed_42.joblib": "f7664bd42df0dc60057fdefc802de990b4e9c0e4839fa39d289e4da0bd09e648",
-    "artifacts/models/b6/xgboost_m3_seed_456.joblib": "e2812738439208b4dd2d313e824f3045cdcdeefd307e0098adcbc7948c8de47b"
+    "artifacts/models/b6/xgboost_m2_seed_123.joblib": "e4e8021c860f5a6be65bbc3319ac707f6540c6d25ed4fc2d728aae75e66ce933",
+    "artifacts/models/b6/xgboost_m2_seed_42.joblib": "41bc4d9d8a934d70d3243c9d84184ab3aa398555e0976d8c9a66fcd5e5238cee",
+    "artifacts/models/b6/xgboost_m2_seed_456.joblib": "79aa09efa41307f1aefba718cd57bbcad668657c59084928bfdd1a93c335498c",
+    "artifacts/models/b6/xgboost_m3_seed_123.joblib": "ca4fc1fcf564950d49dd2c055f335466f34e274b7756c51e8592bf51802b6483",
+    "artifacts/models/b6/xgboost_m3_seed_42.joblib": "8e394d618329af6cad970087dfe35ac874b7813bbaab0d37b5391b05736a24c4",
+    "artifacts/models/b6/xgboost_m3_seed_456.joblib": "1b9798400956077f280431bafe0d8d9403f0e0a92fd50a194fe2b74fe356dad4"
   },
   "ec_xgb": {
     "model_name": "EC-XGB",
@@ -300,11 +300,11 @@
     "in_domain": {
       "m0_f1": 0.9844189772387352,
       "m0_auroc": 0.9980244444444444,
-      "m3_f1": 0.9857733899877384,
-      "m3_auroc": 0.9985007407407408,
-      "m3_mcc": 0.9719064319620564,
-      "m3_ece": 0.0076959622960744,
-      "mcnemar_m0_vs_m3_p": 0.8025873486341526,
+      "m3_f1": 0.9855462152201352,
+      "m3_auroc": 0.9984158518518518,
+      "m3_mcc": 0.971468701111444,
+      "m3_ece": 0.0074362202673736,
+      "mcnemar_m0_vs_m3_p": 0.4532547047537363,
       "wilcoxon_m0_vs_m3_p": 0.25
     },
     "shift": {
@@ -312,34 +312,34 @@
         "standard_flag_rate": 0.998888888888889,
         "standard_auroc": 0.4753375529845471,
         "standard_ece": 0.6345889345363335,
-        "ec_xgb_flag_rate": 0.6158024691358025,
-        "ec_xgb_auroc": 0.5684092896705859,
-        "ec_xgb_ece": 0.2861077507976213
+        "ec_xgb_flag_rate": 0.6132098765432099,
+        "ec_xgb_auroc": 0.5815407259514184,
+        "ec_xgb_ece": 0.2782230046170729
       },
       "ragtruth_qa": {
         "standard_f1": 0.3021718602455146,
-        "ec_xgb_f1": 0.3058396666774045,
+        "ec_xgb_f1": 0.3080668367959344,
         "standard_ece": 0.8148609976084145,
-        "ec_xgb_ece": 0.7629933533845126
+        "ec_xgb_ece": 0.7433099641595726
       },
       "faithbench": {
         "standard_flag_rate": 0.9946666666666668,
         "standard_f1": 0.8130469371519492,
         "standard_auroc": 0.5088567552888067,
-        "ec_xgb_flag_rate": 0.0742222222222222,
-        "ec_xgb_f1": 0.1150343218406045,
-        "ec_xgb_auroc": 0.5885989404645907
+        "ec_xgb_flag_rate": 0.0733333333333333,
+        "ec_xgb_f1": 0.1201298124477679,
+        "ec_xgb_auroc": 0.5940863076473782
       }
     },
     "strict_mode": {
       "alpha": 0.05,
       "test_fpr_range": [
-        0.04133333333333333,
-        0.05
+        0.042,
+        0.051333333333333335
       ],
       "test_recall_range": [
         0.99,
-        0.9953333333333333
+        0.9946666666666667
       ]
     },
     "display_calibration": {
@@ -348,23 +348,23 @@
       "source_indicator": 1.0,
       "model": "ec-xgb-m3-seed-42",
       "calibration_raw": {
-        "ece": 0.6228895152744719,
-        "brier": 0.6003553867340088
+        "ece": 0.6087953363836439,
+        "brier": 0.5853346586227417
       },
       "test_raw": {
-        "ece": 0.7430436627980737,
-        "brier": 0.704597410213198
+        "ece": 0.7257247571067678,
+        "brier": 0.6823186428868058
       },
       "test_platt": {
-        "ece": 0.12604617188999673,
-        "brier": 0.16110307805965568
+        "ece": 0.12554463670547644,
+        "brier": 0.16098895491407056
       },
       "test_isotonic": {
-        "ece": 0.1263917059885959,
-        "brier": 0.16198602318763733
+        "ece": 0.12612555029491584,
+        "brier": 0.1615896224975586
       },
       "chosen": "platt"
     },
-    "updated_at_git_commit": "ad52e8934a9087d4c2f901c617e11ac38d3a5412"
+    "updated_at_git_commit": "0e8b25fc1b56290cd286d80226dbb1702fb11c87"
   }
 }

@@ -131,11 +131,12 @@ The contribution is compound, not any single component:
    frozen manifest and a CPU-compatible Dockerfile.
 6. An evidence-consistent XGBoost variant (EC-XGB): log-scaled length features
    under monotone evidence constraints, eight claim-level NLI aggregates over
-   atomic clauses (conjunction-aware splitting), multi-source training on
+   atomic clauses (conjunction-aware splitting) with a support-first verdict
+   rule and a relevance gate, multi-source training on
    RAGTruth non-QA tasks with a source indicator, and a dedicated display
-   calibrator. It preserves in-domain F1 (0.9858 vs 0.9844 standard) and fixes
-   shift over-flagging (99.9% to 61.6% flagged on RAGTruth, AUROC 0.475 to
-   0.568, ECE 0.635 to 0.286; QA ECE 0.743 to 0.126 with the display
+   calibrator. It preserves in-domain F1 (0.9855 vs 0.9844 standard) and fixes
+   shift over-flagging (99.9% to 61.3% flagged on RAGTruth, AUROC 0.475 to
+   0.582, ECE 0.635 to 0.278; QA ECE 0.726 to 0.126 with the display
    calibrator). Deployed as the API default with version b6-ec-xgb-v1.0.
 
 **Honesty rules:**

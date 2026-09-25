@@ -131,10 +131,46 @@ def test_claim_contradicted_when_no_sentence_supports():
 def test_low_entailment_does_not_block_contradiction():
     """Entailment below the threshold is not support, so a per-pair
     contradiction still decides."""
-    claims = ["Claim text."]
+    claims = ["The capital is Lyon."]
     probs = np.array([[0.55, 0.40, 0.05]])
-    out = verify_claims(claims, "Evidence sentence.", FakeNLI(probs))
+    out = verify_claims(claims, "The capital is Paris.", FakeNLI(probs))
     assert out["claims"][0]["verdict"] == "contradicted"
+
+
+def test_unrelated_sentence_cannot_decide_verdict():
+    """Off-topic retrieved evidence must not contradict a claim."""
+    claims = ["Any team named now would only be a prediction."]
+    probs = np.array([[0.99, 0.00, 0.01]])
+    out = verify_claims(
+        claims,
+        "Veteran free agent additions will bring an edge to this defense next season.",
+        FakeNLI(probs),
+    )
+    assert out["claims"][0]["verdict"] == "unsupported"
+
+
+def test_relevant_contradiction_still_fires():
+    """A sentence that shares content with the claim still contradicts it."""
+    claims = ["The 2026 FIFA World Cup has not been played yet."]
+    probs = np.array([[0.95, 0.03, 0.02]])
+    out = verify_claims(
+        claims,
+        "The tournament began on June 11, 2026, and concluded on July 19 with Spain winning the championship.",
+        FakeNLI(probs),
+    )
+    assert out["claims"][0]["verdict"] == "contradicted"
+
+
+def test_high_confidence_match_passes_with_one_shared_content_word():
+    """Paraphrase support survives the gate through the high-confidence path."""
+    claims = ["The city has about 2 million residents."]
+    probs = np.array([[0.01, 0.95, 0.04]])
+    out = verify_claims(
+        claims,
+        "It is home to roughly two million inhabitants.",
+        FakeNLI(probs),
+    )
+    assert out["claims"][0]["verdict"] == "supported"
 
 
 def test_verify_empty_claims():

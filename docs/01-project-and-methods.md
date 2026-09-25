@@ -131,8 +131,8 @@ The contribution is compound, not any single component:
 | Result | Value | Artifact |
 |---|---|---|
 | In-domain (HaluEval QA test, n = 3,000) | F1 **0.9846**, AUROC **0.9979**, MCC 0.9697, ECE **0.0045** (standard B2 model) | `b2/b2_model_comparison.csv`, `b4/b4_calibration_metrics.csv` |
-| Deployed model (EC-XGB, B9) | F1 **0.9858**, AUROC **0.9985**, MCC 0.9719 on HaluEval QA; RAGTruth all-task flag rate **99.9% → 61.6%**, AUROC 0.475 → 0.568, ECE 0.635 → 0.286 | `b6/b6_model_comparison.csv`, `b6/b6_external_metrics.csv` |
-| Deployed display score (EC-XGB, B9) | Platt calibrator on RAGTruth QA: ECE **0.743 → 0.126**; atomic conjunction-aware claim splitting | `b6/b6_calibration.json`, `src/claims/decompose.py` |
+| Deployed model (EC-XGB, B9) | F1 **0.9855**, AUROC **0.9984**, MCC 0.9715 on HaluEval QA; RAGTruth all-task flag rate **99.9% → 61.3%**, AUROC 0.475 → 0.582, ECE 0.635 → 0.278 | `b6/b6_model_comparison.csv`, `b6/b6_external_metrics.csv` |
+| Deployed display score (EC-XGB, B9) | Platt calibrator on RAGTruth QA: ECE **0.726 → 0.126**; atomic conjunction-aware claim splitting | `b6/b6_calibration.json`, `src/claims/decompose.py` |
 | Source-domain calibration | Raw already calibrated; Platt 0.0091 and isotonic 0.0070 do **not** improve it | `b4/b4_calibration_metrics.csv` |
 | Target recalibration (RAGTruth QA) | ECE **0.8185 → 0.1335** (Platt) / 0.1316 (isotonic) | `b4/b4_target_calibration.json` |
 | Zero-shot transfer | RAGTruth QA F1 0.302; RAGTruth all 0.603; FaithBench 0.813 (recall 1.0 everywhere) | `b3/b3_dataset_metrics.csv` |
@@ -592,7 +592,7 @@ happen:
 
 1. **Evidence-domain calibration.** The deployed EC-XGB ships a Platt
    calibrator fitted on 5,034 natural RAGTruth QA rows (ECE 0.126 on the
-   disjoint 900-row test, versus 0.743 raw). This removes the blanket-99%
+   disjoint 900-row test, versus 0.726 raw). This removes the blanket-99%
    saturation that HaluEval-Platt produced on full sentences. The claim
    splitter is atomic and conjunction-aware, so compound claims are verified as
    separate clauses.
