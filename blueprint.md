@@ -504,7 +504,7 @@ and 1,310 ms median, versus 0.985 at 61.8 ms for HaluRISC (McNemar
 - `run_all_experiments.py` reproduces the run from `configs/version_b.yaml`;
   `make_manifest.py` freezes artifact hashes; `verify_artifacts.py` checks every
   reported number against the frozen artifacts.
-- 206 tests pass; `pnpm run build` and `pnpm run lint` pass; API `/health`
+- 227 tests pass; `pnpm run build` and `pnpm run lint` pass; API `/health`
   reports artifacts loaded on CUDA.
 - Release ships: split indices, model/calibrator/scaler/SHAP artifacts, the
   dataset license manifest with revisions and SHA-256 hashes, the B5.5
