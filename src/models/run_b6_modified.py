@@ -455,6 +455,11 @@ def run_b6(cfg: B6Config) -> dict:
         "device": xgb_device(),
         "base_features": BASE_COLUMNS,
         "claim_features": list(CLAIM_COLUMNS),
+        "claim_feature_params": {
+            "max_context_sentences": 4,
+            "max_claims": 6,
+            "max_pair_chars": 400,
+        },
         "source_indicator": SOURCE_COLUMN,
         "log_length_columns": list(LOG_LENGTH_COLUMNS),
         "monotone_constraints": CONSTRAINTS,

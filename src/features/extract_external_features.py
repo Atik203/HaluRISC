@@ -42,11 +42,22 @@ META_COLUMNS = ["sample_id", "source_dataset", "task", "official_split", "source
 def build_frame(input_path: Path, limit: int | None = None) -> pd.DataFrame:
     df = pd.read_parquet(input_path)
     df = df[df["source_dataset"] != "halueval"].reset_index(drop=True)
+    df["split"] = df["official_split"].fillna("")
+    df.loc[df["split"] == "", "split"] = "test"  # FaithBench ships as evaluation only
+
+    # M3 needs RAGTruth non-QA train rows plus every evaluation row. RAGTruth
+    # QA train rows are deliberately held out (QA is the external test task),
+    # so skipping them saves ~27% of the slow claim-feature extraction.
+    rag = df["source_dataset"] == "ragtruth"
+    needed = (
+        (rag & (df["split"] == "test"))
+        | (rag & (df["task"].isin(["summarization", "data_to_text"])) & (df["split"] == "train"))
+        | (df["source_dataset"] == "faithbench")
+    )
+    df = df[needed].reset_index(drop=True)
     if limit:
         df = df.head(limit)
     df["item_idx"] = pd.factorize(df["source_group_id"])[0]
-    df["split"] = df["official_split"].fillna("")
-    df.loc[df["split"] == "", "split"] = "test"  # FaithBench ships as evaluation only
     for col in ("question", "context", "answer"):
         df[col] = df[col].fillna("").astype(str)
     return df
@@ -58,7 +69,12 @@ def main() -> None:
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--device", default=os.environ.get("HALU_EXTERNAL_DEVICE", "cuda"))
-    parser.add_argument("--batch-size", type=int, default=128)
+    # External contexts are full articles, so the model runs at the 512-token
+    # limit. Small batches avoid VRAM thrashing on 6 GB cards (batch 256 was
+    # ~26x slower than batch 64 because the GPU spilled into shared memory).
+    parser.add_argument("--batch-size", type=int, default=64)
+    parser.add_argument("--claim-batch-size", type=int, default=16)
+    parser.add_argument("--fresh", action="store_true", help="ignore cached base features and claim checkpoints")
     args = parser.parse_args()
 
     if not args.input.exists():
@@ -70,16 +86,31 @@ def main() -> None:
     models = load_heavy_models(device=args.device)
     logger.info(f"Heavy models loaded in {time.time() - t0:.1f}s ({models.get('nli_name')})")
 
-    t0 = time.time()
-    base = extract_full_feature_set(df, models, batch_size=args.batch_size)
-    logger.info(f"Base features done in {time.time() - t0:.1f}s")
+    # Base features are cached so a failed or interrupted claim pass never
+    # repeats the NER/NLI/SBERT work (the NER stage alone is ~10 minutes).
+    base_path = args.output.with_suffix(".base.parquet")
+    if base_path.exists() and not args.fresh:
+        cached = pd.read_parquet(base_path).drop(columns=["item_idx", "label", "split"], errors="ignore")
+        base = cached.merge(df[["sample_id", "item_idx", "label", "split"]], on="sample_id", how="inner")
+        logger.info(f"Reusing cached base features: {base.shape[0]} rows from {base_path}")
+    else:
+        t0 = time.time()
+        base = extract_full_feature_set(df, models, batch_size=args.batch_size)
+        base.to_parquet(base_path, index=False)
+        logger.info(f"Base features done in {time.time() - t0:.1f}s (cached to {base_path})")
 
+    claim_partial = args.output.with_suffix(".claims.partial.parquet")
+    if claim_partial.exists():
+        claim_partial.unlink()
+        logger.info(f"Removed stale claim checkpoint: {claim_partial}")
     t0 = time.time()
     claims = extract_claim_features_df(
-        df, models["nli"], partial_path=None, checkpoint_every=2000,
-        batch_size=args.batch_size, chunk_samples=32,
+        df, models["nli"], partial_path=claim_partial, checkpoint_every=500,
+        batch_size=args.claim_batch_size, chunk_samples=24,
     )
     logger.info(f"Claim features done in {time.time() - t0:.1f}s")
+    if claim_partial.exists():
+        claim_partial.unlink()
 
     out = base.merge(claims, on="sample_id", how="left")
     out = out.merge(df[["sample_id", "source_dataset", "task", "official_split", "source_group_id"]],
