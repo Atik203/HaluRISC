@@ -39,7 +39,7 @@ export function SlideFrame({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative flex h-full w-full flex-col overflow-hidden bg-white px-[4.2cqw] pb-[1.4cqh] pt-[2.4cqh]">
+    <div className="relative flex h-full w-full flex-col overflow-hidden bg-white px-[4.6cqw] pb-[2cqh] pt-[3cqh]">
       <div
         className="pointer-events-none absolute right-[-10cqw] top-[-16cqh] h-[46cqh] w-[46cqh] rounded-full"
         style={{ background: accent, opacity: 0.06 }}
@@ -57,7 +57,7 @@ export function SlideFrame({
       />
       <div className="relative flex min-h-0 flex-1 flex-col">{children}</div>
       <div
-        className="relative mt-[1.1cqh] flex items-center justify-between border-t-2 pt-[0.8cqh] text-[1.7cqh] font-bold"
+        className="relative mt-[1.6cqh] flex items-center justify-between border-t-2 pt-[1.1cqh] text-[1.7cqh] font-bold"
         style={{ borderColor: "#e2e8f0", color: SLATE }}
       >
         <span>{footerLeft ?? FOOTER_TEXT}</span>
@@ -140,7 +140,7 @@ export function SlideHeader({
   subtitle?: string;
 }) {
   return (
-    <div className="relative mb-[1.5cqh]">
+    <div className="relative mb-[2cqh]">
       <div
         className="inline-block rounded px-[1.6cqw] py-[0.45cqh] text-[1.9cqh] font-bold uppercase tracking-wider"
         style={{ background: badgeBg, color: badgeColor }}
@@ -359,6 +359,7 @@ export function SlideShot({
   color = ACCENT,
   position = "center",
   contain = false,
+  ratio,
 }: {
   src: string;
   alt: string;
@@ -366,12 +367,18 @@ export function SlideShot({
   color?: string;
   position?: string;
   contain?: boolean;
+  ratio?: string;
 }) {
   return (
-    <div className="flex h-full min-h-0 flex-col">
+    <div className="flex h-full min-h-0 flex-col items-center justify-center">
       <div
-        className="min-h-0 flex-1 overflow-hidden rounded-xl border-2 shadow-lg"
-        style={{ borderColor: color, background: "#0b1020" }}
+        className="w-full overflow-hidden rounded-xl border-2 shadow-lg"
+        style={{
+          borderColor: color,
+          background: "#0b1020",
+          aspectRatio: ratio,
+          maxHeight: ratio ? "100%" : undefined,
+        }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

@@ -430,6 +430,7 @@ export interface LlmJudgeResults {
     f1: number;
   };
   agreement_with_xgboost: number;
+  discordant_pairs?: { judge_wrong_xgb_right: number; judge_right_xgb_wrong: number };
   cost_usd: number;
   cost_per_1000_usd: number;
   mcnemar_p?: number;
