@@ -251,10 +251,9 @@ function TitleSlide({ index, total }: SlideProps) {
       </div>
 
       <div
-        className="relative flex items-center justify-between border-t-2 pt-[0.9cqh] text-[1.7cqh] font-bold"
+        className="relative flex items-center justify-end border-t-2 pt-[0.9cqh] text-[1.7cqh] font-bold"
         style={{ borderColor: "#e2e8f0", color: SLATE }}
       >
-        <span>Video presentation · 8 minutes</span>
         <span className="tnum">
           {index + 1} / {total}
         </span>
