@@ -1,20 +1,26 @@
 <#
 .SYNOPSIS
-  Keep the HaluRISC FastAPI backend alive.
+  Manage and keep alive the HaluRISC FastAPI backend.
 
 .DESCRIPTION
   The API process can disappear between sessions (job-object cleanup, port
-  conflicts, transient crashes). This supervisor watches it and restarts it.
+  conflicts, transient crashes). This script watches it and restarts it.
 
-  Default mode runs a watchdog loop: health-check every few seconds, restart
-  the API when it stops responding, and reclaim a stale listener on the port.
+  It always uses the project virtual environment interpreter, so a second copy
+  started from a different Python cannot steal the port. A named mutex prevents
+  two supervisors from fighting over the same port.
 
-  Use -Once to start it a single time (no watchdog). Use -InstallTask to
-  register a logon scheduled task so the API is always up on demo day.
+  Modes:
+    (default)      run the watchdog loop
+    -Once          start it a single time, no watchdog
+    -Stop          stop every HaluRISC API process and release the port
+    -InstallTask   register a logon scheduled task
+    -UninstallTask remove that scheduled task
 
 .EXAMPLE
   pwsh -File scripts\serve_api.ps1
-  pwsh -File scripts\serve_api.ps1 -Device cpu -Once
+  pwsh -File scripts\serve_api.ps1 -Once -Device cpu
+  pwsh -File scripts\serve_api.ps1 -Stop
   pwsh -File scripts\serve_api.ps1 -InstallTask
 #>
 [CmdletBinding()]
@@ -25,6 +31,7 @@ param(
     [int]$IntervalSeconds = 5,
     [string]$LogDir = (Join-Path $env:TEMP "halurisc"),
     [switch]$Once,
+    [switch]$Stop,
     [switch]$InstallTask,
     [switch]$UninstallTask
 )
@@ -37,6 +44,7 @@ $OutLog = Join-Path $LogDir "api-out.log"
 $ErrLog = Join-Path $LogDir "api-err.log"
 $SupervisorLog = Join-Path $LogDir "api-supervisor.log"
 $TaskName = "HaluRISC API ($Port)"
+$AppPattern = "*uvicorn*src.api.main*"
 
 New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
 
@@ -53,6 +61,11 @@ function Get-PortOwner {
         Select-Object -First 1
     if ($conn) { return [int]$conn.OwningProcess }
     return 0
+}
+
+function Get-ApiProcesses {
+    Get-CimInstance Win32_Process -Filter "Name='python.exe'" -ErrorAction SilentlyContinue |
+        Where-Object { $_.CommandLine -like $AppPattern }
 }
 
 function Clear-PortOwner {
@@ -81,7 +94,6 @@ function Start-Api {
     $env:HALU_API_DEVICE = $Device
     $env:HALU_API_PRELOAD = $Preload
 
-    Write-Log "Starting API on port $Port (device=$Device preload=$Preload)"
     $proc = Start-Process -FilePath $Python `
         -ArgumentList @("-m", "uvicorn", "src.api.main:app", "--host", "127.0.0.1", "--port", "$Port") `
         -WorkingDirectory $RepoRoot `
@@ -96,15 +108,29 @@ function Start-ApiAndWait {
     Clear-PortOwner -LocalPort $Port -Reason "reclaim before start"
 
     $proc = Start-Api
-    Write-Log "API process started (PID $($proc.Id)), waiting for health"
+    Write-Log "Started $Python (PID $($proc.Id), device=$Device, preload=$Preload)"
 
     $deadline = (Get-Date).AddSeconds(180)
     while ((Get-Date) -lt $deadline) {
         if (Test-ApiHealth) {
-            Write-Log "API healthy on http://127.0.0.1:$Port"
+            $owner = Get-PortOwner -LocalPort $Port
+            Write-Log "API healthy on http://127.0.0.1:$Port (serving PID $owner)"
             return $true
         }
         if ($proc.HasExited) {
+            $tail = (Get-Content -LiteralPath $ErrLog -Tail 20 -ErrorAction SilentlyContinue) -join "`n"
+            if ($tail -match "10048") {
+                Write-Log "Port $Port was already in use (WinError 10048). Backing off."
+                Start-Sleep -Seconds 5
+                if (Test-ApiHealth) {
+                    Write-Log "Another instance is already healthy, leaving it alone."
+                    return $true
+                }
+                Clear-PortOwner -LocalPort $Port -Reason "reclaim after 10048"
+                $proc = Start-Api
+                Write-Log "Retrying with PID $($proc.Id)"
+                continue
+            }
             Write-Log "API exited early with code $($proc.ExitCode). See $ErrLog"
             return $false
         }
@@ -112,6 +138,43 @@ function Start-ApiAndWait {
     }
     Write-Log "API did not become healthy within 180 s"
     return $false
+}
+
+function Stop-AllApi {
+    $stopped = 0
+
+    # Stop any watchdog first, so it cannot restart the API we are about to kill.
+    foreach ($p in Get-CimInstance Win32_Process -Filter "Name='pwsh.exe'" -ErrorAction SilentlyContinue) {
+        if ($p.ProcessId -eq $PID) { continue }
+        if ($p.CommandLine -like "*-File*serve_api.ps1*" -and $p.CommandLine -notlike "*-Stop*") {
+            Write-Log "Stopping supervisor PID $($p.ProcessId)"
+            Stop-Process -Id $p.ProcessId -Force -ErrorAction SilentlyContinue
+            $stopped++
+        }
+    }
+
+    $owner = Get-PortOwner -LocalPort $Port
+    if ($owner -gt 0) {
+        Write-Log "Stopping listener PID $owner on port $Port"
+        Stop-Process -Id $owner -Force -ErrorAction SilentlyContinue
+        $stopped++
+    }
+    foreach ($p in Get-ApiProcesses) {
+        Write-Log "Stopping API process PID $($p.ProcessId)"
+        Stop-Process -Id $p.ProcessId -Force -ErrorAction SilentlyContinue
+        $stopped++
+    }
+    Start-Sleep -Seconds 2
+    if (Get-PortOwner -LocalPort $Port) {
+        Write-Log "Warning: port $Port is still held"
+    } else {
+        Write-Log "Port $Port is free (stopped $stopped process(es))"
+    }
+}
+
+if ($Stop) {
+    Stop-AllApi
+    return
 }
 
 if ($UninstallTask) {
@@ -141,12 +204,25 @@ if ($Once) {
     return
 }
 
-Write-Log "Supervisor started (port $Port, interval ${IntervalSeconds}s, log $SupervisorLog)"
+# Watchdog mode: one supervisor per port.
+$createdNew = $false
+$mutex = [System.Threading.Mutex]::new($true, "Local\HaluRISC.Api.Supervisor.$Port", [ref]$createdNew)
+if (-not $createdNew) {
+    Write-Log "A supervisor for port $Port is already running. Exiting."
+    $mutex.Dispose()
+    return
+}
 
-while ($true) {
-    if (-not (Test-ApiHealth)) {
-        Write-Log "Health check failed, restarting API"
-        [void](Start-ApiAndWait)
+try {
+    Write-Log "Supervisor started (port $Port, interval ${IntervalSeconds}s, interpreter $Python)"
+    while ($true) {
+        if (-not (Test-ApiHealth)) {
+            Write-Log "Health check failed, restarting API"
+            [void](Start-ApiAndWait)
+        }
+        Start-Sleep -Seconds $IntervalSeconds
     }
-    Start-Sleep -Seconds $IntervalSeconds
+} finally {
+    $mutex.ReleaseMutex()
+    $mutex.Dispose()
 }
