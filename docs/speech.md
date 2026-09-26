@@ -255,45 +255,66 @@ slide in the deck. After the demo, press the right arrow twice to reach the conc
 
 ## 4. Live demo script (2:30)
 
-The demo is shown live from the application, not from a slide. Prepare before recording:
-open the Analyze page, load the hallucinated-number example, and make sure the backend is
-running. Do not type long text on camera.
+The demo is shown live from the application, not from a slide. The **chat page is the core
+demo**, because it shows the everyday workflow: the answer streams, and the risk card
+appears by itself. The Analyze page comes second, for a close look at one answer.
+
+Prepare before recording: open the chat page with the question and answer already pasted,
+open the Analyze page with the hallucinated-number example loaded, and make sure the
+backend is running. Do not type long text on camera.
 
 The backend takes about 30 seconds to load its models. Start it before you record, or use
 `scripts\serve_api.cmd`, which keeps it alive automatically.
 
-**[0:00-0:20] Set the scene**
+| Beat | Time | Running |
+|------|------|---------|
+| Set the scene | 0:15 | 0:15 |
+| Chat page (the core demo) | 0:50 | 1:05 |
+| Analyze · hallucinated example | 0:35 | 1:40 |
+| Analyze · grounded example | 0:20 | 2:00 |
+| Model comparison | 0:20 | 2:20 |
+| Hand back | 0:10 | 2:30 |
 
-> This is the Analyze page. On the left, I enter a question, the evidence, and the answer I
-> want to check.
-> On the right, the result appears after each run.
+**[0:00-0:15] Set the scene**
 
-**[0:20-1:00] Hallucinated example**
+> The system has two pages. The chat page is for everyday use. The Analyze page is for a
+> close look at one answer.
+> I will start with chat, because that is how a normal user would meet this system.
 
+**[0:15-1:05] Chat page — the core demo**
+
+> I paste a question, the evidence, and an answer to check.
+> The answer streams back, word by word.
+> Notice what appears on its own. Below the answer, a risk card is added automatically.
+> It says "likely hallucinated", with an evidence score of 65 percent.
+> Twelve claims were checked, and the card shows the verdicts: which claims are supported,
+> which are contradicted, and which are unsupported.
+> The headline follows the claim evidence, so the card and the answer agree.
+> I expand "Why this score".
+> Here are the SHAP bars for the top features, and here is the full table with all 35
+> features and their values.
+> The user never has to leave the conversation to see the reason.
+
+**[1:05-1:40] Analyze · hallucinated example**
+
+> Now the Analyze page, for one answer in detail.
 > The question is: how many days per decade did the melt season lengthen?
 > The evidence says 5 days. The answer says 10.
 > I click "Run risk analysis".
-> The gauge shows medium risk, 35 percent. The band markers are printed below it.
-> Below the gauge, the claims are listed. The number claim is contradicted, and the
-> evidence sentence is shown next to it.
+> The gauge shows medium risk, 35 percent, with the band markers printed below it.
+> Below the gauge, the number claim is contradicted, and the evidence sentence is shown
+> next to it.
 > This is the important part. The user can see why the answer is risky, not just that it
 > is risky.
 
-**[1:00-1:20] Explanation**
-
-> I open the SHAP panel.
-> The top features explain this score. The contradiction feature pushes the risk up.
-> The lexical overlap with the evidence pushes the risk down.
-> The explanation matches the reasoning we just read.
-
-**[1:20-1:50] Grounded example**
+**[1:40-2:00] Analyze · grounded example**
 
 > Now I load the grounded example. The answer matches the evidence.
 > The risk is low, 8 percent.
-> There are no contradicted claims. The verdict says "supported".
+> There are no contradicted claims, and the verdict says "supported".
 > So the same model gives a low score when the answer is faithful.
 
-**[1:50-2:20] Model comparison**
+**[2:00-2:20] Model comparison**
 
 > Finally, I open the model comparison.
 > EC-XGB, standard XGBoost, random forest, and logistic regression are all scored here.
@@ -302,7 +323,8 @@ The backend takes about 30 seconds to load its models. Start it before you recor
 
 **[2:20-2:30] Hand back**
 
-> This is the complete workflow, from input to explanation. Thank you for watching.
+> That is the complete workflow, from a chat answer to a clear explanation. Thank you for
+> watching.
 
 ---
 
@@ -382,4 +404,8 @@ Keep these ready. Do not volunteer all of them in the talk.
 - If you fall behind, shorten slides 5, 7, and 8. Never shorten the demo.
 - Keep your hands still, and look at the camera on slides 1 and 17.
 - Practise the demo twice, with the backend already running.
+- The chat page is the core of the demo. Open it first, paste the prompt, and let the risk
+  card appear on its own. Give the card a moment to land before you speak again.
+- Show the evidence quote, not only the score. Judges remember the reason more than the
+  number.
 - The demo is your strongest moment. Show the evidence quote, not only the score.
