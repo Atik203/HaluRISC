@@ -10,7 +10,6 @@ import {
   Layers,
   Lightbulb,
   ListChecks,
-  Monitor,
   Search,
   ShieldCheck,
   Sigma,
@@ -52,8 +51,10 @@ export interface BaselineRow {
   label: string;
   f1?: number | null;
   auroc?: number | null;
+  prAuc?: number | null;
   mcc?: number | null;
   ece?: number | null;
+  brier?: number | null;
   highlighted?: boolean;
 }
 
@@ -74,6 +75,14 @@ export interface ShiftRow {
   ecxgb: { f1?: number | null; auroc?: number | null; flagged?: number | null; ece?: number | null };
 }
 
+export interface TaskRow {
+  label: string;
+  nRows?: number | null;
+  f1?: number | null;
+  auroc?: number | null;
+  flagged?: number | null;
+}
+
 export interface SlideData {
   modelVersion: string;
   featureVersion: string;
@@ -88,8 +97,18 @@ export interface SlideData {
   baselines: BaselineRow[];
   ablation: AblationRow[];
   shift: ShiftRow[];
+  taskBreakdown: TaskRow[];
+  mcnemarP?: number | null;
+  mcnemarBest?: string | null;
+  xgbF1CiLo?: number | null;
+  xgbF1CiHi?: number | null;
   displayMethod: string;
   calibrationRows: number | null;
+  b4RawEce?: number | null;
+  b4PlattEce?: number | null;
+  b4IsoEce?: number | null;
+  halRawEce?: number | null;
+  halPlattEce?: number | null;
   displayRawEce?: number | null;
   displayRawBrier?: number | null;
   displayEce?: number | null;
@@ -106,6 +125,21 @@ export interface SlideData {
   costPer1k?: number | null;
   judgeF1?: number | null;
   judgeCostPer1k?: number | null;
+  judgeModel?: string | null;
+  judgeN?: number | null;
+  judgeAcc?: number | null;
+  judgePrec?: number | null;
+  judgeRec?: number | null;
+  judgeP50?: number | null;
+  judgeP95?: number | null;
+  judgeAgreement?: number | null;
+  judgeMcnemarP?: number | null;
+  judgeWrongRight?: number | null;
+  judgeRightWrong?: number | null;
+  xgbSameAcc?: number | null;
+  leakFree?: boolean | null;
+  leakSpanning?: number | null;
+  labelBalanceText: string;
   modelJudgeF1?: number | null;
   strictAlphaText: string;
   strictFprText: string;
@@ -133,7 +167,7 @@ const MEMBERS = [
 
 function TitleSlide({ index, total }: SlideProps) {
   return (
-    <div className="relative flex h-full w-full flex-col justify-between overflow-hidden bg-white px-[6cqw] pb-[1.6cqh] pt-[3cqh]">
+    <div className="relative flex h-full w-full flex-col overflow-hidden bg-white px-[6.5cqw] pb-[2.2cqh] pt-[3.6cqh]">
       <div
         className="pointer-events-none absolute right-[-12cqw] top-[-20cqh] h-[56cqh] w-[56cqh] rounded-full"
         style={{ background: ACCENT, opacity: 0.07 }}
@@ -142,6 +176,7 @@ function TitleSlide({ index, total }: SlideProps) {
         className="pointer-events-none absolute bottom-[-24cqh] left-[-10cqw] h-[44cqh] w-[44cqh] rounded-full"
         style={{ background: TEAL, opacity: 0.06 }}
       />
+      <div className="relative flex min-h-0 flex-1 flex-col items-center justify-center gap-[4.5cqh]">
       <div className="relative text-center">
         <div
           className="inline-block rounded-full px-[2.6cqw] py-[0.8cqh] text-[2cqh] font-bold uppercase tracking-[0.16em]"
@@ -208,11 +243,11 @@ function TitleSlide({ index, total }: SlideProps) {
                 style={{ color: m.leader ? ACCENT : SLATE }}
               >
                 {m.id}
-                {m.leader && <span className="ml-[0.6cqw] font-extrabold">· Leader</span>}
               </div>
             </div>
           </div>
         ))}
+      </div>
       </div>
 
       <div
@@ -380,9 +415,77 @@ function MotivationSlide({ data, index, total }: SlideProps) {
   );
 }
 
-/* ────────────────────── 4 · Dataset (in-domain) ─────────────────── */
+/* ─────────────────── 4 · Dataset sources ──────────────────────── */
 
-function DatasetInDomainSlide({ index, total }: SlideProps) {
+function SourcesSlide({ data, index, total }: SlideProps) {
+  return (
+    <SlideFrame
+      {...BADGE_DATA}
+      title="Where the data comes from"
+      subtitle="One in-domain benchmark for training, two public corpora that never enter training."
+      accent={TEAL}
+      index={index}
+      total={total}
+    >
+      <div className="flex min-h-0 flex-1 flex-col gap-[1.8cqh]">
+        <SlideTable
+          head={["Corpus", "Source", "License", "Rows / groups", "Role in this study"]}
+          headerBg="#ccfbf1"
+          color={TEAL}
+          widths={["17%", "29%", "14%", "16%", "24%"]}
+          highlightRow={0}
+          rows={[
+            ["HaluEval QA", "Li et al. · EMNLP 2023", "MIT", "20,000 / 10,000", "Train · validate · test"],
+            ["RAGTruth", "Niu et al. · ACL 2024", "MIT", "17,790 / 2,965", "Zero-shot transfer + calibration"],
+            ["FaithBench", "Bao et al. · NAACL 2025", "CC BY-NC-SA", "750 / 750", "Summarization stress test"],
+          ]}
+        />
+        <div className="grid flex-1 grid-cols-3 gap-[1.5cqw]">
+          <div
+            className="flex flex-col justify-center rounded-xl border-2 px-[1.8cqw] py-[1.4cqh]"
+            style={{ borderColor: TEAL, background: "#f0fdfa" }}
+          >
+            <div className="text-[2.3cqh] font-extrabold" style={{ color: TEAL }}>
+              Target variable
+            </div>
+            <div className="mt-[0.6cqh] text-[2.1cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
+              Binary per answer: <b>1 = hallucinated</b> (unsupported or contradicted span),{" "}
+              <b>0 = grounded</b>. Balanced {data.labelBalanceText} in every HaluEval split.
+            </div>
+          </div>
+          <div
+            className="flex flex-col justify-center rounded-xl border-2 px-[1.8cqw] py-[1.4cqh]"
+            style={{ borderColor: ACCENT, background: "#eef2ff" }}
+          >
+            <div className="text-[2.3cqh] font-extrabold" style={{ color: ACCENT }}>
+              RAGTruth tasks
+            </div>
+            <div className="mt-[0.6cqh] text-[2.1cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
+              QA · summarization · data-to-text, from several generators. Natural long-form answers,
+              unlike the terse HaluEval pairs.
+            </div>
+          </div>
+          <div
+            className="flex flex-col justify-center rounded-xl border-2 px-[1.8cqw] py-[1.4cqh]"
+            style={{ borderColor: AMBER, background: "#fffbeb" }}
+          >
+            <div className="text-[2.3cqh] font-extrabold" style={{ color: AMBER }}>
+              Licensing note
+            </div>
+            <div className="mt-[0.6cqh] text-[2.1cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
+              MIT corpora are bundled with hashes. FaithBench (non-commercial) is fetched by a
+              downloader script and never committed.
+            </div>
+          </div>
+        </div>
+      </div>
+    </SlideFrame>
+  );
+}
+
+/* ────────────────────── 5 · Dataset (in-domain) ─────────────────── */
+
+function DatasetInDomainSlide({ data, index, total }: SlideProps) {
   return (
     <SlideFrame
       {...BADGE_DATA}
@@ -399,7 +502,8 @@ function DatasetInDomainSlide({ index, total }: SlideProps) {
               <b>10,000 questions</b>, each with a knowledge passage and a pair of answers.
             </Bullet>
             <Bullet>
-              <b>20,000 labeled rows</b> after pairing, binary target: hallucinated or grounded.
+              <b>20,000 labeled rows</b> after pairing, binary target: hallucinated or grounded,
+              balanced {data.labelBalanceText} in every split.
             </Bullet>
             <Bullet>
               Answers are often terse: <b>style itself carries signal</b>, which later motivates the
@@ -439,7 +543,7 @@ function DatasetInDomainSlide({ index, total }: SlideProps) {
   );
 }
 
-/* ──────────────────── 5 · Dataset (external + features) ─────────── */
+/* ──────────────────── 6 · Dataset (external + features) ─────────── */
 
 function DatasetExternalSlide({ data, index, total }: SlideProps) {
   return (
@@ -452,7 +556,7 @@ function DatasetExternalSlide({ data, index, total }: SlideProps) {
       total={total}
     >
       <div className="grid min-h-0 flex-1 grid-cols-[1.05fr_1fr] gap-[1.8cqw]">
-        <div className="flex min-h-0 flex-col justify-center gap-[1.4cqh]">
+        <div className="flex min-h-0 flex-col justify-center gap-[1.2cqh]">
           <SlideTable
             head={["Corpus", "Rows", "Role"]}
             headerBg="#ccfbf1"
@@ -464,12 +568,25 @@ function DatasetExternalSlide({ data, index, total }: SlideProps) {
               ["FaithBench", "750", "Summarization stress test"],
             ]}
           />
+          <SlideTable
+            compact
+            head={["RAGTruth task", "Rows", "Zero-shot F1", "AUROC"]}
+            headerBg="#e0e7ff"
+            color={ACCENT}
+            widths={["34%", "22%", "22%", "22%"]}
+            rows={data.taskBreakdown.map((t) => [
+              t.label,
+              t.nRows?.toLocaleString() ?? "—",
+              fmt(t.f1, 4),
+              fmt(t.auroc),
+            ])}
+          />
           <div
             className="rounded-lg px-[1.4cqw] py-[1cqh] text-[2.05cqh] font-bold leading-snug"
             style={{ background: "#fef3c7", color: AMBER }}
           >
-            Zero-shot rows never enter training. RAGTruth QA stays fully held out, so its result is a
-            zero-shot task for the deployed model.
+            Zero-shot rows never enter training. Data-to-text transfers best because answers mirror
+            the structured input.
           </div>
         </div>
         <Card
@@ -509,7 +626,51 @@ function DatasetExternalSlide({ data, index, total }: SlideProps) {
   );
 }
 
-/* ─────────────────────────── 6 · Pipeline ───────────────────────── */
+/* ──────────────────── 7 · Preprocessing ─────────────────────── */
+
+function PreprocessingSlide({ data, index, total }: SlideProps) {
+  return (
+    <SlideFrame
+      {...BADGE_METHOD}
+      title="Data preprocessing"
+      subtitle="Cleaning and a grouped split protocol that guarantees no question leaks across partitions."
+      accent={AMBER}
+      index={index}
+      total={total}
+    >
+      <div className="flex min-h-0 flex-1 flex-col gap-[2cqh]">
+        <PipelineStrip
+          steps={["Raw corpora", "Clean + dedupe", "Unified schema", "Grouped 70/15/15", "Leakage check"]}
+          color={AMBER}
+          bg="#fffbeb"
+        />
+        <div className="grid min-h-0 flex-1 grid-cols-2 gap-[1.8cqw]">
+          <Card icon={<ListChecks size="2.4cqh" color="#fff" />} title="Cleaning rules" color={AMBER} fill="#fffbeb">
+            <ul>
+              <Bullet>Strip markup and whitespace, drop empty or duplicate rows.</Bullet>
+              <Bullet>Map every corpus to one schema: question, context, answer, label, group key.</Bullet>
+              <Bullet>Group keys keep pairs together: HaluEval item index, RAGTruth source id.</Bullet>
+              <Bullet>Split indices frozen to artifacts, reused by every seed ({data.seedsText}).</Bullet>
+            </ul>
+          </Card>
+          <Card icon={<ShieldCheck size="2.4cqh" color="#fff" />} title="Leakage guarantee" color={TEAL} fill="#f0fdfa">
+            <ul>
+              <Bullet>Both answers of a question stay in one partition, always.</Bullet>
+              <Bullet>
+                Groups spanning multiple splits: <b>{data.leakSpanning ?? "—"}</b> — split is
+                {data.leakFree ? "" : " not"} verified leakage-free.
+              </Bullet>
+              <Bullet>Label balance {data.labelBalanceText} holds in train, validation, and test.</Bullet>
+              <Bullet>External corpora are never mixed into training rows (EC-XGB excepted, flagged).</Bullet>
+            </ul>
+          </Card>
+        </div>
+      </div>
+    </SlideFrame>
+  );
+}
+
+/* ─────────────────────────── 8 · Pipeline ───────────────────────── */
 
 function PipelineBox({
   title,
@@ -605,7 +766,7 @@ function PipelineSlide({ data, index, total }: SlideProps) {
   );
 }
 
-/* ────────────────────── 7 · Feature engineering ─────────────────── */
+/* ────────────────────── 9 · Feature engineering ─────────────────── */
 
 const GROUP_LABELS: Record<string, string> = {
   length: "Length & style",
@@ -683,7 +844,7 @@ function FeaturesSlide({ data, index, total }: SlideProps) {
   );
 }
 
-/* ───────────────────────── 8 · Models ──────────────────────────── */
+/* ───────────────────────── 10 · Models ──────────────────────────── */
 
 function ModelsSlide({ data, index, total }: SlideProps) {
   const baselines = [
@@ -756,11 +917,19 @@ function ModelsSlide({ data, index, total }: SlideProps) {
           </ul>
         </Card>
       </div>
+      <div className="mt-[1.2cqh] flex flex-wrap items-center gap-[0.9cqw]">
+        <Chip color={TEAL} bg="#ccfbf1">
+          NLI backbone: {data.nliModel}
+        </Chip>
+        <Chip color={ACCENT} bg="#e0e7ff">
+          Tuning: depth · learning rate · trees · subsample · colsample ({data.nIter ?? "—"} draws)
+        </Chip>
+      </div>
     </SlideFrame>
   );
 }
 
-/* ──────────────────────── 9 · Training protocol ─────────────────── */
+/* ──────────────────────── 11 · Training protocol ─────────────────── */
 
 function ProtocolSlide({ data, index, total }: SlideProps) {
   return (
@@ -823,7 +992,7 @@ function ProtocolSlide({ data, index, total }: SlideProps) {
   );
 }
 
-/* ───────────────────── 10 · Baseline comparison ─────────────────── */
+/* ───────────────────── 12 · Baseline comparison ─────────────────── */
 
 function BaselineResultsSlide({ data, index, total }: SlideProps) {
   return (
@@ -835,21 +1004,26 @@ function BaselineResultsSlide({ data, index, total }: SlideProps) {
       index={index}
       total={total}
     >
-      <div className="grid min-h-0 flex-1 grid-cols-[1.2fr_1fr] gap-[1.8cqw]">
+      <div className="grid min-h-0 flex-1 grid-cols-[1.25fr_1fr] gap-[1.8cqw]">
         <div className="flex min-h-0 flex-col justify-center gap-[1.2cqh]">
           <SlideTable
-            head={["Model", "F1", "AUROC", "MCC", "ECE"]}
+            head={["Model", "F1", "AUROC", "PR-AUC", "MCC", "ECE"]}
             headerBg="#fee2e2"
             color={ROSE}
-            widths={["40%", "15%", "15%", "15%", "15%"]}
+            widths={["32%", "13.5%", "13.5%", "13.5%", "13.5%", "14%"]}
             highlightRow={data.baselines.findIndex((b) => b.highlighted)}
-            rows={data.baselines.map((b) => [b.label, fmt(b.f1), fmt(b.auroc), fmt(b.mcc), fmt(b.ece, 4)])}
+            rows={data.baselines.map((b) => [b.label, fmt(b.f1), fmt(b.auroc), fmt(b.prAuc), fmt(b.mcc), fmt(b.ece, 4)])}
           />
           <div
             className="rounded-lg px-[1.4cqw] py-[1cqh] text-[2.05cqh] font-bold leading-snug"
             style={{ background: "#fee2e2", color: ROSE }}
           >
             {data.fpNote || "XGBoost shows the fewest false positives at the same threshold."}
+          </div>
+          <div className="text-[1.95cqh] font-semibold leading-snug" style={{ color: SLATE }}>
+            XGB F1 95% bootstrap CI [{fmt(data.xgbF1CiLo, 4)}, {fmt(data.xgbF1CiHi, 4)}] · McNemar
+            XGBoost vs {data.mcnemarBest ?? "best baseline"} p = {data.mcnemarP != null ? data.mcnemarP.toFixed(3) : "—"} ·
+            Wilcoxon across seeds confirms the ranking.
           </div>
         </div>
         <div className="flex min-h-0 flex-col items-center justify-center gap-[1.1cqh]">
@@ -875,7 +1049,7 @@ function BaselineResultsSlide({ data, index, total }: SlideProps) {
   );
 }
 
-/* ───────────────────── 11 · EC-XGB results ──────────────────────── */
+/* ───────────────────── 13 · EC-XGB results ──────────────────────── */
 
 function EcXgbResultsSlide({ data, index, total }: SlideProps) {
   const standard = data.shift[0]?.standard;
@@ -948,7 +1122,61 @@ function EcXgbResultsSlide({ data, index, total }: SlideProps) {
   );
 }
 
-/* ──────────────── 12 · Calibration, trust, and speed ────────────── */
+/* ─────────────── 14 · LLM-as-judge head-to-head ─────────────── */
+
+function JudgeSlide({ data, index, total }: SlideProps) {
+  const judgeName =
+    data.judgeModel === "gpt-5.6-luna" ? "GPT 5.6 Luna" : (data.judgeModel ?? "LLM judge");
+  return (
+    <SlideFrame
+      {...BADGE_RESULTS}
+      title="A flagship LLM judge loses on accuracy per dollar"
+      subtitle={`${judgeName} prompted for JSON verdicts on ${data.judgeN ?? "—"} balanced test answers, against XGBoost on the same subset.`}
+      accent={ROSE}
+      index={index}
+      total={total}
+    >
+      <div className="flex min-h-0 flex-1 flex-col justify-between">
+        <SlideTable
+          head={["System", "Accuracy", "F1", "Latency p50", "Cost / 1k"]}
+          headerBg="#fee2e2"
+          color={ROSE}
+          widths={["30%", "18%", "18%", "17%", "17%"]}
+          highlightRow={1}
+          rows={[
+            [judgeName, pct(data.judgeAcc), fmt(data.judgeF1), ms(data.judgeP50), `$${data.judgeCostPer1k ?? "—"}`],
+            ["XGBoost (same subset)", pct(data.xgbSameAcc), fmt(data.modelJudgeF1), ms(data.latencyP50), `$${data.costPer1k ?? "—"}`],
+          ]}
+        />
+        <KpiStrip
+          items={[
+            { value: pct(data.judgeAgreement, 0), label: "Judge–XGB agreement", color: AMBER },
+            {
+              value: `${data.judgeWrongRight ?? "—"} : ${data.judgeRightWrong ?? "—"}`,
+              label: "Discordant pairs · judge wrong : judge right",
+              color: ROSE,
+            },
+            {
+              value: data.judgeMcnemarP == null ? "—" : data.judgeMcnemarP < 0.001 ? "p < 0.001" : `p = ${data.judgeMcnemarP.toFixed(3)}`,
+              label: "McNemar judge vs XGB",
+              color: ACCENT,
+            },
+          ]}
+        />
+        <div
+          className="rounded-lg px-[1.4cqw] py-[1cqh] text-[2.05cqh] font-bold leading-snug"
+          style={{ background: "#eef2ff", color: ACCENT }}
+        >
+          The judge recalls only {pct(data.judgeRec, 0)} of hallucinations at ~100× the cost and
+          ~20× the latency (p95 {ms(data.judgeP95)}), so it serves as an audited baseline — not the
+          deployed scorer.
+        </div>
+      </div>
+    </SlideFrame>
+  );
+}
+
+/* ──────────────── 15 · Calibration, trust, and speed ────────────── */
 
 function TrustResultsSlide({ data, index, total }: SlideProps) {
   return (
@@ -971,6 +1199,10 @@ function TrustResultsSlide({ data, index, total }: SlideProps) {
           <div className="mt-[0.5cqh] text-[1.95cqh] font-medium leading-snug" style={{ color: SLATE }}>
             Brier {fmt(data.displayRawBrier)} → {fmt(data.displayBrier)} · fitted on{" "}
             {data.calibrationRows?.toLocaleString() ?? "—"} calibration rows.
+          </div>
+          <div className="mt-[0.5cqh] text-[1.95cqh] font-medium leading-snug" style={{ color: SLATE }}>
+            Source-fitted on shifted QA stays broken: raw {fmt(data.b4RawEce)} · Platt{" "}
+            {fmt(data.b4PlattEce)} · isotonic {fmt(data.b4IsoEce)}.
           </div>
         </Card>
         <Card icon={<BarChart3 size="2.2cqh" color="#fff" />} title="Explanation reliability" color={TEAL} fill="#f0fdfa">
@@ -1004,104 +1236,128 @@ function TrustResultsSlide({ data, index, total }: SlideProps) {
   );
 }
 
-/* ───────────────────────── 13 · UI: chat ───────────────────────── */
+/* ───────────────────────── 16 · UI: chat ───────────────────────── */
 
 function ChatUiSlide({ index, total }: SlideProps) {
   return (
     <SlideFrame
       {...BADGE_UI}
       title="Chat and Analyze: evidence-first interface"
-      subtitle="The chat card leads with per-claim verdicts; Analyze shows the gauge, thresholds, SHAP bars, and the model comparison."
+      subtitle="Chat shows the risk card automatically as the answer streams; Analyze submits an answer and returns the calibrated gauge."
       accent={ACCENT}
       index={index}
       total={total}
     >
-      <div className="grid min-h-0 flex-1 grid-cols-3 gap-[1.5cqw]">
-        <SlideShot
-          src="/slides/chat-grounded.png"
-          alt="Chat page with streaming answer and automatic risk card"
-          caption="Chat · automatic risk card"
-          color={ACCENT}
-          position="center 35%"
-        />
-        <SlideShot
-          src="/slides/analyze-risk.png"
-          alt="Analyze page with calibrated gauge, thresholds and SHAP"
-          caption="Analyze · gauge, thresholds, SHAP"
-          color={TEAL}
-          position="right top"
-        />
-        <SlideShot
-          src="/slides/analyze-compare.png"
-          alt="Model comparison card with EC-XGB beside the standard baselines"
-          caption="Analyze · model comparison card"
-          color={AMBER}
-          position="right top"
-        />
-      </div>
-      <div className="mt-[1.2cqh] flex flex-wrap items-center gap-[0.9cqw]">
-        <Chip color={ACCENT} bg="#e0e7ff">
-          Dark theme · high contrast
-        </Chip>
-        <Chip color={TEAL} bg="#ccfbf1">
-          Claim verdicts with evidence quotes
-        </Chip>
-        <Chip color={AMBER} bg="#fef3c7">
-          Floating composer: upload, evidence, web search
-        </Chip>
-        <Chip color={ROSE} bg="#fee2e2">
-          All models scored side by side
-        </Chip>
-      </div>
-    </SlideFrame>
-  );
-}
-
-/* ────────────────────── 14 · UI: dashboard ─────────────────────── */
-
-function DashboardUiSlide({ index, total }: SlideProps) {
-  return (
-    <SlideFrame
-      {...BADGE_UI}
-      title="Dashboard, demo, and usability"
-      subtitle="Every reported number renders from the artifacts, so the interface and the paper never disagree."
-      accent={ACCENT}
-      index={index}
-      total={total}
-    >
-      <div className="grid min-h-0 flex-1 grid-cols-[1.35fr_1fr] gap-[1.6cqw]">
-        <SlideShot
-          src="/slides/dashboard-robustness.png"
-          alt="Robustness tab with the EC-XGB shift and ablation panels"
-          caption="Experiment dashboard · EC-XGB shift and ablation panels"
-          color={ACCENT}
-          position="left top"
-        />
-        <div className="flex min-h-0 flex-col gap-[1.2cqh]">
-          <div className="min-h-0 flex-1">
-            <SlideShot
-              src="/slides/demo-ecxgb.png"
-              alt="Offline presenter demo with the EC-XGB shift table"
-              caption="Offline presenter demo · no API key needed"
-              color={TEAL}
-              position="center top"
-            />
-          </div>
-          <Card icon={<Monitor size="2.2cqh" color="#fff" />} title="Usability checks" color={AMBER} fill="#fffbeb">
-            <ul>
-              <Bullet>Thresholds and bands are printed on the gauge.</Bullet>
-              <Bullet>Result tables carry plain-language notes.</Bullet>
-              <Bullet>Projector mode scales the interface.</Bullet>
-              <Bullet>Mobile keeps chat, sidebar, and composer reachable.</Bullet>
-            </ul>
-          </Card>
+      <div className="flex min-h-0 flex-1 flex-col justify-center gap-[1.6cqh]">
+        <div className="grid grid-cols-2 gap-[1.6cqw]">
+          <SlideShot
+            src="/slides/chat.png"
+            alt="Chat page: question, streamed answer, SHAP key contributors, and the evidence-score risk card with claim verdicts"
+            caption="Chat · automatic risk card with claim verdicts"
+            color={ACCENT}
+            position="center 62%"
+            ratio="2.11"
+          />
+          <SlideShot
+            src="/slides/analyze-mode.png"
+            alt="Analyze page: question, context and answer inputs, one-click example sweep, and the calibrated gauge with band markers"
+            caption="Analyze · inputs, example sweep, calibrated gauge"
+            color={TEAL}
+            position="center 42%"
+            ratio="2.06"
+          />
+        </div>
+        <div className="rounded-lg px-[1.4cqw] py-[1cqh] text-[2.05cqh] font-semibold leading-snug" style={{ background: "#f1f5f9", color: DEEP_INK }}>
+          The chat card leads with the verdict and the evidence score, then the SHAP contributors.
+          Analyze exposes the same pipeline plus the band thresholds, so a score of 35% reads as
+          medium risk without a lookup table.
+        </div>
+        <div className="flex flex-wrap items-center gap-[0.9cqw]">
+          <Chip color={ACCENT} bg="#e0e7ff">
+            Dark theme · high contrast
+          </Chip>
+          <Chip color={TEAL} bg="#ccfbf1">
+            Claim verdicts with evidence quotes
+          </Chip>
+          <Chip color={AMBER} bg="#fef3c7">
+            Floating composer: upload, evidence, web search
+          </Chip>
+          <Chip color={ROSE} bg="#fee2e2">
+            Thresholds printed on the gauge
+          </Chip>
         </div>
       </div>
     </SlideFrame>
   );
 }
 
-/* ─────────────────────────── 15 · Demo ──────────────────────────── */
+/* ────────────────────── 17 · UI: dashboard ─────────────────────── */
+
+function DashboardUiSlide({ index, total }: SlideProps) {
+  const ux = [
+    { title: "Input", color: ACCENT, fill: "#eef2ff", line: "Question, context, and answer boxes with one-click example presets." },
+    { title: "Result display", color: TEAL, fill: "#f0fdfa", line: "Calibrated gauge with band markers, then per-claim verdicts." },
+    { title: "Consistency", color: AMBER, fill: "#fffbeb", line: "Same dark theme and layout across chat, analyze, and dashboard." },
+    { title: "Ease of use", color: ROSE, fill: "#fff1f2", line: "Example sweep, keyboard-friendly controls, and projector mode." },
+  ];
+  return (
+    <SlideFrame
+      {...BADGE_UI}
+      title="Explanations, comparison, and usability"
+      subtitle="SHAP bars explain the raw score, the feature table exposes every input, and all models are scored side by side."
+      accent={ACCENT}
+      index={index}
+      total={total}
+    >
+      <div className="flex min-h-0 flex-1 flex-col justify-center gap-[1.5cqh]">
+        <div className="grid grid-cols-3 gap-[1.5cqw]">
+          <SlideShot
+            src="/slides/analyze-shap.png"
+            alt="SHAP feature contribution chart for the raw XGBoost score, with the five strongest features and provenance footer"
+            caption="SHAP contributions · raw score"
+            color={TEAL}
+            position="center"
+            ratio="1.29"
+          />
+          <SlideShot
+            src="/slides/chat-details.png"
+            alt="Why-this-score panel: SHAP bars plus the full 35-feature table with values"
+            caption="Why this score · 35-feature table"
+            color={ACCENT}
+            position="center"
+            ratio="1.21"
+          />
+          <SlideShot
+            src="/slides/analyze-compare.png"
+            alt="Model comparison card: deployed calibrated score against EC-XGB, XGBoost, random forest, logistic regression, and the overlap heuristic"
+            caption="Model comparison · EC-XGB vs baselines"
+            color={AMBER}
+            position="center"
+            ratio="1.57"
+          />
+        </div>
+        <div className="grid grid-cols-4 gap-[1.2cqw]">
+          {ux.map((item) => (
+            <div
+              key={item.title}
+              className="rounded-xl border-2 px-[1.4cqw] py-[1.2cqh]"
+              style={{ borderColor: item.color, background: item.fill }}
+            >
+              <div className="text-[2.15cqh] font-extrabold uppercase tracking-wide" style={{ color: item.color }}>
+                {item.title}
+              </div>
+              <div className="mt-[0.5cqh] text-[1.95cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
+                {item.line}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </SlideFrame>
+  );
+}
+
+/* ─────────────────────────── 18 · Demo ──────────────────────────── */
 
 function DemoSlide({ index, total }: SlideProps) {
   const steps = [
@@ -1189,7 +1445,7 @@ function DemoSlide({ index, total }: SlideProps) {
   );
 }
 
-/* ──────────────────────── 16 · Conclusion ───────────────────────── */
+/* ──────────────────────── 19 · Conclusion ───────────────────────── */
 
 function ConclusionSlide({ data, index, total }: SlideProps) {
   const ecxgb = data.shift[0]?.ecxgb;
@@ -1255,7 +1511,7 @@ function ConclusionSlide({ data, index, total }: SlideProps) {
   );
 }
 
-/* ──────────────────────── 17 · Thank you ────────────────────────── */
+/* ──────────────────────── 20 · Thank you ────────────────────────── */
 
 function ThankYouSlide({ index, total }: SlideProps) {
   return (
@@ -1292,7 +1548,7 @@ function ThankYouSlide({ index, total }: SlideProps) {
         Questions &amp; Discussion Welcome
       </div>
       <div
-        className="absolute bottom-[1.6cqh] inset-x-[4.2cqw] flex items-center justify-between border-t-2 pt-[0.8cqh] text-[1.7cqh] font-bold"
+        className="absolute bottom-[2cqh] inset-x-[4.6cqw] flex items-center justify-between border-t-2 pt-[1.1cqh] text-[1.7cqh] font-bold"
         style={{ borderColor: "#e2e8f0", color: SLATE }}
       >
         <span>CSE 4889 - Machine Learning · Section E · Team Phantom Devs</span>
@@ -1310,14 +1566,17 @@ export const SLIDES: Array<(props: SlideProps) => React.ReactElement> = [
   TitleSlide,
   ProblemSlide,
   MotivationSlide,
+  SourcesSlide,
   DatasetInDomainSlide,
   DatasetExternalSlide,
+  PreprocessingSlide,
   PipelineSlide,
   FeaturesSlide,
   ModelsSlide,
   ProtocolSlide,
   BaselineResultsSlide,
   EcXgbResultsSlide,
+  JudgeSlide,
   TrustResultsSlide,
   ChatUiSlide,
   DashboardUiSlide,
