@@ -6,38 +6,29 @@ This is the full speaking script. Slide numbers refer to the `/slide` deck (17 s
 title, 15 content slides, thank you). The deck has no speaker notes on purpose, so this
 file carries everything.
 
-The register is formal but the sentences are short. All contractions are spelled out,
-because they are easier for a slow speaker to pronounce clearly.
+The script is written for a slow, careful speaker at **1.73 words per second** (about 104
+words per minute). That rate is measured from the first recording pass, so the timings
+below should hold without rushing. Every number already appears on its slide, so you never
+read a table line by line.
+
+If you run long, use the fallback list in the delivery tips at the end. Each slide can lose
+its last sentence without breaking the story.
 
 ---
 
-## 1. Warm-up analysis: how to hold the judges
+## 1. Before you record
 
-Judges watch many videos in one sitting. The opening must be formal and clear, and the
-hook must land in the first half minute.
+- **Open the chat page with the example already loaded.** Do not type on camera.
+- **Open the Analyze page with the hallucinated-number example loaded.** The grounded
+  example is one click away.
+- **Start the backend early.** It takes about 30 seconds to load its models. Use
+  `scripts\serve_api.cmd`, which keeps it alive automatically.
+- **Open the deck at slide 1** in a second tab, and switch to it when the slides start.
 
-1. **Open formally first.** Greet the audience briefly, then give the team name, the
-   project name, and the full title. This is expected and it builds credibility. Do not
-   skip it. This is a recorded video, so do not mention a time of day, and do not thank
-   anyone for attending.
-2. **Deliver the hook right after, on slide 2.** Show the model saying the melt season
-   grew "10 days per decade" while the evidence says "5". Everyone understands this in
-   two seconds, and it makes the formal opening feel purposeful.
-3. **Give one hard number early.** "Today's detector flags 99.9% of real answers as
-   risky. Ours flags 61.3%." A number the judges can repeat back is a number they
-   remember.
-4. **State the deliverable in one line, then prove it.** "No model weights, 62
-   milliseconds, calibrated, and it explains itself." The rest of the talk is proof.
-
-Two more things that build trust with an expert audience:
-
-- **Be honest about limits.** Say the held-out F1 is low, but calibration improves. An
-  honest limitation is stronger than a perfect story.
-- **Close on the shift result.** It is the most defensible claim, because in-domain
-  differences are not statistically significant.
-
-Keep every sentence short. Pause after each number. If you run late, shorten slides 5, 7,
-and 8. Never shorten the demo.
+**Good opening habits.** Open formally, then land the hook on slide 2. Give one hard
+number early: "Today's detector flags 99.9% of answers as risky. Ours flags 61.3%." Pause
+for one full second after every number. Be honest about limits, and close on the shift
+result, because in-domain differences are not statistically significant.
 
 ---
 
@@ -45,115 +36,95 @@ and 8. Never shorten the demo.
 
 | # | Slide | Time | Running |
 |---|-------|------|---------|
-| 1 | Title | 0:15 | 0:15 |
-| 2 | Problem | 0:24 | 0:39 |
-| 3 | Motivation and gaps | 0:15 | 0:54 |
-| 4 | Datasets: sources, target, splits | 0:26 | 1:20 |
-| 5 | External corpora and features | 0:20 | 1:40 |
-| 6 | Preprocessing and the pipeline | 0:26 | 2:06 |
-| 7 | Feature engineering | 0:20 | 2:26 |
-| 8 | Models and EC-XGB | 0:20 | 2:46 |
-| 9 | Training protocol | 0:16 | 3:02 |
-| 10 | Baseline comparison | 0:22 | 3:24 |
-| 11 | EC-XGB results | 0:26 | 3:50 |
-| 12 | LLM as judge | 0:20 | 4:10 |
-| 13 | Calibration, trust, speed | 0:22 | 4:32 |
-| 14 | Interface: Chat and Analyze | 0:20 | 4:52 |
-| 15 | Interface: explanations, comparison | 0:20 | 5:12 |
-| 16 | Conclusion | 0:12 | 5:24 |
-| 17 | Thank you | 0:06 | 5:30 |
-| — | **Live demo** | **2:30** | **8:00** |
+| 1 | Title | 0:19 | 0:19 |
+| 2 | Problem | 0:26 | 0:45 |
+| 3 | Motivation and gaps | 0:15 | 1:00 |
+| 4 | Datasets: sources, target, splits | 0:24 | 1:24 |
+| 5 | External corpora and features | 0:19 | 1:43 |
+| 6 | Preprocessing and the pipeline | 0:24 | 2:07 |
+| 7 | Feature engineering | 0:21 | 2:28 |
+| 8 | Models and EC-XGB | 0:20 | 2:48 |
+| 9 | Training protocol | 0:17 | 3:05 |
+| 10 | Baseline comparison | 0:20 | 3:25 |
+| 11 | EC-XGB results | 0:27 | 3:52 |
+| 12 | LLM as judge | 0:21 | 4:13 |
+| 13 | Calibration, trust, speed | 0:15 | 4:28 |
+| 14 | Interface: Chat and Analyze | 0:19 | 4:47 |
+| 15 | Interface: explanations, comparison | 0:17 | 5:04 |
+| 16 | Conclusion | 0:20 | 5:24 |
+| 17 | Thank you | 0:05 | 5:29 |
+| — | **Live demo** | **2:30** | **7:59** |
 
-The demo sits between slide 15 and slide 16. It is shown live, so there is no walkthrough
-slide in the deck. After the demo, press the right arrow twice to reach the conclusion.
+The per-slide times are word counts divided by the measured pace of 1.73 words per second,
+so they already include your natural pauses. The deck lands at 5:29, and the whole video at
+7:59, with no rushing.
+
+The demo sits after slide 15. It is shown live, so there is no walkthrough slide. After the
+demo, press the right arrow twice to reach the conclusion.
 
 ---
 
 ## 3. Slide script
 
-### Slide 1 — Title (0:15)
+### Slide 1 — Title (0:19)
 
-> Hi everyone. Our team name is Phantom Devs.
-> Our project is called HaluRISC.
+> Hi everyone. Our team name is Phantom Devs, and our project is HaluRISC.
 > The full title is: Evidence-Consistent XGBoost for Calibrated Hallucination Risk
 > Estimation in Black-Box Language Model Answers.
-> In this video, I will present the problem, our method, the results, and a short
-> demonstration.
+> Then a short demo.
 
 ---
 
-### Slide 2 — Problem (0:24)
+### Slide 2 — Problem (0:26)
 
-> I would like to begin with one example.
-> A language model can say: "The Arctic melt season grew by 10 days per decade."
-> The evidence says 5. The sentence is fluent. It is wrong.
-> This is the whole problem. The answer sounds correct, so a reader trusts it.
-> We only have the question, the evidence, and the answer. We cannot see the model
-> weights.
-> Other detectors need model access, or a large language model, or a GPU.
-> We wanted four things at once. Accurate. Calibrated. Explainable. Fast.
+> One example first. A model says the Arctic melt season grew 10 days per decade. The
+> evidence says 5. Fluent, and wrong.
+> We see only the question, the evidence, and the answer, not the weights.
+> We wanted accurate, calibrated, explainable, fast, without the model weights.
 
 ---
 
 ### Slide 3 — Motivation and gaps (0:15)
 
 > Current work leaves three gaps.
-> First, calibration. Most lightweight detectors never report it.
-> Second, explanation quality. Attributions are drawn, but their stability is not
-> measured.
-> Third, domain shift. Detectors lose accuracy on new data, and this is rarely tested.
-> Our study addresses all three gaps together.
+> Calibration is rarely reported. Explanation stability is rarely measured. Accuracy on
+> new data is rarely tested.
+> Our study covers all three.
 
 ---
 
-### Slide 4 — Datasets (0:26)
+### Slide 4 — Datasets (0:24)
 
-> We use three public datasets.
-> HaluEval QA is used for training. It has 20,000 rows in 10,000 pairs, and each question
-> has one correct answer and one hallucinated answer.
-> RAGTruth provides zero-shot transfer and calibration. It has 17,790 rows.
-> FaithBench is a summarization stress test with 750 rows.
-> The target is binary for each answer. One means hallucinated, and zero means grounded.
-> The labels are balanced, 50 to 50.
-> We split by question, in the ratio 70, 15, 15, so both answers stay in one split. The
-> split is verified leakage-free.
+> HaluEval QA for training, with 20,000 labeled answers in 10,000 pairs. RAGTruth for
+> held-out transfer. FaithBench as a stress test.
+> The target is binary: hallucinated or grounded.
+> We split by question, 70, 15, 15, so both answers stay in one split. Leakage-free.
 
 ---
 
 ### Slide 5 — External corpora and features (0:20)
 
-> The external data never enters training. RAGTruth QA is fully held out, so its score is
-> a true zero-shot result.
-> On the right is the feature vector. There are 35 features in total: 26 base features, 8
-> claim-level features, and 1 source flag.
-> RAGTruth covers three tasks. Zero-shot transfer is weakest on question answering, and
-> strongest on data-to-text.
+> The external data never enters training, so those scores are zero-shot.
+> The feature vector has 35 features: 26 base, 8 claim-level, and 1 source flag.
+> Claim features connect the model to the verdicts.
 
 ---
 
-### Slide 6 — Preprocessing and the pipeline (0:26)
+### Slide 6 — Preprocessing and the pipeline (0:24)
 
-> Preprocessing is simple and strict.
-> We clean the text, remove empty rows, and map every dataset into one schema: question,
-> context, answer, label, and a group key.
-> The group key is the important part. It keeps both answers of a question together, so
-> zero groups cross the splits. The split indices are frozen, so every seed uses the same
-> data.
-> After that, one pass does everything. The input goes in, 35 features are extracted,
-> EC-XGB scores the answer, and a calibrator adjusts the score.
-> The output is a calibrated risk score, per-claim verdicts, and SHAP explanations.
+> We map every dataset into one schema, and a group key keeps both answers together, so
+> no group crosses a split.
+> One pass does everything: 35 features, EC-XGB, a calibrator.
+> The output is a risk score, per-claim verdicts, and SHAP explanations.
 
 ---
 
-### Slide 7 — Feature engineering (0:20)
+### Slide 7 — Feature engineering (0:21)
 
-> The 26 base features cover seven groups: length, lexical overlap, entities, natural
-> language inference, numbers, hedging, and semantic drift.
-> The 8 claim features are new. We split the answer into small clauses, and we check each
-> clause against the evidence.
-> For example, "the change is dominated by a later freezeup, and the region is at its
-> warmest" becomes two claims, and each claim receives a verdict.
-> The verdicts are support-first, with a relevance gate.
+> The 26 base features cover seven groups, from length and lexical overlap to NLI and
+> semantic drift.
+> The 8 claim features check each clause of the answer against the evidence.
+> Verdicts are support-first, with a relevance gate.
 
 ---
 
@@ -161,193 +132,151 @@ slide in the deck. After the demo, press the right arrow twice to reach the conc
 
 > We compare four baselines: an overlap heuristic, logistic regression, random forest, and
 > standard XGBoost.
-> EC-XGB then adds three changes.
-> M1 adds length features and monotone rules. Risk cannot decrease when contradiction
-> increases.
-> M2 adds the 8 claim features.
-> M3 adds RAGTruth non-QA rows and a source flag.
-> M1, M2, and M3 are the ablation stages, and M3 is the model we deploy as EC-XGB. It has
-> 35 features.
+> EC-XGB adds three changes: M1 length features and monotone rules, M2 the claim features,
+> M3 RAGTruth rows and a source flag.
 
 ---
 
-### Slide 9 — Training protocol (0:16)
+### Slide 9 — Training protocol (0:17)
 
-> Our protocol is strict, because the results must be believable.
-> We use a grouped 70, 15, 15 split, and five-fold cross-validation for tuning.
-> We repeat every experiment with three seeds: 42, 123, and 456. Every number is the mean
-> over the three seeds.
-> The calibrator is fitted on the validation split only, never on the test split.
-> We also report a strict mode that limits false positives to five percent.
+> Grouped 70, 15, 15 split, five-fold cross-validation, and three seeds: 42, 123, and 456.
+> The calibrator is fitted on validation only.
+> A strict mode caps false positives at five percent.
 
 ---
 
-### Slide 10 — Baseline comparison (0:22)
+### Slide 10 — Baseline comparison (0:20)
 
-> On the in-domain test set, standard XGBoost performs best among the learned models.
-> F1 is 0.985. AUROC is 0.998. PR-AUC is 0.998.
-> The bootstrap confidence interval for F1 is 0.981 to 0.990.
-> Against the best baseline, random forest, McNemar's test gives p equals 0.044. The gap
-> is small, but it is real.
-> The heuristic is far behind. This shows that the task is not trivial.
+> In-domain, standard XGBoost is best among the learned models, with F1 at 0.985.
+> Against random forest, McNemar gives p equals 0.044. Small, but real.
+> The heuristic is far behind, so the task is not trivial.
 
 ---
 
-### Slide 11 — EC-XGB results (0:26)
+### Slide 11 — EC-XGB results (0:27)
 
-> This is the main result, and it is a shift result, not an in-domain result.
-> In-domain, EC-XGB is almost identical to standard XGBoost. McNemar's test says the
-> difference is not significant.
-> On RAGTruth, the standard model flags 99.9 percent of answers as risky. That is not
-> useful, because it says yes to everything.
-> EC-XGB flags 61.3 percent. At the same time, AUROC rises from 0.497 to 0.582.
-> We accept a small loss in recall, and we gain much better precision. The flag rate
-> becomes usable.
-> The value of EC-XGB is robustness, not extra benchmark points.
+> In-domain, EC-XGB matches standard XGBoost. McNemar says the difference is not
+> significant.
+> On RAGTruth, the standard model flags 99.9 percent of answers, which says yes to
+> everything.
+> EC-XGB flags 61.3 percent, and AUROC rises from 0.497 to 0.582.
+> The value is robustness, not extra benchmark points.
 
 ---
 
-### Slide 12 — LLM as judge (0:20)
+### Slide 12 — LLM as judge (0:21)
 
-> We also evaluated a large language model as a judge. We used GPT 5.6 Luna on 200
-> answers.
-> Its F1 is 0.84, and its recall is only 74 percent. It misses about one in four
-> hallucinations.
-> XGBoost, on the same subset, reaches F1 0.985.
-> The judge costs about 100 times more per prediction, and it is about 20 times slower.
-> For this reason, the judge is an audited baseline. It is not the model we deploy.
+> We tested GPT 5.6 Luna as a judge on 200 answers. Its F1 is 0.84, while XGBoost reaches
+> 0.985 on the same subset at about 100 times lower cost.
+> So it is a baseline, not the deployment.
 
 ---
 
-### Slide 13 — Calibration, trust, speed (0:22)
+### Slide 13 — Calibration, trust, speed (0:15)
 
-> There are three points on this slide.
-> First, calibration. On natural RAGTruth answers, the raw score has an ECE of 0.73.
-> After Platt scaling, it becomes 0.13. The displayed number now means something.
-> Second, explanation quality. The SHAP ranking is stable, and edits to entities move the
-> score, while irrelevant insertions do not.
-> Third, speed. One analysis takes about 62 milliseconds at the median.
-> This is what allows the model to run inside a chat interface.
+> Calibration: on natural RAGTruth answers, ECE falls from 0.73 to 0.13 after Platt
+> scaling.
+> Explanations are stable under edits.
+> One analysis takes about 62 milliseconds.
 
 ---
 
-### Slide 14 — Interface: Chat and Analyze (0:20)
+### Slide 14 — Interface: Chat and Analyze (0:19)
 
-> The interface has two modes.
-> Chat scores the answer while it streams. The card shows the verdict first, then the
-> evidence score, and then the SHAP contributors.
-> Analyze gives the same pipeline with full control over the input. It shows the gauge and
-> the band thresholds, so a score of 35 percent reads as medium risk at a glance.
-> Every claim verdict also shows the evidence sentence it was checked against.
+> Chat scores the answer while it streams, and the risk card appears on its own with the
+> verdict, the score, and the SHAP contributors.
+> Analyze adds full input control and the band thresholds.
 
 ---
 
-### Slide 15 — Interface: explanations and comparison (0:20)
+### Slide 15 — Interface: explanations and comparison (0:17)
 
 > The score is never a black box.
-> The SHAP chart explains the raw score. The table lists all 35 features and their values
-> for this answer.
-> The comparison card scores every model side by side, including EC-XGB, standard XGBoost,
-> random forest, and logistic regression.
-> The interface stays consistent across chat, analyze, and the dashboard.
+> The SHAP chart explains the raw score, and the table lists all 35 features.
+> The comparison card scores every model side by side.
+
+---
+
+## 5. Slide 16 — Conclusion (0:20)
+
+> A detector with no model weights, 62 milliseconds, and an explanation for every score.
+> In-domain F1 is 0.986, and ECE is 0.007.
+> On shifted data the flag rate falls from 99.9 to 61.3 percent.
+
+---
+
+### Slide 17 — Thank you (0:05)
+
+> Thank you. We are happy to take your questions.
 
 ---
 
 ## 4. Live demo script (2:30)
 
-The demo is shown live from the application, not from a slide. The **chat page is the core
-demo**, because it shows the everyday workflow: the answer streams, and the risk card
-appears by itself. The Analyze page comes second, for a close look at one answer.
+The demo is shown live. The **chat page is the core**, because it shows the everyday
+workflow: the answer streams, and the risk card appears by itself.
 
-Prepare before recording: open the chat page with the question and answer already pasted,
-open the Analyze page with the hallucinated-number example loaded, and make sure the
-backend is running. Do not type long text on camera.
+Prepare both pages before recording, with the examples already loaded. Most of the demo is
+action on screen, so the narration is short. Let each panel land before you speak again.
 
-The backend takes about 30 seconds to load its models. Start it before you record, or use
-`scripts\serve_api.cmd`, which keeps it alive automatically.
+Speech in the demo is about 1:45. The other 45 seconds are the streaming wait, the panel
+expansions, and the page switches.
 
 | Beat | Time | Running |
 |------|------|---------|
-| Set the scene | 0:15 | 0:15 |
-| Chat page (the core demo) | 0:50 | 1:05 |
-| Analyze · hallucinated example | 0:35 | 1:40 |
-| Analyze · grounded example | 0:20 | 2:00 |
-| Model comparison | 0:20 | 2:20 |
-| Hand back | 0:10 | 2:30 |
+| 1 Set the scene | 0:10 | 0:10 |
+| 2 Chat · prompt and stream | 0:30 | 0:40 |
+| 3 Chat · claim verdicts | 0:20 | 1:00 |
+| 4 Chat · why this score | 0:20 | 1:20 |
+| 5 Analyze · hallucinated | 0:25 | 1:45 |
+| 6 Analyze · grounded | 0:15 | 2:00 |
+| 7 Model comparison | 0:20 | 2:20 |
+| 8 Hand back | 0:10 | 2:30 |
 
-**[0:00-0:15] Set the scene**
+**[0:00-0:10] Set the scene**
 
-> The system has two pages. The chat page is for everyday use. The Analyze page is for a
-> close look at one answer.
-> I will start with chat, because that is how a normal user would meet this system.
+> Two pages. Chat for everyday use, Analyze for a close look. I will start with chat.
 
-**[0:15-1:05] Chat page — the core demo**
+**[0:10-0:40] Chat · prompt and stream**
 
-> I paste a question, the evidence, and an answer to check.
-> The answer streams back, word by word.
-> Notice what appears on its own. Below the answer, a risk card is added automatically.
-> It says "likely hallucinated", with an evidence score of 65 percent.
-> Twelve claims were checked, and the card shows the verdicts: which claims are supported,
-> which are contradicted, and which are unsupported.
-> The headline follows the claim evidence, so the card and the answer agree.
+> I paste a question, the evidence, and an answer. The answer streams back.
+> Watch the risk card appear on its own below it. Likely hallucinated, evidence score 65
+> percent.
+
+**[0:40-1:00] Chat · claim verdicts**
+
+> Twelve claims were checked. Each one is marked supported, contradicted, or unsupported.
+> The headline follows the claim evidence.
+
+**[1:00-1:20] Chat · why this score**
+
 > I expand "Why this score".
-> Here are the SHAP bars for the top features, and here is the full table with all 35
-> features and their values.
-> The user never has to leave the conversation to see the reason.
+> Here are the SHAP bars, and the full table of all 35 features.
 
-**[1:05-1:40] Analyze · hallucinated example**
+**[1:20-1:45] Analyze · hallucinated**
 
-> Now the Analyze page, for one answer in detail.
-> The question is: how many days per decade did the melt season lengthen?
-> The evidence says 5 days. The answer says 10.
-> I click "Run risk analysis".
-> The gauge shows medium risk, 35 percent, with the band markers printed below it.
-> Below the gauge, the number claim is contradicted, and the evidence sentence is shown
-> next to it.
-> This is the important part. The user can see why the answer is risky, not just that it
-> is risky.
+> Now Analyze. The evidence says 5 days, the answer says 10. I run it.
+> The gauge shows medium risk, 35 percent. The number claim is contradicted, and the
+> evidence sentence is shown beside it.
 
-**[1:40-2:00] Analyze · grounded example**
+**[1:45-2:00] Analyze · grounded**
 
-> Now I load the grounded example. The answer matches the evidence.
-> The risk is low, 8 percent.
-> There are no contradicted claims, and the verdict says "supported".
-> So the same model gives a low score when the answer is faithful.
+> Now the grounded example. The answer matches the evidence, so the risk is low, 8
+> percent, and the verdict is supported.
 
 **[2:00-2:20] Model comparison**
 
-> Finally, I open the model comparison.
-> EC-XGB, standard XGBoost, random forest, and logistic regression are all scored here.
-> On this pair, EC-XGB separates the two answers most clearly.
-> The full comparison takes about 12 milliseconds.
+> Finally, the model comparison. EC-XGB, XGBoost, random forest, and logistic regression
+> are all scored here.
+> On this pair, EC-XGB separates them most clearly.
 
 **[2:20-2:30] Hand back**
 
-> That is the complete workflow, from a chat answer to a clear explanation. Thank you for
-> watching.
-
----
-
-## 5. Slide 16 — Conclusion (0:12)
-
-> To conclude.
-> We built a detector that needs no model weights, runs in milliseconds, and explains
-> every score.
-> In-domain F1 is 0.986, with an ECE of 0.007.
-> On shifted data, the flag rate falls from 99.9 percent to 61.3 percent, and AUROC
-> improves.
-
----
-
-### Slide 17 — Thank you (0:06)
-
-> Thank you for your attention. We are happy to take your questions.
+> That is the full workflow, from a chat answer to a clear reason. Thank you.
 
 ---
 
 ## 6. Hand-over lines (only if each member presents a part)
-
-Use these if you share the talk. They keep the register formal and the flow smooth.
 
 - Into the dataset section: "I will now hand over to my teammate, who will present the
   datasets and the features."
@@ -359,8 +288,6 @@ Use these if you share the talk. They keep the register formal and the flow smoo
 ---
 
 ## 7. Limitations and future work (say only if the judges ask)
-
-Keep these ready. Do not volunteer all of them in the talk.
 
 - The models and features are English only.
 - On held-out RAGTruth QA, the gain is mainly in calibration, not in F1.
@@ -388,7 +315,6 @@ Keep these ready. Do not volunteer all of them in the talk.
 | Strict-mode recall | 99.0% - 99.5% |
 | Median analysis time | 62 ms |
 | Judge F1 (GPT 5.6 Luna) | 0.84 |
-| Judge recall | 74% |
 | XGBoost F1, same subset | 0.985 |
 | Judge cost per 1,000 | about $0.105 |
 | Features | 35 (26 base + 8 claim + 1 source) |
@@ -397,15 +323,12 @@ Keep these ready. Do not volunteer all of them in the talk.
 
 ## 9. Delivery tips
 
-- Speak at your own pace. This plan already assumes a slow speaker, about 2.2 words per
-  second.
-- Pause for one full second after every number. Numbers need air.
-- Point at the screen with the cursor when you mention a table or a chart.
-- If you fall behind, shorten slides 5, 7, and 8. Never shorten the demo.
-- Keep your hands still, and look at the camera on slides 1 and 17.
-- Practise the demo twice, with the backend already running.
-- The chat page is the core of the demo. Open it first, paste the prompt, and let the risk
-  card appear on its own. Give the card a moment to land before you speak again.
-- Show the evidence quote, not only the score. Judges remember the reason more than the
-  number.
-- The demo is your strongest moment. Show the evidence quote, not only the score.
+- The rate is already set for a slow speaker. Do not add sentences on the day.
+- Pause for one full second after every number.
+- Point at the screen when you mention a table or a chart.
+- If you fall behind, drop the last sentence of slides 5, 7, 8, and 12. Never shorten the
+  demo.
+- In the demo, let the card and the gauge appear before you speak. Silence while a panel
+  loads reads as confidence.
+- Show the evidence quote, not only the score. Judges remember the reason.
+- Look at the camera on slides 1 and 17.
