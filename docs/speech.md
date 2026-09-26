@@ -1,9 +1,10 @@
 # HaluRISC — Video Presentation Speech (8 minutes)
 
-Total time: **8:00**. Slides: **6:00**. Live demo: **2:00**.
+Total time: **8:00**. Slides: **5:30**. Live demo: **2:30**.
 
-This is the full speaking script. Slide numbers refer to the `/slide` deck (20 slides).
-The deck has no speaker notes on purpose, so this file carries everything.
+This is the full speaking script. Slide numbers refer to the `/slide` deck (17 slides:
+title, 15 content slides, thank you). The deck has no speaker notes on purpose, so this
+file carries everything.
 
 The register is formal but the sentences are short. All contractions are spelled out,
 because they are easier for a slow speaker to pronounce clearly.
@@ -35,8 +36,8 @@ Two more things that build trust with an expert audience:
 - **Close on the shift result.** It is the most defensible claim, because in-domain
   differences are not statistically significant.
 
-Keep every sentence short. Pause after each number. If you run late, shorten slides 6, 9,
-and 10. Never shorten the demo.
+Keep every sentence short. Pause after each number. If you run late, shorten slides 5, 7,
+and 8. Never shorten the demo.
 
 ---
 
@@ -44,35 +45,33 @@ and 10. Never shorten the demo.
 
 | # | Slide | Time | Running |
 |---|-------|------|---------|
-| 1 | Title | 0:18 | 0:18 |
-| 2 | Problem | 0:24 | 0:42 |
-| 3 | Motivation and gaps | 0:18 | 1:00 |
-| 4 | Dataset sources | 0:16 | 1:16 |
-| 5 | Dataset in-domain | 0:16 | 1:32 |
-| 6 | Dataset external and features | 0:16 | 1:48 |
-| 7 | Data preprocessing | 0:18 | 2:06 |
-| 8 | End-to-end pipeline | 0:18 | 2:24 |
-| 9 | Feature engineering | 0:18 | 2:42 |
-| 10 | Models and EC-XGB | 0:18 | 3:00 |
-| 11 | Training protocol | 0:16 | 3:16 |
-| 12 | Baseline comparison | 0:21 | 3:37 |
-| 13 | EC-XGB results | 0:24 | 4:01 |
-| 14 | LLM as judge | 0:18 | 4:19 |
-| 15 | Calibration, trust, speed | 0:20 | 4:39 |
-| 16 | Chat and Analyze UI | 0:14 | 4:53 |
-| 17 | Explanations and usability | 0:14 | 5:07 |
-| 18 | Demo hand-off | 0:09 | 5:16 |
-| 19 | Conclusion | 0:20 | 5:36 |
-| 20 | Thank you | 0:07 | 5:43 |
-| — | **Live demo** | **2:00** | **7:43** |
+| 1 | Title | 0:15 | 0:15 |
+| 2 | Problem | 0:24 | 0:39 |
+| 3 | Motivation and gaps | 0:15 | 0:54 |
+| 4 | Datasets: sources, target, splits | 0:26 | 1:20 |
+| 5 | External corpora and features | 0:20 | 1:40 |
+| 6 | Preprocessing and the pipeline | 0:26 | 2:06 |
+| 7 | Feature engineering | 0:20 | 2:26 |
+| 8 | Models and EC-XGB | 0:20 | 2:46 |
+| 9 | Training protocol | 0:16 | 3:02 |
+| 10 | Baseline comparison | 0:22 | 3:24 |
+| 11 | EC-XGB results | 0:26 | 3:50 |
+| 12 | LLM as judge | 0:20 | 4:10 |
+| 13 | Calibration, trust, speed | 0:22 | 4:32 |
+| 14 | Interface: Chat and Analyze | 0:20 | 4:52 |
+| 15 | Interface: explanations, comparison | 0:20 | 5:12 |
+| 16 | Conclusion | 0:12 | 5:24 |
+| 17 | Thank you | 0:06 | 5:30 |
+| — | **Live demo** | **2:30** | **8:00** |
 
-Buffer: about 17 seconds. Use it to breathe, not to add content.
+The demo sits between slide 15 and slide 16. It is shown live, so there is no walkthrough
+slide in the deck. After the demo, press the right arrow twice to reach the conclusion.
 
 ---
 
 ## 3. Slide script
 
-### Slide 1 — Title (0:18)
+### Slide 1 — Title (0:15)
 
 > Hi everyone. Our team name is Phantom Devs.
 > Our project is called HaluRISC.
@@ -96,7 +95,7 @@ Buffer: about 17 seconds. Use it to breathe, not to add content.
 
 ---
 
-### Slide 3 — Motivation and gaps (0:18)
+### Slide 3 — Motivation and gaps (0:15)
 
 > Current work leaves three gaps.
 > First, calibration. Most lightweight detectors never report it.
@@ -107,109 +106,94 @@ Buffer: about 17 seconds. Use it to breathe, not to add content.
 
 ---
 
-### Slide 4 — Dataset sources (0:16)
+### Slide 4 — Datasets (0:26)
 
 > We use three public datasets.
-> HaluEval QA is used for training. It contains 20,000 rows in 10,000 pairs.
-> RAGTruth is used for transfer and calibration. It contains 17,790 rows.
-> FaithBench is used as a summarization stress test. It contains 750 rows.
-> The first two are MIT licensed. FaithBench is non-commercial, so we ship a download
-> script instead of the data.
+> HaluEval QA is used for training. It has 20,000 rows in 10,000 pairs, and each question
+> has one correct answer and one hallucinated answer.
+> RAGTruth provides zero-shot transfer and calibration. It has 17,790 rows.
+> FaithBench is a summarization stress test with 750 rows.
+> The target is binary for each answer. One means hallucinated, and zero means grounded.
+> The labels are balanced, 50 to 50.
+> We split by question, in the ratio 70, 15, 15, so both answers stay in one split. The
+> split is verified leakage-free.
 
 ---
 
-### Slide 5 — Dataset in-domain (0:16)
+### Slide 5 — External corpora and features (0:20)
 
-> HaluEval is the core dataset. Each question has a correct answer and a hallucinated
-> answer.
-> This pairing teaches the model evidence consistency.
-> We split by question, in the ratio 70, 15, 15. Both answers stay in one split, so
-> there is no leakage.
-> The labels are balanced, 50 to 50, in every split.
-
----
-
-### Slide 6 — Dataset external and features (0:16)
-
-> The external data never enters training. RAGTruth QA is fully held out, so its score
-> is a true zero-shot result.
-> On the right is the feature vector. There are 35 features in total. 26 base features,
-> 8 claim-level features, and 1 source flag.
-> Zero-shot transfer is weakest on question answering, and strongest on data-to-text.
+> The external data never enters training. RAGTruth QA is fully held out, so its score is
+> a true zero-shot result.
+> On the right is the feature vector. There are 35 features in total: 26 base features, 8
+> claim-level features, and 1 source flag.
+> RAGTruth covers three tasks. Zero-shot transfer is weakest on question answering, and
+> strongest on data-to-text.
 
 ---
 
-### Slide 7 — Data preprocessing (0:18)
+### Slide 6 — Preprocessing and the pipeline (0:26)
 
 > Preprocessing is simple and strict.
 > We clean the text, remove empty rows, and map every dataset into one schema: question,
 > context, answer, label, and a group key.
-> The group key is the important part. It keeps both answers of a question together.
-> The result is zero groups crossing splits. We verify this, and we freeze the split
-> indices, so every seed uses the same data.
+> The group key is the important part. It keeps both answers of a question together, so
+> zero groups cross the splits. The split indices are frozen, so every seed uses the same
+> data.
+> After that, one pass does everything. The input goes in, 35 features are extracted,
+> EC-XGB scores the answer, and a calibrator adjusts the score.
+> The output is a calibrated risk score, per-claim verdicts, and SHAP explanations.
 
 ---
 
-### Slide 8 — End-to-end pipeline (0:18)
-
-> This is the complete system.
-> The input is a question, the evidence, and an answer.
-> The system extracts 35 features.
-> EC-XGB then scores the answer, and a display calibrator adjusts the score.
-> The output is three things: a calibrated risk score, per-claim verdicts, and SHAP
-> explanations.
-> It is one pass, and it does not need the model weights.
-
----
-
-### Slide 9 — Feature engineering (0:18)
+### Slide 7 — Feature engineering (0:20)
 
 > The 26 base features cover seven groups: length, lexical overlap, entities, natural
 > language inference, numbers, hedging, and semantic drift.
-> The 8 claim features are new. We split the answer into small clauses, and we check
-> each clause against the evidence.
-> For example, the sentence "the change is dominated by a later freezeup, and the region
-> is at its warmest" becomes two claims, and each claim receives a verdict.
+> The 8 claim features are new. We split the answer into small clauses, and we check each
+> clause against the evidence.
+> For example, "the change is dominated by a later freezeup, and the region is at its
+> warmest" becomes two claims, and each claim receives a verdict.
 > The verdicts are support-first, with a relevance gate.
 
 ---
 
-### Slide 10 — Models and EC-XGB (0:18)
+### Slide 8 — Models and EC-XGB (0:20)
 
-> We compare four baselines: an overlap heuristic, logistic regression, random forest,
-> and standard XGBoost.
+> We compare four baselines: an overlap heuristic, logistic regression, random forest, and
+> standard XGBoost.
 > EC-XGB then adds three changes.
 > M1 adds length features and monotone rules. Risk cannot decrease when contradiction
 > increases.
 > M2 adds the 8 claim features.
 > M3 adds RAGTruth non-QA rows and a source flag.
-> This gives 35 features in total.
+> M1, M2, and M3 are the ablation stages, and M3 is the model we deploy as EC-XGB. It has
+> 35 features.
 
 ---
 
-### Slide 11 — Training protocol (0:16)
+### Slide 9 — Training protocol (0:16)
 
 > Our protocol is strict, because the results must be believable.
 > We use a grouped 70, 15, 15 split, and five-fold cross-validation for tuning.
-> We repeat every experiment with three seeds: 42, 123, and 456. Every number is the
-> mean over the three seeds.
+> We repeat every experiment with three seeds: 42, 123, and 456. Every number is the mean
+> over the three seeds.
 > The calibrator is fitted on the validation split only, never on the test split.
 > We also report a strict mode that limits false positives to five percent.
 
 ---
 
-### Slide 12 — Baseline comparison (0:21)
+### Slide 10 — Baseline comparison (0:22)
 
 > On the in-domain test set, standard XGBoost performs best among the learned models.
 > F1 is 0.985. AUROC is 0.998. PR-AUC is 0.998.
 > The bootstrap confidence interval for F1 is 0.981 to 0.990.
-> Against the best baseline, random forest, McNemar's test gives p equals 0.044. The
-> gap is small, but it is real.
+> Against the best baseline, random forest, McNemar's test gives p equals 0.044. The gap
+> is small, but it is real.
 > The heuristic is far behind. This shows that the task is not trivial.
 
 ---
 
-### Slide 13 — EC-XGB results (0:24)
+### Slide 11 — EC-XGB results (0:26)
 
 > This is the main result, and it is a shift result, not an in-domain result.
 > In-domain, EC-XGB is almost identical to standard XGBoost. McNemar's test says the
@@ -223,7 +207,7 @@ Buffer: about 17 seconds. Use it to breathe, not to add content.
 
 ---
 
-### Slide 14 — LLM as judge (0:18)
+### Slide 12 — LLM as judge (0:20)
 
 > We also evaluated a large language model as a judge. We used GPT 5.6 Luna on 200
 > answers.
@@ -235,61 +219,56 @@ Buffer: about 17 seconds. Use it to breathe, not to add content.
 
 ---
 
-### Slide 15 — Calibration, trust, speed (0:20)
+### Slide 13 — Calibration, trust, speed (0:22)
 
 > There are three points on this slide.
 > First, calibration. On natural RAGTruth answers, the raw score has an ECE of 0.73.
 > After Platt scaling, it becomes 0.13. The displayed number now means something.
-> Second, explanation quality. The SHAP ranking is stable, and edits to entities move
-> the score, while irrelevant insertions do not.
+> Second, explanation quality. The SHAP ranking is stable, and edits to entities move the
+> score, while irrelevant insertions do not.
 > Third, speed. One analysis takes about 62 milliseconds at the median.
 > This is what allows the model to run inside a chat interface.
 
 ---
 
-### Slide 16 — Chat and Analyze UI (0:14)
+### Slide 14 — Interface: Chat and Analyze (0:20)
 
 > The interface has two modes.
-> Chat scores the answer automatically while it streams. The card shows the verdict
-> first, then the evidence score, and then the main SHAP contributors.
-> Analyze provides the same pipeline with full control over the input, and it shows the
-> band thresholds.
-> A score of 35 percent is labelled medium risk, without any lookup table.
+> Chat scores the answer while it streams. The card shows the verdict first, then the
+> evidence score, and then the SHAP contributors.
+> Analyze gives the same pipeline with full control over the input. It shows the gauge and
+> the band thresholds, so a score of 35 percent reads as medium risk at a glance.
+> Every claim verdict also shows the evidence sentence it was checked against.
 
 ---
 
-### Slide 17 — Explanations and usability (0:14)
+### Slide 15 — Interface: explanations and comparison (0:20)
 
-> This view shows the explanation layer.
-> The SHAP chart explains the raw score. The table lists all 35 features and their
-> values, so nothing is hidden.
-> The comparison card scores every model side by side, including EC-XGB.
+> The score is never a black box.
+> The SHAP chart explains the raw score. The table lists all 35 features and their values
+> for this answer.
+> The comparison card scores every model side by side, including EC-XGB, standard XGBoost,
+> random forest, and logistic regression.
 > The interface stays consistent across chat, analyze, and the dashboard.
 
 ---
 
-### Slide 18 — Demo hand-off (0:09)
+## 4. Live demo script (2:30)
 
-> I will now demonstrate the working system.
-> I will submit one hallucinated answer and one grounded answer, and I will compare the
-> models.
+The demo is shown live from the application, not from a slide. Prepare before recording:
+open the Analyze page, load the hallucinated-number example, and make sure the backend is
+running. Do not type long text on camera.
 
----
+The backend takes about 30 seconds to load its models. Start it before you record, or use
+`scripts\serve_api.cmd`, which keeps it alive automatically.
 
-## 4. Live demo script (2:00)
+**[0:00-0:20] Set the scene**
 
-Prepare before recording: open the Analyze page, load the hallucinated-number example,
-and make sure the backend is running. Do not type long text on camera.
+> This is the Analyze page. On the left, I enter a question, the evidence, and the answer I
+> want to check.
+> On the right, the result appears after each run.
 
-The backend takes about 30 seconds to load its models. Start it before you record, or
-use `scripts\serve_api.cmd`, which keeps it alive automatically.
-
-**[0:00-0:15] Set the scene**
-
-> This is the Analyze page. On the left, I enter a question, the evidence, and the answer
-> I want to check.
-
-**[0:15-0:50] Hallucinated example**
+**[0:20-1:00] Hallucinated example**
 
 > The question is: how many days per decade did the melt season lengthen?
 > The evidence says 5 days. The answer says 10.
@@ -297,35 +276,37 @@ use `scripts\serve_api.cmd`, which keeps it alive automatically.
 > The gauge shows medium risk, 35 percent. The band markers are printed below it.
 > Below the gauge, the claims are listed. The number claim is contradicted, and the
 > evidence sentence is shown next to it.
-> This is the important part. The user can see why the answer is risky.
+> This is the important part. The user can see why the answer is risky, not just that it
+> is risky.
 
-**[0:50-1:10] Explanation**
+**[1:00-1:20] Explanation**
 
 > I open the SHAP panel.
 > The top features explain this score. The contradiction feature pushes the risk up.
 > The lexical overlap with the evidence pushes the risk down.
 > The explanation matches the reasoning we just read.
 
-**[1:10-1:35] Grounded example**
+**[1:20-1:50] Grounded example**
 
 > Now I load the grounded example. The answer matches the evidence.
 > The risk is low, 8 percent.
-> There are no contradicted claims. The verdict is "supported".
+> There are no contradicted claims. The verdict says "supported".
+> So the same model gives a low score when the answer is faithful.
 
-**[1:35-1:55] Model comparison**
+**[1:50-2:20] Model comparison**
 
 > Finally, I open the model comparison.
 > EC-XGB, standard XGBoost, random forest, and logistic regression are all scored here.
 > On this pair, EC-XGB separates the two answers most clearly.
 > The full comparison takes about 12 milliseconds.
 
-**[1:55-2:00] Hand back**
+**[2:20-2:30] Hand back**
 
-> This is the complete workflow, from input to explanation.
+> This is the complete workflow, from input to explanation. Thank you for watching.
 
 ---
 
-## 5. Slide 19 — Conclusion (0:20)
+## 5. Slide 16 — Conclusion (0:12)
 
 > To conclude.
 > We built a detector that needs no model weights, runs in milliseconds, and explains
@@ -333,11 +314,10 @@ use `scripts\serve_api.cmd`, which keeps it alive automatically.
 > In-domain F1 is 0.986, with an ECE of 0.007.
 > On shifted data, the flag rate falls from 99.9 percent to 61.3 percent, and AUROC
 > improves.
-> Every reported number ships with tests, ablations, and a frozen manifest.
 
 ---
 
-### Slide 20 — Thank you (0:07)
+### Slide 17 — Thank you (0:06)
 
 > Thank you for your attention. We are happy to take your questions.
 
@@ -349,8 +329,8 @@ Use these if you share the talk. They keep the register formal and the flow smoo
 
 - Into the dataset section: "I will now hand over to my teammate, who will present the
   datasets and the features."
-- Into the methodology section: "Thank you. I will now explain our method and the
-  training protocol."
+- Into the methodology section: "Thank you. I will now explain our method and the training
+  protocol."
 - Into the demo: "I will now demonstrate the working system."
 - Into the conclusion: "Thank you. I will now summarise our findings."
 
@@ -399,6 +379,7 @@ Keep these ready. Do not volunteer all of them in the talk.
   second.
 - Pause for one full second after every number. Numbers need air.
 - Point at the screen with the cursor when you mention a table or a chart.
-- If you fall behind, shorten slides 6, 9, and 10. Never shorten the demo.
-- Keep your hands still, and look at the camera on slides 1 and 20.
+- If you fall behind, shorten slides 5, 7, and 8. Never shorten the demo.
+- Keep your hands still, and look at the camera on slides 1 and 17.
 - Practise the demo twice, with the backend already running.
+- The demo is your strongest moment. Show the evidence quote, not only the score.
