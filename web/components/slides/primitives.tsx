@@ -360,6 +360,7 @@ export function SlideShot({
   position = "center",
   contain = false,
   ratio,
+  fill = false,
 }: {
   src: string;
   alt: string;
@@ -368,23 +369,24 @@ export function SlideShot({
   position?: string;
   contain?: boolean;
   ratio?: string;
+  fill?: boolean;
 }) {
   return (
     <div className="flex h-full min-h-0 flex-col items-center justify-center">
       <div
-        className="w-full overflow-hidden rounded-xl border-2 shadow-lg"
+        className={`overflow-hidden rounded-xl border-2 shadow-lg ${fill ? "h-full w-full" : "w-full"}`}
         style={{
           borderColor: color,
           background: "#0b1020",
-          aspectRatio: ratio,
-          maxHeight: ratio ? "100%" : undefined,
+          aspectRatio: fill ? undefined : ratio,
+          maxHeight: !fill && ratio ? "100%" : undefined,
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={src}
           alt={alt}
-          className={`h-full w-full ${contain ? "object-contain" : "object-cover"}`}
+          className={`h-full w-full ${fill || contain ? "object-contain" : "object-cover"}`}
           style={{ objectPosition: position }}
         />
       </div>
