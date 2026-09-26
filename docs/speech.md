@@ -15,8 +15,10 @@ because they are easier for a slow speaker to pronounce clearly.
 Judges watch many videos in one sitting. The opening must be formal and clear, and the
 hook must land in the first half minute.
 
-1. **Open formally first.** Greet the judges, give the team name, the project name, and
-   the full title. This is expected and it builds credibility. Do not skip it.
+1. **Open formally first.** Greet the audience briefly, then give the team name, the
+   project name, and the full title. This is expected and it builds credibility. Do not
+   skip it. This is a recorded video, so do not mention a time of day, and do not thank
+   anyone for attending.
 2. **Deliver the hook right after, on slide 2.** Show the model saying the melt season
    grew "10 days per decade" while the evidence says "5". Everyone understands this in
    two seconds, and it makes the formal opening feel purposeful.
@@ -72,12 +74,12 @@ Buffer: about 17 seconds. Use it to breathe, not to add content.
 
 ### Slide 1 — Title (0:18)
 
-> Good morning, everyone. Thank you for joining our presentation.
-> Our team name is Phantom Devs, from Section E.
+> Hi everyone. Our team name is Phantom Devs.
 > Our project is called HaluRISC.
 > The full title is: Evidence-Consistent XGBoost for Calibrated Hallucination Risk
 > Estimation in Black-Box Language Model Answers.
-> I will present the problem, our method, the results, and a short demonstration.
+> In this video, I will present the problem, our method, the results, and a short
+> demonstration.
 
 ---
 
