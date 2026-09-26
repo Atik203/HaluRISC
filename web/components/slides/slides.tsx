@@ -1,6 +1,5 @@
 import {
   AlertTriangle,
-  ArrowDown,
   BarChart3,
   Brain,
   Crown,
@@ -154,7 +153,6 @@ const BADGE_DATA = { badge: "02 · Dataset", badgeBg: "#ccfbf1", badgeColor: TEA
 const BADGE_METHOD = { badge: "03 · Methodology", badgeBg: "#fef3c7", badgeColor: AMBER };
 const BADGE_RESULTS = { badge: "04 · Results", badgeBg: "#fee2e2", badgeColor: ROSE };
 const BADGE_UI = { badge: "05 · UI/UX Design", badgeBg: "#e0e7ff", badgeColor: ACCENT };
-const BADGE_DEMO = { badge: "06 · Demonstration", badgeBg: "#fef3c7", badgeColor: AMBER };
 const BADGE_END = { badge: "07 · Conclusion", badgeBg: "#ccfbf1", badgeColor: TEAL };
 
 /* ───────────────────────────── 1 · Title ─────────────────────────── */
@@ -414,14 +412,14 @@ function MotivationSlide({ data, index, total }: SlideProps) {
   );
 }
 
-/* ─────────────────── 4 · Dataset sources ──────────────────────── */
+/* ─────────────── 4 · Datasets (sources + in-domain) ─────────────── */
 
-function SourcesSlide({ data, index, total }: SlideProps) {
+function DatasetsSlide({ data, index, total }: SlideProps) {
   return (
     <SlideFrame
       {...BADGE_DATA}
-      title="Where the data comes from"
-      subtitle="One in-domain benchmark for training, two public corpora that never enter training."
+      title="Datasets: sources, target, and splits"
+      subtitle="One in-domain benchmark for training, two public corpora that stay fully held out."
       accent={TEAL}
       index={index}
       total={total}
@@ -439,102 +437,57 @@ function SourcesSlide({ data, index, total }: SlideProps) {
             ["FaithBench", "Bao et al. · NAACL 2025", "CC BY-NC-SA", "750 / 750", "Summarization stress test"],
           ]}
         />
-        <div className="grid flex-1 grid-cols-3 gap-[1.5cqw]">
-          <div
-            className="flex flex-col justify-center rounded-xl border-2 px-[1.8cqw] py-[1.4cqh]"
-            style={{ borderColor: TEAL, background: "#f0fdfa" }}
-          >
-            <div className="text-[2.3cqh] font-extrabold" style={{ color: TEAL }}>
-              Target variable
-            </div>
-            <div className="mt-[0.6cqh] text-[2.1cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
-              Binary per answer: <b>1 = hallucinated</b> (unsupported or contradicted span),{" "}
-              <b>0 = grounded</b>. Balanced {data.labelBalanceText} in every HaluEval split.
-            </div>
-          </div>
-          <div
-            className="flex flex-col justify-center rounded-xl border-2 px-[1.8cqw] py-[1.4cqh]"
-            style={{ borderColor: ACCENT, background: "#eef2ff" }}
-          >
-            <div className="text-[2.3cqh] font-extrabold" style={{ color: ACCENT }}>
-              RAGTruth tasks
-            </div>
-            <div className="mt-[0.6cqh] text-[2.1cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
-              QA · summarization · data-to-text, from several generators. Natural long-form answers,
-              unlike the terse HaluEval pairs.
-            </div>
-          </div>
-          <div
-            className="flex flex-col justify-center rounded-xl border-2 px-[1.8cqw] py-[1.4cqh]"
-            style={{ borderColor: AMBER, background: "#fffbeb" }}
-          >
-            <div className="text-[2.3cqh] font-extrabold" style={{ color: AMBER }}>
-              Licensing note
-            </div>
-            <div className="mt-[0.6cqh] text-[2.1cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
-              MIT corpora are bundled with hashes. FaithBench (non-commercial) is fetched by a
-              downloader script and never committed.
-            </div>
-          </div>
-        </div>
-      </div>
-    </SlideFrame>
-  );
-}
-
-/* ────────────────────── 5 · Dataset (in-domain) ─────────────────── */
-
-function DatasetInDomainSlide({ data, index, total }: SlideProps) {
-  return (
-    <SlideFrame
-      {...BADGE_DATA}
-      title="Training data: HaluEval QA"
-      subtitle="Paired correct and hallucinated answers for the same question, so the model learns evidence consistency."
-      accent={TEAL}
-      index={index}
-      total={total}
-    >
-      <div className="grid min-h-0 flex-1 grid-cols-[1.05fr_1fr] gap-[1.8cqw]">
-        <Card icon={<Database size="2.4cqh" color="#fff" />} title="What is inside" color={TEAL} fill="#f0fdfa">
-          <ul>
-            <Bullet>
-              <b>10,000 questions</b>, each with a knowledge passage and a pair of answers.
-            </Bullet>
-            <Bullet>
-              <b>20,000 labeled rows</b> after pairing, binary target: hallucinated or grounded,
-              balanced {data.labelBalanceText} in every split.
-            </Bullet>
-            <Bullet>
-              Answers are often terse: <b>style itself carries signal</b>, which later motivates the
-              length features and the debiased variant.
-            </Bullet>
-            <Bullet>Benchmark caveat: most rows are built with a sampling-then-filtering procedure.</Bullet>
-          </ul>
-        </Card>
-        <div className="flex min-h-0 flex-col justify-center gap-[1.5cqh]">
-          <SlideTable
-            head={["Split", "Rows", "Groups", "Share"]}
-            headerBg="#ccfbf1"
+        <div className="grid min-h-0 flex-1 grid-cols-[1.05fr_1fr] gap-[1.8cqw]">
+          <Card
+            icon={<Database size="2.4cqh" color="#fff" />}
+            title="HaluEval QA · in-domain"
             color={TEAL}
-            widths={["28%", "24%", "24%", "24%"]}
-            rows={[
-              ["Train", "14,000", "7,000", "70%"],
-              ["Validation", "3,000", "1,500", "15%"],
-              ["Test", "3,000", "1,500", "15%"],
-            ]}
-          />
-          <StackedBar
-            segments={[
-              { label: "Train 70%", value: 70, color: TEAL },
-              { label: "Val 15%", value: 15, color: ACCENT },
-              { label: "Test 15%", value: 15, color: AMBER },
-            ]}
-          />
-          <div
-            className="rounded-lg px-[1.4cqw] py-[1cqh] text-[2.05cqh] font-bold"
-            style={{ background: "#ccfbf1", color: TEAL }}
+            fill="#f0fdfa"
           >
-            Grouped split verified leakage-free: both answers of a question stay in one partition.
+            <ul>
+              <Bullet>
+                <b>10,000 questions</b>, each with a passage and a pair of answers, giving{" "}
+                <b>20,000 labeled rows</b>.
+              </Bullet>
+              <Bullet>
+                Target is binary per answer: <b>1 = hallucinated</b>, <b>0 = grounded</b>, balanced{" "}
+                {data.labelBalanceText} in every split.
+              </Bullet>
+              <Bullet>
+                Terse answers mean style alone carries signal, which motivates the length features
+                and the debiased variant.
+              </Bullet>
+              <Bullet>
+                Caveat: the MIT corpora are bundled with hashes, and FaithBench is fetched by a
+                downloader script and never committed.
+              </Bullet>
+            </ul>
+          </Card>
+          <div className="flex min-h-0 flex-col justify-center gap-[1.4cqh]">
+            <SlideTable
+              head={["Split", "Rows", "Groups", "Share"]}
+              headerBg="#ccfbf1"
+              color={TEAL}
+              widths={["28%", "24%", "24%", "24%"]}
+              rows={[
+                ["Train", "14,000", "7,000", "70%"],
+                ["Validation", "3,000", "1,500", "15%"],
+                ["Test", "3,000", "1,500", "15%"],
+              ]}
+            />
+            <StackedBar
+              segments={[
+                { label: "Train 70%", value: 70, color: TEAL },
+                { label: "Val 15%", value: 15, color: ACCENT },
+                { label: "Test 15%", value: 15, color: AMBER },
+              ]}
+            />
+            <div
+              className="rounded-lg px-[1.4cqw] py-[1cqh] text-[2.05cqh] font-bold leading-snug"
+              style={{ background: "#ccfbf1", color: TEAL }}
+            >
+              Grouped split, verified leakage-free. Both answers of a question stay in one partition.
+            </div>
           </div>
         </div>
       </div>
@@ -625,51 +578,7 @@ function DatasetExternalSlide({ data, index, total }: SlideProps) {
   );
 }
 
-/* ──────────────────── 7 · Preprocessing ─────────────────────── */
-
-function PreprocessingSlide({ data, index, total }: SlideProps) {
-  return (
-    <SlideFrame
-      {...BADGE_METHOD}
-      title="Data preprocessing"
-      subtitle="Cleaning and a grouped split protocol that guarantees no question leaks across partitions."
-      accent={AMBER}
-      index={index}
-      total={total}
-    >
-      <div className="flex min-h-0 flex-1 flex-col gap-[2cqh]">
-        <PipelineStrip
-          steps={["Raw corpora", "Clean + dedupe", "Unified schema", "Grouped 70/15/15", "Leakage check"]}
-          color={AMBER}
-          bg="#fffbeb"
-        />
-        <div className="grid min-h-0 flex-1 grid-cols-2 gap-[1.8cqw]">
-          <Card icon={<ListChecks size="2.4cqh" color="#fff" />} title="Cleaning rules" color={AMBER} fill="#fffbeb">
-            <ul>
-              <Bullet>Strip markup and whitespace, drop empty or duplicate rows.</Bullet>
-              <Bullet>Map every corpus to one schema: question, context, answer, label, group key.</Bullet>
-              <Bullet>Group keys keep pairs together: HaluEval item index, RAGTruth source id.</Bullet>
-              <Bullet>Split indices frozen to artifacts, reused by every seed ({data.seedsText}).</Bullet>
-            </ul>
-          </Card>
-          <Card icon={<ShieldCheck size="2.4cqh" color="#fff" />} title="Leakage guarantee" color={TEAL} fill="#f0fdfa">
-            <ul>
-              <Bullet>Both answers of a question stay in one partition, always.</Bullet>
-              <Bullet>
-                Groups spanning multiple splits: <b>{data.leakSpanning ?? "—"}</b> — split is
-                {data.leakFree ? "" : " not"} verified leakage-free.
-              </Bullet>
-              <Bullet>Label balance {data.labelBalanceText} holds in train, validation, and test.</Bullet>
-              <Bullet>External corpora are never mixed into training rows (EC-XGB excepted, flagged).</Bullet>
-            </ul>
-          </Card>
-        </div>
-      </div>
-    </SlideFrame>
-  );
-}
-
-/* ─────────────────────────── 8 · Pipeline ───────────────────────── */
+/* ───────── 6 · Preprocessing and the end-to-end system ───────── */
 
 function PipelineBox({
   title,
@@ -706,60 +615,68 @@ function PipelineSlide({ data, index, total }: SlideProps) {
   return (
     <SlideFrame
       {...BADGE_METHOD}
-      title="End-to-end system"
-      subtitle="One pass from question, context, and answer to a calibrated score with per-claim verdicts."
+      title="Preprocessing and the end-to-end system"
+      subtitle="Raw corpora become a leak-free split, then one pass turns a question, evidence, and answer into a calibrated score."
       accent={AMBER}
       index={index}
       total={total}
     >
-      <div className="flex min-h-0 flex-1 flex-col justify-center gap-[0.9cqh]">
-        <div className="grid grid-cols-3 gap-[1.2cqw]">
-          <PipelineBox title="Question" color={ACCENT} bg="#eef2ff" />
-          <PipelineBox title="Context / Evidence" color={ACCENT} bg="#eef2ff" />
-          <PipelineBox title="Answer (black-box LLM)" color={ACCENT} bg="#eef2ff" />
-        </div>
-        <div className="flex justify-center">
-          <ArrowDown size="2.6cqh" style={{ color: AMBER }} />
-        </div>
-        <PipelineBox
-          wide
-          title={`Feature extraction · ${data.totalFeatures} features`}
-          sub={groupNames.join(" · ")}
+      <div className="flex min-h-0 flex-1 flex-col gap-[1.6cqh]">
+        <PipelineStrip
+          steps={["Raw corpora", "Clean + dedupe", "Unified schema", "Grouped 70/15/15", "Leakage check"]}
           color={AMBER}
           bg="#fffbeb"
         />
-        <div className="flex justify-center">
-          <ArrowDown size="2.6cqh" style={{ color: TEAL }} />
+        <div className="grid grid-cols-2 gap-[1.6cqw]">
+          <Card icon={<ListChecks size="2.4cqh" color="#fff" />} title="Cleaning and schema" color={AMBER} fill="#fffbeb">
+            <ul>
+              <Bullet>Strip markup and whitespace, drop empty or duplicate rows.</Bullet>
+              <Bullet>Map every corpus to one schema: question, context, answer, label, group key.</Bullet>
+              <Bullet>Group keys keep pairs together (HaluEval item index, RAGTruth source id).</Bullet>
+              <Bullet>Split indices frozen to artifacts, reused by every seed ({data.seedsText}).</Bullet>
+            </ul>
+          </Card>
+          <Card icon={<ShieldCheck size="2.4cqh" color="#fff" />} title="Leakage guarantee" color={TEAL} fill="#f0fdfa">
+            <ul>
+              <Bullet>Both answers of a question stay in one partition, always.</Bullet>
+              <Bullet>
+                Groups spanning splits: <b>{data.leakSpanning ?? "—"}</b> — the split is
+                {data.leakFree ? "" : " not"} verified leakage-free.
+              </Bullet>
+              <Bullet>Label balance {data.labelBalanceText} holds in train, validation, and test.</Bullet>
+              <Bullet>External corpora are never mixed into training rows, except the flagged EC-XGB variant.</Bullet>
+            </ul>
+          </Card>
         </div>
-        <div className="grid grid-cols-[1.3fr_1fr] gap-[1.2cqw]">
-          <PipelineBox
-            title="EC-XGB · Evidence-Consistent XGBoost"
-            sub="monotone constraints · claim aggregates · multi-source training"
-            color={TEAL}
-            bg="#f0fdfa"
-          />
-          <PipelineBox
-            title="Display calibrator"
-            sub={`${data.displayMethod} on natural RAGTruth QA rows`}
-            color={ACCENT}
-            bg="#eef2ff"
-          />
+        <div className="flex min-h-0 flex-1 flex-col justify-center gap-[0.8cqh]">
+          <div className="text-[1.9cqh] font-extrabold uppercase tracking-wide" style={{ color: SLATE }}>
+            End-to-end system
+          </div>
+          <div className="grid grid-cols-[1.15fr_1.85fr] gap-[1.2cqw]">
+            <PipelineBox title="Input" sub="Question · evidence · answer" color={ACCENT} bg="#eef2ff" />
+            <PipelineBox
+              title={`Feature extraction · ${data.totalFeatures} features`}
+              sub={groupNames.join(" · ")}
+              color={AMBER}
+              bg="#fffbeb"
+            />
+          </div>
+          <div className="grid grid-cols-[1.15fr_1fr_1.25fr] gap-[1.2cqw]">
+            <PipelineBox
+              title="EC-XGB"
+              sub="Evidence-Consistent XGBoost"
+              color={TEAL}
+              bg="#f0fdfa"
+            />
+            <PipelineBox
+              title="Calibrator"
+              sub={`${data.displayMethod} on RAGTruth QA`}
+              color={ACCENT}
+              bg="#eef2ff"
+            />
+            <PipelineBox title="Output" sub="Risk score · verdicts · SHAP" color={ROSE} bg="#fff1f2" />
+          </div>
         </div>
-        <div className="flex justify-center">
-          <ArrowDown size="2.6cqh" style={{ color: ROSE }} />
-        </div>
-        <div className="grid grid-cols-3 gap-[1.2cqw]">
-          <PipelineBox title="Calibrated risk score" color={ROSE} bg="#fff1f2" />
-          <PipelineBox title="Per-claim verdicts" color={ROSE} bg="#fff1f2" />
-          <PipelineBox title="SHAP explanations" color={ROSE} bg="#fff1f2" />
-        </div>
-      </div>
-      <div className="mt-[1.3cqh]">
-        <PipelineStrip
-          steps={["Paste or stream input", "Score + verdicts", "Inspect evidence", "Compare models", "Deploy"]}
-          color={ACCENT}
-          bg="#eef2ff"
-        />
       </div>
     </SlideFrame>
   );
@@ -1253,26 +1170,31 @@ function TrustResultsSlide({ data, index, total }: SlideProps) {
   );
 }
 
-/* ───────────────────────── 16 · UI: chat ───────────────────────── */
+/* ──────────────── 14 · Interface: Chat and Analyze ──────────────── */
 
-function ChatUiSlide({ index, total }: SlideProps) {
+function ChatAnalyzeSlide({ index, total }: SlideProps) {
+  const notes = [
+    { title: "Input interface", color: ACCENT, fill: "#eef2ff", line: "Question, context, and answer boxes with one-click example presets." },
+    { title: "Result display", color: TEAL, fill: "#f0fdfa", line: "Calibrated gauge with band markers, then the per-claim verdicts." },
+    { title: "Evidence quotes", color: AMBER, fill: "#fffbeb", line: "Every verdict shows the context sentence it was checked against." },
+    { title: "Thresholds", color: ROSE, fill: "#fff1f2", line: "Bands are printed on the gauge, so no lookup table is needed." },
+  ];
   return (
     <SlideFrame
       {...BADGE_UI}
-      title="Chat and Analyze: evidence-first interface"
-      subtitle="Chat shows the risk card automatically as the answer streams; Analyze submits an answer and returns the calibrated gauge."
+      title="Interface: Chat and Analyze"
+      subtitle="Chat scores the answer while it streams. Analyze exposes the inputs, the calibrated gauge, and the band thresholds."
       accent={ACCENT}
       index={index}
       total={total}
     >
       <div className="flex min-h-0 flex-1 flex-col justify-center gap-[1.6cqh]">
-        <div className="grid grid-cols-2 gap-[1.6cqw]">
+        <div className="grid grid-cols-[2.11fr_2.06fr] gap-[1.3cqw]">
           <SlideShot
             src="/slides/chat.png"
             alt="Chat page: question, streamed answer, SHAP key contributors, and the evidence-score risk card with claim verdicts"
             caption="Chat · automatic risk card with claim verdicts"
             color={ACCENT}
-            position="center 62%"
             ratio="2.11"
           />
           <SlideShot
@@ -1280,90 +1202,28 @@ function ChatUiSlide({ index, total }: SlideProps) {
             alt="Analyze page: question, context and answer inputs, one-click example sweep, and the calibrated gauge with band markers"
             caption="Analyze · inputs, example sweep, calibrated gauge"
             color={TEAL}
-            position="center 42%"
             ratio="2.06"
           />
         </div>
-        <div className="rounded-lg px-[1.4cqw] py-[1cqh] text-[2.05cqh] font-semibold leading-snug" style={{ background: "#f1f5f9", color: DEEP_INK }}>
+        <div
+          className="rounded-lg px-[1.4cqw] py-[1cqh] text-[2.05cqh] font-semibold leading-snug"
+          style={{ background: "#f1f5f9", color: DEEP_INK }}
+        >
           The chat card leads with the verdict and the evidence score, then the SHAP contributors.
-          Analyze exposes the same pipeline plus the band thresholds, so a score of 35% reads as
-          medium risk without a lookup table.
-        </div>
-        <div className="flex flex-wrap items-center gap-[0.9cqw]">
-          <Chip color={ACCENT} bg="#e0e7ff">
-            Dark theme · high contrast
-          </Chip>
-          <Chip color={TEAL} bg="#ccfbf1">
-            Claim verdicts with evidence quotes
-          </Chip>
-          <Chip color={AMBER} bg="#fef3c7">
-            Floating composer: upload, evidence, web search
-          </Chip>
-          <Chip color={ROSE} bg="#fee2e2">
-            Thresholds printed on the gauge
-          </Chip>
-        </div>
-      </div>
-    </SlideFrame>
-  );
-}
-
-/* ────────────────────── 17 · UI: dashboard ─────────────────────── */
-
-function DashboardUiSlide({ index, total }: SlideProps) {
-  const ux = [
-    { title: "Input", color: ACCENT, fill: "#eef2ff", line: "Question, context, and answer boxes with one-click example presets." },
-    { title: "Result display", color: TEAL, fill: "#f0fdfa", line: "Calibrated gauge with band markers, then per-claim verdicts." },
-    { title: "Consistency", color: AMBER, fill: "#fffbeb", line: "Same dark theme and layout across chat, analyze, and dashboard." },
-    { title: "Ease of use", color: ROSE, fill: "#fff1f2", line: "Example sweep, keyboard-friendly controls, and projector mode." },
-  ];
-  return (
-    <SlideFrame
-      {...BADGE_UI}
-      title="Explanations, comparison, and usability"
-      subtitle="SHAP bars explain the raw score, the feature table exposes every input, and all models are scored side by side."
-      accent={ACCENT}
-      index={index}
-      total={total}
-    >
-      <div className="flex min-h-0 flex-1 flex-col justify-center gap-[1.5cqh]">
-        <div className="grid grid-cols-3 gap-[1.5cqw]">
-          <SlideShot
-            src="/slides/analyze-shap.png"
-            alt="SHAP feature contribution chart for the raw XGBoost score, with the five strongest features and provenance footer"
-            caption="SHAP contributions · raw score"
-            color={TEAL}
-            position="center"
-            ratio="1.29"
-          />
-          <SlideShot
-            src="/slides/chat-details.png"
-            alt="Why-this-score panel: SHAP bars plus the full 35-feature table with values"
-            caption="Why this score · 35-feature table"
-            color={ACCENT}
-            position="center"
-            ratio="1.21"
-          />
-          <SlideShot
-            src="/slides/analyze-compare.png"
-            alt="Model comparison card: deployed calibrated score against EC-XGB, XGBoost, random forest, logistic regression, and the overlap heuristic"
-            caption="Model comparison · EC-XGB vs baselines"
-            color={AMBER}
-            position="center"
-            ratio="1.57"
-          />
+          Analyze runs the same pipeline with full input control, so a score of 35% reads as medium
+          risk at a glance.
         </div>
         <div className="grid grid-cols-4 gap-[1.2cqw]">
-          {ux.map((item) => (
+          {notes.map((item) => (
             <div
               key={item.title}
-              className="rounded-xl border-2 px-[1.4cqw] py-[1.2cqh]"
+              className="rounded-xl border-2 px-[1.4cqw] py-[1.1cqh]"
               style={{ borderColor: item.color, background: item.fill }}
             >
-              <div className="text-[2.15cqh] font-extrabold uppercase tracking-wide" style={{ color: item.color }}>
+              <div className="text-[2.05cqh] font-extrabold uppercase tracking-wide" style={{ color: item.color }}>
                 {item.title}
               </div>
-              <div className="mt-[0.5cqh] text-[1.95cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
+              <div className="mt-[0.45cqh] text-[1.9cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
                 {item.line}
               </div>
             </div>
@@ -1374,89 +1234,63 @@ function DashboardUiSlide({ index, total }: SlideProps) {
   );
 }
 
-/* ─────────────────────────── 18 · Demo ──────────────────────────── */
+/* ───────── 15 · Interface: explanations and comparison ───────── */
 
-function DemoSlide({ index, total }: SlideProps) {
-  const steps = [
-    {
-      color: TEAL,
-      bg: "#f0fdfa",
-      title: "1 · Grounded answer",
-      lines: [
-        "Q: Who discovered penicillin?",
-        "C: Penicillin was discovered by Alexander Fleming in 1928.",
-        "A: Penicillin was discovered by Alexander Fleming in 1928.",
-      ],
-      expected: "Expect low risk · all claims supported",
-    },
-    {
-      color: ROSE,
-      bg: "#fff1f2",
-      title: "2 · Hallucinated number",
-      lines: [
-        "Q: How many days per decade did the melt season lengthen?",
-        "C: the rate is 5 days per decade.",
-        "A: the melt season lengthened by 10 days per decade.",
-      ],
-      expected: "Expect high risk · contradicted with evidence quote",
-    },
-    {
-      color: ACCENT,
-      bg: "#eef2ff",
-      title: "3 · Compare and inspect",
-      lines: [
-        "Paste two answers in Analyze mode.",
-        "Open the model comparison: EC-XGB, standard XGBoost, logistic regression, random forest, heuristic.",
-        "Expand claim verdicts and SHAP bars.",
-      ],
-      expected: "Expect EC-XGB to separate the pair",
-    },
+function ExplainCompareSlide({ index, total }: SlideProps) {
+  const notes = [
+    { title: "Explanation", color: ACCENT, fill: "#eef2ff", line: "SHAP bars show which features pushed the raw score up or down." },
+    { title: "Transparency", color: TEAL, fill: "#f0fdfa", line: "The full table lists all 35 features and their values for the answer." },
+    { title: "Ease of use", color: AMBER, fill: "#fffbeb", line: "One dark theme across chat, analyze, and dashboard, with projector mode." },
   ];
   return (
     <SlideFrame
-      {...BADGE_DEMO}
-      title="Live walkthrough"
-      subtitle="Screen recording: paste an answer, score it, inspect claims and explanations, then compare models."
-      accent={AMBER}
+      {...BADGE_UI}
+      title="Interface: explanations and model comparison"
+      subtitle="The score is never a black box. SHAP bars, the feature table, and every baseline are visible in one screen."
+      accent={ACCENT}
       index={index}
       total={total}
     >
-      <div className="grid min-h-0 flex-1 grid-cols-3 gap-[1.5cqw]">
-        {steps.map((step) => (
-          <div
-            key={step.title}
-            className="flex h-full flex-col rounded-xl border-2 px-[1.8cqw] py-[1.5cqh]"
-            style={{ borderColor: step.color, background: step.bg }}
-          >
-            <div className="text-[2.5cqh] font-extrabold" style={{ color: step.color }}>
-              {step.title}
-            </div>
-            <div className="mt-[1cqh] flex-1 space-y-[0.7cqh]">
-              {step.lines.map((line) => (
-                <div key={line} className="text-[2cqh] font-medium leading-snug" style={{ color: NEAR_BLACK }}>
-                  {line}
-                </div>
-              ))}
-            </div>
+      <div className="flex min-h-0 flex-1 flex-col justify-center gap-[1.5cqh]">
+        <div className="grid grid-cols-[1.29fr_1.21fr_1.57fr] gap-[1.3cqw]">
+          <SlideShot
+            src="/slides/analyze-shap.png"
+            alt="SHAP feature contribution chart for the raw XGBoost score"
+            caption="SHAP contributions · raw score"
+            color={ACCENT}
+            ratio="1.29"
+          />
+          <SlideShot
+            src="/slides/chat-details.png"
+            alt="Why-this-score panel: SHAP bars plus the full 35-feature table with values"
+            caption="Why this score · 35-feature table"
+            color={TEAL}
+            ratio="1.21"
+          />
+          <SlideShot
+            src="/slides/analyze-compare.png"
+            alt="Model comparison card: deployed calibrated score against EC-XGB, standard XGBoost, random forest, logistic regression, and the overlap heuristic"
+            caption="Model comparison · EC-XGB vs baselines"
+            color={ROSE}
+            ratio="1.57"
+          />
+        </div>
+        <div className="grid grid-cols-3 gap-[1.2cqw]">
+          {notes.map((item) => (
             <div
-              className="mt-[1cqh] rounded-lg bg-white px-[1.2cqw] py-[0.8cqh] text-[2cqh] font-bold"
-              style={{ color: step.color }}
+              key={item.title}
+              className="rounded-xl border-2 px-[1.4cqw] py-[1.1cqh]"
+              style={{ borderColor: item.color, background: item.fill }}
             >
-              {step.expected}
+              <div className="text-[2.05cqh] font-extrabold uppercase tracking-wide" style={{ color: item.color }}>
+                {item.title}
+              </div>
+              <div className="mt-[0.45cqh] text-[1.9cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
+                {item.line}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
-      <div className="mt-[1.2cqh] flex flex-wrap items-center gap-[0.9cqw]">
-        <Chip color={AMBER} bg="#fef3c7">
-          ~90 seconds of screen recording
-        </Chip>
-        <Chip color={ACCENT} bg="#e0e7ff">
-          Preload the page before recording
-        </Chip>
-        <Chip color={TEAL} bg="#ccfbf1">
-          Show the evidence quote, not just the score
-        </Chip>
+          ))}
+        </div>
       </div>
     </SlideFrame>
   );
@@ -1583,10 +1417,8 @@ export const SLIDES: Array<(props: SlideProps) => React.ReactElement> = [
   TitleSlide,
   ProblemSlide,
   MotivationSlide,
-  SourcesSlide,
-  DatasetInDomainSlide,
+  DatasetsSlide,
   DatasetExternalSlide,
-  PreprocessingSlide,
   PipelineSlide,
   FeaturesSlide,
   ModelsSlide,
@@ -1595,9 +1427,8 @@ export const SLIDES: Array<(props: SlideProps) => React.ReactElement> = [
   EcXgbResultsSlide,
   JudgeSlide,
   TrustResultsSlide,
-  ChatUiSlide,
-  DashboardUiSlide,
-  DemoSlide,
+  ChatAnalyzeSlide,
+  ExplainCompareSlide,
   ConclusionSlide,
   ThankYouSlide,
 ];
