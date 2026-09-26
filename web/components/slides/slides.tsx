@@ -1136,7 +1136,7 @@ function JudgeSlide({ data, index, total }: SlideProps) {
       index={index}
       total={total}
     >
-      <div className="flex min-h-0 flex-1 flex-col justify-between">
+      <div className="flex min-h-0 flex-1 flex-col justify-center gap-[2cqh]">
         <SlideTable
           head={["System", "Accuracy", "F1", "Latency p50", "Cost / 1k"]}
           headerBg="#fee2e2"
@@ -1163,13 +1163,31 @@ function JudgeSlide({ data, index, total }: SlideProps) {
             },
           ]}
         />
-        <div
-          className="rounded-lg px-[1.4cqw] py-[1cqh] text-[2.05cqh] font-bold leading-snug"
-          style={{ background: "#eef2ff", color: ACCENT }}
-        >
-          The judge recalls only {pct(data.judgeRec, 0)} of hallucinations at ~100× the cost and
-          ~20× the latency (p95 {ms(data.judgeP95)}), so it serves as an audited baseline — not the
-          deployed scorer.
+        <div className="grid grid-cols-2 gap-[1.6cqw]">
+          <div
+            className="rounded-xl border-2 px-[1.8cqw] py-[1.4cqh]"
+            style={{ borderColor: ROSE, background: "#fff1f2" }}
+          >
+            <div className="text-[2.2cqh] font-extrabold uppercase tracking-wide" style={{ color: ROSE }}>
+              How the judge was run
+            </div>
+            <div className="mt-[0.6cqh] text-[2.05cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
+              One prompt, JSON verdict, {data.judgeN ?? "—"} balanced test answers. Cost comes from
+              real input and output tokens, so it is a measured price, not an estimate.
+            </div>
+          </div>
+          <div
+            className="rounded-xl border-2 px-[1.8cqw] py-[1.4cqh]"
+            style={{ borderColor: ACCENT, background: "#eef2ff" }}
+          >
+            <div className="text-[2.2cqh] font-extrabold uppercase tracking-wide" style={{ color: ACCENT }}>
+              Why it loses
+            </div>
+            <div className="mt-[0.6cqh] text-[2.05cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
+              It recalls only {pct(data.judgeRec, 0)} of hallucinations and it never sees the
+              evidence-consistency signals, so it misses the contradictions that matter most.
+            </div>
+          </div>
         </div>
       </div>
     </SlideFrame>
