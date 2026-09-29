@@ -6,17 +6,18 @@ each word there?"
 
 Full title:
 
-> **Evidence-Consistent XGBoost for Calibrated Hallucination Risk Estimation**
+> **Evidence-Consistent XGBoost for Calibrated Hallucination Risk Estimation in LLM Answers**
 
 Short title (running head):
 
 > **Evidence-Consistent XGBoost**
 
 The title states the model (evidence-consistent XGBoost), the property it
-delivers (calibrated), and the problem it solves (hallucination risk estimation).
-It keeps a single readable line without a colon and without the product name. The
-paper text follows the same rule: it uses "this study" and "the proposed model"
-instead of "we" and instead of the software name.
+delivers (calibrated), the problem it solves (hallucination risk estimation), and
+the object of study (LLM answers). It keeps a single readable line without a
+colon and without the product name. The paper text follows the same rule: it uses
+"this study" and "the proposed model" instead of "we" and instead of the software
+name.
 
 ## Contents
 
@@ -53,6 +54,8 @@ probability (**calibrated hallucination risk estimation**).
 | **Hallucination** | Text that is fluent and confident but not supported by the available evidence. | Names the problem, not a mechanism. It connects the work to the datasets that label exactly this phenomenon (HaluEval, RAGTruth, FaithBench). | Definitions in the Conventional Method preliminaries; the three datasets |
 | **Risk** | A probability of being hallucinated, not a verdict of truth or falsehood. | The framing rule of the project. "Risk" keeps the claim honest and measurable, and it matches the deployment use, which is triage rather than proof. | The label policy in the abstract target `P(hallucinated \| q, c, a)` |
 | **Estimation** | Producing a probability for each answer, not a hard verdict. | Sets the statistical claim. The output is a number with a calibration guarantee, so "estimation" is accurate; "detection" would imply a binary decision, which is only the thresholded view of the same score. | `P(hallucinated \| q, c, a)` in the abstract; scores and thresholds across the B-runs |
+| **in** | Grammatical link. | Joins the task to the object of study. | (grammar) |
+| **LLM Answers** | The candidate texts being scored: short QA answers, summaries, and chat replies from a large language model. | Fixes the object of study. The problem only exists at this scale, where fluent unsupported text is easy to produce, and the unit of analysis is a response, not a model, so answers from any generator can be scored. | QA and summarization subsets; claim-level verification in the deployed chat layer |
 
 ## 3. What each word would cost if removed
 
@@ -64,6 +67,7 @@ probability (**calibrated hallucination risk estimation**).
 | Hallucination | The problem statement would be vague, and the datasets would not connect to the title. |
 | Risk | The work would sound like a truth oracle, which the system is not. |
 | Estimation | The output would sound like a hard label instead of a calibrated probability. |
+| LLM Answers | The target of the analysis would be unclear, and the unit of scoring (an answer, not a model) would be missing. |
 
 ## 4. Supervisor Q&A
 
@@ -82,13 +86,14 @@ Thresholds turn that probability into low, medium, and high bands. "Detection"
 describes only the thresholded decision and hides the probability quality, which
 is a core contribution.
 
-**Why is "Black-Box" not in the title?**
-Black-box is a deployment property of the detector, not the contribution. The
-detector never inspects the generating model, so the inputs are plain text and the
-method runs on a CPU. This property is stated in the abstract and the method, and
-the shorter title keeps the method and the task in front. The reference context
-is the material a user already has, and the system also works without it, with a
-weaker grounding signal.
+**Why "LLM Answers" and not "Black-Box LLM Answers"?**
+The object of study is the answer, so the title names it directly. "LLM" is a
+standard abbreviation and it fixes the domain in two words. Black-box is a
+deployment property of the detector, not the contribution, so it stays in the
+abstract and the method. The detector never inspects the generating model, the
+inputs are plain text, and the method runs on a CPU. The reference context is the
+material a user already has, and the system also works without it, with a weaker
+grounding signal.
 
 **Does the title still promise cross-domain evaluation?**
 Not in the words, but the paper keeps it as a main result. The abstract and the
@@ -113,6 +118,7 @@ Yes. The artifact map below lists the file that backs each word.
 | Calibrated | In-domain ECE 0.0045; deployed RAGTruth QA display score 0.726 to 0.126; standard-model target recalibration 0.8185 to 0.1335 | `artifacts/results/b6/b6_calibration.json`; target recalibration table |
 | Hallucination, Risk | Standard model flags 99.9 percent of natural RAGTruth answers, EC-XGB flags 61.3 percent; AUROC 0.475 to 0.582 | `artifacts/results/b6/b6_external_metrics.csv` |
 | Estimation | One analysis takes 61.8 ms at the median and about USD 0.001 per 1,000 predictions | `artifacts/results/latency_analysis.json`; judge comparison |
+| LLM Answers | HaluEval QA (20,000 rows) plus RAGTruth (17,790 rows) and FaithBench (750 rows) | dataset table in `artifacts/results/b6/`; `docs/manifest.frozen.json` |
 
 ## 6. Artifact map
 
@@ -145,10 +151,12 @@ shift."
   and Explainable Machine Learning Framework for Hallucination Risk Prediction
   in Black-Box LLM Outputs*. Its sources remain in git history.
 - A later title, *Evidence-Consistent XGBoost for Calibrated Hallucination Risk
-  Estimation in Black-Box Language Model Answers*, added the setting phrase.
-- The current title drops the setting phrase to stay concise: method first, task
-  second, no colon, no product name. The black-box property stays in the abstract
-  and the method.
+  Estimation in Black-Box Language Model Answers*, added the full setting phrase.
+- A shorter title, *Evidence-Consistent XGBoost for Calibrated Hallucination Risk
+  Estimation*, dropped the setting entirely.
+- The current title restores the domain in two words, *in LLM Answers*, so the
+  object of study is clear while the title stays short. The black-box property
+  stays in the abstract and the method.
 
 ## Related documents
 
