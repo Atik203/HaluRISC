@@ -68,7 +68,7 @@ demo, press the right arrow twice to reach the conclusion.
 
 > Hi everyone. Our team name is Phantom Devs, and the project is HaluRISC.
 > The full title is: Evidence-Consistent XGBoost for Calibrated Hallucination Risk
-> Estimation in Black-Box Language Model Answers.
+> Estimation.
 > I will finish with a short demonstration.
 
 ---
