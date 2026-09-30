@@ -1,0 +1,41 @@
+HaluRISC demo evidence file
+================================
+
+Upload this file on the chat page (Evidence button) or paste a passage into
+Analyze mode, then run the demo cases. Each paragraph below is one passage. The
+claim checker retrieves from these passages, so the grounded cases should come
+back supported and the hallucinated cases should come back contradicted.
+
+Case 1 - Arctic melt season (Hallucinated number)
+
+The Arctic Ocean is the smallest and shallowest of the world's five major
+oceans. It has been established that the region is at its warmest for at least
+40,000 years, and the Arctic-wide melt season has lengthened at a rate of 5 days
+per decade from 1979 to 2013, dominated by a later autumn freezeup. The melt
+season grows longer because the autumn freezeup now starts later in the year.
+
+Case 2 - Capital of France (Hallucinated answer)
+
+France is a country in Europe. Its capital city is Paris. Paris has been the
+capital of France since the tenth century, and it is the seat of the French
+government.
+
+Case 3 - Penicillin (Grounded answer)
+
+Penicillin was discovered by Alexander Fleming in 1928. Fleming was a Scottish
+physician and microbiologist, and the discovery of penicillin opened the era of
+antibiotics.
+
+Case 4 - Oaxaca president (Grounded answer)
+
+Benito Pablo Juarez Garcia was a Mexican lawyer and liberal politician of
+Zapotec origin from Oaxaca. He served as president of Mexico, and he was present
+during the period of the Mexican Civil War. Agnes Salm-Salm was the American
+wife of Prince Felix zu Salm-Salm.
+
+Case 5 - Space Ghost villain (One-word answer)
+
+Brak is a fictional character and supervillain on the 1966 Hanna-Barbera
+animated series "Space Ghost". Brak is a catlike alien space pirate who tries to
+conquer the galaxy, and he is one of Space Ghost's arch enemies, together with
+Zorak.
