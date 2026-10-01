@@ -1,10 +1,10 @@
 # HaluRISC — Video Presentation Speech (12 minutes)
 
-Total time: **about 11:52**. Slides: **6:47**. Live demo: **4:00**. Journal key
+Total time: **about 11:57**. Slides: **6:24**. Live demo: **4:00**. Journal key
 results: **1:05**.
 
-This is the full speaking script. Slide numbers refer to the `/slide` deck (17
-slides: title, 15 content slides, thank you). The deck has no speaker notes on
+This is the full speaking script. Slide numbers refer to the `/slide` deck (16
+slides: title, 13 content slides, thank you). The deck has no speaker notes on
 purpose, so this file carries everything.
 
 The script is written for a slow, careful speaker at **1.73 words per second**
@@ -47,35 +47,34 @@ significant.
 | # | Block | Time | Running |
 |---|-------|------|---------|
 | 1 | Title | 0:25 | 0:25 |
-| 2 | Problem | 0:51 | 1:16 |
-| 3 | Motivation and gaps | 0:29 | 1:45 |
-| 4 | Datasets: sources, target, splits | 0:31 | 2:16 |
-| 5 | External corpora and features | 0:18 | 2:34 |
-| 6 | Preprocessing and the pipeline | 0:27 | 3:01 |
-| 7 | Feature engineering | 0:18 | 3:19 |
-| 8 | Models and EC-XGB | 0:23 | 3:42 |
-| 9 | Training protocol | 0:24 | 4:06 |
-| 10 | Baseline comparison | 0:23 | 4:29 |
-| 11 | EC-XGB results | 0:30 | 4:59 |
-| 12 | LLM as judge | 0:23 | 5:22 |
-| 13 | Calibration, trust, speed | 0:20 | 5:42 |
-| 14 | Interface: Chat and Analyze | 0:20 | 6:02 |
-| 15 | Interface: explanations, comparison | 0:17 | 6:19 |
-| — | **Live demo** | **4:00** | **10:19** |
-| — | **Journal key results** | **1:05** | **11:24** |
-| 16 | Conclusion | 0:23 | 11:47 |
-| 17 | Thank you | 0:05 | 11:52 |
+| 2 | Introduction | 0:51 | 1:16 |
+| 3 | Motivation and research gap | 0:29 | 1:45 |
+| 4 | Objective | 0:25 | 2:10 |
+| 5 | Dataset | 0:31 | 2:41 |
+| 6 | Conventional method and baselines | 0:24 | 3:05 |
+| 7 | Proposed method | 0:28 | 3:33 |
+| 8 | Flow diagram | 0:37 | 4:10 |
+| 9 | Experimental setup | 0:24 | 4:34 |
+| 10 | Results: in-domain | 0:23 | 4:57 |
+| 11 | Results: shift and calibration | 0:28 | 5:25 |
+| 12 | Application and deployment | 0:35 | 6:00 |
+| 13 | UI: Chat | 0:20 | 6:20 |
+| 14 | UI: Analyze | 0:17 | 6:37 |
+| — | **Live demo** | **4:00** | **10:37** |
+| — | **Journal key results** | **1:05** | **11:42** |
+| 15 | Conclusion | 0:23 | 12:05 |
+| 16 | Thank you | 0:05 | 12:10 |
 
 The block times are word counts divided by the measured pace of 1.73 words per
 second, so they already include your natural pauses.
 
-The demo sits after slide 15. It is shown live, so there is no walkthrough slide.
+The demo sits after slide 14. It is shown live, so there is no walkthrough slide.
 The journal segment comes right after the demo, over the paper PDF. Then press
 the right arrow twice to reach the closing slides.
 
 ---
 
-## 3. Slide script (slides 1 to 15)
+## 3. Slide script (slides 1 to 14)
 
 ### Slide 1 — Title (0:25)
 
@@ -86,7 +85,7 @@ the right arrow twice to reach the closing slides.
 
 ---
 
-### Slide 2 — Problem (0:51)
+### Slide 2 — Introduction (0:51)
 
 > Let me start with one example.
 > A model was asked about the Arctic melt season, and it answered 10 days per decade.
@@ -100,7 +99,7 @@ the right arrow twice to reach the closing slides.
 
 ---
 
-### Slide 3 — Motivation and gaps (0:29)
+### Slide 3 — Motivation and research gap (0:29)
 
 > Existing work leaves three gaps open.
 > First, calibration. Most lightweight detectors never report how reliable their score is.
@@ -110,7 +109,18 @@ the right arrow twice to reach the closing slides.
 
 ---
 
-### Slide 4 — Datasets (0:31)
+### Slide 4 — Objective (0:25)
+
+> Now the objective.
+> We estimate the probability that an answer is hallucinated from the question, the
+> evidence, and the answer alone.
+> Our contributions are an evidence-consistent feature set, three cumulative changes
+> over the baseline, a calibration study under shift, and a deployed verification
+> system.
+
+---
+
+### Slide 5 — Dataset (0:31)
 
 > To test that, we use three public datasets.
 > HaluEval QA gives 20,000 labeled answers from 10,000 pairs, one correct and one
@@ -121,51 +131,46 @@ the right arrow twice to reach the closing slides.
 
 ---
 
-### Slide 5 — External corpora and features (0:18)
+### Slide 6 — Conventional method and baselines (0:24)
 
-> The external data never enters training, so those scores are zero-shot.
-> The feature vector has 35 features: 26 base, 8 claim, 1 source.
-> Claim features connect the model to the verdicts.
-
----
-
-### Slide 6 — Preprocessing and the pipeline (0:27)
-
-> We clean the data and map every dataset into one schema.
-> A group key keeps both answers together, so no group crosses a split.
-> Then one pass extracts 35 features, scores them, and calibrates the score.
-> The output is a risk score, verdicts, and SHAP explanations.
+> Before the proposed method, the conventional setup.
+> We compare four standard detectors: an overlap heuristic, logistic regression,
+> random forest, and tuned XGBoost.
+> XGBoost is our reference, and three limits motivate the changes: a saturated
+> benchmark, length shortcuts, and unreliable scores under shift.
 
 ---
 
-### Slide 7 — Feature engineering (0:18)
+### Slide 7 — Proposed method (0:28)
 
-> Now the features.
-> The 26 base features cover seven groups.
-> The 8 claim features check each clause of the answer against the evidence.
-> Verdicts are support-first, with a relevance gate.
-
----
-
-### Slide 8 — Models and EC-XGB (0:23)
-
-> With those features, we compared four baselines: a heuristic, logistic regression, random
-> forest, and XGBoost.
-> Then EC-XGB added monotone rules, the claim features, and RAGTruth rows with a source flag.
-> That last version is the model we deploy.
+> The proposed method is evidence-consistent XGBoost.
+> It keeps the standard learner and adds three cumulative changes.
+> M1 log-scales the length features and adds monotone constraints.
+> M2 adds eight claim-level NLI aggregates.
+> M3 adds RAGTruth non-QA rows with a source indicator, and M3 is the deployed model.
 
 ---
 
-### Slide 9 — Training protocol (0:24)
+### Slide 8 — Flow diagram (0:37)
 
-> That model is trained under a strict protocol.
+> Here is the full architecture, start to end.
+> Question, evidence, and answer become 35 features.
+> Those feed EC-XGB, trained with grouped cross-validation and monotone constraints.
+> Platt calibration on RAGTruth QA produces the deployed probability.
+> The output is the risk score, the claim verdicts, and the SHAP explanation.
+
+---
+
+### Slide 9 — Experimental setup (0:24)
+
+> The model trains on a Windows 11 machine with an RTX 3060 GPU, under a strict protocol.
 > We use a grouped 70, 15, 15 split, five-fold cross-validation, and three seeds.
 > The calibrator is fitted on validation only, never on test.
 > A strict mode caps false positives at five percent.
 
 ---
 
-### Slide 10 — Baseline comparison (0:23)
+### Slide 10 — Results: in-domain (0:23)
 
 > In-domain, standard XGBoost is the best learned model, with F1 at 0.985.
 > Against random forest, McNemar gives p equals 0.044, so the gap is real.
@@ -173,49 +178,40 @@ the right arrow twice to reach the closing slides.
 
 ---
 
-### Slide 11 — EC-XGB results (0:30)
+### Slide 11 — Results: shift and calibration (0:28)
 
 > Now the main result.
-> In-domain, EC-XGB matches standard XGBoost. McNemar says it is not significant.
-> On RAGTruth, the standard model flags 99.9 percent of answers, saying yes to everything.
-> EC-XGB flags 61.3 percent, and AUROC rises from 0.497 to 0.582.
-> So the value is robustness.
+> In-domain, EC-XGB matches standard XGBoost, and McNemar says it is not significant.
+> On RAGTruth, the standard model flags 99.9 percent of answers.
+> EC-XGB flags 61.3 percent, and AUROC rises from 0.475 to 0.582.
+> The display error drops from 0.73 to 0.13.
 
 ---
 
-### Slide 12 — LLM as judge (0:23)
+### Slide 12 — Application and deployment (0:35)
 
-> We also compared against an LLM judge.
-> GPT 5.6 Luna reaches F1 0.84 on 200 answers.
-> XGBoost reaches 0.985 on the same subset, at about 100 times lower cost.
-> So the judge is not the deployment.
-
----
-
-### Slide 13 — Calibration, trust, speed (0:20)
-
-> Three things make this usable.
-> First, calibration. On RAGTruth answers, ECE falls from 0.73 to 0.13 after Platt
-> scaling.
-> Second, explanations are stable under edits.
-> Third, one analysis takes about 62 milliseconds.
+> The model is deployed as a web application.
+> Chat checks answers while they stream, and Analyze scores any answer against its
+> evidence.
+> Claims are verified against pasted text, indexed documents, or web search.
+> One analysis takes 62 milliseconds at about one thousandth of a dollar per thousand.
 
 ---
 
-### Slide 14 — Interface: Chat and Analyze (0:20)
+### Slide 13 — UI: Chat (0:20)
 
 > Here is how a user meets it.
 > In chat, the answer streams and the risk card appears on its own with the verdict and
 > score.
-> Analyze adds full input control and the band thresholds.
+> The card leads with the claim verdicts and the evidence sentence behind them.
 
 ---
 
-### Slide 15 — Interface: explanations and comparison (0:17)
+### Slide 14 — UI: Analyze (0:17)
 
-> The score is never a black box.
-> The SHAP chart explains the raw score, and the table lists all 35 features.
-> The comparison card scores every model side by side.
+> Analyze adds full input control.
+> The SHAP chart explains the raw score, the table lists all 35 features, and the
+> comparison card scores every model side by side.
 
 ---
 
@@ -330,7 +326,7 @@ times less than the GPT judge it beats."
 
 ## 6. Closing slides
 
-### Slide 16 — Conclusion (0:23)
+### Slide 15 — Conclusion (0:23)
 
 > Our detector needs no model weights, runs in 62 milliseconds, and gives a reason per
 > score.
@@ -339,7 +335,7 @@ times less than the GPT judge it beats."
 
 ---
 
-### Slide 17 — Thank you (0:05)
+### Slide 16 — Thank you (0:05)
 
 > Thank you. We are happy to take your questions.
 
@@ -347,6 +343,7 @@ times less than the GPT judge it beats."
 
 ## 7. Hand-over lines (only if each member presents a part)
 
+- Into the objective: "I will now state our objective and contributions."
 - Into the dataset section: "I will now hand over to my teammate, who will present the
   datasets and the features."
 - Into the methodology section: "Thank you. I will now explain our method and the training
@@ -413,10 +410,10 @@ times less than the GPT judge it beats."
 - The rate is already set for a slow speaker. Do not add sentences on the day.
 - Pause for one full second after every number.
 - Point at the screen when you mention a table or a chart.
-- If you fall behind, drop the last sentence of slides 5, 6, 8, and 12. Never shorten the
+- If you fall behind, drop the last sentence of slides 5, 7, 9, and 11. Never shorten the
   demo or the journal numbers.
 - In the demo, let the card and the gauge appear before you speak. Silence while a panel
   loads reads as confidence.
 - Show the evidence sentence, not only the score. Judges remember the reason.
 - In the journal segment, name each number as it appears on the PDF page.
-- Look at the camera on slide 1, at the end of the demo, and on slide 17.
+- Look at the camera on slide 1, at the end of the demo, and on slide 16.

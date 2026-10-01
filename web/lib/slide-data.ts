@@ -41,6 +41,8 @@ export function buildSlideData(): SlideData {
       {
         key,
         label,
+        precision: row.precision_mean,
+        recall: row.recall_mean,
         f1: row.f1_mean,
         auroc: row.auroc_mean,
         prAuc: row.pr_auc_mean,
@@ -78,8 +80,8 @@ export function buildSlideData(): SlideData {
     return [
       {
         datasetLabel,
-        standard: { f1: std.f1, auroc: std.auroc, flagged: std.predicted_positive_rate, ece: std.ece },
-        ecxgb: { f1: ec.f1, auroc: ec.auroc, flagged: ec.predicted_positive_rate, ece: ec.ece },
+        standard: { recall: std.recall, f1: std.f1, auroc: std.auroc, flagged: std.predicted_positive_rate, ece: std.ece },
+        ecxgb: { recall: ec.recall, f1: ec.f1, auroc: ec.auroc, flagged: ec.predicted_positive_rate, ece: ec.ece },
       },
     ];
   });

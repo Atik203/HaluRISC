@@ -98,8 +98,8 @@
   <text class="h2" x="1185" y="806" text-anchor="middle">Evaluation</text>
   <text class="sub" x="1185" y="836" text-anchor="middle">HaluEval in-domain &#183; RAGTruth / FaithBench zero-shot</text>
 
-  <path class="flow" d="M415 736 L415 768"/>
+  <path class="flow" d="M800 736 L800 752 L415 752 L415 768"/>
   <path class="flowhead" d="M415 786 L405 764 L425 764 Z"/>
-  <path class="flow" d="M1185 736 L1185 768"/>
+  <path class="flow" d="M800 752 L1185 752 L1185 768"/>
   <path class="flowhead" d="M1185 786 L1175 764 L1195 764 Z"/>
 </svg>
