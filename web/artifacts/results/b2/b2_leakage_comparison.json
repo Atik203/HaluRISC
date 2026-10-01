@@ -1,0 +1,18 @@
+{
+  "historical_leaked_row_level": {
+    "f1": 0.9886,
+    "auroc": 0.998,
+    "source": "README.md pre-repair benchmark table (row-level split, leaky)"
+  },
+  "version_a_corrected_grouped": {
+    "f1": 0.9839883539545266,
+    "auroc": 0.9981490370370371
+  },
+  "b2_xgboost_grouped_cv": {
+    "f1_mean": 0.9846463173227583,
+    "auroc_mean": 0.9979192592592593
+  },
+  "delta_b2_vs_leaked_f1": -0.004,
+  "delta_b2_vs_leaked_auroc": -0.0001,
+  "note": "Historical leaked numbers come from the pre-repair README table (row-level split). B2 uses the corrected grouped split AND grouped 5-fold CV for tuning; Version A used the corrected split with row-level stratified CV."
+}

@@ -1,0 +1,20 @@
+{
+  "n_test": 3000,
+  "n_false_positives": 12,
+  "n_false_negatives": 36,
+  "sampled": {
+    "fp": 10,
+    "fn": 10
+  },
+  "category_counts": {
+    "false_positive": {
+      "label_ambiguity": 7,
+      "short_answer_ambiguity": 3
+    },
+    "false_negative": {
+      "short_answer_ambiguity": 6,
+      "label_ambiguity": 4
+    }
+  },
+  "note": "Auto-tagged with heuristic rules - verify categories manually before paper use."
+}

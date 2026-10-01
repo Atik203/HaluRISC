@@ -6,8 +6,11 @@ import path from "path";
  * Missing files return null (never throw). CSV readers handle quoted fields.
  */
 
-const RESULTS_DIR = path.resolve(process.cwd(), "..", "artifacts", "results");
-const MODELS_DIR = path.resolve(process.cwd(), "..", "artifacts", "models");
+const ROOT_ARTIFACTS = path.resolve(process.cwd(), "..", "artifacts");
+const LOCAL_ARTIFACTS = path.resolve(process.cwd(), "artifacts");
+const ARTIFACTS_DIR = fs.existsSync(ROOT_ARTIFACTS) ? ROOT_ARTIFACTS : LOCAL_ARTIFACTS;
+const RESULTS_DIR = path.join(ARTIFACTS_DIR, "results");
+const MODELS_DIR = path.join(ARTIFACTS_DIR, "models");
 
 export function readJson<T>(name: string): T | null {
   const p = path.join(RESULTS_DIR, name);

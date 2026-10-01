@@ -1,0 +1,71 @@
+{
+  "model_version": "xgboost-v1.0",
+  "n_test": 3000,
+  "ece": 0.01279431751867137,
+  "brier": 0.011551475152373314,
+  "top_features": [
+    {
+      "feature": "overlap_answer_context",
+      "mean_abs_shap": 2.2761526107788086
+    },
+    {
+      "feature": "n_words",
+      "mean_abs_shap": 1.1785435676574707
+    },
+    {
+      "feature": "n_chars",
+      "mean_abs_shap": 0.8261063694953918
+    },
+    {
+      "feature": "jaccard_ans_q",
+      "mean_abs_shap": 0.20095863938331604
+    },
+    {
+      "feature": "nli_ctx_neutral_ans",
+      "mean_abs_shap": 0.16549158096313477
+    },
+    {
+      "feature": "cosine_q_ans",
+      "mean_abs_shap": 0.14071880280971527
+    },
+    {
+      "feature": "nli_ctx_contradicts_ans",
+      "mean_abs_shap": 0.13326813280582428
+    },
+    {
+      "feature": "overlap_answer_question",
+      "mean_abs_shap": 0.12352139502763748
+    },
+    {
+      "feature": "entity_overlap_ratio",
+      "mean_abs_shap": 0.11470324546098709
+    },
+    {
+      "feature": "nli_ans_neutral_ctx",
+      "mean_abs_shap": 0.07601261138916016
+    }
+  ],
+  "cases": {
+    "high_risk": {
+      "sample_id": "q_56_hallucinated",
+      "question": "A Head Full of Dreams Tour is the seventh tour by Coldplay, and which had it's first show at a stadium that is known as Estadio Unico and is owned by who?",
+      "answer": "The A Head Full of Dreams Tour is the seventh tour by Coldplay and held its first show on an island in the Pacific Ocean owned by the band members.",
+      "probability": 0.9963286519050598,
+      "true_label": 1
+    },
+    "low_risk": {
+      "sample_id": "q_5920_correct",
+      "question": "Ronan the Accuser is an officer of what fictional Marvel Comics alien race?",
+      "answer": "Kree",
+      "probability": 0.005941497627645731,
+      "true_label": 0
+    },
+    "borderline": {
+      "sample_id": "q_2910_hallucinated",
+      "question": "Say Yes is the 12th episode of the horror series shown on which cable network?",
+      "answer": "Syfy",
+      "probability": 0.49957239627838135,
+      "true_label": 1
+    }
+  }
+}

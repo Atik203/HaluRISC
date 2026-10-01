@@ -4,7 +4,9 @@ import path from "path";
 
 export const runtime = "nodejs";
 
-const FIGURES_DIR = path.resolve(process.cwd(), "..", "artifacts", "figures");
+const ROOT_ARTIFACTS = path.resolve(process.cwd(), "..", "artifacts");
+const LOCAL_ARTIFACTS = path.resolve(process.cwd(), "artifacts");
+const FIGURES_DIR = path.join(fs.existsSync(ROOT_ARTIFACTS) ? ROOT_ARTIFACTS : LOCAL_ARTIFACTS, "figures");
 const PAPER_FIGURES_DIR = path.resolve(process.cwd(), "..", "Journal_Paper", "figures");
 const PAPER_SCREENSHOTS_DIR = path.resolve(process.cwd(), "..", "Journal_Paper", "screenshots");
 const ALLOWED_DIRS = new Set(["b3", "b4"]);

@@ -1,0 +1,140 @@
+{
+  "majority_seed_nan": {
+    "tn": 1500,
+    "fp": 0,
+    "fn": 1500,
+    "tp": 0
+  },
+  "heuristic_overlap_seed_nan": {
+    "tn": 1423,
+    "fp": 77,
+    "fn": 115,
+    "tp": 1385
+  },
+  "lr_full_seed_42.0": {
+    "tn": 1466,
+    "fp": 34,
+    "fn": 67,
+    "tp": 1433
+  },
+  "lr_full_seed_123.0": {
+    "tn": 1466,
+    "fp": 34,
+    "fn": 67,
+    "tp": 1433
+  },
+  "lr_full_seed_456.0": {
+    "tn": 1466,
+    "fp": 34,
+    "fn": 67,
+    "tp": 1433
+  },
+  "rf_full_seed_42.0": {
+    "tn": 1484,
+    "fp": 16,
+    "fn": 31,
+    "tp": 1469
+  },
+  "rf_full_seed_123.0": {
+    "tn": 1485,
+    "fp": 15,
+    "fn": 32,
+    "tp": 1468
+  },
+  "rf_full_seed_456.0": {
+    "tn": 1485,
+    "fp": 15,
+    "fn": 32,
+    "tp": 1468
+  },
+  "nli_only_seed_42.0": {
+    "tn": 932,
+    "fp": 568,
+    "fn": 455,
+    "tp": 1045
+  },
+  "nli_only_seed_123.0": {
+    "tn": 932,
+    "fp": 568,
+    "fn": 455,
+    "tp": 1045
+  },
+  "nli_only_seed_456.0": {
+    "tn": 932,
+    "fp": 568,
+    "fn": 455,
+    "tp": 1045
+  },
+  "tfidf_all_seed_42.0": {
+    "tn": 1023,
+    "fp": 477,
+    "fn": 653,
+    "tp": 847
+  },
+  "tfidf_all_seed_123.0": {
+    "tn": 1023,
+    "fp": 477,
+    "fn": 653,
+    "tp": 847
+  },
+  "tfidf_all_seed_456.0": {
+    "tn": 1023,
+    "fp": 477,
+    "fn": 653,
+    "tp": 847
+  },
+  "tfidf_answer_seed_42.0": {
+    "tn": 1437,
+    "fp": 63,
+    "fn": 162,
+    "tp": 1338
+  },
+  "tfidf_answer_seed_123.0": {
+    "tn": 1437,
+    "fp": 63,
+    "fn": 162,
+    "tp": 1338
+  },
+  "tfidf_answer_seed_456.0": {
+    "tn": 1437,
+    "fp": 63,
+    "fn": 162,
+    "tp": 1338
+  },
+  "tfidf_context_seed_42.0": {
+    "tn": 0,
+    "fp": 1500,
+    "fn": 0,
+    "tp": 1500
+  },
+  "tfidf_context_seed_123.0": {
+    "tn": 0,
+    "fp": 1500,
+    "fn": 0,
+    "tp": 1500
+  },
+  "tfidf_context_seed_456.0": {
+    "tn": 0,
+    "fp": 1500,
+    "fn": 0,
+    "tp": 1500
+  },
+  "xgboost_seed_42.0": {
+    "tn": 1491,
+    "fp": 9,
+    "fn": 34,
+    "tp": 1466
+  },
+  "xgboost_seed_123.0": {
+    "tn": 1490,
+    "fp": 10,
+    "fn": 37,
+    "tp": 1463
+  },
+  "xgboost_seed_456.0": {
+    "tn": 1489,
+    "fp": 11,
+    "fn": 36,
+    "tp": 1464
+  }
+}

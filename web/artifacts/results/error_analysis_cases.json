@@ -1,0 +1,402 @@
+[
+  {
+    "sample_id": "q_7742_correct",
+    "error_type": "false_positive",
+    "true_label": 0,
+    "predicted_label": 1,
+    "probability": 0.5979,
+    "category": "label_ambiguity",
+    "question": "What is is a United States federal statute enacted by the 111th United States Congress and signed into law by President Barack Obama, who at the time the Deputy White House Chief of Staff for Implementation for U.S. President Barack Obama made this one of her major projects?",
+    "context": "Kristie Canegallo was the Deputy White House Chief of Staff for Implementation for U.S. President Barack Obama.The Patient Protection and Affordable Care Act, often shortened to the Affordable Care Act (ACA) or nicknamed Obamacare, is a United States federal statute enacted by the 111th United States Congress and signed into law by President Barack Obama on March 23, 2010.",
+    "answer": "The Patient Protection and Affordable Care Act",
+    "features": {
+      "n_words": 7.0,
+      "overlap_answer_context": 1.0,
+      "nli_ctx_contradicts_ans": 0.0021,
+      "nli_ctx_entails_ans": 0.9902,
+      "n_entities_answer": 2.0,
+      "entity_overlap_ratio": 1.0,
+      "cosine_ctx_ans": 0.6768
+    }
+  },
+  {
+    "sample_id": "q_4156_correct",
+    "error_type": "false_positive",
+    "true_label": 0,
+    "predicted_label": 1,
+    "probability": 0.6388,
+    "category": "label_ambiguity",
+    "question": "The 2010 Insight Bowl was the 22nd edition, of the college football bowl game, played at Sun Devil Stadium in Tempe, Arizona on Tuesday, December 28, 2010, it featured which team that represented the University of Missouri, in the 2010 NCAA Division I FBS football season?",
+    "context": "It featured the Missouri Tigers from the Big 12 Conference versus the Iowa Hawkeyes from the Big Ten Conference.The 2010 Missouri Tigers football team represented the University of Missouri in the 2010 NCAA Division I FBS football season.",
+    "answer": "2010 Missouri Tigers football team",
+    "features": {
+      "n_words": 5.0,
+      "overlap_answer_context": 1.0,
+      "nli_ctx_contradicts_ans": 0.0001,
+      "nli_ctx_entails_ans": 0.9956,
+      "n_entities_answer": 2.0,
+      "entity_overlap_ratio": 1.0,
+      "cosine_ctx_ans": 0.811
+    }
+  },
+  {
+    "sample_id": "q_2054_correct",
+    "error_type": "false_positive",
+    "true_label": 0,
+    "predicted_label": 1,
+    "probability": 0.7085,
+    "category": "short_answer_ambiguity",
+    "question": "Which decision occurred first, \"Everson v. Board of Education\" or \"Rasul v. Bush\"?",
+    "context": "Everson v. Board of Education, 330 U.S. 1 (1947) was a landmark decision of the United States Supreme Court which applied the Establishment Clause in the country's Bill of Rights to State law.Rasul v. Bush, 542 U.S. 466 (2004) , was landmark decision of the United States Supreme Court in which the Court held that foreign nationals held in the Guantanamo Bay detention camp could petition federal co",
+    "answer": "Everson v. Board of Education",
+    "features": {
+      "n_words": 5.0,
+      "overlap_answer_context": 1.0,
+      "nli_ctx_contradicts_ans": 0.8921,
+      "nli_ctx_entails_ans": 0.0679,
+      "n_entities_answer": 1.0,
+      "entity_overlap_ratio": 1.0,
+      "cosine_ctx_ans": 0.5459
+    }
+  },
+  {
+    "sample_id": "q_4329_correct",
+    "error_type": "false_positive",
+    "true_label": 0,
+    "predicted_label": 1,
+    "probability": 0.8812,
+    "category": "label_ambiguity",
+    "question": "What association football match between A.C. Milan of Italy and Liverpool F.C. of England, was part of the 2006\u201307 UEFA Champions League?",
+    "context": "The 2006\u201307 UEFA Champions League was the 15th season of UEFA's premier European club football tournament, the UEFA Champions League, since it was rebranded from the European Cup, and the 52nd season overall. The final was contested by Milan and Liverpool on 23 May 2007.The 2007 UEFA Champions League Final was an association football match between A.C. Milan of Italy and Liverpool F.C. of England ",
+    "answer": "2007 UEFA Champions League Final",
+    "features": {
+      "n_words": 5.0,
+      "overlap_answer_context": 1.0,
+      "nli_ctx_contradicts_ans": 0.0,
+      "nli_ctx_entails_ans": 0.9927,
+      "n_entities_answer": 2.0,
+      "entity_overlap_ratio": 0.5,
+      "cosine_ctx_ans": 0.8521
+    }
+  },
+  {
+    "sample_id": "q_3061_correct",
+    "error_type": "false_positive",
+    "true_label": 0,
+    "predicted_label": 1,
+    "probability": 0.8957,
+    "category": "short_answer_ambiguity",
+    "question": "What sort of art did Herbert Abrams complete using the Chief of Staff of the United States Army from 1968 to 1972 as a subjecy?",
+    "context": "During his prolific career, he painted more than 400 portraits, including those of General William Westmoreland, playwright Arthur Miller and astronaut Edwin E. \"Buzz\" Aldrin Jr. He served as Chief of Staff of the United States Army from 1968 to 1972.",
+    "answer": "portrait",
+    "features": {
+      "n_words": 1.0,
+      "overlap_answer_context": 0.0,
+      "nli_ctx_contradicts_ans": 0.0004,
+      "nli_ctx_entails_ans": 0.0,
+      "n_entities_answer": 0.0,
+      "entity_overlap_ratio": 1.0,
+      "cosine_ctx_ans": 0.2903
+    }
+  },
+  {
+    "sample_id": "q_6775_correct",
+    "error_type": "false_positive",
+    "true_label": 0,
+    "predicted_label": 1,
+    "probability": 0.5717,
+    "category": "label_ambiguity",
+    "question": "Which president was present for the Mexican Civil War who originated from Oaxaca?",
+    "context": "Agnes Salm-Salm (December 25, 1844 \u2013 December 21, 1912) was the American wife of Prince Felix zu Salm-Salm, a Prussian mercenary beside whom she played a role in the American Civil War, the Mexican Civil War between President Benito Ju\u00e1rez and the Austrian archduke Maximilian I of Mexico, and the Franco-Prussian War.Benito Pablo Ju\u00e1rez Garc\u00eda (] ; 21 March 1806 \u2013 18 July 1872) was a Mexican lawyer",
+    "answer": "liberal politician of Zapotec origin from Oaxaca.",
+    "features": {
+      "n_words": 7.0,
+      "overlap_answer_context": 1.0,
+      "nli_ctx_contradicts_ans": 0.0011,
+      "nli_ctx_entails_ans": 0.9858,
+      "n_entities_answer": 2.0,
+      "entity_overlap_ratio": 1.0,
+      "cosine_ctx_ans": 0.4199
+    }
+  },
+  {
+    "sample_id": "q_7876_correct",
+    "error_type": "false_positive",
+    "true_label": 0,
+    "predicted_label": 1,
+    "probability": 0.5778,
+    "category": "label_ambiguity",
+    "question": "Plutonium from the Hanford Site comes film which U.S. state?",
+    "context": "This process was used to produce plutonium at the Hanford Site.The Hanford Site is a mostly decommissioned nuclear production complex operated by the United States federal government on the Columbia River in the U.S. state of Washington.",
+    "answer": "the U.S. state of Washington.",
+    "features": {
+      "n_words": 5.0,
+      "overlap_answer_context": 1.0,
+      "nli_ctx_contradicts_ans": 0.0913,
+      "nli_ctx_entails_ans": 0.8569,
+      "n_entities_answer": 2.0,
+      "entity_overlap_ratio": 1.0,
+      "cosine_ctx_ans": 0.2164
+    }
+  },
+  {
+    "sample_id": "q_3027_correct",
+    "error_type": "false_positive",
+    "true_label": 0,
+    "predicted_label": 1,
+    "probability": 0.798,
+    "category": "label_ambiguity",
+    "question": "What railroad company acquired the Johnsonburg, Kane, Warren and Irvine Railroad?",
+    "context": "The JKWI was the designated operator of the Irvine, Warren, Kane & Johnsonburg Railroad, that was a partnership of Brock Railroad (a wholly owned subsidiary of Warren Car Company), Irvine Railroad (a wholly owned subsidiary of National Forge Company) and Struthers Wells Inter-American Corporation (a subsidiary of Struthers Wells), all three being Pennsylvania corporations, and had acquired from Co",
+    "answer": "The JKWI was the designated operator of the Irvine, Warren, Kane & Johnsonburg Railroad, that was a partnership of Brock Railroad (a wholly owned subsidiary of Warren Car Company), Irvine Railroad (a wholly owned subsidiary of National Forge Company) and Struthers Wells Inter-American Corporation (a",
+    "features": {
+      "n_words": 81.0,
+      "overlap_answer_context": 1.0,
+      "nli_ctx_contradicts_ans": 0.0007,
+      "nli_ctx_entails_ans": 0.9922,
+      "n_entities_answer": 18.0,
+      "entity_overlap_ratio": 0.9444,
+      "cosine_ctx_ans": 0.8687
+    }
+  },
+  {
+    "sample_id": "q_8518_correct",
+    "error_type": "false_positive",
+    "true_label": 0,
+    "predicted_label": 1,
+    "probability": 0.9322,
+    "category": "short_answer_ambiguity",
+    "question": "\"Touch Too Much\" is the fourth track on an album by a band that hails from which country?",
+    "context": "\"Touch Too Much\" is the fourth track on AC/DC's 1979 album \"Highway to Hell\", their last with lead vocalist Bon Scott, who died the following year.Highway to Hell is an album by Australian hard rock band AC/DC, released on 27 July 1979.",
+    "answer": "Australia",
+    "features": {
+      "n_words": 1.0,
+      "overlap_answer_context": 0.0,
+      "nli_ctx_contradicts_ans": 0.0001,
+      "nli_ctx_entails_ans": 0.0003,
+      "n_entities_answer": 1.0,
+      "entity_overlap_ratio": 0.0,
+      "cosine_ctx_ans": 0.1006
+    }
+  },
+  {
+    "sample_id": "q_6804_correct",
+    "error_type": "false_positive",
+    "true_label": 0,
+    "predicted_label": 1,
+    "probability": 0.5461,
+    "category": "label_ambiguity",
+    "question": "Who played left field Chuck Essegian or Varaz Samuelian?",
+    "context": "Charles Abraham \"Chuck\" Essegian (born August 9, 1931) is an American former professional baseball left fielder.Varazdat Samuel \"Varaz\" Samuelian (Armenian: \u054e\u0561\u0580\u0561\u0566\u0564\u0561\u057f \u054d\u0561\u0574\u057e\u0565\u056c\u056b \"\u054e\u0561\u0580\u0561\u0566\" \u054d\u0561\u0574\u057e\u0565\u056c\u0575\u0561\u0576 , 1917 \u2013 November 7, 1995) was a prominent Armenian American writer, painter and sculptor.",
+    "answer": "\"Chuck\" Essegian (born August 9, 1931) is an American former professional baseball left fielder",
+    "features": {
+      "n_words": 14.0,
+      "overlap_answer_context": 1.0,
+      "nli_ctx_contradicts_ans": 0.0001,
+      "nli_ctx_entails_ans": 0.998,
+      "n_entities_answer": 2.0,
+      "entity_overlap_ratio": 1.0,
+      "cosine_ctx_ans": 0.406
+    }
+  },
+  {
+    "sample_id": "q_5861_hallucinated",
+    "error_type": "false_negative",
+    "true_label": 1,
+    "predicted_label": 0,
+    "probability": 0.0487,
+    "category": "label_ambiguity",
+    "question": "Who produced the 1984 British biographical drama film about the Khmer Rouge that was directed by the same person that directed You and I?",
+    "context": "You and I (Russian: \u0422\u044b \u0438 \u044f ; also known by its working title, Finding t.A.T.u.) is a 2011 drama-film directed by Roland Joff\u00e9, an English-French film director who is known for his Oscar nominated movies \"The Killing Fields\" and \"The Mission\", depicting a fictionalised version of real events adapted from the novel \"t.A.T.u. Come Back\". It was directed by Roland Joff\u00e9 and produced by David Puttnam f",
+    "answer": "Goldcrest Films also produced it.",
+    "features": {
+      "n_words": 5.0,
+      "overlap_answer_context": 1.0,
+      "nli_ctx_contradicts_ans": 0.0042,
+      "nli_ctx_entails_ans": 0.9819,
+      "n_entities_answer": 1.0,
+      "entity_overlap_ratio": 1.0,
+      "cosine_ctx_ans": 0.1128
+    }
+  },
+  {
+    "sample_id": "q_3058_hallucinated",
+    "error_type": "false_negative",
+    "true_label": 1,
+    "predicted_label": 0,
+    "probability": 0.0168,
+    "category": "short_answer_ambiguity",
+    "question": "Peter Facinelli is known for his role as Mike Dexter in a 1998 American teen comedy film that was written and directed by Deborah Kaplan and who?",
+    "context": "He played Dr. Carlisle Cullen in the film adaptations of the \"Twilight\" novel series, and is also known for his role as Mike Dexter in the 1998 film \"Can't Hardly Wait\".Can't Hardly Wait is a 1998 American teen comedy film written and directed by Deborah Kaplan and Harry Elfont.",
+    "answer": "Harry Kaplan.",
+    "features": {
+      "n_words": 2.0,
+      "overlap_answer_context": 1.0,
+      "nli_ctx_contradicts_ans": 0.9917,
+      "nli_ctx_entails_ans": 0.0014,
+      "n_entities_answer": 1.0,
+      "entity_overlap_ratio": 0.0,
+      "cosine_ctx_ans": 0.2688
+    }
+  },
+  {
+    "sample_id": "q_2251_hallucinated",
+    "error_type": "false_negative",
+    "true_label": 1,
+    "predicted_label": 0,
+    "probability": 0.1808,
+    "category": "short_answer_ambiguity",
+    "question": "ConnectU was founded by Cameron Winklevoss, Divya Narendra, and this professional rower?",
+    "context": "ConnectU (originally HarvardConnection) was a social networking website launched on May 21, 2004, that was founded by Harvard students Cameron Winklevoss, Tyler Winklevoss, and Divya Narendra in December 2002.Tyler Howard Winklevoss (born August 21, 1981) is an American rower and entrepreneur.",
+    "answer": "Tyler Winklevoss founded ConnectU.",
+    "features": {
+      "n_words": 4.0,
+      "overlap_answer_context": 1.0,
+      "nli_ctx_contradicts_ans": 0.0022,
+      "nli_ctx_entails_ans": 0.9912,
+      "n_entities_answer": 1.0,
+      "entity_overlap_ratio": 1.0,
+      "cosine_ctx_ans": 0.8213
+    }
+  },
+  {
+    "sample_id": "q_4896_hallucinated",
+    "error_type": "false_negative",
+    "true_label": 1,
+    "predicted_label": 0,
+    "probability": 0.4717,
+    "category": "label_ambiguity",
+    "question": "Were both King Roger and Measure for Measure written by William Shakespeare?",
+    "context": "King Roger (Polish: \"Kr\u00f3l Roger\" , Op.Measure for Measure is a play by William Shakespeare, believed to have been written in 1603 or 1604.",
+    "answer": "King Roger is a Polish play.",
+    "features": {
+      "n_words": 6.0,
+      "overlap_answer_context": 1.0,
+      "nli_ctx_contradicts_ans": 0.014,
+      "nli_ctx_entails_ans": 0.9697,
+      "n_entities_answer": 2.0,
+      "entity_overlap_ratio": 1.0,
+      "cosine_ctx_ans": 0.6113
+    }
+  },
+  {
+    "sample_id": "q_8501_hallucinated",
+    "error_type": "false_negative",
+    "true_label": 1,
+    "predicted_label": 0,
+    "probability": 0.0891,
+    "category": "short_answer_ambiguity",
+    "question": "What research group was formed in 2014 due to Russia's suspension?",
+    "context": "The G7 Research Group (formerly the G8 Research Group) is an independent source of information, analysis and research on the institutions, issues and members of the Group of Seven (formerly the Group of Eight) and the G7 Summit.The G8 (reformatted as G7 from 2014 due to Russia's suspension) was an inter-governmental political forum from 1997 until 2014, with participation from the world\u2032s major hi",
+    "answer": "The G7 Summit Research Group",
+    "features": {
+      "n_words": 5.0,
+      "overlap_answer_context": 1.0,
+      "nli_ctx_contradicts_ans": 0.0094,
+      "nli_ctx_entails_ans": 0.019,
+      "n_entities_answer": 1.0,
+      "entity_overlap_ratio": 0.0,
+      "cosine_ctx_ans": 0.7241
+    }
+  },
+  {
+    "sample_id": "q_1702_hallucinated",
+    "error_type": "false_negative",
+    "true_label": 1,
+    "predicted_label": 0,
+    "probability": 0.0146,
+    "category": "short_answer_ambiguity",
+    "question": "What is the name of the engagement on the northern coast of France on 19 August 1942 in which the HMS \"Calpe\" participated?",
+    "context": "HMS \"Calpe\" (pennant number L71) was a British Royal Navy Type II Hunt-class destroyer escort. Built as a result of the outbreak of World War II, \"Calpe\" escorted convoys during the war and participated in the Dieppe Raid.The Dieppe Raid, also known as the Battle of Dieppe, Operation \"Rutter during planning stages, and by its final official code-name Operation \"Jubilee, was an Allied attack on the",
+    "answer": "Northern France Battle",
+    "features": {
+      "n_words": 3.0,
+      "overlap_answer_context": 1.0,
+      "nli_ctx_contradicts_ans": 0.0011,
+      "nli_ctx_entails_ans": 0.0004,
+      "n_entities_answer": 1.0,
+      "entity_overlap_ratio": 0.0,
+      "cosine_ctx_ans": 0.4473
+    }
+  },
+  {
+    "sample_id": "q_2910_hallucinated",
+    "error_type": "false_negative",
+    "true_label": 1,
+    "predicted_label": 0,
+    "probability": 0.4859,
+    "category": "short_answer_ambiguity",
+    "question": "Say Yes is the 12th episode of the horror series shown on which cable network?",
+    "context": "\"Say Yes\" is the twelfth episode of the seventh season and 95th episode overall of the post-apocalyptic horror television series \"The Walking Dead\", which aired on AMC on March 5, 2017.The seventh season of \"The Walking Dead\", an American post-apocalyptic horror television series on AMC, premiered on October 23, 2016, and concluded on April 2, 2017, consisting of 16 episodes.",
+    "answer": "Syfy",
+    "features": {
+      "n_words": 1.0,
+      "overlap_answer_context": 0.0,
+      "nli_ctx_contradicts_ans": 0.9976,
+      "nli_ctx_entails_ans": 0.0013,
+      "n_entities_answer": 0.0,
+      "entity_overlap_ratio": 1.0,
+      "cosine_ctx_ans": 0.016
+    }
+  },
+  {
+    "sample_id": "q_3297_hallucinated",
+    "error_type": "false_negative",
+    "true_label": 1,
+    "predicted_label": 0,
+    "probability": 0.3331,
+    "category": "label_ambiguity",
+    "question": "When did the founder of the Westboro Baptist Church die?",
+    "context": "The Most Hated Family in America is a 2007 BBC documentary film written and presented by Louis Theroux about the family at the core of the Westboro Baptist Church. The organization was led by Fred Phelps (who has since died) and located in Topeka, Kansas.Fred Waldron Phelps Sr. (November 13, 1929 \u2013 March 19, 2014) was an American Baptist minister and civil rights attorney who became notorious for ",
+    "answer": "Fred Phelps Sr. died in 2014.",
+    "features": {
+      "n_words": 6.0,
+      "overlap_answer_context": 1.0,
+      "nli_ctx_contradicts_ans": 0.0003,
+      "nli_ctx_entails_ans": 0.9951,
+      "n_entities_answer": 2.0,
+      "entity_overlap_ratio": 0.0,
+      "cosine_ctx_ans": 0.5679
+    }
+  },
+  {
+    "sample_id": "q_4514_hallucinated",
+    "error_type": "false_negative",
+    "true_label": 1,
+    "predicted_label": 0,
+    "probability": 0.034,
+    "category": "short_answer_ambiguity",
+    "question": "Caf\u00e9 Oz Australian Bar is an Australian themed pub and restaurant in France, the food menu offers also Australian cuisine themed food such as Little Creatures Pale Ale, from which Australian brewing company based in Fremantle, Western Australia, originally established in 2000, by the original brewer",
+    "context": "The food menu offers also Australian cuisine themed food such as kangaroo burgers, steaks Australian Wild Boar Burgers, Barramundi Fish and Chips and homemade Meat pies and beer like Coopers, Victoria Bitter, Little Creatures Pale Ale and Bundaberg Rum, Bundaberg Ginger Beer.Little Creatures is an Australian brewing company based in Fremantle, Western Australia, originally established in 2000 by t",
+    "answer": "Matilda Bay Brewing Company.",
+    "features": {
+      "n_words": 4.0,
+      "overlap_answer_context": 1.0,
+      "nli_ctx_contradicts_ans": 0.139,
+      "nli_ctx_entails_ans": 0.7974,
+      "n_entities_answer": 1.0,
+      "entity_overlap_ratio": 0.0,
+      "cosine_ctx_ans": 0.5254
+    }
+  },
+  {
+    "sample_id": "q_6989_hallucinated",
+    "error_type": "false_negative",
+    "true_label": 1,
+    "predicted_label": 0,
+    "probability": 0.3237,
+    "category": "label_ambiguity",
+    "question": "Which air transport operations hub was commanded by the most recent serial killer profiled in the book Cold North Killers: Canadian Serial Murder?",
+    "context": "Cold North Killers: Canadian Serial Murder is a 2012 Canadian non-fiction book written by Lee Mellor and published by Dundurn Press. It documents the lives of sixty Canadian serial killers, with the earliest being Edward H. Rulloff and the most recent being Russell Williams.David Russell Williams (born March 7, 1963) is an English-born Canadian, convicted murderer, rapist, and former Colonel in th",
+    "answer": "The Canadian military's largest airbase.",
+    "features": {
+      "n_words": 5.0,
+      "overlap_answer_context": 1.0,
+      "nli_ctx_contradicts_ans": 0.0001,
+      "nli_ctx_entails_ans": 0.9707,
+      "n_entities_answer": 1.0,
+      "entity_overlap_ratio": 1.0,
+      "cosine_ctx_ans": 0.2512
+    }
+  }
+]

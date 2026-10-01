@@ -1,0 +1,27 @@
+{
+  "mcnemar_vs_best_baseline": 0.04417134490844271,
+  "best_baseline": "rf_full",
+  "best_baseline_rule": "max mean validation F1 over non-XGB model baselines (seed 42)",
+  "mcnemar_pairs": {
+    "lr_full": 0.4338480657664391,
+    "rf_full": 0.04417134490844271,
+    "nli_only": 2.002393636262468e-05,
+    "tfidf_all": 8.806931295205206e-06,
+    "tfidf_answer": 1.3345178780964465e-06,
+    "tfidf_context": 0.0,
+    "heuristic_overlap": 0.35310270584324177,
+    "majority": 0.0
+  },
+  "bootstrap_xgb_f1_ci": [
+    0.981245925879729,
+    0.9895165789061944
+  ],
+  "bootstrap_xgb_auroc_ci": [
+    0.9964446812841634,
+    0.9989139866896486
+  ],
+  "wilcoxon_xgb_vs_rf_p": 1.0,
+  "wilcoxon_xgb_vs_lr_p": 0.25,
+  "wilcoxon_xgb_vs_nli_only_p": 0.25,
+  "wilcoxon_xgb_vs_tfidf_all_p": 0.25
+}

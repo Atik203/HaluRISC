@@ -1,0 +1,127 @@
+{
+  "schema": "b1-license-manifest-v1",
+  "generated_at_utc": "2026-09-17T12:42:27+00:00",
+  "note": "Restricted datasets are not redistributed; download instructions, hashes, and license notes are shipped instead.",
+  "datasets": [
+    {
+      "name": "halueval",
+      "display_name": "HaluEval (QA)",
+      "url": "https://github.com/RUCAIBox/HaluEval",
+      "license": "MIT",
+      "redistribution_allowed": true,
+      "grouping_rule": "group by item_idx (original question); both answer variants stay in one partition",
+      "label_definition": "correct answer -> 0; hallucinated answer -> 1",
+      "label_mapping_version": "b1-labels-v1",
+      "citation": "Li et al., ACL 2023, DOI 10.18653/v1/2023.emnlp-main.397",
+      "raw_dir": "data/raw/halueval",
+      "download_revision": "b7253db3cdaa0ab2c382f92b26b390109174f77e",
+      "downloaded_at_utc": "2026-09-17T12:42:20+00:00",
+      "files": {
+        "qa_data.json": {
+          "sha256": "89ed139ec5e3a3169a0b30e45569ac1283846f76f27f7bb5e908ee6deed57e88",
+          "bytes": 6164420
+        }
+      }
+    },
+    {
+      "name": "ragtruth",
+      "display_name": "RAGTruth (official)",
+      "url": "https://github.com/ParticleMedia/RAGTruth",
+      "license": "MIT",
+      "redistribution_allowed": true,
+      "grouping_rule": "group by source_id (one source elicits six responses)",
+      "label_definition": "any human-annotated hallucination span -> 1; no spans -> 0",
+      "label_mapping_version": "b1-labels-v1",
+      "citation": "Niu et al., ACL 2024, DOI 10.18653/v1/2024.acl-long.585",
+      "raw_dir": "data/raw/ragtruth_official",
+      "download_revision": "c103204b9ce28d6bbad859304bf30de72b8ed8fe",
+      "downloaded_at_utc": "2026-08-05T19:13:26+00:00",
+      "files": {
+        "response.jsonl": {
+          "sha256": "e4c2e4ac24fff676d8984cc61c35d791612fadc58015335d97dd632375e18073",
+          "bytes": 21458735
+        },
+        "source_info.jsonl": {
+          "sha256": "0dffc26ea9f3c1c3d7c7e8336b56ef1646e3cec876edffcca3c9c624d12d578b",
+          "bytes": 15117971
+        }
+      }
+    },
+    {
+      "name": "faithbench",
+      "display_name": "FaithBench (summarization)",
+      "url": "https://github.com/vectara/FaithBench",
+      "license": "CC BY-NC-SA 4.0",
+      "redistribution_allowed": false,
+      "grouping_rule": "group by raw_sample_id when available, else stable hash of source text",
+      "label_definition": "worst-severity aggregation; Benign/empty -> 0; Questionable/Unwanted* -> 1",
+      "label_mapping_version": "b1-labels-v1",
+      "citation": "Bao et al., NAACL 2025, DOI 10.18653/v1/2025.naacl-short.38",
+      "raw_dir": "data/raw/faithbench",
+      "download_revision": "cf89797d82812c23b5d5e5c121f1d9b8983bbbce",
+      "downloaded_at_utc": "2026-08-05T19:13:39+00:00",
+      "files": {
+        "batch_1.json": {
+          "sha256": "a4e7858702e741b0fb024a022a906f61fb8eb65011b7f7b138e56e080a4c8c59",
+          "bytes": 76262
+        },
+        "batch_10.json": {
+          "sha256": "8e5cec822516abbf74cd6796104bbe537da98628c671b64c10afa3b15bebe08c",
+          "bytes": 292603
+        },
+        "batch_11.json": {
+          "sha256": "cf999c8fa9696f4b24d8f4b08f9fdd6603a942cfee63ad851ff6d1f265c116cc",
+          "bytes": 189035
+        },
+        "batch_12.json": {
+          "sha256": "fda9f0e0eae69c13b79a8fc1f81d1f8a02e9f28ad8c3274619c4369bb15c818e",
+          "bytes": 205796
+        },
+        "batch_14.json": {
+          "sha256": "72f07b9f4b91f8a49d96e7adc79a8308edb92a2e6b34babcd9ef68dc6b7b2f34",
+          "bytes": 394638
+        },
+        "batch_15.json": {
+          "sha256": "c6608ce2edd17134674c7f8a0fdfc871e22458b432b35506889886c737eb4663",
+          "bytes": 370657
+        },
+        "batch_16.json": {
+          "sha256": "e35ace1069bb79844b122415d3c4192f7147737a2b9ad509185fb2c1ba7090db",
+          "bytes": 426968
+        },
+        "batch_2.json": {
+          "sha256": "18f1b2b9eae6fbf2020f295dc5ca512ef1a7e389e763b707bc51831f58df6a70",
+          "bytes": 154793
+        },
+        "batch_3.json": {
+          "sha256": "84b709a9d88998f478f429ee2330ea18666ae9e5340ea398ece03cec6ab54308",
+          "bytes": 98772
+        },
+        "batch_4.json": {
+          "sha256": "c0f68bc222dd8b6e332cb6668840de8da150687ddf6f9b5bd243f389033fda42",
+          "bytes": 149892
+        },
+        "batch_5.json": {
+          "sha256": "6be08bb37ccdf68e41e117b0174cc3c8b41ed7bf85134d00e0e89c023e96b436",
+          "bytes": 190782
+        },
+        "batch_6.json": {
+          "sha256": "a5fd42aa64fbe15f535192ddfd3cfc72b53535cde7834cb6685ebe0a229f8587",
+          "bytes": 135160
+        },
+        "batch_7.json": {
+          "sha256": "28e83e1487381ce317103505dab4d5679ad74f53541374a98e24e3673734343b",
+          "bytes": 191546
+        },
+        "batch_8.json": {
+          "sha256": "5cf2b8ab42fe1d4b0018cf736448dd8a88318267b0efc2f45ea200e713932975",
+          "bytes": 236853
+        },
+        "batch_9.json": {
+          "sha256": "4924fe2d0975890712032a128544c0619c2ebf81d5d472e99e7883f1a9720bd5",
+          "bytes": 201505
+        }
+      }
+    }
+  ]
+}

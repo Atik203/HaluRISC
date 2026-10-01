@@ -1,0 +1,23 @@
+{
+  "primary_worst_q_plus_unwanted": {
+    "n_positive": 511,
+    "n_negative": 239,
+    "f1": 0.8130469371519491,
+    "auroc": 0.5567801259324157,
+    "mcc": 0.10707105490231994
+  },
+  "majority_q_plus_unwanted": {
+    "n_positive": 465,
+    "n_negative": 285,
+    "f1": 0.7679603633360859,
+    "auroc": 0.5402225995095264,
+    "mcc": 0.09353294920201036
+  },
+  "strict_worst_unwanted_only": {
+    "n_positive": 439,
+    "n_negative": 311,
+    "f1": 0.7409282700421941,
+    "auroc": 0.5523661639651649,
+    "mcc": 0.08699867684738384
+  }
+}
