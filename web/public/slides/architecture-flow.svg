@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" font-family="Inter, 'Segoe UI', Arial, sans-serif">
+  <style>
+    .h1 { font-size: 29px; font-weight: 800; fill: #101828; }
+    .h2 { font-size: 26px; font-weight: 800; fill: #101828; }
+    .wt { font-size: 29px; font-weight: 800; fill: #ffffff; }
+    .ws { font-size: 18px; font-weight: 600; fill: #cbd5e1; }
+    .lbl { font-size: 20px; font-weight: 700; fill: #475569; }
+    .sub { font-size: 18px; font-weight: 600; fill: #475569; }
+    .chipt { font-size: 19px; font-weight: 700; fill: #101828; }
+    .flow { stroke: #1e40af; stroke-width: 4; fill: none; }
+    .flowhead { fill: #1e40af; }
+  </style>
+
+  <rect width="1600" height="900" fill="#ffffff"/>
+
+  <!-- Row 1: inputs -->
+  <rect x="60" y="24" width="460" height="76" rx="16" fill="#eef2ff" stroke="#1e40af" stroke-width="3"/>
+  <text class="h2" x="290" y="70" text-anchor="middle">Question</text>
+
+  <rect x="560" y="24" width="460" height="76" rx="16" fill="#eef2ff" stroke="#1e40af" stroke-width="3"/>
+  <text class="h2" x="790" y="70" text-anchor="middle">Context / Evidence</text>
+
+  <rect x="1060" y="24" width="460" height="76" rx="16" fill="#eef2ff" stroke="#1e40af" stroke-width="3"/>
+  <text class="h2" x="1290" y="70" text-anchor="middle">Answer (black-box LLM)</text>
+
+  <!-- collector into feature extraction -->
+  <path class="flow" d="M290 100 L290 116 L1290 116 L1290 100"/>
+  <path class="flow" d="M790 116 L790 136"/>
+  <path class="flowhead" d="M790 152 L780 130 L800 130 Z"/>
+
+  <!-- Row 2: feature extraction -->
+  <rect x="60" y="156" width="1480" height="166" rx="20" fill="#f0fdfa" stroke="#0f766e" stroke-width="3"/>
+  <text class="h1" x="800" y="190" text-anchor="middle">Feature extraction &#8212; 35 features</text>
+  <text class="sub" x="800" y="216" text-anchor="middle">26 base features in 7 groups, plus 8 claim-level NLI aggregates and 1 source indicator</text>
+
+  <rect x="145" y="230" width="170" height="44" rx="12" fill="#ffffff" stroke="#1e40af" stroke-width="2.5"/>
+  <text class="chipt" x="230" y="258" text-anchor="middle">Length</text>
+  <rect x="335" y="230" width="170" height="44" rx="12" fill="#ffffff" stroke="#1e40af" stroke-width="2.5"/>
+  <text class="chipt" x="420" y="258" text-anchor="middle">Lexical</text>
+  <rect x="525" y="230" width="170" height="44" rx="12" fill="#ffffff" stroke="#1e40af" stroke-width="2.5"/>
+  <text class="chipt" x="610" y="258" text-anchor="middle">Entity</text>
+  <rect x="715" y="230" width="170" height="44" rx="12" fill="#ffffff" stroke="#1e40af" stroke-width="2.5"/>
+  <text class="chipt" x="800" y="258" text-anchor="middle">NLI</text>
+  <rect x="905" y="230" width="170" height="44" rx="12" fill="#ffffff" stroke="#1e40af" stroke-width="2.5"/>
+  <text class="chipt" x="990" y="258" text-anchor="middle">Numeric</text>
+  <rect x="1095" y="230" width="170" height="44" rx="12" fill="#ffffff" stroke="#1e40af" stroke-width="2.5"/>
+  <text class="chipt" x="1180" y="258" text-anchor="middle">Hedging</text>
+  <rect x="1285" y="230" width="170" height="44" rx="12" fill="#ffffff" stroke="#1e40af" stroke-width="2.5"/>
+  <text class="chipt" x="1370" y="258" text-anchor="middle">Semantic</text>
+
+  <rect x="380" y="284" width="400" height="32" rx="10" fill="#fffbeb" stroke="#b45309" stroke-width="2.5"/>
+  <text class="chipt" x="580" y="306" text-anchor="middle">+ 8 claim-level NLI aggregates</text>
+  <rect x="820" y="284" width="400" height="32" rx="10" fill="#fffbeb" stroke="#b45309" stroke-width="2.5"/>
+  <text class="chipt" x="1020" y="306" text-anchor="middle">+ 1 source indicator</text>
+
+  <!-- arrow to model -->
+  <path class="flow" d="M800 322 L800 366"/>
+  <path class="flowhead" d="M800 384 L790 362 L810 362 Z"/>
+  <text class="lbl" x="816" y="350">35 features</text>
+
+  <!-- Row 3: model -->
+  <rect x="430" y="386" width="740" height="84" rx="20" fill="#101828" stroke="#101828" stroke-width="3"/>
+  <text class="wt" x="800" y="424" text-anchor="middle">EC-XGB Classifier</text>
+  <text class="ws" x="800" y="452" text-anchor="middle">monotone constraints &#183; grouped 5-fold CV &#183; seeds 42 / 123 / 456</text>
+
+  <!-- arrow to calibration -->
+  <path class="flow" d="M800 470 L800 510"/>
+  <path class="flowhead" d="M800 528 L790 506 L810 506 Z"/>
+  <text class="lbl" x="816" y="498">raw score</text>
+
+  <!-- Row 4: calibration -->
+  <rect x="480" y="530" width="640" height="76" rx="20" fill="#fffbeb" stroke="#b45309" stroke-width="3"/>
+  <text class="h2" x="800" y="562" text-anchor="middle">Platt Calibration &#8212; RAGTruth QA</text>
+  <text class="sub" x="800" y="590" text-anchor="middle">strict mode: 5% false-positive budget</text>
+
+  <!-- arrow to outputs -->
+  <path class="flow" d="M800 606 L800 646"/>
+  <path class="flowhead" d="M800 664 L790 642 L810 642 Z"/>
+  <text class="lbl" x="816" y="634">probability</text>
+
+  <!-- Row 5: outputs -->
+  <rect x="60" y="666" width="460" height="70" rx="16" fill="#fef2f2" stroke="#b91c1c" stroke-width="3"/>
+  <text class="h2" x="290" y="708" text-anchor="middle">Calibrated risk score</text>
+
+  <rect x="570" y="666" width="460" height="70" rx="16" fill="#eef2ff" stroke="#1e40af" stroke-width="3"/>
+  <text class="h2" x="800" y="696" text-anchor="middle">Per-claim verdicts</text>
+  <text class="sub" x="800" y="721" text-anchor="middle">supported &#183; contradicted &#183; unsupported</text>
+
+  <rect x="1080" y="666" width="460" height="70" rx="16" fill="#f0fdfa" stroke="#0f766e" stroke-width="3"/>
+  <text class="h2" x="1310" y="708" text-anchor="middle">SHAP explanation</text>
+
+  <!-- Row 6: deployed system and evaluation -->
+  <rect x="60" y="768" width="710" height="100" rx="18" fill="#eef2ff" stroke="#1e40af" stroke-width="3"/>
+  <text class="h2" x="415" y="806" text-anchor="middle">Deployment</text>
+  <text class="sub" x="415" y="836" text-anchor="middle">Next.js BFF &#8594; FastAPI &#183; chat, analyze, dashboard</text>
+
+  <rect x="830" y="768" width="710" height="100" rx="18" fill="#f8fafc" stroke="#475569" stroke-width="3"/>
+  <text class="h2" x="1185" y="806" text-anchor="middle">Evaluation</text>
+  <text class="sub" x="1185" y="836" text-anchor="middle">HaluEval in-domain &#183; RAGTruth / FaithBench zero-shot</text>
+
+  <path class="flow" d="M415 736 L415 768"/>
+  <path class="flowhead" d="M415 786 L405 764 L425 764 Z"/>
+  <path class="flow" d="M1185 736 L1185 768"/>
+  <path class="flowhead" d="M1185 786 L1175 764 L1195 764 Z"/>
+</svg>
