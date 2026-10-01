@@ -160,6 +160,25 @@ const BADGE_APPLICATION = { badge: "Application", badgeBg: "#e0e7ff", badgeColor
 const BADGE_UI = { badge: "UI Demonstration", badgeBg: "#e0e7ff", badgeColor: ACCENT };
 const BADGE_END = { badge: "Conclusion", badgeBg: "#ccfbf1", badgeColor: TEAL };
 
+function Callout({ n, x, y, color = ACCENT }: { n: number; x: string; y: string; color?: string }) {
+  return (
+    <span
+      className="absolute z-10 flex items-center justify-center rounded-full border-2 bg-white text-[1.55cqh] font-extrabold shadow-md"
+      style={{
+        left: x,
+        top: y,
+        width: "3.2cqh",
+        height: "3.2cqh",
+        borderColor: color,
+        color,
+        transform: "translate(-50%, -50%)",
+      }}
+    >
+      {n}
+    </span>
+  );
+}
+
 /* ───────────────────────────── 1 · Title ─────────────────────────── */
 
 const MEMBERS = [
@@ -413,7 +432,7 @@ function MotivationSlide({ data, index, total }: SlideProps) {
         <KpiStrip
           items={[
             {
-              value: `${pct(standard?.flagged, 1)} → ${pct(ecxgb?.flagged, 0)}`,
+              value: `${pct(standard?.flagged, 1)} → ${pct(ecxgb?.flagged, 1)}`,
               label: "Flagged as risky · RAGTruth",
               color: ROSE,
             },
@@ -685,28 +704,28 @@ function ProtocolSlide({ data, index, total }: SlideProps) {
       total={total}
     >
       <div className="grid min-h-0 flex-1 grid-cols-4 gap-[1.3cqw]">
-        <Card icon={<Layers size="2.2cqh" color="#fff" />} title="Splits" color={ACCENT} fill="#eef2ff">
+        <Card icon={<Layers size="2.2cqh" color="#fff" />} title="Splits" color={ACCENT} fill="#eef2ff" center>
           <div className="text-[2.2cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
             Grouped 70/15/15 by question.
             <br />
             Both answers of a question stay in one partition, so no leakage.
           </div>
         </Card>
-        <Card icon={<Workflow size="2.2cqh" color="#fff" />} title="CV & tuning" color={TEAL} fill="#f0fdfa">
+        <Card icon={<Workflow size="2.2cqh" color="#fff" />} title="CV & tuning" color={TEAL} fill="#f0fdfa" center>
           <div className="text-[2.2cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
             Grouped 5-fold CV, {data.nIter ?? "—"}-iteration randomized search.
             <br />
             Selected: depth 4, lr 0.01, 500 trees, subsample 0.9, colsample 0.7.
           </div>
         </Card>
-        <Card icon={<ListChecks size="2.2cqh" color="#fff" />} title="Seeds" color={AMBER} fill="#fffbeb">
+        <Card icon={<ListChecks size="2.2cqh" color="#fff" />} title="Seeds" color={AMBER} fill="#fffbeb" center>
           <div className="text-[2.2cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
             Seeds {data.seedsText}.
             <br />
             McNemar, bootstrap confidence intervals, and Wilcoxon signed-rank tests.
           </div>
         </Card>
-        <Card icon={<Gauge size="2.2cqh" color="#fff" />} title="Calibration" color={ROSE} fill="#fff1f2">
+        <Card icon={<Gauge size="2.2cqh" color="#fff" />} title="Calibration" color={ROSE} fill="#fff1f2" center>
           <div className="text-[2.2cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
             Calibrators fitted on validation only.
             <br />
@@ -785,11 +804,17 @@ function BaselineResultsSlide({ data, index, total }: SlideProps) {
             {fmt(data.xgbF1CiLo, 4)}, {fmt(data.xgbF1CiHi, 4)}] · McNemar p ={" "}
             {data.mcnemarP != null ? data.mcnemarP.toFixed(3) : "—"}.
           </div>
+          <div
+            className="rounded-lg px-[1.4cqw] py-[0.7cqh] text-[1.95cqh] font-extrabold leading-snug"
+            style={{ background: "#eef2ff", color: ACCENT }}
+          >
+            So what: XGBoost wins in-domain, but the benchmark is nearly saturated.
+          </div>
         </div>
         <div className="flex min-h-0 flex-col items-center justify-center gap-[1cqh]">
           <Figure
-            src="/api/figures/fig_roc_pr.png"
-            alt="ROC and precision-recall curves on the HaluEval test set"
+            src="/slides/baseline-roc-pr.png"
+            alt="ROC and precision-recall curves on the HaluEval test set for XGBoost, random forest, logistic regression, and the overlap heuristic"
             height="48cqh"
           />
           <div
@@ -864,13 +889,19 @@ function EcXgbResultsSlide({ data, index, total }: SlideProps) {
             In-domain ablation: m0 {fmt(m0?.f1, 4)} to m3 {fmt(m3?.f1, 4)} F1, not significant.
           </div>
         </div>
-        <div className="flex min-h-0 items-center justify-center">
+        <div className="flex min-h-0 flex-col items-center justify-center gap-[1cqh]">
           <Figure
             src="/slides/ecxgb-shift.png"
             alt="Grouped bars of the flag rate and AUROC for the standard model and EC-XGB on RAGTruth, RAGTruth QA, and FaithBench"
             caption="Flag rate collapses while AUROC rises on shifted corpora"
-            height="48cqh"
+            height="46cqh"
           />
+          <div
+            className="rounded-lg px-[1.4cqw] py-[0.7cqh] text-[1.95cqh] font-extrabold leading-snug"
+            style={{ background: "#eef2ff", color: ACCENT }}
+          >
+            So what: when the domain changes, EC-XGB is the safer default.
+          </div>
         </div>
       </div>
     </SlideFrame>
@@ -883,10 +914,10 @@ function EcXgbResultsSlide({ data, index, total }: SlideProps) {
 
 function ChatAnalyzeSlide({ index, total }: SlideProps) {
   const notes = [
-    { title: "Input interface", color: ACCENT, fill: "#eef2ff", line: "Question, context, and answer boxes with one-click example presets." },
-    { title: "Result display", color: TEAL, fill: "#f0fdfa", line: "Calibrated gauge with band markers, then the per-claim verdicts." },
-    { title: "Evidence quotes", color: AMBER, fill: "#fffbeb", line: "Every verdict shows the context sentence it was checked against." },
-    { title: "Thresholds", color: ROSE, fill: "#fff1f2", line: "Bands are printed on the gauge, so no lookup table is needed." },
+    { title: "Risk card", color: ROSE, fill: "#fff1f2", line: "Headline verdict, calibrated score, and the claims checked." },
+    { title: "Grounding line", color: ACCENT, fill: "#eef2ff", line: "Which evidence was used, with the model version and latency." },
+    { title: "Analyze inputs", color: AMBER, fill: "#fffbeb", line: "Question, evidence, and answer, with one-click example presets." },
+    { title: "Gauge and bands", color: TEAL, fill: "#f0fdfa", line: "Needle, calibrated percentage, and the low, medium, and high cutoffs." },
   ];
   return (
     <SlideFrame
@@ -897,40 +928,48 @@ function ChatAnalyzeSlide({ index, total }: SlideProps) {
       index={index}
       total={total}
     >
-      <div className="flex min-h-0 flex-1 flex-col justify-center gap-[1.6cqh]">
+      <div className="flex min-h-0 flex-1 flex-col justify-center gap-[1.4cqh]">
         <div className="grid grid-cols-[2.11fr_2.06fr] gap-[1.3cqw]">
-          <SlideShot
-            src="/slides/chat.png"
-            alt="Chat page: question, streamed answer, SHAP key contributors, and the evidence-score risk card with claim verdicts"
-            caption="Chat · automatic risk card with claim verdicts"
-            color={ACCENT}
-            ratio="2.11"
-          />
-          <SlideShot
-            src="/slides/analyze-mode.png"
-            alt="Analyze page: question, context and answer inputs, one-click example sweep, and the calibrated gauge with band markers"
-            caption="Analyze · inputs, example sweep, calibrated gauge"
-            color={TEAL}
-            ratio="2.06"
-          />
-        </div>
-        <div
-          className="rounded-lg px-[1.4cqw] py-[1cqh] text-[2.05cqh] font-semibold leading-snug"
-          style={{ background: "#f1f5f9", color: DEEP_INK }}
-        >
-          The chat card leads with the verdict and the evidence score, then the SHAP contributors.
-          Analyze runs the same pipeline with full input control, so a score of 35% reads as medium
-          risk at a glance.
+          <div className="relative">
+            <SlideShot
+              src="/slides/chat.png"
+              alt="Chat page: question, streamed answer, SHAP key contributors, and the evidence-score risk card with claim verdicts"
+              caption="Chat · automatic risk card with claim verdicts"
+              color={ACCENT}
+              ratio="2.11"
+            />
+            <Callout n={1} x="41%" y="64%" color={ROSE} />
+            <Callout n={2} x="41%" y="79%" color={ACCENT} />
+          </div>
+          <div className="relative">
+            <SlideShot
+              src="/slides/analyze-mode.png"
+              alt="Analyze page: question, context and answer inputs, one-click example sweep, and the calibrated gauge with band markers"
+              caption="Analyze · inputs, example sweep, calibrated gauge"
+              color={TEAL}
+              ratio="2.06"
+            />
+            <Callout n={3} x="1.5%" y="3%" color={AMBER} />
+            <Callout n={4} x="52%" y="53%" color={TEAL} />
+          </div>
         </div>
         <div className="grid grid-cols-4 gap-[1.2cqw]">
-          {notes.map((item) => (
+          {notes.map((item, i) => (
             <div
               key={item.title}
               className="rounded-xl border-2 px-[1.4cqw] py-[1.1cqh]"
               style={{ borderColor: item.color, background: item.fill }}
             >
-              <div className="text-[2.05cqh] font-extrabold uppercase tracking-wide" style={{ color: item.color }}>
-                {item.title}
+              <div className="flex items-center gap-[0.7cqw]">
+                <span
+                  className="flex flex-shrink-0 items-center justify-center rounded-full border-2 bg-white text-[1.8cqh] font-extrabold"
+                  style={{ width: "3.6cqh", height: "3.6cqh", borderColor: item.color, color: item.color }}
+                >
+                  {i + 1}
+                </span>
+                <span className="text-[2.05cqh] font-extrabold uppercase tracking-wide" style={{ color: item.color }}>
+                  {item.title}
+                </span>
               </div>
               <div className="mt-[0.45cqh] text-[1.95cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
                 {item.line}
@@ -947,9 +986,9 @@ function ChatAnalyzeSlide({ index, total }: SlideProps) {
 
 function ExplainCompareSlide({ index, total }: SlideProps) {
   const notes = [
-    { title: "Explanation", color: ACCENT, fill: "#eef2ff", line: "SHAP bars show which features pushed the raw score up or down." },
-    { title: "Transparency", color: TEAL, fill: "#f0fdfa", line: "The full table lists all 35 features and their values for the answer." },
-    { title: "Ease of use", color: AMBER, fill: "#fffbeb", line: "One dark theme across chat, analyze, and dashboard, with projector mode." },
+    { title: "SHAP explanation", color: ACCENT, fill: "#eef2ff", line: "The bars show which features pushed the raw score up or down." },
+    { title: "Full feature table", color: TEAL, fill: "#f0fdfa", line: "All 35 measured features with their values for this answer." },
+    { title: "Model comparison", color: ROSE, fill: "#fff1f2", line: "EC-XGB against XGBoost, random forest, logistic regression, and the heuristic." },
   ];
   return (
     <SlideFrame
@@ -960,39 +999,56 @@ function ExplainCompareSlide({ index, total }: SlideProps) {
       index={index}
       total={total}
     >
-      <div className="flex min-h-0 flex-1 flex-col justify-center gap-[1.5cqh]">
+      <div className="flex min-h-0 flex-1 flex-col justify-center gap-[1.4cqh]">
         <div className="grid grid-cols-[1.29fr_1.21fr_1.57fr] gap-[1.3cqw]">
-          <SlideShot
-            src="/slides/analyze-shap.png"
-            alt="SHAP feature contribution chart for the raw XGBoost score"
-            caption="SHAP contributions · raw score"
-            color={ACCENT}
-            ratio="1.29"
-          />
-          <SlideShot
-            src="/slides/chat-details.png"
-            alt="Why-this-score panel: SHAP bars plus the full 35-feature table with values"
-            caption="Why this score · 35-feature table"
-            color={TEAL}
-            ratio="1.21"
-          />
-          <SlideShot
-            src="/slides/analyze-compare.png"
-            alt="Model comparison card: deployed calibrated score against EC-XGB, standard XGBoost, random forest, logistic regression, and the overlap heuristic"
-            caption="Model comparison · EC-XGB vs baselines"
-            color={ROSE}
-            ratio="1.57"
-          />
+          <div className="relative">
+            <SlideShot
+              src="/slides/analyze-shap.png"
+              alt="SHAP feature contribution chart for the raw XGBoost score"
+              caption="SHAP contributions · raw score"
+              color={ACCENT}
+              ratio="1.29"
+            />
+            <Callout n={1} x="1.5%" y="2%" color={ACCENT} />
+          </div>
+          <div className="relative">
+            <SlideShot
+              src="/slides/chat-details.png"
+              alt="Why-this-score panel: SHAP bars plus the full 35-feature table with values"
+              caption="Why this score · 35-feature table"
+              color={TEAL}
+              ratio="1.21"
+            />
+            <Callout n={2} x="1.5%" y="2%" color={TEAL} />
+          </div>
+          <div className="relative">
+            <SlideShot
+              src="/slides/analyze-compare.png"
+              alt="Model comparison card: deployed calibrated score against EC-XGB, standard XGBoost, random forest, logistic regression, and the overlap heuristic"
+              caption="Model comparison · EC-XGB vs baselines"
+              color={ROSE}
+              ratio="1.57"
+            />
+            <Callout n={3} x="1.5%" y="2%" color={ROSE} />
+          </div>
         </div>
         <div className="grid grid-cols-3 gap-[1.2cqw]">
-          {notes.map((item) => (
+          {notes.map((item, i) => (
             <div
               key={item.title}
               className="rounded-xl border-2 px-[1.4cqw] py-[1.1cqh]"
               style={{ borderColor: item.color, background: item.fill }}
             >
-              <div className="text-[2.05cqh] font-extrabold uppercase tracking-wide" style={{ color: item.color }}>
-                {item.title}
+              <div className="flex items-center gap-[0.7cqw]">
+                <span
+                  className="flex flex-shrink-0 items-center justify-center rounded-full border-2 bg-white text-[1.8cqh] font-extrabold"
+                  style={{ width: "3.6cqh", height: "3.6cqh", borderColor: item.color, color: item.color }}
+                >
+                  {i + 1}
+                </span>
+                <span className="text-[2.05cqh] font-extrabold uppercase tracking-wide" style={{ color: item.color }}>
+                  {item.title}
+                </span>
               </div>
               <div className="mt-[0.45cqh] text-[1.95cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
                 {item.line}
@@ -1056,7 +1112,7 @@ function ConclusionSlide({ data, index }: SlideProps) {
               label: "In-domain F1 · EC-XGB",
               color: TEAL,
             },
-            { value: pct(ecxgb?.flagged, 0), label: "Flagged · RAGTruth", color: ROSE },
+            { value: pct(ecxgb?.flagged, 1), label: "Flagged · RAGTruth", color: ROSE },
             { value: fmt(data.displayEce), label: "Display ECE · RAGTruth QA", color: ACCENT },
             { value: ms(data.latencyP50), label: "Median analysis time", color: AMBER },
           ]}
@@ -1124,13 +1180,13 @@ function ObjectiveSlide({ data, index, total }: SlideProps) {
       index={index}
       total={total}
     >
-      <div className="grid min-h-0 flex-1 grid-cols-[1.15fr_1fr] gap-[1.6cqw]">
+      <div className="grid min-h-0 flex-1 grid-cols-[1fr_1fr] gap-[1.6cqw]">
         <SlideShot
-          src="/slides/objective-pipeline.png"
-          alt="The question, context, and answer feed 35 features into EC-XGB, and calibration produces a risk score, claim verdicts, and a SHAP explanation"
-          caption="From three inputs to a calibrated, explained risk score"
+          src="/slides/objective-contributions.png"
+          alt="Three contribution panels: evidence-consistent features, calibration under shift, and deployed verification"
+          caption="Three contributions: features, calibration, and verification"
           color={ACCENT}
-          ratio="2.5"
+          ratio="4 / 3"
         />
         <div className="flex min-h-0 flex-col justify-center gap-[1.2cqh]">
           <Card icon={<Target size="2.2cqh" color="#fff" />} title="What we set out to do" color={ACCENT} fill="#eef2ff">
@@ -1148,16 +1204,6 @@ function ObjectiveSlide({ data, index, total }: SlideProps) {
             </ul>
           </Card>
         </div>
-      </div>
-      <div className="mt-[1.2cqh]">
-        <KpiStrip
-          items={[
-            { value: pct(data.shift[0]?.standard.flagged, 1), label: "Standard flags · RAGTruth", color: ROSE },
-            { value: pct(data.shift[0]?.ecxgb.flagged, 0), label: "EC-XGB flags · RAGTruth", color: TEAL },
-            { value: fmt(data.displayEce), label: "Display ECE after calibration", color: ACCENT },
-            { value: ms(data.latencyP50), label: "Median analysis time", color: AMBER },
-          ]}
-        />
       </div>
     </SlideFrame>
   );
