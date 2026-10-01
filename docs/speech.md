@@ -1,87 +1,48 @@
-# HaluRISC — Video Presentation Speech (12 minutes)
+# HaluRISC — Live Presentation Speech (3 members)
 
-Total time: **about 11:57**. Slides: **6:24**. Live demo: **4:00**. Journal key
-results: **1:05**.
+The full 12-minute video (slides, live demo, and journal results) is already
+recorded. This file is the script for the **live presentation**, split by member.
+Each member speaks for **2 to 3 minutes**, so the slide talk runs about 7 minutes
+in total.
 
-This is the full speaking script. Slide numbers refer to the `/slide` deck (16
-slides: title, 13 content slides, thank you). The deck has no speaker notes on
-purpose, so this file carries everything.
-
-The script is written for a slow, careful speaker at **1.73 words per second**
-(about 104 words per minute). That rate is measured from the first recording
-pass, so the timings below should hold without rushing.
-
-Read the video in this order: the slides first, then the live demo, then the
-journal key results, then the two closing slides. Every sentence connects to the
-one before it, and each block ends on a line that sets up the next block. Read it
-as continuous speech, not as separate bullet points.
+Every sentence connects to the one before it, and each member ends on a line
+that hands over to the next. Read it as continuous speech, not as bullet points.
+The pace is set for a slow, careful speaker at about 1.73 words per second, so
+pause for one second after every number.
 
 ---
 
-## 1. Before you record
+## Before you present
 
-- **Upload `context.txt` on the chat page.** Open the Evidence panel and drop the
-  file in, so the document index has the demo evidence. Wait for the
-  "passages indexed" toast. The file holds the passages for every demo case.
-- **Open the chat page with the hallucinated example already loaded.** Use the
-  "Hallucinated answer" starter (capital of France). The grounded example
-  (penicillin) is one click away.
-- **Open the Analyze page with the hallucinated-number example loaded.** The
-  grounded example is one click away.
-- **Start the backend early.** It takes about 30 seconds to load its models. Use
-  `scripts\serve_api.cmd`, which keeps it alive automatically.
-- **Open the deck at slide 1** in a second tab, and switch to it when the slides
-  start.
-- **Have the journal PDF open at page 1** in a third tab for the journal segment.
-
-**Good opening habits.** Open formally, then land the hook on slide 2. Give one
-hard number early: "Today's detector flags 99.9% of answers as risky. Ours flags
-61.3%." Pause for one full second after every number. Be honest about limits, and
-close on the shift result, because in-domain differences are not statistically
-significant.
+- **Open the deck at your first slide.** The deck supports a direct link, for
+  example `/slide?slide=6` starts Member 2, and `/slide?slide=11` starts Member 3.
+- **Keyboard:** right arrow or space to advance, left arrow to go back, **F** for
+  fullscreen, **Home** and **End** to jump.
+- **Stay on your own slides.** Member 1 covers 1 to 5, Member 2 covers 6 to 10,
+  and Member 3 covers 11 to 16.
+- **Pause after every number.** The times below already include the pauses.
 
 ---
 
-## 2. Timing plan
+## Timing plan
 
-| # | Block | Time | Running |
-|---|-------|------|---------|
-| 1 | Title | 0:25 | 0:25 |
-| 2 | Introduction | 0:51 | 1:16 |
-| 3 | Motivation and research gap | 0:29 | 1:45 |
-| 4 | Objective | 0:25 | 2:10 |
-| 5 | Dataset | 0:31 | 2:41 |
-| 6 | Conventional method and baselines | 0:24 | 3:05 |
-| 7 | Proposed method | 0:28 | 3:33 |
-| 8 | Flow diagram | 0:37 | 4:10 |
-| 9 | Experimental setup | 0:24 | 4:34 |
-| 10 | Results: in-domain | 0:23 | 4:57 |
-| 11 | Results: shift and calibration | 0:28 | 5:25 |
-| 12 | Applications | 0:35 | 6:00 |
-| 13 | UI: Chat | 0:20 | 6:20 |
-| 14 | UI: Analyze | 0:17 | 6:37 |
-| — | **Live demo** | **4:00** | **10:37** |
-| — | **Journal key results** | **1:05** | **11:42** |
-| 15 | Conclusion | 0:23 | 12:05 |
-| 16 | Thank you | 0:05 | 12:10 |
-
-The block times are word counts divided by the measured pace of 1.73 words per
-second, so they already include your natural pauses.
-
-The demo sits after slide 14. It is shown live, so there is no walkthrough slide.
-The journal segment comes right after the demo, over the paper PDF. Then press
-the right arrow twice to reach the closing slides.
+| Member | Slides | Time |
+|--------|--------|------|
+| 1 | Title, Introduction, Motivation and research gap, Objective, Dataset | 2:41 |
+| 2 | Conventional method, Proposed method, Flow diagram, Experimental setup, Results: in-domain | 2:16 |
+| 3 | Results: shift and calibration, Applications, UI, Conclusion | 2:08 |
+| **Total** | | **7:05** |
 
 ---
 
-## 3. Slide script (slides 1 to 14)
+## Member 1 — slides 1 to 5 (2:41)
 
 ### Slide 1 — Title (0:25)
 
 > Hi everyone. Our team name is Phantom Devs, and the project is HaluRISC.
 > The full title is: Evidence-Consistent XGBoost for Calibrated Hallucination Risk
 > Estimation in LLM Answers.
-> I will finish with a short demonstration and the key results from our journal paper.
+> Our recorded video shows the working demo and the key results from our journal paper.
 
 ---
 
@@ -129,7 +90,11 @@ the right arrow twice to reach the closing slides.
 > The target is binary, and we split by question 70, 15, 15, so no group crosses a
 > split.
 
+**Hand-over:** "I will now hand over to my teammate, who will explain the conventional method and our proposed model."
+
 ---
+
+## Member 2 — slides 6 to 10 (2:16)
 
 ### Slide 6 — Conventional method and baselines (0:24)
 
@@ -176,7 +141,11 @@ the right arrow twice to reach the closing slides.
 > Against random forest, McNemar gives p equals 0.044, so the gap is real.
 > The heuristic is far behind, so the task is not trivial.
 
+**Hand-over:** "I will now hand over to my teammate, who will present the shift results and the final system."
+
 ---
+
+## Member 3 — slides 11 to 16 (2:08)
 
 ### Slide 11 — Results: shift and calibration (0:28)
 
@@ -216,117 +185,6 @@ the right arrow twice to reach the closing slides.
 
 ---
 
-## 4. Live demo script (4:00)
-
-The demo is shown live. The **chat page is the core**, because it shows the
-everyday workflow: the answer streams, and the risk card appears by itself. Then
-Analyze shows the same model under full input control.
-
-Prepare both pages before recording, with the examples already loaded and
-`context.txt` already indexed. Most of the demo is action on screen, so the
-narration is short. Let each panel land before you speak again.
-
-The narration is about 3:00. The rest is the streaming wait, the panel
-expansions, and the page switches. The first prediction after startup is slow
-(about two seconds); later ones are about 150 milliseconds.
-
-| Beat | Time | Running |
-|------|------|---------|
-| 1 Set the scene | 0:15 | 0:15 |
-| 2 Chat · hallucinated | 0:50 | 1:05 |
-| 3 Chat · grounded | 0:30 | 1:35 |
-| 4 Chat · why this score | 0:25 | 2:00 |
-| 5 Analyze · hallucinated number | 0:55 | 2:55 |
-| 6 Analyze · model comparison | 0:30 | 3:25 |
-| 7 Analyze · run all three | 0:25 | 3:50 |
-| 8 Hand back | 0:10 | 4:00 |
-
-**[0:00-0:15] Set the scene**
-
-> To make this concrete, I will show the system working.
-> There are two pages: chat for everyday use, and Analyze for a close look at one answer.
-> A small evidence file is already loaded.
-
-**[0:15-1:05] Chat · hallucinated**
-
-> I paste a question about the capital of France, and the answer streams back.
-> It says Lyon.
-> Watch the card that appears under it.
-> The headline reads likely hallucinated, and the score is about 70 percent.
-> The single claim is marked contradicted, and the card shows the sentence from my
-> evidence file: the capital is Paris.
-
-**[1:05-1:35] Chat · grounded**
-
-> Now the opposite case.
-> I click the grounded starter and ask who discovered penicillin.
-> The answer says Alexander Fleming.
-> The headline reads grounded in the evidence, the score drops to about 6 percent, and
-> the claim is supported.
-
-**[1:35-2:00] Chat · why this score**
-
-> I expand why this score.
-> These are the SHAP bars for the raw model, and below them the full list of all 35
-> features.
-> The grounding line shows that my uploaded file was the source.
-
-**[2:00-2:55] Analyze · hallucinated number**
-
-> Now Analyze, where I control every input.
-> I click the built-in example: the context says 5 days per decade, and the answer
-> says 10.
-> The gauge shows medium risk, 35 percent, and the claim is contradicted.
-> The SHAP bars explain the raw score, led by the question-answer overlap and the
-> answer length.
-
-**[2:55-3:25] Analyze · model comparison**
-
-> The same panel scores every model on this answer.
-> EC-XGB, XGBoost, random forest, and logistic regression all sit near 0.999, while
-> the overlap heuristic sits near 0.08.
-> The heuristic only sees shared words, so it misses the contradiction that the
-> learned models catch.
-
-**[3:25-3:50] Analyze · run all three**
-
-> Finally, one click scores all three built-in examples.
-> The hallucinated number reads 35 percent, the grounded answer 5 percent, and the
-> short one-word answer 3 percent, each with its latency.
-
-**[3:50-4:00] Hand back**
-
-> That is the full workflow, from a chat answer to a clear reason.
-> Now the journal paper behind it.
-
----
-
-## 5. Journal key results (1:05)
-
-Scroll the journal PDF while you speak. Let the title page show, then the results
-tables. Keep the pace slow and point at each table as you name it.
-
-> This study is written up as a journal paper in Elsevier format, with six sections
-> and 30 verified references.
-> Three results carry it.
-> In-domain, EC-XGB reaches F1 0.9855 and AUROC 0.9984, but that benchmark is
-> saturated.
-> The value appears under domain shift.
-> On RAGTruth, the standard model flags 99.9 percent of answers and EC-XGB flags
-> 61.3 percent, with AUROC rising from 0.475 to 0.582 and ECE falling from 0.635 to
-> 0.278.
-> The deployed calibrator cuts the display error from 0.73 to 0.13.
-> The paper also reports the honest negatives: source-domain recalibration does not
-> help, and FaithBench trades F1 for a much lower flag rate.
-
-If you have extra seconds, add: "The paper reports one analysis at 62 milliseconds
-and about one thousandth of a dollar per thousand predictions, roughly one hundred
-times less than the GPT judge it beats."
-
----
-
-## 6. Closing slides
-
 ### Slide 15 — Conclusion (0:23)
 
 > Our detector needs no model weights, runs in 62 milliseconds, and gives a reason per
@@ -342,40 +200,42 @@ times less than the GPT judge it beats."
 
 ---
 
-## 7. Hand-over lines (only if each member presents a part)
+## Q&A preparation (only if the judges ask)
 
-- Into the objective: "I will now state our objective and contributions."
-- Into the dataset section: "I will now hand over to my teammate, who will present the
-  datasets and the features."
-- Into the methodology section: "Thank you. I will now explain our method and the training
-  protocol."
-- Into the demo: "I will now demonstrate the working system."
-- Into the journal results: "I will now show the key results from our journal paper."
-- Into the conclusion: "Thank you. I will now summarise our findings."
-
----
-
-## 8. Limitations and future work (say only if the judges ask)
+**Member 1 — problem, gaps, and data**
 
 - The models and features are English only.
+- Around 85 percent of HaluEval is generated by sampling and filtering, so the
+  benchmark is synthetic by construction.
+- The two answer variants of a question stay in one split, so no group crosses a
+  partition.
+
+**Member 2 — method and setup**
+
+- Calibrators are fitted on the validation split only, never on the test split.
+- The feature vector has 35 inputs: 26 base, 8 claim aggregates, and 1 source
+  indicator.
+- The strict mode selects the validation threshold for a five percent
+  false-positive budget, and test recall stays above 99 percent.
+
+**Member 3 — results, limits, and future work**
+
 - On held-out RAGTruth QA, the gain is mainly in calibration, not in F1.
-- On FaithBench the model becomes conservative. It trades F1 for a much lower flag rate.
-- Some multi-source gains come from task types seen during training.
-- The calibrated score is style-sensitive. A full-sentence answer can look risky even
-  when every claim is supported, which is why the card leads with the claim verdicts.
-- Future work: multicalibration under stronger shift, per-domain thresholds, and neural
-  baselines beside EC-XGB.
+- On FaithBench the model becomes conservative: it trades F1 for a much lower flag rate.
+- The calibrated score is style-sensitive, which is why the card leads with the
+  claim verdicts.
+- Future work: multicalibration under stronger shift, per-domain thresholds, and
+  neural baselines beside EC-XGB.
 
 ---
 
-## 9. Number cheat sheet
+## Number cheat sheet
 
 | Item | Value |
 |------|-------|
 | In-domain F1 (EC-XGB) | 0.9855 |
 | In-domain AUROC | 0.9984 |
 | In-domain ECE | 0.0074 |
-| F1 bootstrap 95% CI | 0.9812 - 0.9895 |
 | McNemar, XGB vs random forest | p = 0.044 |
 | RAGTruth flagged, standard | 99.9% |
 | RAGTruth flagged, EC-XGB | 61.3% |
@@ -391,30 +251,13 @@ times less than the GPT judge it beats."
 | Judge cost per 1,000 | about $0.105 |
 | Features | 35 (26 base + 8 claim + 1 source) |
 
-### Verified demo numbers (measured on the live API)
-
-| Demo case | Result | Spoken number |
-|-----------|--------|---------------|
-| Chat, France (Lyon answer) | likely hallucinated, claim contradicted | about 70% |
-| Chat, penicillin (Fleming answer) | grounded, claim supported | about 6% |
-| Analyze, Arctic number (10 vs 5) | medium risk, claim contradicted, raw 0.999 | 35% |
-| Analyze, Juarez grounded | low risk | 5% |
-| Analyze, one-word answer | low risk | 3% |
-| Compare, Arctic wrong answer | heuristic 0.083, learned models 0.999 | about 0.08 vs 0.999 |
-| First call after startup | cold latency | about 2 s |
-| Later calls | warm latency | about 150 ms |
-
 ---
 
-## 10. Delivery tips
+## Delivery tips
 
-- The rate is already set for a slow speaker. Do not add sentences on the day.
 - Pause for one full second after every number.
-- Point at the screen when you mention a table or a chart.
-- If you fall behind, drop the last sentence of slides 5, 7, 9, and 11. Never shorten the
-  demo or the journal numbers.
-- In the demo, let the card and the gauge appear before you speak. Silence while a panel
-  loads reads as confidence.
-- Show the evidence sentence, not only the score. Judges remember the reason.
-- In the journal segment, name each number as it appears on the PDF page.
-- Look at the camera on slide 1, at the end of the demo, and on slide 16.
+- Point at the table or chart you are naming.
+- If you run long, drop the last sentence of slides 5, 7, and 9. Never shorten the
+  shift result on slide 11.
+- Look at the camera on slide 1, and at the judges on slides 11 and 16.
+- Keep the hand-over lines short. The next member should start within two seconds.
