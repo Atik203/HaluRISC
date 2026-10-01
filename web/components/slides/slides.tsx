@@ -29,7 +29,6 @@ import {
   ms,
   NEAR_BLACK,
   pct,
-  PipelineStrip,
   ROSE,
   SLATE,
   SlideFrame,
@@ -298,7 +297,7 @@ function ProblemSlide({ data, index, total }: SlideProps) {
       </div>
       <div className="mt-[1.4cqh]">
         <div
-          className="text-[1.9cqh] font-extrabold uppercase tracking-wide"
+          className="text-[1.95cqh] font-extrabold uppercase tracking-wide"
           style={{ color: SLATE }}
         >
           What the system returns
@@ -406,7 +405,7 @@ function MotivationSlide({ data, index, total }: SlideProps) {
       </div>
       <div className="mt-[1.4cqh]">
         <div
-          className="mb-[0.7cqh] text-[1.9cqh] font-extrabold uppercase tracking-wide"
+          className="mb-[0.7cqh] text-[1.95cqh] font-extrabold uppercase tracking-wide"
           style={{ color: SLATE }}
         >
           What the study delivers
@@ -476,10 +475,6 @@ function DatasetsSlide({ data, index, total }: SlideProps) {
                 Terse answers mean style alone carries signal, which motivates the length features
                 and the debiased variant.
               </Bullet>
-              <Bullet>
-                Caveat: the MIT corpora are bundled with hashes, and FaithBench is fetched by a
-                downloader script and never committed.
-              </Bullet>
             </ul>
           </Card>
           <div className="flex min-h-0 flex-col justify-center gap-[1.4cqh]">
@@ -530,8 +525,20 @@ const GROUP_LABELS: Record<string, string> = {
   claim: "Claim-level aggregates",
 };
 
+const GROUP_MEASURES: Record<string, string> = {
+  length: "Answer length and word shape",
+  lexical: "Shared words with the context and the question",
+  entity: "Named entities covered by the evidence",
+  nli: "Entailment and contradiction, in both directions",
+  numeric: "Numbers that match the evidence",
+  hedging: "Hedge words and their density",
+  semantic: "Embedding similarity to the context and question",
+};
+
 function ProposedSlide({ data, index, total }: SlideProps) {
   const groups = Object.entries(data.featureGroups);
+  const baseGroups = groups.filter(([key]) => key !== "claim");
+  const claimCount = data.featureGroups.claim?.length ?? data.claimFeatures;
   const changes = [
     { key: "m1", label: "M1 · Debias", color: AMBER },
     { key: "m2", label: "M2 · Claim features", color: TEAL },
@@ -548,50 +555,39 @@ function ProposedSlide({ data, index, total }: SlideProps) {
     >
       <div className="grid min-h-0 flex-1 grid-cols-[1.15fr_1fr] gap-[1.6cqw]">
         <SlideTable
-          compact
-          head={["Group", "Features", "Count"]}
+          head={["Group", "What it measures", "Count"]}
           headerBg="#fef3c7"
           color={AMBER}
-          widths={["30%", "54%", "16%"]}
-          highlightRow={groups.length - 1}
-          rows={groups.map(([key, cols]) => [
+          widths={["28%", "56%", "16%"]}
+          rows={baseGroups.map(([key, cols]) => [
             GROUP_LABELS[key] ?? key,
-            cols.join(", "),
+            GROUP_MEASURES[key] ?? "",
             String(cols.length),
           ])}
         />
-        <div className="flex min-h-0 flex-col gap-[1.2cqh]">
+        <div className="flex min-h-0 flex-col justify-center gap-[1.2cqh]">
           <Card
             icon={<Sigma size="2.4cqh" color="#fff" />}
-            title="Why claim features"
+            title={`Claim-level aggregates (${claimCount})`}
             color={TEAL}
             fill="#f0fdfa"
           >
             <ul>
-              <Bullet>Max and mean contradiction, contradicted-claim ratio.</Bullet>
+              <Bullet>Max and mean contradiction, and the contradicted-claim ratio.</Bullet>
               <Bullet>Supported and unsupported claim ratios.</Bullet>
-              <Bullet>Min and mean entailment across claims.</Bullet>
-              <Bullet>Verdicts are support-first with a relevance gate.</Bullet>
+              <Bullet>Min and mean entailment, with verdicts support-first and a relevance gate.</Bullet>
             </ul>
           </Card>
           <div
-            className="rounded-xl border-2 px-[1.6cqw] py-[1.3cqh]"
+            className="rounded-xl border-2 px-[1.6cqw] py-[1.1cqh]"
             style={{ borderColor: ACCENT, background: "#eef2ff" }}
           >
-            <div className="text-[2cqh] font-extrabold uppercase tracking-wide" style={{ color: ACCENT }}>
+            <div className="text-[1.95cqh] font-extrabold uppercase tracking-wide" style={{ color: ACCENT }}>
               Atomic clause splitting
             </div>
-            <div className="mt-[0.8cqh] text-[2.1cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
-              &ldquo;The change is dominated by a later freezeup, <b>and</b> the region is at its
-              warmest&hellip;&rdquo;
-            </div>
-            <div className="mt-[0.8cqh] flex items-center gap-[0.8cqw]">
-              <Chip color={TEAL} bg="#ccfbf1">
-                claim 1 · supported
-              </Chip>
-              <Chip color={TEAL} bg="#ccfbf1">
-                claim 2 · supported
-              </Chip>
+            <div className="mt-[0.5cqh] text-[1.95cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
+              &ldquo;The change is dominated by a later freezeup, <b>and</b> the region is at its warmest&hellip;&rdquo;
+              splits into two claims, each checked on its own.
             </div>
           </div>
         </div>
@@ -602,7 +598,7 @@ function ProposedSlide({ data, index, total }: SlideProps) {
             <div className="text-[2.05cqh] font-extrabold" style={{ color: c.color }}>
               {c.label}
             </div>
-            <div className="mt-[0.4cqh] text-[1.9cqh] font-medium leading-snug" style={{ color: DEEP_INK }}>
+            <div className="mt-[0.4cqh] text-[1.95cqh] font-medium leading-snug" style={{ color: DEEP_INK }}>
               {data.componentMap[c.key] ?? "—"}
             </div>
           </div>
@@ -648,28 +644,19 @@ function ConventionalSlide({ data, index, total }: SlideProps) {
           </div>
         ))}
       </div>
-      <div className="mt-[1.4cqh]">
-        <PipelineStrip
-          steps={["26 features", "Randomized search", "Train XGBoost", "Platt on validation", "Threshold 0.5"]}
-          color={ACCENT}
-          bg="#eef2ff"
-        />
-      </div>
-      <div className="mt-[1.5cqh] grid min-h-0 flex-1 grid-cols-2 gap-[1.6cqw]">
+      <div className="mt-[1.6cqh] grid min-h-0 flex-1 grid-cols-2 gap-[1.6cqw]">
         <Card icon={<Workflow size="2.4cqh" color="#fff" />} title="How the baseline works" color={ACCENT} fill="#eef2ff">
           <ul>
             <Bullet>Hand-crafted evidence features replace raw text for a tabular learner.</Bullet>
             <Bullet>Gradient-boosted trees add one tree at a time and fit the leftover error.</Bullet>
-            <Bullet>A logistic link turns the summed leaf scores into a probability.</Bullet>
-            <Bullet>Platt scaling on validation maps the raw score to a usable probability.</Bullet>
+            <Bullet>A logistic link and Platt scaling turn the summed leaf scores into a probability.</Bullet>
           </ul>
         </Card>
         <Card icon={<AlertTriangle size="2.4cqh" color="#fff" />} title="Limits that motivate EC-XGB" color={AMBER} fill="#fffbeb">
           <ul>
             <Bullet>HaluEval is close to saturated, so extra features buy almost no in-domain F1.</Bullet>
             <Bullet>Length and overlap act as shortcuts, and the model leans on them.</Bullet>
-            <Bullet>Under shift the raw score turns unreliable and flags almost every natural answer.</Bullet>
-            <Bullet>No claim-level signal reaches the classifier.</Bullet>
+            <Bullet>Under shift the raw score turns unreliable, and no claim-level signal reaches the classifier.</Bullet>
           </ul>
         </Card>
       </div>
@@ -707,9 +694,9 @@ function ProtocolSlide({ data, index, total }: SlideProps) {
         </Card>
         <Card icon={<Workflow size="2.2cqh" color="#fff" />} title="CV & tuning" color={TEAL} fill="#f0fdfa">
           <div className="text-[2.2cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
-            Grouped 5-fold CV.
+            Grouped 5-fold CV, {data.nIter ?? "—"}-iteration randomized search.
             <br />
-            {data.nIter ?? "—"}-iteration randomized search over depth, learning rate, trees, and subsampling.
+            Selected: depth 4, lr 0.01, 500 trees, subsample 0.9, colsample 0.7.
           </div>
         </Card>
         <Card icon={<ListChecks size="2.2cqh" color="#fff" />} title="Seeds" color={AMBER} fill="#fffbeb">
@@ -737,16 +724,10 @@ function ProtocolSlide({ data, index, total }: SlideProps) {
           </div>
           <div className="mt-[0.7cqh] flex flex-wrap items-center gap-[0.7cqw]">
             <Chip color={ACCENT} bg="#ffffff">
-              Windows 11 · Python 3.12 · 32 GB RAM
+              Windows 11 · Python 3.12 · RTX 3060 6 GB · CUDA 12.8 · 32 GB RAM
             </Chip>
             <Chip color={TEAL} bg="#ffffff">
-              NVIDIA RTX 3060 6 GB · CUDA 12.8 · torch 2.11.0+cu128
-            </Chip>
-            <Chip color={AMBER} bg="#ffffff">
-              scikit-learn 1.9.0 · XGBoost 3.3.0 · SHAP 0.52.0
-            </Chip>
-            <Chip color={ROSE} bg="#ffffff">
-              spaCy 3.8.14 · sentence-transformers 5.6.1
+              scikit-learn 1.9 · XGBoost 3.3 · SHAP 0.52 · spaCy 3.8 · sentence-transformers 5.6
             </Chip>
           </div>
         </div>
@@ -757,7 +738,7 @@ function ProtocolSlide({ data, index, total }: SlideProps) {
             </Chip>
           ))}
           <span className="text-[2cqh] font-semibold" style={{ color: SLATE }}>
-            XGBoost: depth 4 · lr 0.01 · 500 trees · subsample 0.9 · colsample 0.7
+            plus reliability diagrams and per-seed dispersion
           </span>
         </div>
       </div>
@@ -791,7 +772,7 @@ function BaselineResultsSlide({ data, index, total }: SlideProps) {
             rows={main.map((b) => [b.label, fmt(b.precision), fmt(b.recall), fmt(b.f1), fmt(b.ece, 4)])}
           />
           <div
-            className="rounded-lg px-[1.4cqw] py-[1cqh] text-[1.9cqh] font-semibold leading-snug"
+            className="rounded-lg px-[1.4cqw] py-[1cqh] text-[1.95cqh] font-semibold leading-snug"
             style={{ background: "#f1f5f9", color: DEEP_INK }}
           >
             Controls · {controls.map((b) => `${b.label} F1 ${fmt(b.f1)}`).join(" · ")}
@@ -800,11 +781,9 @@ function BaselineResultsSlide({ data, index, total }: SlideProps) {
             className="rounded-lg px-[1.4cqw] py-[1cqh] text-[1.95cqh] font-bold leading-snug"
             style={{ background: "#fee2e2", color: ROSE }}
           >
-            {data.fpNote || "XGBoost shows the fewest false positives at the same threshold."}
-          </div>
-          <div className="text-[1.9cqh] font-semibold leading-snug" style={{ color: SLATE }}>
-            F1 95% bootstrap CI [{fmt(data.xgbF1CiLo, 4)}, {fmt(data.xgbF1CiHi, 4)}] · McNemar p ={" "}
-            {data.mcnemarP != null ? data.mcnemarP.toFixed(3) : "—"} · Wilcoxon across seeds confirms the ranking.
+            {data.fpNote || "XGBoost shows the fewest false positives at the same threshold."} F1 95% CI [
+            {fmt(data.xgbF1CiLo, 4)}, {fmt(data.xgbF1CiHi, 4)}] · McNemar p ={" "}
+            {data.mcnemarP != null ? data.mcnemarP.toFixed(3) : "—"}.
           </div>
         </div>
         <div className="flex min-h-0 flex-col items-center justify-center gap-[1cqh]">
@@ -873,13 +852,13 @@ function EcXgbResultsSlide({ data, index, total }: SlideProps) {
             ])}
           />
           <div
-            className="rounded-lg px-[1.3cqw] py-[0.7cqh] text-[1.85cqh] font-bold leading-snug"
+            className="rounded-lg px-[1.3cqw] py-[0.7cqh] text-[1.95cqh] font-bold leading-snug"
             style={{ background: "#f0fdfa", color: TEAL }}
           >
             On unseen corpora, recall falls and precision rises as the flag rate collapses.
           </div>
           <div
-            className="rounded-lg px-[1.3cqw] py-[0.7cqh] text-[1.85cqh] font-semibold leading-snug"
+            className="rounded-lg px-[1.3cqw] py-[0.7cqh] text-[1.95cqh] font-semibold leading-snug"
             style={{ background: "#eef2ff", color: ACCENT }}
           >
             In-domain ablation: m0 {fmt(m0?.f1, 4)} to m3 {fmt(m3?.f1, 4)} F1, not significant.
@@ -953,7 +932,7 @@ function ChatAnalyzeSlide({ index, total }: SlideProps) {
               <div className="text-[2.05cqh] font-extrabold uppercase tracking-wide" style={{ color: item.color }}>
                 {item.title}
               </div>
-              <div className="mt-[0.45cqh] text-[1.9cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
+              <div className="mt-[0.45cqh] text-[1.95cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
                 {item.line}
               </div>
             </div>
@@ -1015,7 +994,7 @@ function ExplainCompareSlide({ index, total }: SlideProps) {
               <div className="text-[2.05cqh] font-extrabold uppercase tracking-wide" style={{ color: item.color }}>
                 {item.title}
               </div>
-              <div className="mt-[0.45cqh] text-[1.9cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
+              <div className="mt-[0.45cqh] text-[1.95cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
                 {item.line}
               </div>
             </div>
@@ -1046,13 +1025,12 @@ function ConclusionSlide({ data, index }: SlideProps) {
               calibration intact.
             </Bullet>
             <Bullet>
-              Shift over-flagging falls from {pct(data.shift[0]?.standard.flagged, 0)} to{" "}
-              {pct(ecxgb?.flagged, 0)}.
+              Shift over-flagging falls from {pct(data.shift[0]?.standard.flagged, 1)} to{" "}
+              {pct(ecxgb?.flagged, 1)}.
             </Bullet>
             <Bullet>
               Display ECE drops from {fmt(data.displayRawEce)} to {fmt(data.displayEce)}.
             </Bullet>
-            <Bullet>Every number ships with tests, ablations, and a frozen manifest.</Bullet>
           </ul>
         </Card>
         <Card icon={<AlertTriangle size="2.2cqh" color="#fff" />} title="Limitations" color={AMBER} fill="#fffbeb">
@@ -1060,7 +1038,6 @@ function ConclusionSlide({ data, index }: SlideProps) {
             <Bullet>English-only models and features.</Bullet>
             <Bullet>Held-out RAGTruth QA improves mainly in calibration, not F1.</Bullet>
             <Bullet>On FaithBench the model becomes conservative and trades F1 for a much lower flag rate.</Bullet>
-            <Bullet>Multi-source gains include task types seen in training.</Bullet>
           </ul>
         </Card>
         <Card icon={<Wrench size="2.2cqh" color="#fff" />} title="Future work" color={ACCENT} fill="#eef2ff">
@@ -1068,7 +1045,6 @@ function ConclusionSlide({ data, index }: SlideProps) {
             <Bullet>Multicalibration under stronger shift.</Bullet>
             <Bullet>Per-domain threshold transfer.</Bullet>
             <Bullet>Neural and verifier baselines beside EC-XGB.</Bullet>
-            <Bullet>More languages and more evidence sources.</Bullet>
           </ul>
         </Card>
       </div>
