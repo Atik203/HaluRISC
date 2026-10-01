@@ -34,8 +34,6 @@ artifacts/results/b5/*
 !web/artifacts/**
 
 # Environment & Keys
-.env
-.env.local
 .env.*.local
 
 # Node / Next.js
@@ -50,10 +48,11 @@ web/*.log
 web/data/
 
 # IDE & OS
-.vscode/
 .idea/
 .DS_Store
 Thumbs.db
 *.tmp
 
 
+config.bat
+node_modules
