@@ -27,7 +27,7 @@ Suggested final deck: 16 slides. Items 1 to 13 from the list, with the UI part s
 | 1 | Title | 1 | keep current |
 | 2 | Introduction | 2 | prompt 2A |
 | 3 | Motivation | 3 | prompt 2B |
-| 4 | Objective | 4 | prompt 2C |
+| 4 | Objective | 4 | prompt 2F |
 | 5 | Dataset | 5 | prompt 2D (optional) |
 | 6 | Conventional Method and Baselines | 6 | none |
 | 7 | Proposed Method | 7 | none |
@@ -241,10 +241,50 @@ words, no logos, no watermark.
 
 ---
 
+### 7. Slide 4, Objective, prompt 2F
+
+This replaces the pipeline image on the objective slide, because the full
+pipeline already appears on the Flow Diagram slide. This image shows what the
+project contributes instead.
+
+```
+Create a flat vector illustration for a research presentation slide.
+
+Scene: three horizontal panels stacked in one column on a white background, each
+panel a rounded rectangle with a thin slate border and a very light tint fill.
+Panel 1, tint blue #EEF2FF: a wide rounded card holding a grid of small rounded
+chips in blue #1E40AF, teal #0F766E, and amber #B45309, with a small white
+rounded label bar in the panel header. Small slate label
+"EVIDENCE-CONSISTENT FEATURES".
+Panel 2, tint teal #F0FDFA: a circular gauge with a teal needle on the left, and
+a small reliability curve on the right that hugs a dashed diagonal grid, drawn in
+teal, with a thin horizontal reference line. Small slate label
+"CALIBRATED UNDER SHIFT".
+Panel 3, tint amber #FFFBEB: a chat card with a blue header bar and three grey
+message lines; below it two small claim rows, the first with a green check badge
+and the second with a red cross badge, and one short amber quote bar to the right
+of the red row. Small slate label "DEPLOYED VERIFICATION".
+
+Composition: the three panels fill the canvas as equal rows with equal gaps,
+aligned to a single column. Keep the top 12 percent of the canvas empty for a
+slide title bar.
+
+Style: follow the STYLE CONTRACT. Flat fills, rounded corners, thin outlines,
+no gradients, one soft neutral drop shadow per panel.
+
+Keep the three panel labels exactly as written and no other text.
+Negative: no realistic people, no photorealism, no dark background, no extra
+words, no numbers, no logos, no watermark.
+```
+
+Aspect ratio: 4:3, 2000 x 1500 pixels.
+
+---
+
 ## Part 3. Output rules for generated images
 
 - Format: PNG, 16:9, 2560 x 1440, white background, under 2 MB if possible.
-- File names: `intro-answer-vs-evidence.png`, `motivation-three-gaps.png`, `objective-pipeline.png`, `dataset-sources.png`, `application-use-cases.png`.
+- File names: `intro-answer-vs-evidence.png`, `motivation-three-gaps.png`, `objective-contributions.png`, `dataset-sources.png`, `application-use-cases.png`.
 - Save them into `web/public/slides/`.
 - The deck crops them with object fit contain, so do not bake a border, a title, or a caption into the image; the slide adds those.
 - Check each image against the style contract before adding it, palette, background, no extra text, no people.
