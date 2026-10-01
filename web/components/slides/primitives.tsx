@@ -68,7 +68,7 @@ export function Card({
   children,
   className = "",
   fill = "#ffffff",
-  center = true,
+  center = false,
 }: {
   icon: React.ReactNode;
   title: string;
@@ -77,8 +77,7 @@ export function Card({
   className?: string;
   fill?: string;
   center?: boolean;
-}) {
-  return (
+}) {  return (
     <div
       className={`flex h-full min-h-0 flex-col rounded-xl border-2 px-[2.2cqw] py-[1.7cqh] ${className}`}
       style={{ borderColor: color, background: fill }}
@@ -97,7 +96,7 @@ export function Card({
           {title}
         </span>
       </div>
-      <div className={`min-h-0 flex-1 ${center ? "flex flex-col justify-center" : ""}`}>
+      <div className={`min-h-0 flex-1 ${center ? "flex flex-col justify-center" : "flex flex-col justify-start pt-[0.6cqh]"}`}>
         {children}
       </div>
     </div>
