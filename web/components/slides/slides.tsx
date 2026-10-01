@@ -835,6 +835,8 @@ function BaselineResultsSlide({ data, index, total }: SlideProps) {
 function EcXgbResultsSlide({ data, index, total }: SlideProps) {
   const standard = data.shift[0]?.standard;
   const ecxgb = data.shift[0]?.ecxgb;
+  const m0 = data.ablation.find((a) => a.variant === "m0");
+  const m3 = data.ablation.find((a) => a.highlighted);
   return (
     <SlideFrame
       {...BADGE_RESULTS}
@@ -855,29 +857,9 @@ function EcXgbResultsSlide({ data, index, total }: SlideProps) {
           { value: `${fmt(standard?.ece)} → ${fmt(ecxgb?.ece)}`, label: "ECE · RAGTruth", color: ACCENT },
         ]}
       />
-      <div className="mt-[1.5cqh] grid min-h-0 flex-1 grid-cols-2 gap-[1.6cqw]">
-        <div className="flex min-h-0 flex-col gap-[0.8cqh]">
-          <div className="text-[2cqh] font-extrabold uppercase tracking-wide" style={{ color: SLATE }}>
-            Component ablation (in-domain)
-          </div>
-          <SlideTable
-            head={["Variant", "F1", "AUROC", "ECE"]}
-            headerBg="#e0e7ff"
-            color={ACCENT}
-            widths={["46%", "18%", "18%", "18%"]}
-            highlightRow={data.ablation.findIndex((a) => a.highlighted)}
-            rows={data.ablation.map((a) => [a.label, fmt(a.f1, 4), fmt(a.auroc), fmt(a.ece, 4)])}
-          />
-          <div
-            className="rounded-lg px-[1.3cqw] py-[0.9cqh] text-[1.95cqh] font-bold leading-snug"
-            style={{ background: "#eef2ff", color: ACCENT }}
-          >
-            McNemar m0 vs m3 is not significant in-domain, so the value is robustness, not extra
-            benchmark points.
-          </div>
-        </div>
-        <div className="flex min-h-0 flex-col gap-[0.8cqh]">
-          <div className="text-[2cqh] font-extrabold uppercase tracking-wide" style={{ color: SLATE }}>
+      <div className="mt-[1.4cqh] grid min-h-0 flex-1 grid-cols-[1fr_1.02fr] gap-[1.6cqw]">
+        <div className="flex min-h-0 flex-col gap-[0.7cqh]">
+          <div className="text-[1.95cqh] font-extrabold uppercase tracking-wide" style={{ color: SLATE }}>
             Standard vs EC-XGB on shifted corpora
           </div>
           <SlideTable
@@ -891,12 +873,25 @@ function EcXgbResultsSlide({ data, index, total }: SlideProps) {
             ])}
           />
           <div
-            className="rounded-lg px-[1.3cqw] py-[0.9cqh] text-[1.95cqh] font-bold leading-snug"
+            className="rounded-lg px-[1.3cqw] py-[0.7cqh] text-[1.85cqh] font-bold leading-snug"
             style={{ background: "#f0fdfa", color: TEAL }}
           >
-            On unseen corpora EC-XGB trades recall for precision and raises AUROC while the flag rate
-            collapses.
+            On unseen corpora, recall falls and precision rises as the flag rate collapses.
           </div>
+          <div
+            className="rounded-lg px-[1.3cqw] py-[0.7cqh] text-[1.85cqh] font-semibold leading-snug"
+            style={{ background: "#eef2ff", color: ACCENT }}
+          >
+            In-domain ablation: m0 {fmt(m0?.f1, 4)} to m3 {fmt(m3?.f1, 4)} F1, not significant.
+          </div>
+        </div>
+        <div className="flex min-h-0 items-center justify-center">
+          <Figure
+            src="/slides/ecxgb-shift.png"
+            alt="Grouped bars of the flag rate and AUROC for the standard model and EC-XGB on RAGTruth, RAGTruth QA, and FaithBench"
+            caption="Flag rate collapses while AUROC rises on shifted corpora"
+            height="48cqh"
+          />
         </div>
       </div>
     </SlideFrame>
@@ -1240,31 +1235,31 @@ function ApplicationSlide({ data, index, total }: SlideProps) {
           { value: fmt(data.judgeF1), label: `Judge F1 · ${judgeName}`, color: ROSE },
         ]}
       />
-      <div className="mt-[1.2cqh]">
-        <Figure
-          src="/slides/application-use-cases.png"
-          alt="Three use cases: a chat assistant, document QA with a magnifying glass, and content review with checks and a flag"
-          caption="Chat assistants, document QA, and content review"
-          height="24cqh"
-        />
-      </div>
-      <div className="mt-[1.2cqh] grid min-h-0 flex-1 grid-cols-2 gap-[1.5cqw]">
-        <Card icon={<Workflow size="2.2cqh" color="#fff" />} title="How it is deployed" color={TEAL} fill="#f0fdfa">
-          <ul>
-            <Bullet>Next.js dashboard streams chat and proxies ML calls to a FastAPI service.</Bullet>
-            <Bullet>Claims are verified against pasted text, an indexed document set, or web search.</Bullet>
-            <Bullet>The document index combines BM25, FAISS, and a cross-encoder reranker.</Bullet>
-            <Bullet>Verdicts lead the card, with the model score as a secondary signal.</Bullet>
-          </ul>
-        </Card>
-        <Card icon={<TrendingUp size="2.2cqh" color="#fff" />} title="Why it is practical" color={AMBER} fill="#fffbeb">
-          <ul>
-            <Bullet>CPU inference with a {data.artifactMb ?? "—"} MB artifact and no model weights.</Bullet>
-            <Bullet>About ${data.costPer1k ?? "—"} per 1,000 predictions, roughly 100x below the judge.</Bullet>
-            <Bullet>Explanations are stable under controlled edits (top-1 SHAP never flips).</Bullet>
-            <Bullet>Feedback is logged locally and turns into updated thresholds.</Bullet>
-          </ul>
-        </Card>
+      <div className="mt-[1.3cqh] grid min-h-0 flex-1 grid-cols-[1fr_1.05fr] gap-[1.6cqw]">
+        <div className="flex min-h-0 flex-col justify-center">
+          <Figure
+            src="/slides/application-use-cases.png"
+            alt="Three use cases: a chat assistant, document QA with a magnifying glass, and content review with checks and a flag"
+            caption="Chat assistants, document QA, and content review"
+            height="44cqh"
+          />
+        </div>
+        <div className="flex min-h-0 flex-col justify-center gap-[1.1cqh]">
+          <Card icon={<Workflow size="2.2cqh" color="#fff" />} title="How it is deployed" color={TEAL} fill="#f0fdfa">
+            <ul>
+              <Bullet>Next.js streams chat and proxies ML calls to a FastAPI service.</Bullet>
+              <Bullet>Claims are checked against pasted text, indexed documents, or web search.</Bullet>
+              <Bullet>Verdicts lead the card, with the model score as a secondary signal.</Bullet>
+            </ul>
+          </Card>
+          <Card icon={<TrendingUp size="2.2cqh" color="#fff" />} title="Why it is practical" color={AMBER} fill="#fffbeb">
+            <ul>
+              <Bullet>CPU inference with a {data.artifactMb ?? "—"} MB artifact and no model weights.</Bullet>
+              <Bullet>About ${data.costPer1k ?? "—"} per 1,000 predictions, roughly 100x below the judge.</Bullet>
+              <Bullet>Explanations stay stable under controlled edits.</Bullet>
+            </ul>
+          </Card>
+        </div>
       </div>
     </SlideFrame>
   );
