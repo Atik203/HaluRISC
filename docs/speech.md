@@ -171,17 +171,17 @@ pause for one second after every number.
 ### Slide 13 — UI: Chat (0:20)
 
 > Here is how a user meets it.
-> In chat, the answer streams and the risk card appears on its own with the verdict and
-> score.
-> The card leads with the claim verdicts and the evidence sentence behind them.
+> In chat, the answer streams and the risk card appears on its own.
+> Marker one is the risk card with the verdict, and marker two is the grounding line that
+> names the evidence used.
 
 ---
 
 ### Slide 14 — UI: Analyze (0:17)
 
 > Analyze adds full input control.
-> The SHAP chart explains the raw score, the table lists all 35 features, and the
-> comparison card scores every model side by side.
+> Marker one is the SHAP chart, marker two the full feature table, and marker three the
+> model comparison.
 
 ---
 

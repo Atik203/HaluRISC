@@ -1,0 +1,53 @@
+[
+  {
+    "k": 1,
+    "top_features": [
+      "overlap_answer_context"
+    ],
+    "mean_score_delta": -0.07928674668073654,
+    "f1_delta": 0.07128108880439787,
+    "auroc_delta": 0.00793822222222218
+  },
+  {
+    "k": 3,
+    "top_features": [
+      "overlap_answer_context",
+      "n_words",
+      "n_chars"
+    ],
+    "mean_score_delta": -0.22147127985954285,
+    "f1_delta": 0.3028539107950873,
+    "auroc_delta": 0.0496591111111111
+  },
+  {
+    "k": 5,
+    "top_features": [
+      "overlap_answer_context",
+      "n_words",
+      "n_chars",
+      "nli_ctx_contradicts_ans",
+      "cosine_q_ans"
+    ],
+    "mean_score_delta": -0.28309738636016846,
+    "f1_delta": 0.5929536258948024,
+    "auroc_delta": 0.1260675555555556
+  },
+  {
+    "k": 10,
+    "top_features": [
+      "overlap_answer_context",
+      "n_words",
+      "n_chars",
+      "nli_ctx_contradicts_ans",
+      "cosine_q_ans",
+      "nli_ctx_neutral_ans",
+      "cosine_ctx_ans",
+      "jaccard_ans_q",
+      "entity_overlap_ratio",
+      "overlap_answer_question"
+    ],
+    "mean_score_delta": -0.41196131706237793,
+    "f1_delta": 0.970986324377534,
+    "auroc_delta": 0.31849822222222224
+  }
+]

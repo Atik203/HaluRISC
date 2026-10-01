@@ -1,0 +1,21 @@
+{
+  "source": "b2_predictions.parquet (seed 42) + b4 calibrator_display.joblib",
+  "display_calibrator": "isotonic",
+  "samples": {
+    "q_6775_correct": {
+      "label": 0,
+      "question": "Which president was present for the Mexican Civil War who originated from Oaxaca?",
+      "answer": "liberal politician of Zapotec origin from Oaxaca."
+    },
+    "q_6775_hallucinated": {
+      "label": 1,
+      "question": "Which president was present for the Mexican Civil War who originated from Oaxaca?",
+      "answer": "Agnes Salm-Salm played a role in the Mexican Civil War alongside President Juárez."
+    },
+    "q_3061_correct": {
+      "label": 0,
+      "question": "What sort of art did Herbert Abrams complete using the Chief of Staff of the United States Army from 1968 to 1972 as a subjecy?",
+      "answer": "portrait"
+    }
+  }
+}

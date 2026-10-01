@@ -1,0 +1,21 @@
+{
+  "schema": "b4-config-v1",
+  "generated_at_utc": "2026-08-09T17:17:27.799901+00:00",
+  "git_commit": null,
+  "n_bins": 10,
+  "threshold": 0.5,
+  "selection_rule": "Platt is the predeclared deployable calibrator (platt); isotonic reported for comparison",
+  "source_calibration_data": "HaluEval validation (fit), seeds 42/123/456",
+  "target_calibration_data": "RAGTruth QA official train -> QA official test (disjoint source groups)",
+  "faithbench_calibration": "source-calibrated only (no official split)",
+  "subgroup_minimums": {
+    "rows": 100,
+    "groups": 20
+  },
+  "inputs": {
+    "b3_predictions.parquet": "3340959118bd09a9bd5e94172449affa8c49a381fe6ceb8eb2f152debe714db3",
+    "features_full.parquet": "30caf0cdf62daf57d447926d491f9f5d658a3dc2b567426b86dd4bfcb910adb6",
+    "b2_run_config.json": "998acb9a56845a6faed782f08aa4a6703b197f09d99062de8bb626d8009b6f87"
+  },
+  "note": "All B4 calibrators are pure sklearn objects and load on any platform (no CUDA booster serialization)."
+}

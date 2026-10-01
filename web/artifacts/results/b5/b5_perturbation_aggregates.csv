@@ -1,0 +1,7 @@
+perturbation,n,mean_abs_score_delta,std_score_delta,large_delta_rate,top1_flip_rate,mean_spearman
+clause_shuffle,14,0.00121,0.002204,0.0,0.0,0.921211
+date,13,0.278606,0.436706,0.3077,0.0,0.870434
+entity,78,0.360174,0.469241,0.3718,0.0,0.839746
+irrelevant_insert,120,0.005907,0.045602,0.0083,0.0,0.9483
+numeric,22,0.344905,0.467478,0.3636,0.0,0.852479
+support_removal,66,0.272101,0.431215,0.2879,0.0,0.874192

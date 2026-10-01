@@ -1,0 +1,23 @@
+{
+  "calibration_rows": 5034,
+  "test_rows": 900,
+  "source_indicator": 1.0,
+  "model": "ec-xgb-m3-seed-42",
+  "calibration_raw": {
+    "ece": 0.6087953363836439,
+    "brier": 0.5853346586227417
+  },
+  "test_raw": {
+    "ece": 0.7257247571067678,
+    "brier": 0.6823186428868058
+  },
+  "test_platt": {
+    "ece": 0.12554463670547644,
+    "brier": 0.16098895491407056
+  },
+  "test_isotonic": {
+    "ece": 0.12612555029491584,
+    "brier": 0.1615896224975586
+  },
+  "chosen": "platt"
+}

@@ -1,0 +1,110 @@
+{
+  "42": {
+    "best_params": {
+      "subsample": 0.7,
+      "n_estimators": 300,
+      "max_depth": 5,
+      "learning_rate": 0.05,
+      "colsample_bytree": 0.7
+    },
+    "best_cv_auc": 0.9971554081632654,
+    "group_cv": {
+      "n_splits": 5,
+      "groups_per_fold": [
+        {
+          "train_groups": 5600,
+          "val_groups": 1400
+        },
+        {
+          "train_groups": 5600,
+          "val_groups": 1400
+        },
+        {
+          "train_groups": 5600,
+          "val_groups": 1400
+        },
+        {
+          "train_groups": 5600,
+          "val_groups": 1400
+        },
+        {
+          "train_groups": 5600,
+          "val_groups": 1400
+        }
+      ],
+      "overlapping_groups_across_folds": 0
+    }
+  },
+  "123": {
+    "best_params": {
+      "subsample": 0.9,
+      "n_estimators": 200,
+      "max_depth": 4,
+      "learning_rate": 0.05,
+      "colsample_bytree": 0.7
+    },
+    "best_cv_auc": 0.9971563265306121,
+    "group_cv": {
+      "n_splits": 5,
+      "groups_per_fold": [
+        {
+          "train_groups": 5600,
+          "val_groups": 1400
+        },
+        {
+          "train_groups": 5600,
+          "val_groups": 1400
+        },
+        {
+          "train_groups": 5600,
+          "val_groups": 1400
+        },
+        {
+          "train_groups": 5600,
+          "val_groups": 1400
+        },
+        {
+          "train_groups": 5600,
+          "val_groups": 1400
+        }
+      ],
+      "overlapping_groups_across_folds": 0
+    }
+  },
+  "456": {
+    "best_params": {
+      "subsample": 1.0,
+      "n_estimators": 100,
+      "max_depth": 5,
+      "learning_rate": 0.1,
+      "colsample_bytree": 0.7
+    },
+    "best_cv_auc": 0.9971720408163266,
+    "group_cv": {
+      "n_splits": 5,
+      "groups_per_fold": [
+        {
+          "train_groups": 5600,
+          "val_groups": 1400
+        },
+        {
+          "train_groups": 5600,
+          "val_groups": 1400
+        },
+        {
+          "train_groups": 5600,
+          "val_groups": 1400
+        },
+        {
+          "train_groups": 5600,
+          "val_groups": 1400
+        },
+        {
+          "train_groups": 5600,
+          "val_groups": 1400
+        }
+      ],
+      "overlapping_groups_across_folds": 0
+    }
+  }
+}

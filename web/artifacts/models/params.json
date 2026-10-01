@@ -1,0 +1,93 @@
+{
+  "best_params": {
+    "subsample": 0.9,
+    "n_estimators": 500,
+    "max_depth": 4,
+    "learning_rate": 0.01,
+    "colsample_bytree": 0.7
+  },
+  "best_cv_auc": 0.9970427551020407,
+  "seeds": [
+    42,
+    123,
+    456
+  ],
+  "scale_pos_weight": 1.0,
+  "feature_groups": {
+    "length": [
+      "n_chars",
+      "n_words",
+      "n_sentences",
+      "avg_word_len"
+    ],
+    "lexical": [
+      "overlap_answer_context",
+      "overlap_answer_question",
+      "jaccard_ans_ctx",
+      "jaccard_ans_q"
+    ],
+    "entity": [
+      "n_entities_answer",
+      "n_entities_context",
+      "entity_overlap_ratio",
+      "novel_entity_ratio"
+    ],
+    "nli": [
+      "nli_ctx_entails_ans",
+      "nli_ctx_contradicts_ans",
+      "nli_ctx_neutral_ans",
+      "nli_ans_entails_ctx",
+      "nli_ans_contradicts_ctx",
+      "nli_ans_neutral_ctx"
+    ],
+    "numeric": [
+      "n_numbers_answer",
+      "n_numbers_context",
+      "number_overlap_ratio",
+      "novel_numbers"
+    ],
+    "hedging": [
+      "hedge_count",
+      "hedge_density"
+    ],
+    "semantic": [
+      "cosine_ctx_ans",
+      "cosine_q_ans"
+    ]
+  },
+  "feature_cols": [
+    "n_chars",
+    "n_words",
+    "n_sentences",
+    "avg_word_len",
+    "overlap_answer_context",
+    "overlap_answer_question",
+    "jaccard_ans_ctx",
+    "jaccard_ans_q",
+    "n_entities_answer",
+    "n_entities_context",
+    "entity_overlap_ratio",
+    "novel_entity_ratio",
+    "nli_ctx_entails_ans",
+    "nli_ctx_contradicts_ans",
+    "nli_ctx_neutral_ans",
+    "nli_ans_entails_ctx",
+    "nli_ans_contradicts_ctx",
+    "nli_ans_neutral_ctx",
+    "n_numbers_answer",
+    "n_numbers_context",
+    "number_overlap_ratio",
+    "novel_numbers",
+    "hedge_count",
+    "hedge_density",
+    "cosine_ctx_ans",
+    "cosine_q_ans"
+  ],
+  "n_features": 26,
+  "model_version": "xgboost-v1.0",
+  "nli_model": "cross-encoder/nli-deberta-v3-base",
+  "device": "cpu",
+  "n_train": 14000,
+  "n_val": 3000,
+  "n_test": 3000
+}

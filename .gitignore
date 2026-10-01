@@ -29,6 +29,10 @@ artifacts/results/b5/*
 !artifacts/results/b5/b5_length_error_analysis.csv
 !artifacts/results/b5/b5_length_error_analysis.json
 
+# Web-local artifact mirror ships with the frontend so the Vercel build is self-contained
+!web/artifacts/
+!web/artifacts/**
+
 # Environment & Keys
 .env
 .env.local

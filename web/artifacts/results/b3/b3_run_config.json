@@ -1,0 +1,52 @@
+{
+  "schema": "b3-config-v1",
+  "generated_at_utc": "2026-08-09T17:17:15.184897+00:00",
+  "git_commit": null,
+  "unified_parquet_sha256": "8179ed71a9cf0d80de2bb9ecfeef6b507544854e658c73280e6d64ce14157910",
+  "b2_model_hashes": {
+    "seed_42": "bf1f11f0944fca3ba28487c09449ec37f9288920187b499b3e3b97b684bf8804",
+    "seed_123": "0093c212ddfd01ea5a724f9f89256d92e89fc3f77b8b4aa187b6826ea4a72752",
+    "seed_456": "f2921aef54077123317a85a1c5e48ab037f9893f2a83bb30dfba6eef4b86c95b"
+  },
+  "feature_cols": [
+    "n_chars",
+    "n_words",
+    "n_sentences",
+    "avg_word_len",
+    "overlap_answer_context",
+    "overlap_answer_question",
+    "jaccard_ans_ctx",
+    "jaccard_ans_q",
+    "n_entities_answer",
+    "n_entities_context",
+    "entity_overlap_ratio",
+    "novel_entity_ratio",
+    "nli_ctx_entails_ans",
+    "nli_ctx_contradicts_ans",
+    "nli_ctx_neutral_ans",
+    "nli_ans_entails_ctx",
+    "nli_ans_contradicts_ctx",
+    "nli_ans_neutral_ctx",
+    "n_numbers_answer",
+    "n_numbers_context",
+    "number_overlap_ratio",
+    "novel_numbers",
+    "hedge_count",
+    "hedge_density",
+    "cosine_ctx_ans",
+    "cosine_q_ans"
+  ],
+  "threshold_rule": "fixed 0.5; no external tuning",
+  "bootstrap": {
+    "n": 1000,
+    "seed": 777,
+    "method": "source-group resampling"
+  },
+  "subgroup_minimums": {
+    "rows": 100,
+    "groups": 20
+  },
+  "device": "cuda",
+  "batch_size": 256,
+  "note": "NLI/embedding truncate long external texts at model max length (512 tokens)."
+}

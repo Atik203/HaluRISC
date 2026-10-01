@@ -1,0 +1,46 @@
+dataset,stat,value
+halueval,n_rows,20000
+halueval,n_groups,10000
+halueval,label_counts,"{""0"": 10000, ""1"": 10000}"
+halueval,positive_rate,0.5
+halueval,task_counts,"{""qa"": 20000}"
+halueval,domain_counts,"{""halueval"": 20000}"
+halueval,official_split_counts,"{""none"": 20000}"
+halueval,generator_model_counts,"{""none"": 20000}"
+halueval,quality_counts,"{""none"": 20000}"
+halueval,experiment_split_counts,"{""test"": 3000, ""train"": 14000, ""val"": 3000}"
+halueval,empty_question,0
+halueval,empty_context,0
+halueval,n_excluded,0
+halueval,n_invalid_spans,0
+ragtruth,n_rows,17790
+ragtruth,n_groups,2965
+ragtruth,label_counts,"{""0"": 10126, ""1"": 7664}"
+ragtruth,positive_rate,0.4308
+ragtruth,task_counts,"{""data_to_text"": 6198, ""qa"": 5934, ""summarization"": 5658}"
+ragtruth,domain_counts,"{""cnn_dm"": 3768, ""marco"": 5934, ""recent_news"": 1890, ""yelp"": 6198}"
+ragtruth,official_split_counts,"{""test"": 2700, ""train"": 15090}"
+ragtruth,generator_model_counts,"{""gpt-3.5-turbo-0613"": 2965, ""gpt-4-0613"": 2965, ""llama-2-13b-chat"": 2965, ""llama-2-70b-chat"": 2965, ""llama-2-7b-chat"": 2965, ""mistral-7B-instruct"": 2965}"
+ragtruth,quality_counts,"{""good"": 17617, ""incorrect_refusal"": 144, ""truncated"": 29}"
+ragtruth,experiment_split_counts,"{""none"": 17790}"
+ragtruth,empty_question,11856
+ragtruth,empty_context,0
+ragtruth,n_excluded,0
+ragtruth,n_invalid_spans,0
+ragtruth,span_label_type_distribution,"{""Evident Baseless Info"": 6237, ""Evident Conflict"": 5324, ""Subtle Baseless Info"": 2527, ""Subtle Conflict"": 201}"
+faithbench,n_rows,750
+faithbench,n_groups,750
+faithbench,label_counts,"{""0"": 239, ""1"": 511}"
+faithbench,positive_rate,0.6813
+faithbench,task_counts,"{""summarization"": 750}"
+faithbench,domain_counts,"{""faithbench"": 750}"
+faithbench,official_split_counts,"{""none"": 750}"
+faithbench,generator_model_counts,"{""Anthropic/claude-3-5-sonnet-20240620"": 75, ""Qwen/Qwen2.5-7B-Instruct"": 75, ""cohere/command-r-08-2024"": 75, ""google/gemini-1.5-flash-001"": 75, ""meta-llama/Meta-Llama-3.1-70B-Instruct"": 75, ""meta-llama/Meta-Llama-3.1-8B-Instruct"": 75, ""microsoft/Phi-3-mini-4k-instruct"": 75, ""mistralai/Mistral-7B-Instruct-v0.3"": 75, ""openai/GPT-3.5-Turbo"": 75, ""openai/gpt-4o"": 75}"
+faithbench,quality_counts,"{""none"": 750}"
+faithbench,experiment_split_counts,"{""none"": 750}"
+faithbench,empty_question,750
+faithbench,empty_context,0
+faithbench,n_excluded,0
+faithbench,n_invalid_spans,0
+faithbench,raw_label_distribution,"{""Benign"": 676, ""Questionable"": 450, ""Unwanted"": 1098, ""Unwanted.Extrinsic"": 306, ""Unwanted.Intrinsic"": 732}"
+faithbench,label_sensitivity,"{""majority_q_plus_unwanted"": {""n_negative"": 285, ""n_positive"": 465}, ""primary_worst_q_plus_unwanted"": {""n_negative"": 239, ""n_positive"": 511}, ""strict_worst_unwanted_only"": {""n_negative"": 311, ""n_positive"": 439}}"

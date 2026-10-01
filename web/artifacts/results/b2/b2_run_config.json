@@ -1,0 +1,59 @@
+{
+  "schema": "b2-config-v1",
+  "generated_at_utc": "2026-08-06T15:37:28.397586+00:00",
+  "git_commit": null,
+  "device": "cpu",
+  "seeds": [
+    42,
+    123,
+    456
+  ],
+  "n_iter_tuning": 30,
+  "threshold_rule": "models use threshold 0.5; overlap heuristic threshold tuned on validation only",
+  "tuning_cv": "StratifiedGroupKFold(5) keyed by item_idx",
+  "tfidf": {
+    "ngram_range": [
+      1,
+      2
+    ],
+    "min_df": 2,
+    "max_features": 100000,
+    "sublinear_tf": true
+  },
+  "feature_cols": [
+    "n_chars",
+    "n_words",
+    "n_sentences",
+    "avg_word_len",
+    "overlap_answer_context",
+    "overlap_answer_question",
+    "jaccard_ans_ctx",
+    "jaccard_ans_q",
+    "n_entities_answer",
+    "n_entities_context",
+    "entity_overlap_ratio",
+    "novel_entity_ratio",
+    "nli_ctx_entails_ans",
+    "nli_ctx_contradicts_ans",
+    "nli_ctx_neutral_ans",
+    "nli_ans_entails_ctx",
+    "nli_ans_contradicts_ctx",
+    "nli_ans_neutral_ctx",
+    "n_numbers_answer",
+    "n_numbers_context",
+    "number_overlap_ratio",
+    "novel_numbers",
+    "hedge_count",
+    "hedge_density",
+    "cosine_ctx_ans",
+    "cosine_q_ans"
+  ],
+  "n_features": 26,
+  "best_baseline_selection": "max mean validation F1 over non-XGB model baselines (seed 42)",
+  "inputs": {
+    "qa_clean.parquet": "1284545f54fde4cd80481822d792ba0483562bc537b0c751c634319d80443ad4",
+    "features_full.parquet": "30caf0cdf62daf57d447926d491f9f5d658a3dc2b567426b86dd4bfcb910adb6",
+    "split_indices.json": "ba928cd2b4a6bcc2d503a652112ff564703a76ad2046a9227f9af9c085573e71",
+    "split_integrity_report.json": "0aaa84bc1a7be6a9f0d6e1ff4afd9aadd912bca67b760063e0c4835c3e291a6b"
+  }
+}

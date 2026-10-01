@@ -1,0 +1,145 @@
+{
+  "n_bootstrap": 1000,
+  "seed": 42,
+  "top_k": 5,
+  "feature_mean_abs_shap_ci": {
+    "n_chars": {
+      "lo": 1.139928,
+      "hi": 1.206532,
+      "mean": 1.173964
+    },
+    "n_words": {
+      "lo": 1.173793,
+      "hi": 1.2062,
+      "mean": 1.190882
+    },
+    "n_sentences": {
+      "lo": 0.002199,
+      "hi": 0.00307,
+      "mean": 0.002582
+    },
+    "avg_word_len": {
+      "lo": 0.158725,
+      "hi": 0.181658,
+      "mean": 0.169267
+    },
+    "overlap_answer_context": {
+      "lo": 3.001966,
+      "hi": 3.084492,
+      "mean": 3.037465
+    },
+    "overlap_answer_question": {
+      "lo": 0.173726,
+      "hi": 0.187344,
+      "mean": 0.18099
+    },
+    "jaccard_ans_ctx": {
+      "lo": 0.110618,
+      "hi": 0.121549,
+      "mean": 0.11642
+    },
+    "jaccard_ans_q": {
+      "lo": 0.220698,
+      "hi": 0.235032,
+      "mean": 0.228023
+    },
+    "n_entities_answer": {
+      "lo": 0.088333,
+      "hi": 0.096337,
+      "mean": 0.092072
+    },
+    "n_entities_context": {
+      "lo": 0.071068,
+      "hi": 0.082211,
+      "mean": 0.07668
+    },
+    "entity_overlap_ratio": {
+      "lo": 0.180931,
+      "hi": 0.191415,
+      "mean": 0.186587
+    },
+    "novel_entity_ratio": {
+      "lo": 0.031968,
+      "hi": 0.034081,
+      "mean": 0.032989
+    },
+    "nli_ctx_entails_ans": {
+      "lo": 0.138723,
+      "hi": 0.149515,
+      "mean": 0.144645
+    },
+    "nli_ctx_contradicts_ans": {
+      "lo": 0.397138,
+      "hi": 0.426873,
+      "mean": 0.412097
+    },
+    "nli_ctx_neutral_ans": {
+      "lo": 0.272565,
+      "hi": 0.294284,
+      "mean": 0.283373
+    },
+    "nli_ans_entails_ctx": {
+      "lo": 0.091445,
+      "hi": 0.100305,
+      "mean": 0.095682
+    },
+    "nli_ans_contradicts_ctx": {
+      "lo": 0.073387,
+      "hi": 0.082564,
+      "mean": 0.07742
+    },
+    "nli_ans_neutral_ctx": {
+      "lo": 0.167879,
+      "hi": 0.182018,
+      "mean": 0.174749
+    },
+    "n_numbers_answer": {
+      "lo": 0.015738,
+      "hi": 0.019695,
+      "mean": 0.017594
+    },
+    "n_numbers_context": {
+      "lo": 0.040452,
+      "hi": 0.045142,
+      "mean": 0.042793
+    },
+    "number_overlap_ratio": {
+      "lo": 0.000745,
+      "hi": 0.001226,
+      "mean": 0.000969
+    },
+    "novel_numbers": {
+      "lo": 0.0,
+      "hi": 0.0,
+      "mean": 0.0
+    },
+    "hedge_count": {
+      "lo": 0.0,
+      "hi": 0.0,
+      "mean": 0.0
+    },
+    "hedge_density": {
+      "lo": 0.0,
+      "hi": 0.0,
+      "mean": 0.0
+    },
+    "cosine_ctx_ans": {
+      "lo": 0.218967,
+      "hi": 0.238406,
+      "mean": 0.229309
+    },
+    "cosine_q_ans": {
+      "lo": 0.32268,
+      "hi": 0.355965,
+      "mean": 0.339804
+    }
+  },
+  "topk_set_jaccard": {
+    "mean": 1.0,
+    "std": 0.0
+  },
+  "score_stability": {
+    "mean": 1.012886,
+    "std": 6.482426
+  }
+}

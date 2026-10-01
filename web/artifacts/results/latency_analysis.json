@@ -1,0 +1,46 @@
+{
+  "n_samples": 200,
+  "latency_ms": {
+    "core_lexical": {
+      "p50": 0.1,
+      "p95": 0.15,
+      "mean": 0.11
+    },
+    "entity": {
+      "p50": 21.13,
+      "p95": 47.24,
+      "mean": 25.34
+    },
+    "nli": {
+      "p50": 27.09,
+      "p95": 68.6,
+      "mean": 40.09
+    },
+    "semantic": {
+      "p50": 9.25,
+      "p95": 15.55,
+      "mean": 12.56
+    },
+    "model": {
+      "p50": 1.26,
+      "p95": 8.8,
+      "mean": 2.62
+    },
+    "shap": {
+      "p50": 1.91,
+      "p95": 15.52,
+      "mean": 3.65
+    }
+  },
+  "total_per_sample_ms": {
+    "p50": 61.77
+  },
+  "model_artifact_mb": {
+    "model_xgboost_calibrated.joblib": 0.82,
+    "model_xgboost_raw.joblib": 0.82
+  },
+  "cost_per_1000_predictions_usd": {
+    "halurisc_local": 0.001,
+    "llm_judge_estimate": 0.11
+  }
+}
