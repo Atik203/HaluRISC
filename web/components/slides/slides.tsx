@@ -1221,8 +1221,8 @@ function ApplicationSlide({ data, index, total }: SlideProps) {
   return (
     <SlideFrame
       {...BADGE_APPLICATION}
-      title="Application and deployment"
-      subtitle="A two-tier web app that scores and verifies answers in real time, at a fraction of a judge model's cost."
+      title="Applications"
+      subtitle="Where a fast, calibrated, explainable hallucination check fits into real workflows."
       accent={TEAL}
       index={index}
       total={total}
@@ -1245,18 +1245,20 @@ function ApplicationSlide({ data, index, total }: SlideProps) {
           />
         </div>
         <div className="flex min-h-0 flex-col justify-center gap-[1.1cqh]">
-          <Card icon={<Workflow size="2.2cqh" color="#fff" />} title="How it is deployed" color={TEAL} fill="#f0fdfa">
+          <Card icon={<Users size="2.2cqh" color="#fff" />} title="Where it applies" color={ACCENT} fill="#eef2ff">
             <ul>
-              <Bullet>Next.js streams chat and proxies ML calls to a FastAPI service.</Bullet>
-              <Bullet>Claims are checked against pasted text, indexed documents, or web search.</Bullet>
-              <Bullet>Verdicts lead the card, with the model score as a secondary signal.</Bullet>
+              <Bullet>Chat assistants that check every answer as it streams.</Bullet>
+              <Bullet>Document QA over an indexed corpus or the open web.</Bullet>
+              <Bullet>Content review that flags unsupported claims in drafts and summaries.</Bullet>
+              <Bullet>Any closed LLM, since no model weights are needed.</Bullet>
             </ul>
           </Card>
-          <Card icon={<TrendingUp size="2.2cqh" color="#fff" />} title="Why it is practical" color={AMBER} fill="#fffbeb">
+          <Card icon={<TrendingUp size="2.2cqh" color="#fff" />} title="What users get" color={AMBER} fill="#fffbeb">
             <ul>
-              <Bullet>CPU inference with a {data.artifactMb ?? "—"} MB artifact and no model weights.</Bullet>
-              <Bullet>About ${data.costPer1k ?? "—"} per 1,000 predictions, roughly 100x below the judge.</Bullet>
-              <Bullet>Explanations stay stable under controlled edits.</Bullet>
+              <Bullet>A calibrated risk score that reads as a probability.</Bullet>
+              <Bullet>Per-claim verdicts with the evidence sentence quoted.</Bullet>
+              <Bullet>SHAP reasons behind every score, stable under edits.</Bullet>
+              <Bullet>Local CPU checks at about ${data.costPer1k ?? "—"} per 1,000 answers.</Bullet>
             </ul>
           </Card>
         </div>

@@ -57,7 +57,7 @@ significant.
 | 9 | Experimental setup | 0:24 | 4:34 |
 | 10 | Results: in-domain | 0:23 | 4:57 |
 | 11 | Results: shift and calibration | 0:28 | 5:25 |
-| 12 | Application and deployment | 0:35 | 6:00 |
+| 12 | Applications | 0:35 | 6:00 |
 | 13 | UI: Chat | 0:20 | 6:20 |
 | 14 | UI: Analyze | 0:17 | 6:37 |
 | — | **Live demo** | **4:00** | **10:37** |
@@ -188,13 +188,14 @@ the right arrow twice to reach the closing slides.
 
 ---
 
-### Slide 12 — Application and deployment (0:35)
+### Slide 12 — Applications (0:35)
 
-> The model is deployed as a web application.
-> Chat checks answers while they stream, and Analyze scores any answer against its
-> evidence.
-> Claims are verified against pasted text, indexed documents, or web search.
-> One analysis takes 62 milliseconds at about one thousandth of a dollar per thousand.
+> Where does this fit?
+> Chat assistants can check every answer as it streams.
+> Document question answering can verify answers against an indexed corpus or the web.
+> Content review can flag unsupported claims in drafts and summaries.
+> Every result comes with a calibrated score, per-claim verdicts, and SHAP reasons.
+> Local checks cost about one thousandth of a dollar per thousand answers.
 
 ---
 
