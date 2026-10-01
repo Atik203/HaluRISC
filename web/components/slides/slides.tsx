@@ -1,7 +1,5 @@
 import {
   AlertTriangle,
-  BarChart3,
-  Brain,
   Crown,
   Database,
   Gauge,
@@ -48,6 +46,8 @@ import {
 export interface BaselineRow {
   key: string;
   label: string;
+  precision?: number | null;
+  recall?: number | null;
   f1?: number | null;
   auroc?: number | null;
   prAuc?: number | null;
@@ -70,8 +70,8 @@ export interface AblationRow {
 
 export interface ShiftRow {
   datasetLabel: string;
-  standard: { f1?: number | null; auroc?: number | null; flagged?: number | null; ece?: number | null };
-  ecxgb: { f1?: number | null; auroc?: number | null; flagged?: number | null; ece?: number | null };
+  standard: { recall?: number | null; f1?: number | null; auroc?: number | null; flagged?: number | null; ece?: number | null };
+  ecxgb: { recall?: number | null; f1?: number | null; auroc?: number | null; flagged?: number | null; ece?: number | null };
 }
 
 export interface TaskRow {
@@ -148,12 +148,18 @@ export interface SlideData {
 
 type SlideProps = { data: SlideData; index: number; total: number };
 
-const BADGE_INTRO = { badge: "01 · Introduction", badgeBg: "#e0e7ff", badgeColor: ACCENT };
-const BADGE_DATA = { badge: "02 · Dataset", badgeBg: "#ccfbf1", badgeColor: TEAL };
-const BADGE_METHOD = { badge: "03 · Methodology", badgeBg: "#fef3c7", badgeColor: AMBER };
-const BADGE_RESULTS = { badge: "04 · Results", badgeBg: "#fee2e2", badgeColor: ROSE };
-const BADGE_UI = { badge: "05 · UI/UX Design", badgeBg: "#e0e7ff", badgeColor: ACCENT };
-const BADGE_END = { badge: "07 · Conclusion", badgeBg: "#ccfbf1", badgeColor: TEAL };
+const BADGE_INTRO = { badge: "Introduction", badgeBg: "#e0e7ff", badgeColor: ACCENT };
+const BADGE_MOTIVATION = { badge: "Motivation and Research Gap", badgeBg: "#e0e7ff", badgeColor: ACCENT };
+const BADGE_OBJECTIVE = { badge: "Objective", badgeBg: "#e0e7ff", badgeColor: ACCENT };
+const BADGE_DATA = { badge: "Dataset", badgeBg: "#ccfbf1", badgeColor: TEAL };
+const BADGE_CONVENTIONAL = { badge: "Conventional Method", badgeBg: "#fef3c7", badgeColor: AMBER };
+const BADGE_PROPOSED = { badge: "Proposed Method", badgeBg: "#fef3c7", badgeColor: AMBER };
+const BADGE_FLOW = { badge: "Flow Diagram", badgeBg: "#fef3c7", badgeColor: AMBER };
+const BADGE_SETUP = { badge: "Experimental Setup", badgeBg: "#fef3c7", badgeColor: AMBER };
+const BADGE_RESULTS = { badge: "Results", badgeBg: "#fee2e2", badgeColor: ROSE };
+const BADGE_APPLICATION = { badge: "Application", badgeBg: "#e0e7ff", badgeColor: ACCENT };
+const BADGE_UI = { badge: "UI Demonstration", badgeBg: "#e0e7ff", badgeColor: ACCENT };
+const BADGE_END = { badge: "Conclusion", badgeBg: "#ccfbf1", badgeColor: TEAL };
 
 /* ───────────────────────────── 1 · Title ─────────────────────────── */
 
@@ -163,7 +169,7 @@ const MEMBERS = [
   { name: "MD. Miraz Ahamed", id: "0112310524", leader: false },
 ];
 
-function TitleSlide({ index, total }: SlideProps) {
+function TitleSlide({ index }: SlideProps) {
   return (
     <div className="relative flex h-full w-full flex-col overflow-hidden bg-white px-[6.5cqw] pb-[2.2cqh] pt-[3.6cqh]">
       <div
@@ -252,9 +258,7 @@ function TitleSlide({ index, total }: SlideProps) {
         className="relative flex items-center justify-end border-t-2 pt-[0.9cqh] text-[1.7cqh] font-bold"
         style={{ borderColor: "#e2e8f0", color: SLATE }}
       >
-        <span className="tnum">
-          {index + 1} / {total}
-        </span>
+        <span className="tnum">{index + 1}</span>
       </div>
     </div>
   );
@@ -273,20 +277,13 @@ function ProblemSlide({ data, index, total }: SlideProps) {
       total={total}
     >
       <div className="grid min-h-0 flex-1 grid-cols-2 gap-[1.8cqw]">
-        <Card icon={<AlertTriangle size="2.4cqh" color="#fff" />} title="A real case" color={ROSE} fill="#fff1f2">
-          <div className="space-y-[1.2cqh] text-[2.35cqh] leading-snug" style={{ color: NEAR_BLACK }}>
-            <p>
-              <b>Context:</b> the Arctic melt season lengthened at <b>5 days per decade</b>.
-            </p>
-            <p>
-              <b>Answer:</b> &ldquo;The melt season has lengthened by{" "}
-              <b style={{ color: ROSE }}>10 days</b> per decade.&rdquo;
-            </p>
-            <p className="rounded-lg px-[1.2cqw] py-[1cqh]" style={{ background: "#ffffff" }}>
-              Fluent, confident, and contradicted by the evidence.
-            </p>
-          </div>
-        </Card>
+        <SlideShot
+          src="/slides/intro-answer-vs-evidence.png"
+          alt="A document that states 5 days per decade, and a chat answer that says 10 days, joined by a red contradiction mark"
+          caption="The evidence says 5 days per decade. The fluent answer says 10."
+          color={ROSE}
+          ratio="1.78"
+        />
         <Card icon={<Lightbulb size="2.4cqh" color="#fff" />} title="Why it matters" color={AMBER} fill="#fffbeb">
           <ul>
             <Bullet>Judge models are slow and costly.</Bullet>
@@ -367,23 +364,45 @@ function MotivationSlide({ data, index, total }: SlideProps) {
   const ecxgb = data.shift[0]?.ecxgb;
   return (
     <SlideFrame
-      {...BADGE_INTRO}
-      title="Three gaps this project closes"
+      {...BADGE_MOTIVATION}
+      title="Motivation and research gap"
       subtitle="Calibration, explanation reliability, and cross-domain behaviour, tested in one study."
       accent={ACCENT}
       index={index}
       total={total}
     >
-      <div className="grid min-h-0 flex-1 grid-cols-3 gap-[1.6cqw]">
-        {gaps.map((gap) => (
-          <Card key={gap.title} icon={gap.icon} title={gap.title} color={gap.color} fill={gap.fill}>
-            <ul>
-              {gap.lines.map((line) => (
-                <Bullet key={line}>{line}</Bullet>
-              ))}
-            </ul>
-          </Card>
-        ))}
+      <div className="grid min-h-0 flex-1 grid-cols-[1.2fr_1fr] gap-[1.6cqw]">
+        <SlideShot
+          src="/slides/motivation-three-gaps.png"
+          alt="Three panels: a gauge that disagrees with a bar chart, an attribution chart with an unstable bar, and a line that drops after crossing a domain boundary"
+          caption="Calibration, explanation quality, and domain shift"
+          color={ACCENT}
+          ratio="1.78"
+        />
+        <div className="flex min-h-0 flex-col justify-center gap-[1.1cqh]">
+          {gaps.map((gap) => (
+            <div
+              key={gap.title}
+              className="rounded-xl border-2 px-[1.5cqw] py-[1.1cqh]"
+              style={{ borderColor: gap.color, background: gap.fill }}
+            >
+              <div className="flex items-center gap-[0.8cqw]">
+                <span
+                  className="flex flex-shrink-0 items-center justify-center rounded-lg"
+                  style={{ width: "3.6cqh", height: "3.6cqh", background: gap.color }}
+                >
+                  {gap.icon}
+                </span>
+                <span className="text-[2.1cqh] font-extrabold uppercase tracking-wide" style={{ color: gap.color }}>
+                  {gap.title}
+                </span>
+              </div>
+              <div className="mt-[0.5cqh] text-[1.95cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
+                {gap.lines[0]}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
       <div className="mt-[1.4cqh]">
         <div
@@ -395,7 +414,7 @@ function MotivationSlide({ data, index, total }: SlideProps) {
         <KpiStrip
           items={[
             {
-              value: `${pct(standard?.flagged, 0)} → ${pct(ecxgb?.flagged, 0)}`,
+              value: `${pct(standard?.flagged, 1)} → ${pct(ecxgb?.flagged, 0)}`,
               label: "Flagged as risky · RAGTruth",
               color: ROSE,
             },
@@ -495,192 +514,8 @@ function DatasetsSlide({ data, index, total }: SlideProps) {
   );
 }
 
-/* ──────────────────── 6 · Dataset (external + features) ─────────── */
 
-function DatasetExternalSlide({ data, index, total }: SlideProps) {
-  return (
-    <SlideFrame
-      {...BADGE_DATA}
-      title="External corpora and the feature vector"
-      subtitle="Natural responses test transfer; claim-level aggregates connect the model to the verification layer."
-      accent={TEAL}
-      index={index}
-      total={total}
-    >
-      <div className="grid min-h-0 flex-1 grid-cols-[1.05fr_1fr] gap-[1.8cqw]">
-        <div className="flex min-h-0 flex-col justify-center gap-[1.2cqh]">
-          <SlideTable
-            head={["Corpus", "Rows", "Role"]}
-            headerBg="#ccfbf1"
-            color={TEAL}
-            widths={["32%", "20%", "48%"]}
-            rows={[
-              ["RAGTruth (all)", "17,790", "Zero-shot transfer"],
-              ["RAGTruth QA", "5,934", "5,034 calibration + 900 test"],
-              ["FaithBench", "750", "Summarization stress test"],
-            ]}
-          />
-          <SlideTable
-            compact
-            head={["RAGTruth task", "Rows", "Zero-shot F1", "AUROC"]}
-            headerBg="#e0e7ff"
-            color={ACCENT}
-            widths={["34%", "22%", "22%", "22%"]}
-            rows={data.taskBreakdown.map((t) => [
-              t.label,
-              t.nRows?.toLocaleString() ?? "—",
-              fmt(t.f1, 4),
-              fmt(t.auroc),
-            ])}
-          />
-          <div
-            className="rounded-lg px-[1.4cqw] py-[1cqh] text-[2.05cqh] font-bold leading-snug"
-            style={{ background: "#fef3c7", color: AMBER }}
-          >
-            Zero-shot rows never enter training. Data-to-text transfers best because answers mirror
-            the structured input.
-          </div>
-        </div>
-        <Card
-          icon={<Layers size="2.4cqh" color="#fff" />}
-          title={`Feature vector · ${data.totalFeatures} features`}
-          color={ACCENT}
-          fill="#eef2ff"
-        >
-          <div className="space-y-[1.2cqh]">
-            <StackedBar
-              height="4cqh"
-              segments={[
-                { label: `${data.baseFeatures} base`, value: data.baseFeatures, color: ACCENT },
-                { label: `${data.claimFeatures} claim`, value: data.claimFeatures, color: TEAL },
-                { label: "1", value: 1, color: AMBER },
-              ]}
-            />
-            <div className="space-y-[0.9cqh] text-[2.25cqh] font-semibold" style={{ color: NEAR_BLACK }}>
-              <div>
-                <b>{data.baseFeatures} base:</b> lexical, entity, NLI, numeric, hedging, semantic, length.
-              </div>
-              <div>
-                <b>{data.claimFeatures} claim:</b> per-claim support, contradiction, and coverage ratios.
-              </div>
-              <div>
-                <b>1 source:</b> natural-response indicator used by the multi-source variant.
-              </div>
-            </div>
-            <p className="text-[2cqh] font-medium leading-snug" style={{ color: SLATE }}>
-              Claim features use atomic clauses (conjunctions split) scored against the four best-matching
-              context sentences.
-            </p>
-          </div>
-        </Card>
-      </div>
-    </SlideFrame>
-  );
-}
 
-/* ───────── 6 · Preprocessing and the end-to-end system ───────── */
-
-function PipelineBox({
-  title,
-  sub,
-  color,
-  bg,
-  wide = false,
-}: {
-  title: string;
-  sub?: string;
-  color: string;
-  bg: string;
-  wide?: boolean;
-}) {
-  return (
-    <div
-      className={`flex flex-col items-center justify-center rounded-xl border-2 px-[1.4cqw] py-[1.2cqh] text-center ${wide ? "w-full" : ""}`}
-      style={{ borderColor: color, background: bg }}
-    >
-      <div className="text-[2.35cqh] font-extrabold" style={{ color }}>
-        {title}
-      </div>
-      {sub && (
-        <div className="mt-[0.35cqh] text-[1.95cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
-          {sub}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function PipelineSlide({ data, index, total }: SlideProps) {
-  const groupNames = Object.keys(data.featureGroups);
-  return (
-    <SlideFrame
-      {...BADGE_METHOD}
-      title="Preprocessing and the end-to-end system"
-      subtitle="Raw corpora become a leak-free split, then one pass turns a question, evidence, and answer into a calibrated score."
-      accent={AMBER}
-      index={index}
-      total={total}
-    >
-      <div className="flex min-h-0 flex-1 flex-col gap-[1.6cqh]">
-        <PipelineStrip
-          steps={["Raw corpora", "Clean + dedupe", "Unified schema", "Grouped 70/15/15", "Leakage check"]}
-          color={AMBER}
-          bg="#fffbeb"
-        />
-        <div className="grid grid-cols-2 gap-[1.6cqw]">
-          <Card icon={<ListChecks size="2.4cqh" color="#fff" />} title="Cleaning and schema" color={AMBER} fill="#fffbeb">
-            <ul>
-              <Bullet>Strip markup and whitespace, drop empty or duplicate rows.</Bullet>
-              <Bullet>Map every corpus to one schema: question, context, answer, label, group key.</Bullet>
-              <Bullet>Group keys keep pairs together (HaluEval item index, RAGTruth source id).</Bullet>
-              <Bullet>Split indices frozen to artifacts, reused by every seed ({data.seedsText}).</Bullet>
-            </ul>
-          </Card>
-          <Card icon={<ShieldCheck size="2.4cqh" color="#fff" />} title="Leakage guarantee" color={TEAL} fill="#f0fdfa">
-            <ul>
-              <Bullet>Both answers of a question stay in one partition, always.</Bullet>
-              <Bullet>
-                Groups spanning splits: <b>{data.leakSpanning ?? "—"}</b> — the split is
-                {data.leakFree ? "" : " not"} verified leakage-free.
-              </Bullet>
-              <Bullet>Label balance {data.labelBalanceText} holds in train, validation, and test.</Bullet>
-              <Bullet>External corpora are never mixed into training rows, except the flagged EC-XGB variant.</Bullet>
-            </ul>
-          </Card>
-        </div>
-        <div className="flex min-h-0 flex-1 flex-col justify-center gap-[0.8cqh]">
-          <div className="text-[1.9cqh] font-extrabold uppercase tracking-wide" style={{ color: SLATE }}>
-            End-to-end system
-          </div>
-          <div className="grid grid-cols-[1.15fr_1.85fr] gap-[1.2cqw]">
-            <PipelineBox title="Input" sub="Question · evidence · answer" color={ACCENT} bg="#eef2ff" />
-            <PipelineBox
-              title={`Feature extraction · ${data.totalFeatures} features`}
-              sub={groupNames.join(" · ")}
-              color={AMBER}
-              bg="#fffbeb"
-            />
-          </div>
-          <div className="grid grid-cols-[1.15fr_1fr_1.25fr] gap-[1.2cqw]">
-            <PipelineBox
-              title="EC-XGB"
-              sub="Evidence-Consistent XGBoost"
-              color={TEAL}
-              bg="#f0fdfa"
-            />
-            <PipelineBox
-              title="Calibrator"
-              sub={`${data.displayMethod} on RAGTruth QA`}
-              color={ACCENT}
-              bg="#eef2ff"
-            />
-            <PipelineBox title="Output" sub="Risk score · verdicts · SHAP" color={ROSE} bg="#fff1f2" />
-          </div>
-        </div>
-      </div>
-    </SlideFrame>
-  );
-}
 
 /* ────────────────────── 9 · Feature engineering ─────────────────── */
 
@@ -695,13 +530,18 @@ const GROUP_LABELS: Record<string, string> = {
   claim: "Claim-level aggregates",
 };
 
-function FeaturesSlide({ data, index, total }: SlideProps) {
+function ProposedSlide({ data, index, total }: SlideProps) {
   const groups = Object.entries(data.featureGroups);
+  const changes = [
+    { key: "m1", label: "M1 · Debias", color: AMBER },
+    { key: "m2", label: "M2 · Claim features", color: TEAL },
+    { key: "m3", label: "M3 · Multi-source · deployed", color: ACCENT },
+  ];
   return (
     <SlideFrame
-      {...BADGE_METHOD}
-      title="Feature engineering"
-      subtitle={`${data.baseFeatures} base features in seven groups plus ${data.claimFeatures} claim-level NLI aggregates.`}
+      {...BADGE_PROPOSED}
+      title="Proposed method: evidence-consistent XGBoost"
+      subtitle={`${data.baseFeatures} base features in seven groups, plus ${data.claimFeatures} claim-level aggregates and three cumulative changes.`}
       accent={AMBER}
       index={index}
       total={total}
@@ -756,24 +596,36 @@ function FeaturesSlide({ data, index, total }: SlideProps) {
           </div>
         </div>
       </div>
+      <div className="mt-[1.2cqh] grid grid-cols-3 gap-[1.2cqw]">
+        {changes.map((c) => (
+          <div key={c.key} className="rounded-xl border-2 bg-white px-[1.4cqw] py-[1cqh]" style={{ borderColor: c.color }}>
+            <div className="text-[2.05cqh] font-extrabold" style={{ color: c.color }}>
+              {c.label}
+            </div>
+            <div className="mt-[0.4cqh] text-[1.9cqh] font-medium leading-snug" style={{ color: DEEP_INK }}>
+              {data.componentMap[c.key] ?? "—"}
+            </div>
+          </div>
+        ))}
+      </div>
     </SlideFrame>
   );
 }
 
 /* ───────────────────────── 10 · Models ──────────────────────────── */
 
-function ModelsSlide({ data, index, total }: SlideProps) {
+function ConventionalSlide({ data, index, total }: SlideProps) {
   const baselines = [
     { title: "Overlap heuristic", color: SLATE, lines: ["Risk = 1 − lexical overlap", "Threshold tuned on validation"] },
     { title: "Logistic regression", color: ACCENT, lines: ["Standardized features", "Linear decision boundary"] },
     { title: "Random forest", color: TEAL, lines: ["300 trees", "Strong tabular baseline"] },
-    { title: "XGBoost", color: AMBER, lines: ["30-iteration randomized search", "Grouped 5-fold CV"] },
+    { title: "XGBoost (reference)", color: AMBER, lines: ["30-iteration randomized search", "Grouped 5-fold CV"] },
   ];
   return (
     <SlideFrame
-      {...BADGE_METHOD}
-      title="Models compared, and the EC-XGB variant"
-      subtitle="Four standard baselines, then three changes that define the deployed model."
+      {...BADGE_CONVENTIONAL}
+      title="Conventional method and baselines"
+      subtitle="Four standard detectors, and the tuned XGBoost that the proposed model builds on."
       accent={ACCENT}
       index={index}
       total={total}
@@ -796,40 +648,28 @@ function ModelsSlide({ data, index, total }: SlideProps) {
           </div>
         ))}
       </div>
-      <div className="mt-[1.6cqh] grid min-h-0 flex-1 grid-cols-[1.4fr_1fr] gap-[1.6cqw]">
-        <div
-          className="flex h-full flex-col rounded-xl border-[3px] px-[2.2cqw] py-[1.6cqh]"
-          style={{ borderColor: ACCENT, background: "#eef2ff" }}
-        >
-          <div className="flex items-center gap-[1cqw]">
-            <Brain size="3.2cqh" style={{ color: ACCENT }} />
-            <span className="text-[3.1cqh] font-extrabold" style={{ color: ACCENT }}>
-              EC-XGB · Evidence-Consistent XGBoost
-            </span>
-          </div>
-          <div className="mt-[1.3cqh] grid flex-1 grid-cols-3 gap-[1.2cqw]">
-            {["m1", "m2", "m3"].map((key) => (
-              <div
-                key={key}
-                className="flex flex-col justify-center rounded-lg border-2 bg-white px-[1.4cqw] py-[1.1cqh]"
-                style={{ borderColor: "#c7d2fe" }}
-              >
-                <div className="text-[2.1cqh] font-extrabold" style={{ color: ACCENT }}>
-                  {key.toUpperCase()}
-                </div>
-                <div className="mt-[0.45cqh] text-[1.95cqh] font-medium leading-snug" style={{ color: DEEP_INK }}>
-                  {data.componentMap[key] ?? "—"}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-        <Card icon={<ShieldCheck size="2.4cqh" color="#fff" />} title="Monotone evidence rules" color={TEAL} fill="#f0fdfa">
+      <div className="mt-[1.4cqh]">
+        <PipelineStrip
+          steps={["26 features", "Randomized search", "Train XGBoost", "Platt on validation", "Threshold 0.5"]}
+          color={ACCENT}
+          bg="#eef2ff"
+        />
+      </div>
+      <div className="mt-[1.5cqh] grid min-h-0 flex-1 grid-cols-2 gap-[1.6cqw]">
+        <Card icon={<Workflow size="2.4cqh" color="#fff" />} title="How the baseline works" color={ACCENT} fill="#eef2ff">
           <ul>
-            <Bullet>Risk cannot fall when contradiction rises.</Bullet>
-            <Bullet>Risk cannot climb when entailment, overlap, or cosine rises.</Bullet>
-            <Bullet>Strict mode caps the validation false-positive budget at {data.strictAlphaText}.</Bullet>
-            <Bullet>Claim features and full confidence aggregates are both visible to the learner.</Bullet>
+            <Bullet>Hand-crafted evidence features replace raw text for a tabular learner.</Bullet>
+            <Bullet>Gradient-boosted trees add one tree at a time and fit the leftover error.</Bullet>
+            <Bullet>A logistic link turns the summed leaf scores into a probability.</Bullet>
+            <Bullet>Platt scaling on validation maps the raw score to a usable probability.</Bullet>
+          </ul>
+        </Card>
+        <Card icon={<AlertTriangle size="2.4cqh" color="#fff" />} title="Limits that motivate EC-XGB" color={AMBER} fill="#fffbeb">
+          <ul>
+            <Bullet>HaluEval is close to saturated, so extra features buy almost no in-domain F1.</Bullet>
+            <Bullet>Length and overlap act as shortcuts, and the model leans on them.</Bullet>
+            <Bullet>Under shift the raw score turns unreliable and flags almost every natural answer.</Bullet>
+            <Bullet>No claim-level signal reaches the classifier.</Bullet>
           </ul>
         </Card>
       </div>
@@ -850,7 +690,7 @@ function ModelsSlide({ data, index, total }: SlideProps) {
 function ProtocolSlide({ data, index, total }: SlideProps) {
   return (
     <SlideFrame
-      {...BADGE_METHOD}
+      {...BADGE_SETUP}
       title="Training and evaluation protocol"
       subtitle="Every number is the mean over three seeds, with grouped folds and validation-only calibration."
       accent={AMBER}
@@ -888,19 +728,36 @@ function ProtocolSlide({ data, index, total }: SlideProps) {
         </Card>
       </div>
       <div className="mt-[1.4cqh]">
-        <PipelineStrip
-          steps={["Features (35)", "Grouped CV", "Train + early stop", "Calibrate on validation", "Test + shift metrics"]}
-          color={TEAL}
-          bg="#f0fdfa"
-        />
-        <div className="mt-[1cqh] flex items-center gap-[0.8cqw]">
+        <div
+          className="rounded-xl border-2 px-[1.6cqw] py-[1.2cqh]"
+          style={{ borderColor: ACCENT, background: "#eef2ff" }}
+        >
+          <div className="text-[1.95cqh] font-extrabold uppercase tracking-wide" style={{ color: ACCENT }}>
+            Machine and environment
+          </div>
+          <div className="mt-[0.7cqh] flex flex-wrap items-center gap-[0.7cqw]">
+            <Chip color={ACCENT} bg="#ffffff">
+              Windows 11 · Python 3.12 · 32 GB RAM
+            </Chip>
+            <Chip color={TEAL} bg="#ffffff">
+              NVIDIA RTX 3060 6 GB · CUDA 12.8 · torch 2.11.0+cu128
+            </Chip>
+            <Chip color={AMBER} bg="#ffffff">
+              scikit-learn 1.9.0 · XGBoost 3.3.0 · SHAP 0.52.0
+            </Chip>
+            <Chip color={ROSE} bg="#ffffff">
+              spaCy 3.8.14 · sentence-transformers 5.6.1
+            </Chip>
+          </div>
+        </div>
+        <div className="mt-[1cqh] flex flex-wrap items-center gap-[0.8cqw]">
           {["F1", "AUROC", "PR-AUC", "MCC", "ECE", "Brier"].map((metric) => (
             <Chip key={metric} color={ACCENT} bg="#e0e7ff">
               {metric}
             </Chip>
           ))}
           <span className="text-[2cqh] font-semibold" style={{ color: SLATE }}>
-            plus reliability diagrams and per-seed dispersion
+            XGBoost: depth 4 · lr 0.01 · 500 trees · subsample 0.9 · colsample 0.7
           </span>
         </div>
       </div>
@@ -911,6 +768,9 @@ function ProtocolSlide({ data, index, total }: SlideProps) {
 /* ───────────────────── 12 · Baseline comparison ─────────────────── */
 
 function BaselineResultsSlide({ data, index, total }: SlideProps) {
+  const mainKeys = ["heuristic_overlap", "lr_full", "rf_full", "xgboost"];
+  const main = data.baselines.filter((b) => mainKeys.includes(b.key));
+  const controls = data.baselines.filter((b) => !mainKeys.includes(b.key));
   return (
     <SlideFrame
       {...BADGE_RESULTS}
@@ -920,33 +780,38 @@ function BaselineResultsSlide({ data, index, total }: SlideProps) {
       index={index}
       total={total}
     >
-      <div className="grid min-h-0 flex-1 grid-cols-[1.25fr_1fr] gap-[1.8cqw]">
-        <div className="flex min-h-0 flex-col justify-center gap-[1.2cqh]">
+      <div className="grid min-h-0 flex-1 grid-cols-[1fr_1.1fr] gap-[1.6cqw]">
+        <div className="flex min-h-0 flex-col justify-center gap-[1.1cqh]">
           <SlideTable
-            head={["Model", "F1", "AUROC", "PR-AUC", "MCC", "ECE"]}
+            head={["Model", "Precision", "Recall", "F1", "ECE"]}
             headerBg="#fee2e2"
             color={ROSE}
-            widths={["32%", "13.5%", "13.5%", "13.5%", "13.5%", "14%"]}
-            highlightRow={data.baselines.findIndex((b) => b.highlighted)}
-            rows={data.baselines.map((b) => [b.label, fmt(b.f1), fmt(b.auroc), fmt(b.prAuc), fmt(b.mcc), fmt(b.ece, 4)])}
+            widths={["34%", "16.5%", "16.5%", "16.5%", "16.5%"]}
+            highlightRow={main.findIndex((b) => b.highlighted)}
+            rows={main.map((b) => [b.label, fmt(b.precision), fmt(b.recall), fmt(b.f1), fmt(b.ece, 4)])}
           />
           <div
-            className="rounded-lg px-[1.4cqw] py-[1cqh] text-[2.05cqh] font-bold leading-snug"
+            className="rounded-lg px-[1.4cqw] py-[1cqh] text-[1.9cqh] font-semibold leading-snug"
+            style={{ background: "#f1f5f9", color: DEEP_INK }}
+          >
+            Controls · {controls.map((b) => `${b.label} F1 ${fmt(b.f1)}`).join(" · ")}
+          </div>
+          <div
+            className="rounded-lg px-[1.4cqw] py-[1cqh] text-[1.95cqh] font-bold leading-snug"
             style={{ background: "#fee2e2", color: ROSE }}
           >
             {data.fpNote || "XGBoost shows the fewest false positives at the same threshold."}
           </div>
-          <div className="text-[1.95cqh] font-semibold leading-snug" style={{ color: SLATE }}>
-            XGB F1 95% bootstrap CI [{fmt(data.xgbF1CiLo, 4)}, {fmt(data.xgbF1CiHi, 4)}] · McNemar
-            XGBoost vs {data.mcnemarBest ?? "best baseline"} p = {data.mcnemarP != null ? data.mcnemarP.toFixed(3) : "—"} ·
-            Wilcoxon across seeds confirms the ranking.
+          <div className="text-[1.9cqh] font-semibold leading-snug" style={{ color: SLATE }}>
+            F1 95% bootstrap CI [{fmt(data.xgbF1CiLo, 4)}, {fmt(data.xgbF1CiHi, 4)}] · McNemar p ={" "}
+            {data.mcnemarP != null ? data.mcnemarP.toFixed(3) : "—"} · Wilcoxon across seeds confirms the ranking.
           </div>
         </div>
-        <div className="flex min-h-0 flex-col items-center justify-center gap-[1.1cqh]">
+        <div className="flex min-h-0 flex-col items-center justify-center gap-[1cqh]">
           <Figure
             src="/api/figures/fig_roc_pr.png"
             alt="ROC and precision-recall curves on the HaluEval test set"
-            height="30cqh"
+            height="48cqh"
           />
           <div
             className="rounded-lg border-2 px-[1.4cqw] py-[1cqh]"
@@ -982,7 +847,7 @@ function EcXgbResultsSlide({ data, index, total }: SlideProps) {
       <KpiStrip
         items={[
           {
-            value: `${pct(standard?.flagged, 0)} → ${pct(ecxgb?.flagged, 0)}`,
+            value: `${pct(standard?.flagged, 1)} → ${pct(ecxgb?.flagged, 1)}`,
             label: "Flagged as risky · RAGTruth",
             color: ROSE,
           },
@@ -1016,13 +881,13 @@ function EcXgbResultsSlide({ data, index, total }: SlideProps) {
             Standard vs EC-XGB on shifted corpora
           </div>
           <SlideTable
-            head={["Corpus", "Model", "F1", "AUROC", "Flagged"]}
+            head={["Corpus", "Model", "Recall", "F1", "Flagged"]}
             headerBg="#ccfbf1"
             color={TEAL}
-            widths={["30%", "22%", "16%", "16%", "16%"]}
+            widths={["30%", "20%", "16%", "17%", "17%"]}
             rows={data.shift.flatMap((row) => [
-              [row.datasetLabel, "Standard", fmt(row.standard.f1), fmt(row.standard.auroc), pct(row.standard.flagged)],
-              [row.datasetLabel, "EC-XGB", fmt(row.ecxgb.f1), fmt(row.ecxgb.auroc), pct(row.ecxgb.flagged)],
+              [row.datasetLabel, "Standard", fmt(row.standard.recall), fmt(row.standard.f1), pct(row.standard.flagged, 1)],
+              [row.datasetLabel, "EC-XGB", fmt(row.ecxgb.recall), fmt(row.ecxgb.f1), pct(row.ecxgb.flagged, 1)],
             ])}
           />
           <div
@@ -1038,137 +903,7 @@ function EcXgbResultsSlide({ data, index, total }: SlideProps) {
   );
 }
 
-/* ─────────────── 14 · LLM-as-judge head-to-head ─────────────── */
 
-function JudgeSlide({ data, index, total }: SlideProps) {
-  const judgeName =
-    data.judgeModel === "gpt-5.6-luna" ? "GPT 5.6 Luna" : (data.judgeModel ?? "LLM judge");
-  return (
-    <SlideFrame
-      {...BADGE_RESULTS}
-      title="A flagship LLM judge loses on accuracy per dollar"
-      subtitle={`${judgeName} prompted for JSON verdicts on ${data.judgeN ?? "—"} balanced test answers, against XGBoost on the same subset.`}
-      accent={ROSE}
-      index={index}
-      total={total}
-    >
-      <div className="flex min-h-0 flex-1 flex-col justify-center gap-[2cqh]">
-        <SlideTable
-          head={["System", "Accuracy", "F1", "Latency p50", "Cost / 1k"]}
-          headerBg="#fee2e2"
-          color={ROSE}
-          widths={["30%", "18%", "18%", "17%", "17%"]}
-          highlightRow={1}
-          rows={[
-            [judgeName, pct(data.judgeAcc), fmt(data.judgeF1), ms(data.judgeP50), `$${data.judgeCostPer1k ?? "—"}`],
-            ["XGBoost (same subset)", pct(data.xgbSameAcc), fmt(data.modelJudgeF1), ms(data.latencyP50), `$${data.costPer1k ?? "—"}`],
-          ]}
-        />
-        <KpiStrip
-          items={[
-            { value: pct(data.judgeAgreement, 0), label: "Judge–XGB agreement", color: AMBER },
-            {
-              value: `${data.judgeWrongRight ?? "—"} : ${data.judgeRightWrong ?? "—"}`,
-              label: "Discordant pairs · judge wrong : judge right",
-              color: ROSE,
-            },
-            {
-              value: data.judgeMcnemarP == null ? "—" : data.judgeMcnemarP < 0.001 ? "p < 0.001" : `p = ${data.judgeMcnemarP.toFixed(3)}`,
-              label: "McNemar judge vs XGB",
-              color: ACCENT,
-            },
-          ]}
-        />
-        <div className="grid grid-cols-2 gap-[1.6cqw]">
-          <div
-            className="rounded-xl border-2 px-[1.8cqw] py-[1.4cqh]"
-            style={{ borderColor: ROSE, background: "#fff1f2" }}
-          >
-            <div className="text-[2.2cqh] font-extrabold uppercase tracking-wide" style={{ color: ROSE }}>
-              How the judge was run
-            </div>
-            <div className="mt-[0.6cqh] text-[2.05cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
-              One prompt, JSON verdict, {data.judgeN ?? "—"} balanced test answers. Cost comes from
-              real input and output tokens, so it is a measured price, not an estimate.
-            </div>
-          </div>
-          <div
-            className="rounded-xl border-2 px-[1.8cqw] py-[1.4cqh]"
-            style={{ borderColor: ACCENT, background: "#eef2ff" }}
-          >
-            <div className="text-[2.2cqh] font-extrabold uppercase tracking-wide" style={{ color: ACCENT }}>
-              Why it loses
-            </div>
-            <div className="mt-[0.6cqh] text-[2.05cqh] font-semibold leading-snug" style={{ color: NEAR_BLACK }}>
-              It recalls only {pct(data.judgeRec, 0)} of hallucinations and it never sees the
-              evidence-consistency signals, so it misses the contradictions that matter most.
-            </div>
-          </div>
-        </div>
-      </div>
-    </SlideFrame>
-  );
-}
-
-/* ──────────────── 15 · Calibration, trust, and speed ────────────── */
-
-function TrustResultsSlide({ data, index, total }: SlideProps) {
-  return (
-    <SlideFrame
-      {...BADGE_RESULTS}
-      title="Calibrated, explainable, and fast"
-      subtitle="The deployed score is trustworthy under shift, the explanations are stable, and inference stays light."
-      accent={TEAL}
-      index={index}
-      total={total}
-    >
-      <div className="grid grid-cols-3 gap-[1.5cqw]">
-        <Card icon={<Gauge size="2.2cqh" color="#fff" />} title="Calibration" color={ACCENT} fill="#eef2ff">
-          <div className="tnum text-[6.2cqh] font-extrabold leading-none" style={{ color: ACCENT }}>
-            {fmt(data.displayRawEce)} → {fmt(data.displayEce)}
-          </div>
-          <div className="mt-[0.8cqh] text-[2.15cqh] font-bold" style={{ color: NEAR_BLACK }}>
-            ECE on RAGTruth QA · raw to {data.displayMethod}
-          </div>
-          <div className="mt-[0.5cqh] text-[1.95cqh] font-medium leading-snug" style={{ color: SLATE }}>
-            Brier {fmt(data.displayRawBrier)} → {fmt(data.displayBrier)} · fitted on{" "}
-            {data.calibrationRows?.toLocaleString() ?? "—"} calibration rows.
-          </div>
-          <div className="mt-[0.5cqh] text-[1.95cqh] font-medium leading-snug" style={{ color: SLATE }}>
-            Source-fitted on shifted QA stays broken: raw {fmt(data.b4RawEce)} · Platt{" "}
-            {fmt(data.b4PlattEce)} · isotonic {fmt(data.b4IsoEce)}.
-          </div>
-        </Card>
-        <Card icon={<BarChart3 size="2.2cqh" color="#fff" />} title="Explanation reliability" color={TEAL} fill="#f0fdfa">
-          <ul>
-            <Bullet>SHAP vs permutation: Kendall τ = {fmt(data.kendall, 2)}.</Bullet>
-            <Bullet>Top-5 SHAP set stable across 1,000 bootstrap resamples (Jaccard {fmt(data.jaccard, 2)}).</Bullet>
-            <Bullet>Entity edits move the score (Δ {fmt(data.entityDelta, 3)}), irrelevant inserts do not (Δ {fmt(data.irrelevantDelta, 3)}).</Bullet>
-          </ul>
-        </Card>
-        <Card icon={<TrendingUp size="2.2cqh" color="#fff" />} title="Efficiency & cost" color={AMBER} fill="#fffbeb">
-          <ul>
-            <Bullet>One analysis in {ms(data.latencyP50)} at the median.</Bullet>
-            <Bullet>Model artifact {data.artifactMb ?? "—"} MB.</Bullet>
-            <Bullet>About ${data.costPer1k ?? "—"} per 1,000 predictions.</Bullet>
-            <Bullet>
-              LLM judge baseline F1 {fmt(data.judgeF1)} vs {fmt(data.modelJudgeF1)} here, at roughly 100×
-              the cost.
-            </Bullet>
-          </ul>
-        </Card>
-      </div>
-      <div className="mt-[1.4cqh] min-h-0 flex-1">
-        <Figure
-          src="/api/figures/b4/reliability_diagrams.png"
-          alt="Reliability diagrams for HaluEval, RAGTruth QA, and FaithBench"
-          caption="Reliability diagrams: in-domain, target-domain, and stress-test calibration"
-          height="30cqh"
-        />
-      </div>
-    </SlideFrame>
-  );
-}
 
 /* ──────────────── 14 · Interface: Chat and Analyze ──────────────── */
 
@@ -1298,7 +1033,7 @@ function ExplainCompareSlide({ index, total }: SlideProps) {
 
 /* ──────────────────────── 19 · Conclusion ───────────────────────── */
 
-function ConclusionSlide({ data, index, total }: SlideProps) {
+function ConclusionSlide({ data, index }: SlideProps) {
   const ecxgb = data.shift[0]?.ecxgb;
   return (
     <SlideFrame
@@ -1307,8 +1042,6 @@ function ConclusionSlide({ data, index, total }: SlideProps) {
       subtitle="A light, calibrated, explainable detector that holds up in-domain and flags far fewer natural answers."
       accent={TEAL}
       index={index}
-      total={total}
-      footerLeft={`Model ${data.modelVersion} · features ${data.featureVersion}`}
     >
       <div className="grid min-h-0 flex-1 grid-cols-3 gap-[1.6cqw]">
         <Card icon={<ShieldCheck size="2.2cqh" color="#fff" />} title="Findings" color={TEAL} fill="#f0fdfa">
@@ -1364,7 +1097,7 @@ function ConclusionSlide({ data, index, total }: SlideProps) {
 
 /* ──────────────────────── 20 · Thank you ────────────────────────── */
 
-function ThankYouSlide({ index, total }: SlideProps) {
+function ThankYouSlide({ index }: SlideProps) {
   return (
     <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-white px-[8cqw] text-center">
       <div
@@ -1399,15 +1132,141 @@ function ThankYouSlide({ index, total }: SlideProps) {
         Questions &amp; Discussion Welcome
       </div>
       <div
-        className="absolute bottom-[2cqh] inset-x-[4.6cqw] flex items-center justify-between border-t-2 pt-[1.1cqh] text-[1.7cqh] font-bold"
+        className="absolute bottom-[2cqh] inset-x-[4.6cqw] flex items-center justify-end border-t-2 pt-[1.1cqh] text-[1.7cqh] font-bold"
         style={{ borderColor: "#e2e8f0", color: SLATE }}
       >
-        <span>CSE 4889 - Machine Learning · Section E · Team Phantom Devs</span>
-        <span className="tnum">
-          {index + 1} / {total}
-        </span>
+        <span className="tnum">{index + 1}</span>
       </div>
     </div>
+  );
+}
+
+/* ─────────────────── 4 · Objective and contributions ─────────────── */
+
+function ObjectiveSlide({ data, index, total }: SlideProps) {
+  return (
+    <SlideFrame
+      {...BADGE_OBJECTIVE}
+      title="Objective and contributions"
+      subtitle="Estimate the probability that an LLM answer is hallucinated, and keep that estimate calibrated and explainable under domain shift."
+      accent={ACCENT}
+      index={index}
+      total={total}
+    >
+      <div className="grid min-h-0 flex-1 grid-cols-[1.15fr_1fr] gap-[1.6cqw]">
+        <SlideShot
+          src="/slides/objective-pipeline.png"
+          alt="The question, context, and answer feed 35 features into EC-XGB, and calibration produces a risk score, claim verdicts, and a SHAP explanation"
+          caption="From three inputs to a calibrated, explained risk score"
+          color={ACCENT}
+          ratio="2.5"
+        />
+        <div className="flex min-h-0 flex-col justify-center gap-[1.2cqh]">
+          <Card icon={<Target size="2.2cqh" color="#fff" />} title="What we set out to do" color={ACCENT} fill="#eef2ff">
+            <ul>
+              <Bullet>Score an answer from its question and evidence, with no model access.</Bullet>
+              <Bullet>Report a probability that can be read as a probability.</Bullet>
+              <Bullet>Explain every score and test it under domain shift.</Bullet>
+            </ul>
+          </Card>
+          <Card icon={<Lightbulb size="2.2cqh" color="#fff" />} title="Contributions" color={TEAL} fill="#f0fdfa">
+            <ul>
+              <Bullet>An evidence-consistent feature set of {data.totalFeatures} features.</Bullet>
+              <Bullet>Three cumulative changes over the tuned baseline.</Bullet>
+              <Bullet>A deployed system with claim-level verification.</Bullet>
+            </ul>
+          </Card>
+        </div>
+      </div>
+      <div className="mt-[1.2cqh]">
+        <KpiStrip
+          items={[
+            { value: pct(data.shift[0]?.standard.flagged, 1), label: "Standard flags · RAGTruth", color: ROSE },
+            { value: pct(data.shift[0]?.ecxgb.flagged, 0), label: "EC-XGB flags · RAGTruth", color: TEAL },
+            { value: fmt(data.displayEce), label: "Display ECE after calibration", color: ACCENT },
+            { value: ms(data.latencyP50), label: "Median analysis time", color: AMBER },
+          ]}
+        />
+      </div>
+    </SlideFrame>
+  );
+}
+
+/* ─────────────────── 8 · Full architecture flow ──────────────────── */
+
+function FlowSlide({ index, total }: SlideProps) {
+  return (
+    <SlideFrame
+      {...BADGE_FLOW}
+      title="Full architecture, start to end"
+      subtitle="Inputs, feature extraction, the EC-XGB classifier, calibration, outputs, and the deployed evaluation."
+      accent={ACCENT}
+      index={index}
+      total={total}
+    >
+      <div className="flex min-h-0 flex-1 items-center justify-center">
+        <SlideShot
+          src="/slides/architecture-flow.svg"
+          alt="End-to-end architecture: question, context, and answer feed 35 features, then EC-XGB, Platt calibration, and the risk score, claim verdicts, and SHAP outputs, deployed through Next.js and FastAPI and evaluated on HaluEval, RAGTruth, and FaithBench"
+          caption="End-to-end architecture of the deployed system"
+          color={ACCENT}
+          ratio="16 / 9"
+          fill
+          background="#ffffff"
+        />
+      </div>
+    </SlideFrame>
+  );
+}
+
+/* ─────────────────── 12 · Application and deployment ─────────────── */
+
+function ApplicationSlide({ data, index, total }: SlideProps) {
+  const judgeName = data.judgeModel === "gpt-5.6-luna" ? "GPT 5.6 Luna" : (data.judgeModel ?? "LLM judge");
+  return (
+    <SlideFrame
+      {...BADGE_APPLICATION}
+      title="Application and deployment"
+      subtitle="A two-tier web app that scores and verifies answers in real time, at a fraction of a judge model's cost."
+      accent={TEAL}
+      index={index}
+      total={total}
+    >
+      <KpiStrip
+        items={[
+          { value: fmt(data.displayEce), label: "Display ECE · calibrated", color: ACCENT },
+          { value: ms(data.latencyP50), label: "Median analysis", color: AMBER },
+          { value: `$${data.costPer1k ?? "—"}`, label: "Cost per 1,000", color: TEAL },
+          { value: fmt(data.judgeF1), label: `Judge F1 · ${judgeName}`, color: ROSE },
+        ]}
+      />
+      <div className="mt-[1.2cqh]">
+        <Figure
+          src="/slides/application-use-cases.png"
+          alt="Three use cases: a chat assistant, document QA with a magnifying glass, and content review with checks and a flag"
+          caption="Chat assistants, document QA, and content review"
+          height="24cqh"
+        />
+      </div>
+      <div className="mt-[1.2cqh] grid min-h-0 flex-1 grid-cols-2 gap-[1.5cqw]">
+        <Card icon={<Workflow size="2.2cqh" color="#fff" />} title="How it is deployed" color={TEAL} fill="#f0fdfa">
+          <ul>
+            <Bullet>Next.js dashboard streams chat and proxies ML calls to a FastAPI service.</Bullet>
+            <Bullet>Claims are verified against pasted text, an indexed document set, or web search.</Bullet>
+            <Bullet>The document index combines BM25, FAISS, and a cross-encoder reranker.</Bullet>
+            <Bullet>Verdicts lead the card, with the model score as a secondary signal.</Bullet>
+          </ul>
+        </Card>
+        <Card icon={<TrendingUp size="2.2cqh" color="#fff" />} title="Why it is practical" color={AMBER} fill="#fffbeb">
+          <ul>
+            <Bullet>CPU inference with a {data.artifactMb ?? "—"} MB artifact and no model weights.</Bullet>
+            <Bullet>About ${data.costPer1k ?? "—"} per 1,000 predictions, roughly 100x below the judge.</Bullet>
+            <Bullet>Explanations are stable under controlled edits (top-1 SHAP never flips).</Bullet>
+            <Bullet>Feedback is logged locally and turns into updated thresholds.</Bullet>
+          </ul>
+        </Card>
+      </div>
+    </SlideFrame>
   );
 }
 
@@ -1417,16 +1276,15 @@ export const SLIDES: Array<(props: SlideProps) => React.ReactElement> = [
   TitleSlide,
   ProblemSlide,
   MotivationSlide,
+  ObjectiveSlide,
   DatasetsSlide,
-  DatasetExternalSlide,
-  PipelineSlide,
-  FeaturesSlide,
-  ModelsSlide,
+  ConventionalSlide,
+  ProposedSlide,
+  FlowSlide,
   ProtocolSlide,
   BaselineResultsSlide,
   EcXgbResultsSlide,
-  JudgeSlide,
-  TrustResultsSlide,
+  ApplicationSlide,
   ChatAnalyzeSlide,
   ExplainCompareSlide,
   ConclusionSlide,

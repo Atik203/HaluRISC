@@ -9,8 +9,6 @@ export const TEAL = "#0f766e";
 export const AMBER = "#b45309";
 export const ROSE = "#b91c1c";
 
-export const FOOTER_TEXT = "CSE 4889 - Machine Learning · Section E · Team Phantom Devs";
-
 /* ------------------------------------------------------------------ */
 /* Frame: header + body + footer, with subtle corner accents           */
 /* ------------------------------------------------------------------ */
@@ -23,8 +21,6 @@ export function SlideFrame({
   subtitle,
   accent = ACCENT,
   index,
-  total,
-  footerLeft,
   children,
 }: {
   badge: string;
@@ -34,8 +30,7 @@ export function SlideFrame({
   subtitle?: string;
   accent?: string;
   index: number;
-  total: number;
-  footerLeft?: string;
+  total?: number;
   children: React.ReactNode;
 }) {
   return (
@@ -57,13 +52,10 @@ export function SlideFrame({
       />
       <div className="relative flex min-h-0 flex-1 flex-col">{children}</div>
       <div
-        className="relative mt-[1.6cqh] flex items-center justify-between border-t-2 pt-[1.1cqh] text-[1.7cqh] font-bold"
+        className="relative mt-[1.6cqh] flex items-center justify-end border-t-2 pt-[1.1cqh] text-[1.7cqh] font-bold"
         style={{ borderColor: "#e2e8f0", color: SLATE }}
       >
-        <span>{footerLeft ?? FOOTER_TEXT}</span>
-        <span className="tnum">
-          {index + 1} / {total}
-        </span>
+        <span className="tnum">{index + 1}</span>
       </div>
     </div>
   );
@@ -361,6 +353,7 @@ export function SlideShot({
   contain = false,
   ratio,
   fill = false,
+  background = "#0b1020",
 }: {
   src: string;
   alt: string;
@@ -370,6 +363,7 @@ export function SlideShot({
   contain?: boolean;
   ratio?: string;
   fill?: boolean;
+  background?: string;
 }) {
   return (
     <div className="flex h-full min-h-0 flex-col items-center justify-center">
@@ -377,7 +371,7 @@ export function SlideShot({
         className={`overflow-hidden rounded-xl border-2 shadow-lg ${fill ? "h-full w-full" : "w-full"}`}
         style={{
           borderColor: color,
-          background: "#0b1020",
+          background,
           aspectRatio: fill ? undefined : ratio,
           maxHeight: !fill && ratio ? "100%" : undefined,
         }}

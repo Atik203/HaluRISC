@@ -69,6 +69,15 @@ export function SlideDeck({ data }: { data: SlideData }) {
     return () => document.removeEventListener("fullscreenchange", onFsChange);
   }, []);
 
+  useEffect(() => {
+    const raw = new URLSearchParams(window.location.search).get("slide");
+    if (!raw) return;
+    const n = Number.parseInt(raw, 10);
+    if (!Number.isFinite(n)) return;
+    const next = Math.min(SLIDES.length - 1, Math.max(0, n - 1));
+    queueMicrotask(() => setIndex(next));
+  }, []);
+
   const Slide = SLIDES[index];
 
   return (
@@ -104,7 +113,7 @@ export function SlideDeck({ data }: { data: SlideData }) {
       )}
 
       <div className="pointer-events-none fixed bottom-4 left-1/2 z-[110] -translate-x-1/2 select-none text-[13px] font-medium text-white/50">
-        ← → to navigate · F for fullscreen · {index + 1} / {SLIDES.length}
+        ← → to navigate · F for fullscreen · {index + 1}
       </div>
     </div>
   );

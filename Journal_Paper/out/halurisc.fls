@@ -367,10 +367,10 @@ INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/stix/t1-stixgeneral.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/stix/t1-stixgeneral-bold.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/stix/t1-stixgeneral-bold.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/jknappen/ec/ecss1000.tfm
-INPUT ./figures/architecture.png
-INPUT ./figures/architecture.png
-INPUT ./figures/architecture.png
-INPUT ./figures/architecture.png
+INPUT ./figures/architecture-flow.png
+INPUT ./figures/architecture-flow.png
+INPUT ./figures/architecture-flow.png
+INPUT ./figures/architecture-flow.png
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/jknappen/ec/ecsx0900.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/stix/stix-mathrm.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/stix/stix-mathit.tfm

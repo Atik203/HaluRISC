@@ -175,8 +175,8 @@ Figure~\ref{fig:pipeline} shows the full proposed pipeline at a glance. The syst
 
 \begin{figure}[pos=htbp]
   \centering
-  \includegraphics[width=\linewidth]{architecture.png}
-  \caption{End-to-end pipeline of the proposed model. Evidence-consistency features from the question, context, and answer feed a grouped-CV trained, Platt-calibrated XGBoost model. Outputs include a calibrated risk score, per-claim NLI verdicts, and SHAP explanations, with cross-domain and explanation-reliability evaluation.}
+  \includegraphics[width=0.88\linewidth]{architecture-flow.png}
+  \caption{End-to-end architecture of the proposed model. The inputs feed 35 features into the EC-XGB classifier, Platt calibration produces the deployed score, and the outputs are the risk score, the per-claim verdicts, and the SHAP explanations. The system is deployed as a Next.js and FastAPI application and evaluated in-domain on HaluEval and zero-shot on RAGTruth and FaithBench.}
   \label{fig:pipeline}
 \end{figure}
 
