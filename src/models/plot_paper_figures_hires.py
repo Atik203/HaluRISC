@@ -1,18 +1,19 @@
-"""Regenerate the paper figures at 600+ DPI effective, writing ONLY to
-Journal_Paper/figures/.
+"""Regenerate the paper figures at print size with readable fonts and 600 DPI.
 
-The artifact figures under artifacts/figures/ are hashed in
-docs/manifest.frozen.json, so this script never overwrites them. It reads the
-same frozen inputs and renders paper-grade copies:
+Design rule: the figure size in inches equals the width it occupies in the
+manuscript, so matplotlib font sizes print at their true point sizes, and
+dpi=600 gives exactly 600 DPI at that width. This fixes the earlier problem
+where 16-18-inch-wide figures were drawn with 8-10 pt fonts and shrunk onto
+the page at about 3 pt.
 
-  Journal_Paper/figures/b4/calibration_shift.png
-  Journal_Paper/figures/b4/reliability_diagrams.png
-  Journal_Paper/figures/b3/transfer_score_distributions.png
-  Journal_Paper/figures/fig_shap_importance_b5.png
+Writes ONLY to Journal_Paper/figures/. The artifact figures under
+artifacts/figures/ are hashed in docs/manifest.frozen.json and are never
+overwritten.
 
-Effective DPI at print width (0.8 linewidth = 5.203 in):
-  16-18in wide figures at dpi 250 -> about 770-865 DPI
-  9in wide SHAP figure at dpi 400  -> about 690 DPI
+  figures/b4/reliability_diagrams.png        6.5 in wide, 600 DPI, full text width
+  figures/b4/calibration_shift.png           6.5 in wide, 600 DPI, full text width
+  figures/b3/transfer_score_distributions.png 6.5 in wide, 600 DPI, full text width
+  figures/fig_shap_importance_b5.png         5.2 in wide, 600 DPI, 0.8 text width
 
 Run from the repo root:
 
@@ -34,18 +35,31 @@ ROOT = Path(__file__).resolve().parents[2]
 FIG_PAPER = ROOT / "Journal_Paper" / "figures"
 THRESHOLD = 0.5
 SEED = 42
-PRINT_WIDTH_IN = 5.203
-DPI_WIDE = 250
-DPI_SHAP = 400
+DPI = 600
+
+plt.rcParams.update(
+    {
+        "font.size": 9,
+        "axes.titlesize": 9.5,
+        "axes.labelsize": 9,
+        "xtick.labelsize": 8.5,
+        "ytick.labelsize": 8.5,
+        "legend.fontsize": 7.5,
+        "figure.dpi": 120,
+    }
+)
 
 
-def _save(fig, out: Path, dpi: int) -> None:
-    out.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out, dpi=dpi)
-    px = fig.get_size_inches()[0] * dpi
-    eff = px / PRINT_WIDTH_IN
-    print(f"wrote {out.relative_to(ROOT)}  {int(round(px))} px wide  ~{eff:.0f} DPI effective")
+def _save(fig, out: Path) -> None:
+    fig.savefig(out, dpi=DPI)
+    px = int(round(fig.get_size_inches()[0] * DPI))
+    print(f"wrote {out.relative_to(ROOT)}  {px} px wide  {DPI} DPI at print width")
     plt.close(fig)
+
+
+def _legend_hist(ax) -> None:
+    leg = ax.legend(loc="upper right", fontsize=7, framealpha=0.9)
+    leg.get_frame().set_linewidth(0.5)
 
 
 def calibration_shift() -> None:
@@ -62,22 +76,24 @@ def calibration_shift() -> None:
     )["methods"]
     rows = [
         ("Raw", metrics["raw_reference"]),
-        ("Source Platt", metrics["source_platt_reference"]),
-        ("Target Platt", metrics["platt"]),
-        ("Target isotonic", metrics["isotonic"]),
+        ("Src Platt", metrics["source_platt_reference"]),
+        ("Tgt Platt", metrics["platt"]),
+        ("Tgt isotonic", metrics["isotonic"]),
     ]
-    fig, axes = plt.subplots(1, 3, figsize=(16, 4.4))
+    fig, axes = plt.subplots(1, 3, figsize=(6.5, 2.3))
     for ax, scores, title in (
-        (axes[0], raw, "Raw scores (RAGTruth QA test)"),
-        (axes[1], target, "Target-isotonic scores (RAGTruth QA test)"),
+        (axes[0], raw, "Raw scores"),
+        (axes[1], target, "Target-isotonic scores"),
     ):
         ax.hist(scores[y == 0], bins=np.linspace(0, 1, 41), alpha=0.65, label="label 0", color="#4C72B0")
         ax.hist(scores[y == 1], bins=np.linspace(0, 1, 41), alpha=0.65, label="label 1", color="#DD8452")
         ax.axvline(THRESHOLD, color="crimson", linestyle="--", linewidth=1.2)
-        ax.set_title(title, fontsize=10)
+        ax.set_title(title)
         ax.set_xlabel("score")
-        ax.set_ylabel("count")
-        ax.legend(fontsize=8)
+        ax.set_xlim(0, 1)
+    axes[0].set_ylabel("count")
+    _legend_hist(axes[0])
+    _legend_hist(axes[1])
     x = np.arange(len(rows))
     width = 0.38
     ece = [r[1]["ece_mean"] for r in rows]
@@ -85,12 +101,12 @@ def calibration_shift() -> None:
     axes[2].bar(x - width / 2, ece, width, label="ECE", color="#4C72B0")
     axes[2].bar(x + width / 2, brier, width, label="Brier", color="#DD8452")
     axes[2].set_xticks(x)
-    axes[2].set_xticklabels([r[0] for r in rows], fontsize=8)
+    axes[2].set_xticklabels([r[0] for r in rows], fontsize=8, rotation=18, ha="right")
     axes[2].set_ylim(0, 1.0)
-    axes[2].set_title("Calibration error before and after", fontsize=10)
-    axes[2].legend(fontsize=8)
+    axes[2].set_title("Error before and after")
+    axes[2].legend(loc="upper right", fontsize=7, framealpha=0.9).get_frame().set_linewidth(0.5)
     fig.tight_layout()
-    _save(fig, FIG_PAPER / "b4" / "calibration_shift.png", DPI_WIDE)
+    _save(fig, FIG_PAPER / "b4" / "calibration_shift.png")
 
 
 def transfer_scores() -> None:
@@ -110,19 +126,21 @@ def transfer_scores() -> None:
     for name, d in panels:
         print(f"{name}: n={len(d)}")
     assert len(hal) == 3000 and len(qa) == 900 and len(rt) == 17790 and len(fb) == 750
-    fig, axes = plt.subplots(1, 4, figsize=(18, 4.0))
-    for ax, (name, d) in zip(axes, panels):
+    fig, axes = plt.subplots(1, 4, figsize=(6.5, 2.15))
+    for i, (ax, (name, d)) in enumerate(zip(axes, panels)):
         y = d["label"].to_numpy()
         s = d["score"].to_numpy()
         ax.hist(s[y == 0], bins=np.linspace(0, 1, 41), alpha=0.65, label="label 0", color="#4C72B0")
         ax.hist(s[y == 1], bins=np.linspace(0, 1, 41), alpha=0.65, label="label 1", color="#DD8452")
         ax.axvline(THRESHOLD, color="crimson", linestyle="--", linewidth=1.2)
-        ax.set_title(f"{name}\n(n = {len(d):,})", fontsize=10)
+        ax.set_title(f"{name}\n(n = {len(d):,})")
         ax.set_xlabel("raw model score")
-        ax.set_ylabel("count")
-        ax.legend(fontsize=8)
+        ax.set_xlim(0, 1)
+        if i == 0:
+            ax.set_ylabel("count")
+            _legend_hist(ax)
     fig.tight_layout()
-    _save(fig, FIG_PAPER / "b3" / "transfer_score_distributions.png", DPI_WIDE)
+    _save(fig, FIG_PAPER / "b3" / "transfer_score_distributions.png")
 
 
 def reliability_diagrams() -> None:
@@ -134,22 +152,25 @@ def reliability_diagrams() -> None:
         ("ragtruth_qa_test", "RAGTruth QA test"),
         ("faithbench", "FaithBench"),
     ]
-    fig, axes = plt.subplots(1, 3, figsize=(16, 4.5), squeeze=False)
-    for ax, (name, title) in zip(axes[0], panels):
+    fig, axes = plt.subplots(1, 3, figsize=(6.5, 2.3), squeeze=False)
+    for i, (ax, (name, title)) in enumerate(zip(axes[0], panels)):
         if name not in reliability:
             continue
         for method, color in (("raw", "gray"), ("platt", "tab:blue"), ("isotonic", "tab:orange")):
             curve = reliability[name][method]
             conf = [c["confidence"] for c in curve if c["confidence"] is not None]
             acc = [c["accuracy"] for c in curve if c["accuracy"] is not None]
-            ax.plot(conf, acc, marker="o", ms=3, label=method, color=color)
+            ax.plot(conf, acc, marker="o", ms=2.5, label=method, color=color)
         ax.plot([0, 1], [0, 1], "k--", lw=0.8)
         ax.set_xlim(0, 1)
         ax.set_ylim(0, 1)
-        ax.set_title(f"{title} reliability")
-        ax.legend(fontsize=8)
+        ax.set_title(title)
+        ax.set_xlabel("confidence")
+        if i == 0:
+            ax.set_ylabel("accuracy")
+            ax.legend(loc="upper left", fontsize=7, framealpha=0.9).get_frame().set_linewidth(0.5)
     fig.tight_layout()
-    _save(fig, FIG_PAPER / "b4" / "reliability_diagrams.png", DPI_WIDE)
+    _save(fig, FIG_PAPER / "b4" / "reliability_diagrams.png")
 
 
 def shap_importance() -> None:
@@ -159,7 +180,7 @@ def shap_importance() -> None:
     items = sorted(data["mean_abs_shap"].items(), key=lambda kv: kv[1], reverse=True)[:12]
     names = [k for k, _ in items]
     values = [v for k, v in items]
-    fig, ax = plt.subplots(figsize=(9, 5))
+    fig, ax = plt.subplots(figsize=(5.2, 3.3))
     ax.barh(range(len(values)), values, color="#4f46e5")
     ax.set_yticks(range(len(names)))
     ax.set_yticklabels(names)
@@ -168,7 +189,7 @@ def shap_importance() -> None:
     ax.set_title("Top-12 features by mean |SHAP| (B-run, seed 42)")
     ax.spines[["top", "right"]].set_visible(False)
     fig.tight_layout()
-    _save(fig, FIG_PAPER / "fig_shap_importance_b5.png", DPI_SHAP)
+    _save(fig, FIG_PAPER / "fig_shap_importance_b5.png")
 
 
 if __name__ == "__main__":
@@ -176,4 +197,4 @@ if __name__ == "__main__":
     transfer_scores()
     reliability_diagrams()
     shap_importance()
-    print("done: paper figures regenerated at high DPI; artifacts/figures untouched")
+    print("done: paper figures redrawn at print size, readable fonts, 600 DPI; artifacts/figures untouched")

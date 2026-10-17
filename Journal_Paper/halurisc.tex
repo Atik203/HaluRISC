@@ -106,13 +106,7 @@
 % Abstract
 \linenumbers
 \begin{abstract}
-  Large language models answer in fluent text, and some answers are not supported by the evidence a user has. A confidently wrong answer can mislead people in question answering and content review.
-
-  Current detectors have practical limits. A large judge model is slow and costly. Encoder classifiers need model weights and a graphics card. Feature-based detectors are cheaper, but their probabilities are rarely calibrated, and their behavior outside the training domain is rarely tested.
-
-  This study asks whether a small black-box model can estimate the risk that an answer is hallucinated from the question, a reference context, and the candidate answer alone, and whether that estimate can be trusted as a probability. The proposed method, evidence-consistent XGBoost (EC-XGB), is a gradient-boosted tree model over 35 features. The features cover overlap, entities, numbers, hedging words, semantic similarity, and entailment between the answer and the evidence, and eight of them summarize the support of each atomic claim. Training caps the effect of answer length, constrains the score so it cannot fall when the answer contradicts the evidence, and adds natural responses with a source marker. The design comes from two needs. The training benchmark is close to saturated, so the gain has to come from reliability under domain shift, and the natural-answer corpora provide labels for that test. Grouped splits with three seeds keep both answers of a question in one partition.
-
-  On HaluEval question answering, EC-XGB holds the in-domain score at F1 = 0.9855. The gain appears under domain shift. The standard model flags 99.9 percent of natural RAGTruth answers as risky, while EC-XGB flags 61.3 percent, and a display calibrator fitted on RAGTruth question answering cuts the deployed expected calibration error from 0.726 to 0.126. One analysis takes 61.8 ms and costs about USD 0.001 per 1,000 predictions. A FastAPI service and a Next.js dashboard deploy the model with claim-level evidence checks.
+Large language models answer in fluent text, and some answers are unsupported by the evidence a user has. A confidently wrong answer can mislead people in question answering. Current detectors have practical limits. A large judge model is slow and costly, encoder classifiers need model weights and a graphics card, and feature-based detectors rarely report calibration or behavior outside the training domain. This study asks whether a small black-box model can estimate the risk that an answer is hallucinated from the question, the evidence, and the candidate answer alone. A second question is whether that estimate can be trusted as a probability. The proposed method, evidence-consistent XGBoost (EC-XGB), is a gradient-boosted tree model over 35 features. The features cover overlap, entities, numbers, hedging words, semantic similarity, and entailment, and eight of them summarize the support of each atomic claim. Training caps the effect of answer length, keeps the score from falling when the answer contradicts the evidence, and adds natural responses with a source marker. The design comes from one need. The benchmark is close to saturated, so the gain has to come from reliability under shift, and the natural-answer corpora label that test with grouped splits and three seeds. On HaluEval question answering, EC-XGB holds the in-domain score at F1 = 0.9855. The gain appears under domain shift. The standard model flags 99.9 percent of natural RAGTruth answers as risky, while EC-XGB flags 61.3 percent, and a display calibrator fitted on RAGTruth cuts the deployed expected calibration error from 0.726 to 0.126. One analysis takes 61.8 ms and costs about USD 0.001 per 1,000 predictions.
 \end{abstract}
 
 % Keywords
@@ -490,7 +484,7 @@ Table~\ref{tab:calib} compares raw, Platt-scaled, and isotonic probabilities on 
 
 \begin{figure}[pos=htbp]
   \centering
-  \includegraphics[width=0.8\linewidth]{b4/reliability_diagrams.png}
+  \includegraphics[width=\linewidth]{b4/reliability_diagrams.png}
   \caption{Reliability diagrams of the raw, Platt-calibrated, and isotonic models on the HaluEval test set (left), RAGTruth QA (middle), and FaithBench (right).}
   \label{fig:reliability}
 \end{figure}
@@ -518,7 +512,7 @@ Table~\ref{tab:target} applies the standard model to the 900-row RAGTruth QA tes
 
 \begin{figure}[pos=htbp]
   \centering
-  \includegraphics[width=0.8\linewidth]{b4/calibration_shift.png}
+  \includegraphics[width=\linewidth]{b4/calibration_shift.png}
   \caption{Target-domain recalibration on RAGTruth QA. Left and middle: raw and target-calibrated score distributions on the 900-row test set, with the 0.5 threshold marked. Right: ECE and Brier before and after recalibration.}
   \label{fig:calibshift}
 \end{figure}
@@ -529,7 +523,7 @@ The zero-shot evaluation with no training or adaptation on the target corpora is
 
 \begin{figure}[pos=htbp]
   \centering
-  \includegraphics[width=0.8\linewidth]{b3/transfer_score_distributions.png}
+  \includegraphics[width=\linewidth]{b3/transfer_score_distributions.png}
   \caption{Raw model score distributions on the HaluEval test set and the zero-shot corpora, with the 0.5 threshold marked. The source panel separates the classes, while every zero-shot panel piles both labels at 1.0.}
   \label{fig:transferscore}
 \end{figure}
