@@ -8,6 +8,8 @@ This document specifies mandatory rules, design patterns, prompt caching optimiz
 
 - **`blueprint.md`** — unified research design, scientific claims, and scope (both phases are complete; the document no longer splits Version A/B). Version A remains frozen on branch `version-A`; current work and both manuscripts live on `version-B`. Do not alter frozen artifacts without a documented reason.
 - **`roadmap.md`** — phased implementation plan. Treat as guidance, NOT gospel: version numbers, URLs, and library claims in it can be stale. Always prefer the **latest stable versions actually available/installed** (check `.venv` and PyPI before pinning anything).
+- **`docs/prompt.md`** — voice and style guide for the journal paper (student register, anti-AI-detection patterns, citation placement). Load it in any paper-writing session.
+- **`docs/writing-guideline.md`** — structural guideline for the journal paper (title rules, abstract 6-step formula, keywords, section-by-section organization), extracted from `docs/writing-guide.pdf`. The PDF stays the primary source; the markdown is the operative extract.
 - **`AGENTS.md`** (this file) — binding agent rules. On conflict with `roadmap.md`, this file and `blueprint.md` win.
 
 ---
@@ -101,7 +103,7 @@ HaluRISC/
 ├── roadmap.md            # implementation record (guidance only)
 ├── requirements.txt      # EXACT pins only (==)
 ├── Journal_Paper/        # journal manuscript (halurisc.tex, CAS single column) + ref.bib + figures/screenshots
-├── docs/                 # phase guides (b5/b6/b7) + frozen manifest
+├── docs/                 # phase guides (b5/b6/b7) + writing guides (prompt.md, writing-guideline.md) + frozen manifest
 ├── configs/              # version_b.yaml (run_all protocol)
 ├── colab/                # self-contained training notebook
 ├── src/
@@ -202,8 +204,8 @@ pnpm run lint   # eslint (flat config, eslint 9)
 
 ## 9. Paper Writing Rules
 
-1. **Student-register guide:** `docs/prompt.md` is the operative writing guide for the paper. Load it at the start of any paper-writing session and follow every rule (burstiness, vocabulary blacklist, no em-dashes/semicolons, max one transition per 2–3 paragraphs, inline citations, active voice, no first-person in formal sections).
+1. **Writing guides:** load both at the start of any paper-writing session and follow every rule. `docs/prompt.md` controls the voice (burstiness, vocabulary blacklist, no em-dashes/semicolons, max one transition per 2–3 paragraphs, inline citations, active voice, no first-person in formal sections). `docs/writing-guideline.md` controls the structure (title rules, abstract 6-step formula, keywords, 4-paragraph introduction, conventional/proposed/experiments/results flows, conclusion, declarations, references), extracted from the supervisor's `docs/writing-guide.pdf`.
 2. **Source of truth:** all numbers in `Journal_Paper/halurisc.tex` MUST come from verified artifacts (`artifacts/results/*`, `docs/manifest.frozen.json`). The old draft numbers (0.9886, 0.4822, 137 ms, ECE 0.0115) are stale and must not be reintroduced.
-3. **Build:** compile the manuscript with TeX Live 2025: `latexmk -pdf -outdir=out halurisc.tex` from `Journal_Paper/`. Verify a clean build (no unresolved citations; 13-16 pages journal format) before finishing paper work. Figures resolve from `Journal_Paper/figures/` and `Journal_Paper/screenshots/` first; `src/models/plot_paper_figures.py` refreshes the two shift/transfer figures.
+3. **Build:** compile the manuscript with TeX Live 2025: `latexmk -pdf -outdir=out halurisc.tex` from `Journal_Paper/`. Verify a clean build (no unresolved citations; 13-16 pages journal format) before finishing paper work. Figures resolve from `Journal_Paper/figures/` and `Journal_Paper/screenshots/` first. `src/models/plot_paper_figures.py` refreshes the two shift/transfer figures in `artifacts/`; `src/models/plot_paper_figures_hires.py` regenerates the paper-grade (600+ DPI) copies of the four charts into `Journal_Paper/figures/` without touching the frozen artifact figures. The two architecture diagrams are rasterized from `web/public/slides/*.svg` with headless Chrome (`--force-device-scale-factor=3`). The UI figure is captured from `http://localhost:3000/analyze?case=hallucinated&run=1&theme=light` with headless Chrome at `--force-device-scale-factor=4`.
 4. **References:** `Journal_Paper/ref.bib` (30 entries) is verified against real publications. Do not add references without web verification. The manuscript follows the CAS sample and names that chapter `Conventional Method`.
 5. **Audit provenance:** the B5.5 explanation audit was performed with an AI assistant (two review passes, `review_mode = ai-expert` in `artifacts/results/b5/b5_review_cases_reviewed.csv`). Never describe it as a two-human-reviewer study, and always state the error-enriched sampling caveat wherever its numbers appear.

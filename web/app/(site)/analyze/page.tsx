@@ -366,6 +366,53 @@ export default function AnalyzePage() {
     setCompare(false);
   };
 
+  // Deep link support for screenshots and demos:
+  //   /analyze?case=hallucinated&run=1&theme=light
+  // applies the theme, pre-fills the matching sample scenario, and optionally
+  // runs it once on mount.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const theme = params.get("theme");
+    if (theme === "light" || theme === "dark") {
+      try {
+        window.localStorage.setItem("halurisc-theme", theme);
+      } catch {
+        // storage may be unavailable; the class toggle below still applies
+      }
+      document.documentElement.classList.toggle("dark", theme === "dark");
+    }
+    const key = (params.get("case") ?? "").trim().toLowerCase();
+    if (!key) return;
+    const scenario = SAMPLE_SCENARIOS.find((s) => s.title.toLowerCase().includes(key));
+    if (!scenario) return;
+    const autorun = params.get("run") === "1";
+    let cancelled = false;
+    const timer = window.setTimeout(() => {
+      if (cancelled) return;
+      applyScenario(scenario);
+      if (!autorun) return;
+      setLoading(true);
+      setError(null);
+      analyzeInput({ question: scenario.q, context: scenario.c, answer: scenario.a })
+        .then((result) => {
+          if (cancelled) return;
+          setResults({ a: result });
+          setSubmitted({ a: { question: scenario.q, context: scenario.c, answer: scenario.a } });
+        })
+        .catch((err) => {
+          if (!cancelled) setError(err instanceof Error ? err.message : "Failed to reach the ML backend.");
+        })
+        .finally(() => {
+          if (!cancelled) setLoading(false);
+        });
+    }, 0);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const deltaPts =
     results?.b != null
       ? Math.round((results.b.prediction.calibrated_score - results.a.prediction.calibrated_score) * 100)
