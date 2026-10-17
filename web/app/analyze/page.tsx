@@ -187,16 +187,16 @@ export default function AnalyzePage() {
 
   const sampleScenarios = [
     {
-      title: "Hallucinated Date",
+      title: "Hallucinated Number",
       q: "By how many days per decade has the melt season lengthened in the shallowest of the world's major oceans?",
       c: "It has been established that the region is at its warmest for at least 40,000 years and the Arctic-wide melt season has lengthened at a rate of 5 days per decade (from 1979 to 2013), dominated by a later autumn freezeup. The Arctic Ocean is the smallest and shallowest of the world's five major oceans.",
       a: "The Arctic Ocean melt season has lengthened by 10 days per decade.",
     },
     {
       title: "Grounded & Correct",
-      q: "Are both The New Pornographers and Kings of Leon American rock bands?",
-      c: "The New Pornographers is a Canadian indie rock band; Kings of Leon is an American rock band.",
-      a: "Yes, both The New Pornographers and Kings of Leon are now American rock bands.",
+      q: "Which president was present for the Mexican Civil War who originated from Oaxaca?",
+      c: "Agnes Salm-Salm was the American wife of Prince Felix zu Salm-Salm. Benito Pablo Juarez Garcia was a Mexican lawyer and liberal politician of Zapotec origin from Oaxaca.",
+      a: "Benito Pablo Juarez Garcia",
     },
     {
       title: "Borderline / Ambiguous",

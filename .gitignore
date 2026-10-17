@@ -27,8 +27,6 @@ artifacts/results/b5/*
 !artifacts/results/b5/b5_length_error_analysis.json
 
 # Environment & Keys
-.env
-.env.local
 .env.*.local
 
 # Node / Next.js
@@ -40,7 +38,6 @@ web/.vercel/
 web/*.log
 
 # IDE & OS
-.vscode/
 .idea/
 .DS_Store
 Thumbs.db
@@ -51,3 +48,5 @@ report/
 report/*.aux
 report/*.log
 report/*.out
+config.bat
+node_modules
