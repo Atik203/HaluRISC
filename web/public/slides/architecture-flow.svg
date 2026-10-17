@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" font-family="Inter, 'Segoe UI', Arial, sans-serif">
   <style>
     .h1 { font-size: 29px; font-weight: 800; fill: #101828; }
-    .h2 { font-size: 26px; font-weight: 800; fill: #101828; }
+    .h2 { font-size: 28px; font-weight: 800; fill: #101828; }
     .wt { font-size: 29px; font-weight: 800; fill: #ffffff; }
-    .ws { font-size: 18px; font-weight: 600; fill: #cbd5e1; }
-    .lbl { font-size: 20px; font-weight: 700; fill: #475569; }
-    .sub { font-size: 18px; font-weight: 600; fill: #475569; }
-    .chipt { font-size: 19px; font-weight: 700; fill: #101828; }
+    .ws { font-size: 21px; font-weight: 600; fill: #cbd5e1; }
+    .lbl { font-size: 23px; font-weight: 700; fill: #475569; }
+    .sub { font-size: 22px; font-weight: 600; fill: #475569; }
+    .chipt { font-size: 22px; font-weight: 700; fill: #101828; }
     .flow { stroke: #1e40af; stroke-width: 4; fill: none; }
     .flowhead { fill: #1e40af; }
   </style>
