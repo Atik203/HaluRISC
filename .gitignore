@@ -21,8 +21,6 @@ artifacts/results/*
 !artifacts/results/.gitkeep
 
 # Environment & Keys
-.env
-.env.local
 .env.*.local
 
 # Node / Next.js
@@ -34,7 +32,6 @@ web/.vercel/
 web/*.log
 
 # IDE & OS
-.vscode/
 .idea/
 .DS_Store
 Thumbs.db
@@ -42,3 +39,5 @@ Thumbs.db
 
 # Colab bundle (regenerable)
 colab/*.zip
+config.bat
+node_modules
