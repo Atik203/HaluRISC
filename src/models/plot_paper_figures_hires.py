@@ -76,9 +76,9 @@ def calibration_shift() -> None:
     )["methods"]
     rows = [
         ("Raw", metrics["raw_reference"]),
-        ("Src Platt", metrics["source_platt_reference"]),
-        ("Tgt Platt", metrics["platt"]),
-        ("Tgt isotonic", metrics["isotonic"]),
+        ("Source Platt", metrics["source_platt_reference"]),
+        ("Target Platt", metrics["platt"]),
+        ("Target isotonic", metrics["isotonic"]),
     ]
     fig, axes = plt.subplots(1, 3, figsize=(6.5, 2.3))
     for ax, scores, title in (
@@ -101,7 +101,7 @@ def calibration_shift() -> None:
     axes[2].bar(x - width / 2, ece, width, label="ECE", color="#4C72B0")
     axes[2].bar(x + width / 2, brier, width, label="Brier", color="#DD8452")
     axes[2].set_xticks(x)
-    axes[2].set_xticklabels([r[0] for r in rows], fontsize=8, rotation=18, ha="right")
+    axes[2].set_xticklabels([r[0] for r in rows], fontsize=7.5, rotation=22, ha="right")
     axes[2].set_ylim(0, 1.0)
     axes[2].set_title("Error before and after")
     axes[2].legend(loc="upper right", fontsize=7, framealpha=0.9).get_frame().set_linewidth(0.5)
@@ -138,7 +138,7 @@ def transfer_scores() -> None:
         ax.set_xlim(0, 1)
         if i == 0:
             ax.set_ylabel("count")
-            _legend_hist(ax)
+        _legend_hist(ax)
     fig.tight_layout()
     _save(fig, FIG_PAPER / "b3" / "transfer_score_distributions.png")
 
@@ -168,7 +168,7 @@ def reliability_diagrams() -> None:
         ax.set_xlabel("confidence")
         if i == 0:
             ax.set_ylabel("accuracy")
-            ax.legend(loc="upper left", fontsize=7, framealpha=0.9).get_frame().set_linewidth(0.5)
+        ax.legend(loc="upper left", fontsize=7, framealpha=0.9).get_frame().set_linewidth(0.5)
     fig.tight_layout()
     _save(fig, FIG_PAPER / "b4" / "reliability_diagrams.png")
 
