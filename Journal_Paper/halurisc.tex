@@ -112,7 +112,7 @@ Large language models answer in fluent text, and some answers are unsupported by
 % Keywords
 % Each keyword is separated by \sep
 \begin{keywords}
-  Hallucination risk estimation \sep Explainable AI \sep Probability calibration \sep Distribution shift \sep Evidence-consistent XGBoost \sep SHAP
+  Hallucination risk estimation \sep Question answering \sep Explainable AI \sep Probability calibration \sep Distribution shift \sep Evidence-consistent XGBoost \sep SHAP
 \end{keywords}
 
 \begingroup
@@ -489,7 +489,7 @@ Table~\ref{tab:calib} compares raw, Platt-scaled, and isotonic probabilities on 
   \label{fig:reliability}
 \end{figure}
 
-Table~\ref{tab:target} applies the standard model to the 900-row RAGTruth QA test set and compares raw scores, the source calibrator fitted on the HaluEval validation split, and calibrators re-fitted on 5{,}034 RAGTruth rows. The raw and source-calibrated probabilities are badly off, with an ECE above 0.8, and target recalibration cuts the ECE to 0.1335 (Platt) and 0.1316 (isotonic) and the Brier score from 0.801 to 0.164. One deployment caveat is visible in the same numbers: the predicted positive rate drops to nearly zero at the fixed 0.5 threshold, so a deployment must also retune the decision threshold, and the labels follow only after that second step.
+Table~\ref{tab:target} applies the standard model to the 900-row RAGTruth QA test set and compares raw scores, the source calibrator fitted on the HaluEval validation split, and calibrators re-fitted on 5{,}034 RAGTruth rows. The raw and source-calibrated probabilities are badly off, with an ECE above 0.8, and target recalibration cuts the ECE to 0.1335 (Platt) and 0.1316 (isotonic) and the Brier score from 0.801 to 0.164. One deployment caveat is visible in the same numbers: the predicted positive rate drops to nearly zero at the fixed 0.5 threshold, so a deployment must also retune the decision threshold, and the labels follow only after that second step. Figure~\ref{fig:calibshift} shows the raw and target-calibrated score distributions behind the 900-row test numbers and the error bars before and after recalibration.
 
 \begin{table}[pos=htbp]
   \centering
