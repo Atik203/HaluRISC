@@ -30,6 +30,8 @@ Supporting sources of truth:
 | [`04-interface-guide.md`](04-interface-guide.md) | Plain-language guide to the UI: risk card, gauge cutoffs, SHAP chart, dashboard tabs, troubleshooting |
 | [`title_explanations.md`](title_explanations.md) | Word-by-word justification of the journal title, with the artifact behind every word and a title-defense Q&A |
 | [`05-solving-hallucination-plan.md`](05-solving-hallucination-plan.md) | Prepared answer to "how would you solve hallucination": four-layer plan, routing policy, toolbox, and evaluation |
+| [`writing-guideline.md`](writing-guideline.md) | Supervisor's structural guideline for the journal paper (title, abstract 6-step formula, keywords, section organization), extracted from `writing-guide.pdf` |
+| [`prompt.md`](prompt.md) | Voice and style guide used when polishing the manuscript (student register, anti-AI-detection rules) |
 | [`manifest.frozen.json`](manifest.frozen.json) | Frozen artifact hashes, seeds, hardware, environment |
 
 ## Quick reference

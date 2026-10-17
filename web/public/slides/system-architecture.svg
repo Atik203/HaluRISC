@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 800" width="1600" height="800" font-family="Inter, 'Segoe UI', Arial, sans-serif">
+  <style>
+    .h1 { font-size: 30px; font-weight: 800; fill: #101828; }
+    .h2 { font-size: 27px; font-weight: 800; fill: #101828; }
+    .sub { font-size: 19px; font-weight: 600; fill: #475569; }
+    .chipt { font-size: 18px; font-weight: 700; fill: #101828; }
+    .flow { stroke: #1e40af; stroke-width: 4; fill: none; }
+    .flowhead { fill: #1e40af; }
+    .dash { stroke: #64748b; stroke-width: 3; fill: none; stroke-dasharray: 10 8; }
+  </style>
+
+  <rect width="1600" height="800" fill="#ffffff"/>
+
+  <!-- Row 1: frontend -->
+  <rect x="360" y="20" width="880" height="88" rx="18" fill="#eef2ff" stroke="#1e40af" stroke-width="3"/>
+  <text class="h1" x="800" y="62" text-anchor="middle">Next.js 16 + assistant-ui</text>
+  <text class="sub" x="800" y="94" text-anchor="middle">chat and analyze pages</text>
+
+  <!-- frontend to BFF -->
+  <path class="flow" d="M660 108 L660 168"/>
+  <path class="flowhead" d="M660 186 L650 164 L670 164 Z"/>
+
+  <!-- streamed response back to the frontend -->
+  <path class="dash" d="M1140 186 L1140 150 L980 150 L980 108"/>
+  <path class="flowhead" d="M980 108 L970 132 L990 132 Z" opacity="0.75"/>
+  <text class="sub" x="992" y="142">streamed response</text>
+
+  <!-- Row 2: BFF -->
+  <rect x="410" y="188" width="500" height="88" rx="18" fill="#ffffff" stroke="#1e40af" stroke-width="3"/>
+  <text class="h2" x="660" y="230" text-anchor="middle">Next.js BFF /api/chat</text>
+  <text class="sub" x="660" y="260" text-anchor="middle">Vercel AI SDK streaming</text>
+
+  <!-- branches -->
+  <path class="flow" d="M540 276 L540 312 L340 312 L340 348"/>
+  <path class="flowhead" d="M340 366 L330 344 L350 344 Z"/>
+  <text class="sub" x="352" y="304">tool call</text>
+
+  <path class="flow" d="M780 276 L780 312 L1120 312 L1120 348"/>
+  <path class="flowhead" d="M1120 366 L1110 344 L1130 344 Z"/>
+  <text class="sub" x="1000" y="304">/api/ml/*</text>
+
+  <!-- Row 3: judge model -->
+  <rect x="60" y="368" width="540" height="100" rx="18" fill="#fffbeb" stroke="#b45309" stroke-width="3"/>
+  <text class="h2" x="330" y="412" text-anchor="middle">GPT 5.6 Luna</text>
+  <text class="sub" x="330" y="444" text-anchor="middle">conversational analysis + tool calls</text>
+
+  <!-- Row 3: FastAPI -->
+  <rect x="660" y="368" width="880" height="100" rx="18" fill="#f0fdfa" stroke="#0f766e" stroke-width="3"/>
+  <text class="h2" x="1100" y="408" text-anchor="middle">FastAPI :8000</text>
+  <text class="sub" x="1100" y="440" text-anchor="middle">/predict &#183; /explain &#183; /verify &#183; /index &#183; /retrieve &#183; /feedback</text>
+
+  <!-- API to inference -->
+  <path class="flow" d="M1100 468 L1100 498"/>
+  <path class="flowhead" d="M1100 516 L1090 494 L1110 494 Z"/>
+
+  <!-- Row 4: inference band -->
+  <rect x="60" y="520" width="1480" height="240" rx="22" fill="#f8fafc" stroke="#475569" stroke-width="3"/>
+  <text class="h1" x="800" y="562" text-anchor="middle">ML inference</text>
+
+  <!-- chip 1 -->
+  <rect x="84" y="608" width="165" height="112" rx="14" fill="#eef2ff" stroke="#1e40af" stroke-width="2.5"/>
+  <text class="chipt" x="166" y="654" text-anchor="middle">XGBoost</text>
+  <text class="chipt" x="166" y="688" text-anchor="middle">+ Platt</text>
+
+  <!-- chip 2 -->
+  <rect x="265" y="608" width="165" height="112" rx="14" fill="#ede9fe" stroke="#6d28d9" stroke-width="2.5"/>
+  <text class="chipt" x="347" y="672" text-anchor="middle">SHAP</text>
+
+  <!-- chip 3 -->
+  <rect x="446" y="608" width="165" height="112" rx="14" fill="#f0fdfa" stroke="#0f766e" stroke-width="2.5"/>
+  <text class="chipt" x="528" y="654" text-anchor="middle">NLI</text>
+  <text class="chipt" x="528" y="688" text-anchor="middle">(DeBERTa-v3)</text>
+
+  <!-- chip 4 -->
+  <rect x="627" y="608" width="165" height="112" rx="14" fill="#dcfce7" stroke="#15803d" stroke-width="2.5"/>
+  <text class="chipt" x="709" y="654" text-anchor="middle">NER</text>
+  <text class="chipt" x="709" y="688" text-anchor="middle">(spaCy)</text>
+
+  <!-- chip 5 -->
+  <rect x="808" y="608" width="165" height="112" rx="14" fill="#ffedd5" stroke="#c2410c" stroke-width="2.5"/>
+  <text class="chipt" x="890" y="654" text-anchor="middle">SBERT</text>
+  <text class="chipt" x="890" y="688" text-anchor="middle">(MiniLM)</text>
+
+  <!-- chip 6 -->
+  <rect x="989" y="608" width="165" height="112" rx="14" fill="#fee2e2" stroke="#b91c1c" stroke-width="2.5"/>
+  <text class="chipt" x="1071" y="672" text-anchor="middle">BM25 + FAISS</text>
+
+  <!-- chip 7 -->
+  <rect x="1170" y="608" width="165" height="112" rx="14" fill="#ccfbf1" stroke="#0f766e" stroke-width="2.5"/>
+  <text class="chipt" x="1252" y="654" text-anchor="middle">Brave web</text>
+  <text class="chipt" x="1252" y="688" text-anchor="middle">search</text>
+
+  <!-- chip 8 -->
+  <rect x="1351" y="608" width="165" height="112" rx="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2.5"/>
+  <text class="chipt" x="1433" y="654" text-anchor="middle">Document</text>
+  <text class="chipt" x="1433" y="688" text-anchor="middle">index</text>
+</svg>

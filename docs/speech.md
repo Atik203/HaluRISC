@@ -40,8 +40,8 @@ pause for one second after every number.
 ### Slide 1 — Title (0:25)
 
 > Hi everyone. Our team name is Phantom Devs, and the project is HaluRISC.
-> The full title is: Evidence-Consistent XGBoost for Calibrated Hallucination Risk
-> Estimation in LLM Answers.
+> The full title is: Calibrated Hallucination Risk Estimation in Large Language
+> Models with Evidence-Consistent XGBoost.
 > Our recorded video shows the working demo and the key results from our journal paper.
 
 ---

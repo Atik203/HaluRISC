@@ -213,8 +213,8 @@ function TitleSlide({ index }: SlideProps) {
           className="mx-auto mt-[1.1cqh] max-w-[80cqw] text-[3.05cqh] font-extrabold leading-snug"
           style={{ color: NEAR_BLACK }}
         >
-          Evidence-Consistent XGBoost for Calibrated Hallucination Risk
-          Estimation in LLM Answers
+          Calibrated Hallucination Risk Estimation in Large Language Models
+          with Evidence-Consistent XGBoost
         </h1>
         <div
           className="mt-[1.4cqh] text-[2.2cqh] font-bold"
