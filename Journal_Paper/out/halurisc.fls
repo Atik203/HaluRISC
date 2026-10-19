@@ -383,10 +383,6 @@ INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/stix/stix-mathcal.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/stix/stix-mathsf.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/stix/stix-mathsfit.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/stix/stix-mathtt.tfm
-INPUT ./figures/system_architecture.png
-INPUT ./figures/system_architecture.png
-INPUT ./figures/system_architecture.png
-INPUT ./figures/system_architecture.png
 INPUT ./screenshots/analyze-arctic-risk-card.png
 INPUT ./screenshots/analyze-arctic-risk-card.png
 INPUT ./screenshots/analyze-arctic-risk-card.png
@@ -418,10 +414,10 @@ INPUT c:/texlive/2025/texmf-dist/tex/latex/stix/ts1stix.fd
 INPUT c:/texlive/2025/texmf-dist/tex/latex/stix/ts1stix.fd
 INPUT c:/texlive/2025/texmf-dist/tex/latex/stix/ts1stix.fd
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/stix/ts1-stixgeneral.tfm
-INPUT out/halurisc.bbl
-INPUT out/halurisc.bbl
-INPUT out/halurisc.bbl
 INPUT c:/texlive/2025/texmf-dist/fonts/enc/dvips/stix/stix-ts1.enc
+INPUT out/halurisc.bbl
+INPUT out/halurisc.bbl
+INPUT out/halurisc.bbl
 INPUT out/halurisc.aux
 INPUT out/halurisc.out
 INPUT out/halurisc.out

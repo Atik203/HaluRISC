@@ -6,7 +6,7 @@ is each word there?'
 
 Full title:
 
-> **Calibrated Hallucination Risk Estimation in Large Language Models with Evidence-Consistent XGBoost**
+> **Calibrated Hallucination Risk Estimation in Large Language Models Using Evidence-Consistent XGBoost**
 
 Short title (running head):
 
@@ -56,7 +56,7 @@ features track the evidence (**evidence-consistent XGBoost**).
 | **Estimation** | Producing a probability for each answer, not a hard verdict. | Sets the statistical claim. The output is a number with a calibration guarantee, so 'estimation' is accurate; 'detection' would imply a binary decision, which is only the thresholded view of the same score. | P(hallucinated &#124; q, c, a) in the abstract; scores and thresholds across the B-runs |
 | **in** | Grammatical link. | Joins the task to the setting. | (grammar) |
 | **Large Language Models** | The generator family whose answers are scored: short QA answers, summaries, and chat replies. | Fixes the setting without an abbreviation, so a reader outside the field understands it on the first pass. The unit of analysis is a response, not a model, so answers from any generator can be scored. | QA and summarization subsets; claim-level verification in the deployed chat layer |
-| **with** | Grammatical link. | Joins the setting to the method. | (grammar) |
+| **using** | Grammatical link. | Introduces the method; clearer than "with", which can read as a property of the models. | (grammar) |
 | **Evidence-Consistent** | The features and the training keep the score tied to the evidence direction, and per-claim NLI aggregates check each atomic clause of the answer. | Names the design that separates the model from a generic XGBoost. Monotone constraints hold the sign of the response, and the claim-level signals let the classifier see the same evidence the deployed verification layer reports. | 35 inputs (26 base plus 8 claim aggregates plus a source indicator); the m1/m2/m3 ablation in `artifacts/results/b6/b6_model_comparison.csv` |
 | **XGBoost** | A tuned gradient-boosted tree classifier over engineered evidence-consistency features, with calibration fitted on validation data. | Names the concrete method for discoverability and for a fair technical claim. It tells the reader this is a learned statistical model that runs on a CPU, not a prompt wrapper and not a neural probe that needs model access. | `src/models/train_pipeline.py`; `artifacts/results/b6/b6_model_comparison.csv` |
 
@@ -69,7 +69,7 @@ features track the evidence (**evidence-consistent XGBoost**).
 | Risk | The work would sound like a truth oracle, which the system is not. |
 | Estimation | The output would sound like a hard label instead of a calibrated probability. |
 | in, Large Language Models | The setting would be unclear, and a reader outside the field would have to guess where the method applies. |
-| with | (grammar) |
+| using | (grammar) |
 | Evidence-Consistent | The design would look like a plain feature-based classifier, and the claim-level signals and monotone constraints would seem like extras. |
 | XGBoost | The method would be undefined, and readers could not tell what kind of system produces the estimate. |
 
@@ -167,7 +167,7 @@ works in-domain and where it breaks under domain shift.'
   first.
 - The current title leads with the task and the setting, *Calibrated
   Hallucination Risk Estimation in Large Language Models*, and closes with the
-  method, *with Evidence-Consistent XGBoost*. A reviewer understands what the
+  method, *using Evidence-Consistent XGBoost*. A reviewer understands what the
   work measures from the first half, and the black-box property stays in the
   abstract and the method.
 
