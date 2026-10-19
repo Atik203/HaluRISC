@@ -541,3 +541,81 @@ Use this compact list for the final pass:
 - [ ] The final manuscript follows the target venue's submission requirements.
 
 **Bottom line:** The manuscript has a worthwhile direction and a substantial amount of experimental work. Its readiness depends on resolving the scientific and reporting concerns above, not on achieving a higher HaluEval score alone.
+
+---
+
+## 12. Resolution status (author response, 2026-10-19)
+
+Every item below was checked against the current manuscript, the code, and the saved artifacts. The manuscript was rebuilt after these fixes: 17 pages, warning-free log, all figures at 600 DPI. New analyses live in `src/models/review_extras.py` and `src/models/review_source_ablation.py`, with outputs under `artifacts/results/extras/`.
+
+### 3.1 Monotone constraints — resolved (writing error only)
+
+- The constraint vector in `src/models/run_b6_modified.py` is correct: entailment, overlap, and semantic similarity carry −1; contradiction, novelty, and the claim-level contradiction aggregates carry +1.
+- The manuscript sentence now states the derivative direction correctly (an evidence-positive feature keeps ∂ŷ/∂x ≤ 0), and the constraint vector is described as a design prior, not a semantic guarantee.
+- The regression test `tests/test_b6_modified.py::test_constraint_string_values` asserts the signs and the feature order; it now also covers the entailment sign explicitly.
+
+### 3.2 Calibration reconciliation — resolved (clarity, not a numeric error)
+
+- §5.2's 0.726 → 0.126 is the EC-XGB display calibrator (`b6_calibration.json`, `ec-xgb-m3-seed-42`).
+- Table 8's 0.8185 → 0.1335/0.1316 is the standard XGBoost model (`b4_target_calibration.json`).
+- Both use the same disjoint split: 5,034 calibration rows and 900 held-out test rows. The manuscript now states this explicitly, attributes each value to its model, and names the standard model in the table and figure captions. No number was replaced; every value was re-derived from the artifacts.
+
+### 3.3 Zero-shot framing — resolved
+
+- §5.4 is retitled "Cross-domain transfer". The text now separates three cases: the standard model (zero-shot on every external corpus), EC-XGB (zero-shot on held-out QA and FaithBench; adaptation on summarization and data-to-text), and the combined corpus (labeled as a mix).
+- The dataset table, Figure 1/6 captions, Table 6 caption, and the abstract are updated. The held-out QA result is reported separately (abstract: "the held-out QA task stays near F1 0.30").
+- Table 6 now states the population of each row (2,700-row test split, 900-row held-out QA split, 750 FaithBench rows). The §5.4 full-corpus numbers are labeled as the dedicated cross-domain run, and the population difference is explained (35% positive in the test split against 43% in the full corpus).
+
+### 3.4 HaluEval shortcuts — addressed with new analyses
+
+- Length-only baseline (logistic regression on log n_chars and log n_words, same grouped split): F1 = 0.9457, AUROC = 0.9759, MCC = 0.891.
+- Length-balanced evaluation (247 rows from each of the six length bins, 1,482 rows, three seeds): EC-XGB F1 = 0.9867, AUROC = 0.9987.
+- The lexical-overlap-only control already exists in Table 4 (overlap heuristic, F1 = 0.9352).
+- The paper now states the interpretation: the benchmark carries a strong length signal, and EC-XGB holds when the length mix is neutralized.
+- A fine-tuned encoder detector was not added; the GPT 5.6 Luna judge remains the strongest external comparison, and this is stated as a limitation.
+
+### 3.5 Threshold after target calibration — resolved
+
+- Test prevalence is 17.8%; every calibrated score falls below 0.5 (maximum 0.313), which explains the zero predicted-positive rate.
+- A threshold selected on the 5,034-row calibration split at a 5% false-positive budget (0.313) gives held-out recall 5.0%, precision 15.7%, F1 0.076, and a false-positive rate of 5.8%.
+- Reported conclusion: target recalibration fixes the probability scale, not the ranking. Label budget: 252 rows (5% of the split) already give ECE 0.133, matching the full split.
+
+### 3.6 EC-XGB and the deployed application — separated in text
+
+- The manuscript states that all quantitative results measure the EC-XGB classifier and its calibrator alone, and that the claim-verification layer changes the displayed verdict and is demonstrated through the interface rather than measured.
+- Headline F1/AUROC are classifier numbers; latency and cost cover the classifier pipeline, with retrieval and judge calls excluded.
+
+### 3.7 Source indicator — resolved with a new ablation
+
+- m3 without the source indicator, same training rows and tuned hyperparameters, three seeds: in-domain F1 0.9849 against 0.9855, AUROC 0.9985 against 0.9984, shifted flag rate 61.5% against 61.3%, held-out QA F1 0.308 against 0.308, FaithBench flag rate 7.3% in both.
+- Inference-time assignment is documented (one for natural responses, zero for benchmark-style rows). FaithBench remains the unseen-source check; an entirely new source stays future work.
+
+### 4. Reporting audit — resolved
+
+- **4.1:** Tables 4 and 7 now use four decimals; the two standard-XGBoost entries are explained (F1 0.9846 in the baseline run against 0.9844 in the modified run, seed-level variation).
+- **4.2:** every Table 6/8 value was re-checked against `b6_external_metrics.csv` and `b4_target_calibration.json`; combined-set and held-out-QA flag rates are now distinct in text, table, and captions.
+- **4.3:** the majority-baseline row was added to Table 4, so the eight-model count is correct; probability-based metrics are marked undefined for a constant score.
+- **4.4:** feature counts were verified from the code (26 base + 8 claims + 1 indicator); the Table 5 caption explains 34 vs 35; `b6_run_config.json` records the exact feature order.
+- **4.5:** Table 11 notes that components are timed in separate instrumented passes and that retrieval and judge calls are excluded; totals are medians.
+- **4.6:** error analysis now describes the actual procedure: 10 false positives and 10 false negatives, categorized with keyword heuristics, and the sample is stated to describe the reviewed cases rather than the full error population.
+
+### 5. Design improvements
+
+- **5.1:** the baseline set is stated as is; the neural-detector gap is declared as a limitation.
+- **5.2:** McNemar pairing (seed-42 test predictions) is stated; bootstrap intervals are group-aware over question or source groups; cross-domain intervals are reported for both models (standard QA F1 [0.260, 0.342], AUROC [0.514, 0.607]; EC-XGB QA F1 [0.265, 0.353], AUROC [0.502, 0.603]).
+- **5.3:** label-budget result added; the calibration split stays disjoint from the test split.
+- **5.4:** the English-centric scope is already stated; the transfer conditions are now defined per corpus.
+
+### 6–8. Related work, abstract and conclusion, writing
+
+- Related work: two sentences state the differences from the closest feature-based, LLM-scored, and tool-based methods; a comparison table was not added to hold the 17-page budget.
+- Abstract (276 words) reports the in-domain result, the combined-corpus shift result with its limited AUROC, the held-out QA result, the calibrated ECE, and the cost. The deployment sentence was removed. The conclusion separates a risk estimate from a fact-checking verdict, states the labeled-target requirement, and does not claim general-purpose detection.
+- Figures: charts redrawn at print size with readable fonts at 600 DPI, legends in every panel, and the UI figure reduced to two panels. References remain 30/30 with no unverified additions.
+- Reproducibility: `requirements.txt` matches the reported environment exactly; split indices, seeds, and the frozen manifest are present.
+
+### Not addressed (with rationale)
+
+- **Fine-tuned encoder/neural detector baseline:** no compute budget for a fair within-study comparison; declared as future work.
+- **Entirely new unseen-source corpus:** no new licensed data; FaithBench and held-out RAGTruth QA provide the unseen-corpus and unseen-task checks.
+- **Related-work comparison table:** replaced by targeted differentiation sentences to keep the paper at 17 pages.
+

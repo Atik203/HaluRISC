@@ -315,7 +315,7 @@ Sources: `artifacts/results/error_analysis.json`,
 ### 10.1 Error counts and taxonomy
 
 The 3,000-sample test set contains **48 errors: 12 false positives and 36 false
-negatives** (error rate 1.6%). A manual inspection of 20 sampled errors assigns
+negatives** (error rate 1.6%). A heuristic review of 20 sampled errors (10 false positives and 10 false negatives) assigns
 them to two categories:
 
 | Category | FP | FN |
