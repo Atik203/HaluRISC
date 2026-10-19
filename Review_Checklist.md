@@ -610,7 +610,8 @@ Every item below was checked against the current manuscript, the code, and the s
 
 - Related work: two sentences state the differences from the closest feature-based, LLM-scored, and tool-based methods; a comparison table was not added to hold the 17-page budget.
 - Abstract (276 words) reports the in-domain result, the combined-corpus shift result with its limited AUROC, the held-out QA result, the calibrated ECE, and the cost. The deployment sentence was removed. The conclusion separates a risk estimate from a fact-checking verdict, states the labeled-target requirement, and does not claim general-purpose detection.
-- Figures: charts redrawn at print size with readable fonts at 600 DPI, legends in every panel, and the UI figure reduced to two panels. References remain 30/30 with no unverified additions.
+- Figures: charts redrawn at print size with readable fonts at 600 DPI, legends in every panel, and the UI figure reduced to two panels.
+- References: 36 entries, all cited, none unverified. Six additions were checked against Crossref, arXiv, and NeurIPS proceedings: Ji et al. (ACM Computing Surveys 2023), Zheng et al. (NeurIPS 2023), Ovadia et al. (NeurIPS 2019), Chen et al. (ICLR 2024), Adebayo et al. (NeurIPS 2018), and Campos et al. (TACL 2024). Two further verified candidates (RAGChecker, VeriScore) were held back to keep the manuscript at 17 pages.
 - Abbreviations are defined at first use (NLI, EC-XGB, AUROC, PR-AUC, MCC, ECE), and absolute claims about prior work were softened from "is not reported/measured/tested" to "is rarely reported/measured/tested".
 - Reproducibility: `requirements.txt` matches the reported environment exactly; split indices, seeds, and the frozen manifest are present.
 
