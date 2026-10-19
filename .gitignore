@@ -34,6 +34,13 @@ artifacts/results/b5/*
 artifacts/results/extras/*
 !artifacts/results/extras/*.json
 
+# Review-response analyses land in their own namespace (calibration protocol, length control)
+!artifacts/results/review/
+artifacts/results/review/*
+!artifacts/results/review/*.json
+!artifacts/results/review/*.csv
+!artifacts/results/review/*.log
+
 # Web-local artifact mirror ships with the frontend so the Vercel build is self-contained
 !web/artifacts/
 !web/artifacts/**
