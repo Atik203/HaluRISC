@@ -17,6 +17,7 @@
 \usepackage{algpseudocode}
 \usepackage{color}
 \usepackage{xcolor}
+\usepackage{orcidlink}
 \usepackage{lineno}
 \usepackage{silence}
 \WarningFilter{hyperref}{Ignoring empty anchor}
@@ -51,6 +52,148 @@
 \ExplSyntaxOn
 \bool_gset_true:N \g_stm_nologo_bool
 \ExplSyntaxOff
+% --- ORCID badges in the byline -------------------------------------------
+% The CAS class prints ORCID iDs only in the footnote. Below is the class's
+% own \author definition (cas-common.sty v2.3) with one addition: when an
+% author declares [orcid=...], the green iD badge follows the name before the
+% affiliation mark. Every other line is unchanged from the class.
+\makeatletter
+\ExplSyntaxOn
+\RenewDocumentCommand \author { O{} m O{} }
+   {
+     \ResetMarks
+     \tl_if_blank:nTF { #3 } { }
+       { \keys_set:nn { stm / author } { #3 } }
+%
+     \int_gincr:N \g_stm_au_int  
+     \tex_gdef:D \theau@ { \int_use:N \g_stm_au_int }
+%
+     \seq_gput_right:Nn \g_stm_prelimsau_seq { #2 }
+     \bool_if:NTF \l_stm_au_collab_bool
+       { \seq_gput_right:cn { g_stm_clau\int_use:N \g_stm_augr_int _seq } }
+       { \seq_gput_right:cn { g_stm_au\int_use:N \g_stm_augr_int _seq } }
+       {          
+         \int_gincr:N \g_stm_aau_int  
+         \tex_gdef:D \theauthor {\int_use:N \g_stm_aau_int }
+         \keys_set:nn { stm /author } { #3 }
+         \tl_if_head_eq_catcode:nNTF { #1 } a
+            { \processAffRef { #1 } }
+            { \processAffNum { #1 } }
+         \tl_if_empty:NF \l_stm_au_prefix
+            { \l_stm_au_prefix_tl \c_space_token } 
+         \str_if_eq:VnTF \l_stm_au_style_tl  { chinese }
+            { %\iow_term:n {STYLE~T=\l_stm_au_style_tl........}
+              \invparsename { #2 } 
+              \textcolor{\l_stm_augroup_color_tl}{\surname}
+              \no_break_space:
+              \textcolor{\l_stm_augroup_color_tl !50}{\firstname}
+            }
+            { %\iow_term:n {STYLE~F=\l_stm_au_style_tl........}  
+              \parsename { #2 } 
+              \textcolor{\l_stm_augroup_color_tl !50}{\firstname} 
+              \no_break_space:
+              \textcolor{\l_stm_augroup_color_tl}{\surname}
+            }
+        \tl_if_empty:NF \l_stm_au_suffix_tl
+        { \c_space_token \l_stm_au_suffix_tl }
+         \tl_if_empty:NF \l_stm_au_orcid_tl
+           { \,\small \exp_args:NV \orcidlink \l_stm_au_orcid_tl }
+         \unskip
+         \textsuperscript
+         {
+           \tl_if_blank:nTF { #1 }
+           { \tex_def:D \sep{} }
+           { {\itshape\listAff} \tex_def:D \sep{\unskip,} }
+           \process@marks 
+           \bool_if:NT \l_stm_au_deceased_bool 
+           { \sep \maltese
+             \tex_def:D \sep { \unksip, }
+           }
+         }
+        \tl_if_empty:NF \l_stm_au_degree_tl
+        { ,\c_space_token \l_stm_au_degree_tl }
+        \tl_if_empty:NF \l_stm_au_role_tl
+        { \c_space_token (\l_stm_au_role_tl) }
+%
+       \ResetMarks
+      }
+%
+      \bool_if:NT \l_stm_au_deceased_bool 
+       { 
+        \seq_gput_right:Nn \g_stm_maltese_seq
+         {
+          \tex_def:D \thefootnote { \maltese }
+          \footnotetext{Deceased~author.} 
+         } 
+       }
+% various social media
+      \tl_if_empty:NTF \l_stm_au_facebook_tl { }
+        { 
+          \wrAux { \token_to_str:N \facebookauthor
+            { \l_stm_au_facebook_tl } { \exp_not:n {#2} } }
+        }
+      \tl_if_empty:NF \l_stm_au_twitter_tl
+        { 
+          \wrAux { \token_to_str:N \twitterauthor
+            { \l_stm_au_twitter_tl } { \exp_not:n {#2} } }
+        }
+      \tl_if_empty:NF \l_stm_au_gplus_tl
+        { 
+          \wrAux { \token_to_str:N \gplusauthor
+            { \l_stm_au_gplus_tl } { \exp_not:n {#2} } }
+        }
+      \tl_if_empty:NF \l_stm_au_linkedin_tl
+        { 
+          \wrAux { \token_to_str:N \linkedinauthor
+            { \l_stm_au_linkedin_tl } { \exp_not:n {#2} } }
+        }
+      \tl_if_empty:NF \l_stm_au_orcid_tl
+        { 
+          \wrAux { \token_to_str:N \orcidauthor
+            { \l_stm_au_orcid_tl } { \exp_not:n {#2} } }
+        }
+%
+        \@eadauthor={#2}
+        \pdfstringdef\__info_au: { #2 }
+        \int_compare:nNnTF { \theau@ } < { 4 }
+        { \xappto \infoauthors { \__info_au: , ~ } }
+        {
+          \int_compare:nNnTF { \theau@ } = { 4 }
+          { \xappto \infoauthors { et~al. } }
+          { }
+        }        
+    }
+\ExplSyntaxOff
+\makeatother
+% The byline badges already carry the iD links, so the class's separate
+% "ORCID(s):" footnote would only repeat the same numbers.
+\RenewDocumentCommand \printorcid { } { }
+% Same author list printer as the class, except that the last two names are
+% separated by a comma instead of "and" so the four-author line fits on one
+% line together with the ORCID badges.
+\ExplSyntaxOn
+\RenewDocumentCommand \stmauthors { }
+   {
+     \group_begin:
+     \stmAuthorSetup { type = authors }
+     \l_stm_au_setup_tl
+     \par \vskip\l_stm_augroup_before_dim
+     \l_stm_augroup_align_tl
+     \l_stm_augroup_size_tl
+     \l_stm_augroup_shape_tl
+     \l_stm_augroup_weight_tl
+     \color{ \l_stm_augroup_color_tl }
+     \bool_if:NTF \g_stm_augr_bool
+       { \seq_use:Nn \g_stm_augr_seq { \par } }
+       {
+         \seq_use:cnnn { g_stm_au\int_use:N\g_stm_augr_int _seq }
+         { ,~ } { ,~ } { ,~ }
+       }
+     \par\vskip\l_stm_augroup_after_dim
+     \group_end:
+   }
+\ExplSyntaxOff
+
 %%%Author definitions
 \def\tsc#1{\csdef{#1}{\textsc{\lowercase{#1}}\xspace}}
 %%%
@@ -81,17 +224,17 @@
 \credit{Conceptualization, Data curation, Formal analysis, Investigation, Methodology, Project administration, Resources, Software, Validation, Visualization, Writing - original draft, Writing - review \& editing}
 
 % Second author
-\author[1]{Saiful Alam Sabbir}
+\author[1]{Saiful Alam Sabbir}[orcid=0009-0009-8460-1295]
 \ead{sabbir2310105@bscse.uiu.ac.bd}
 \credit{Writing - review \& editing}
 
 % Third author
-\author[1]{MD. Miraz Ahamed}
+\author[1]{MD. Miraz Ahamed}[orcid=0009-0001-1709-8812]
 \ead{mahamed2310524@bscse.uiu.ac.bd}
 \credit{Writing - review \& editing}
 
 % Supervisor
-\author[1]{Ohidujjaman Tuhin}
+\author[1]{Ohidujjaman Tuhin}[orcid=0000-0002-8776-7145]
 \credit{Supervision, Validation, Writing - review \& editing}
 
 % Address/affiliation
