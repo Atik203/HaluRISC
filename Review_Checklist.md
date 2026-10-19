@@ -1,0 +1,543 @@
+# Research Paper Review and Revision Checklist
+
+**Manuscript:** *Calibrated Hallucination Risk Estimation in Large Language Models with Evidence-Consistent XGBoost*  
+**Reviewed file:** `ML_Paper(1).pdf` (17 pages)  
+**Review type:** Technical manuscript review based on the supplied PDF  
+**Overall recommendation:** **Major revision before submission**
+
+> **Scope note:** This review evaluates the manuscript's argument, methodology as described, reported tables and figures, consistency, and presentation. The experiments and source-code repository have not been independently rerun or verified. Numerical values below are transcribed from the manuscript and should be checked against the actual experiment artifacts.
+
+---
+
+## 1. Executive summary
+
+The paper proposes Evidence-Consistent XGBoost (EC-XGB), a feature-based model intended to estimate the risk that an LLM answer is hallucinated or unsupported by available evidence. It combines engineered evidence-consistency features, claim-level natural-language-inference (NLI) aggregates, monotonic constraints, probability calibration, and SHAP explanations.
+
+The paper has several strengths:
+
+- It addresses a practical problem: hallucination risk estimation that is relatively inexpensive and interpretable.
+- It evaluates more than F1, including AUROC, MCC, calibration metrics, cross-domain behavior, ablations, latency, and error analysis.
+- It includes a useful investigation of dataset shortcuts, especially answer length.
+- It acknowledges important negative results and limitations.
+
+However, the manuscript is **not ready for submission without major revision**. The most important issues are:
+
+1. Reported calibration values and evaluation descriptions need to be reconciled.
+2. The combined RAGTruth evaluation includes task types used for training, so it must not be presented as entirely zero-shot.
+3. The HaluEval results may rely heavily on answer length and lexical shortcuts.
+4. Target-domain calibration lowers ECE but produces a zero predicted-positive rate at the fixed 0.5 threshold in Table 8.
+5. The mathematical description of monotonic constraints appears inconsistent with the stated intended behavior.
+6. EC-XGB must be evaluated separately from the larger deployed verification system.
+7. Several reporting and presentation details need clarification.
+
+**Recommendation:** Major revision. Preserve the paper's research direction, but resolve the scientific and reporting issues before polishing the language.
+
+---
+
+## 2. Paper summary
+
+### Research problem
+
+The manuscript argues that hallucination detectors can be costly, difficult to interpret, poorly calibrated, or unreliable outside their training domain. It asks whether a lightweight feature-based model can estimate hallucination risk from a question, available evidence, and a candidate answer.
+
+### Proposed method
+
+The manuscript describes EC-XGB as using:
+
+- 26 base engineered features across seven groups;
+- eight claim-level NLI aggregates;
+- one source indicator, for 35 total inputs;
+- log-scaled answer-length features;
+- monotonic constraints;
+- multi-source training;
+- Platt or isotonic probability calibration;
+- SHAP-based feature explanations.
+
+The described feature groups include length/style, lexical overlap, entity features, NLI, numeric features, hedging, and semantic similarity.
+
+### Datasets
+
+The manuscript reports using:
+
+- **HaluEval QA:** training, validation, and in-domain testing;
+- **RAGTruth:** cross-domain evaluation, including QA, summarization, and data-to-text tasks;
+- **FaithBench:** a summarization stress test.
+
+The manuscript says HaluEval QA contains 20,000 labeled answer rows derived from 10,000 questions and uses a grouped 70/15/15 split. It describes a 5,034-row RAGTruth QA calibration set and a disjoint 900-row QA test set.
+
+### Main results reported in the manuscript
+
+- EC-XGB F1 on HaluEval QA: approximately **0.9855**.
+- Standard XGBoost flags **99.9%** of combined RAGTruth rows; EC-XGB flags **61.3%**.
+- Table 6 reports combined-RAGTruth AUROC changing from **0.4753** to **0.5815**.
+- Table 6 reports combined-RAGTruth ECE changing from **0.6346** to **0.2782**.
+- Table 6 reports held-out RAGTruth QA F1 of **0.3022** for standard XGBoost and **0.3081** for EC-XGB.
+- Table 8 reports target-domain ECE of **0.1335** for Platt calibration and **0.1316** for isotonic calibration, while the predicted-positive rate at the fixed 0.5 threshold is **0.000**.
+- Median per-sample latency is reported as approximately **61.8 ms**.
+
+These are manuscript-reported results, not independently reproduced findings.
+
+---
+
+## 3. Major scientific and methodological concerns
+
+### 3.1 Monotonic-constraint equation may have the wrong sign
+
+**Location:** Page 3, Section 3.3, approximately lines 179–188.
+
+The manuscript intends the model to obey these rules:
+
+- More contradiction should not decrease hallucination risk.
+- More entailment/support should not increase hallucination risk.
+
+However, the displayed mathematical expression assigns a non-negative derivative to an “evidence-positive” feature while the surrounding text says that entailment should reduce hallucination risk.
+
+If the predicted output is the probability of hallucination, the intended directions are:
+
+\[
+\frac{\partial P(\text{hallucination})}{\partial\,\text{contradiction}} \geq 0
+\]
+
+and
+
+\[
+\frac{\partial P(\text{hallucination})}{\partial\,\text{entailment}} \leq 0
+\]
+
+**Required actions:**
+
+- [ ] Correct the equation and accompanying prose.
+- [ ] Inspect the actual monotonic-constraint vector in the training code.
+- [ ] Confirm the feature order matches the constraint vector.
+- [ ] Add a small test demonstrating that the fitted model respects the intended directions.
+- [ ] Check that any claim of evidence consistency is phrased as a design objective, not a guarantee of semantic correctness.
+
+This may be a writing error or an implementation error. The manuscript alone cannot establish which.
+
+### 3.2 Calibration numbers and protocols need reconciliation
+
+**Locations:** Abstract (page 1), Section 5.2 (page 10), Table 8 and Section 5.3 (page 11), conclusion (page 15).
+
+The manuscript reports multiple RAGTruth QA calibration results:
+
+| Location / method | Reported ECE |
+|---|---:|
+| Abstract: deployed display calibrator | 0.126 |
+| Section 5.2: deployed display calibrator | 0.126 |
+| Table 8: target Platt calibration | 0.1335 |
+| Table 8: target isotonic calibration | 0.1316 |
+
+These values may refer to different checkpoints or evaluation protocols, but the manuscript does not make the relationship sufficiently clear.
+
+The paper also reports a value of **0.726 before calibration** in Section 5.2, while Table 8 reports raw ECE of **0.8185** for its stated RAGTruth QA evaluation.
+
+**Required actions:**
+
+- [ ] Identify the exact model/checkpoint used for every calibration result.
+- [ ] Identify the raw score and calibration method used in each experiment.
+- [ ] Confirm that every ECE is computed on the same intended held-out test set for its comparison.
+- [ ] Explain why 0.726 and 0.8185 differ, if both are valid.
+- [ ] Explain why 0.126 differs from Table 8's 0.1335 and 0.1316, if both are valid.
+- [ ] Recompute the tables and abstract values directly from saved experiment artifacts.
+- [ ] Use consistent rounding and naming throughout the paper.
+
+Do not simply replace one number with another until the experiment configurations have been checked.
+
+### 3.3 The combined RAGTruth evaluation is not wholly zero-shot
+
+**Locations:** Sections 3.3 and 4.2–4.4 (pages 4 and 8), Table 6 (page 10), discussion (page 15).
+
+The manuscript says EC-XGB trains on HaluEval plus RAGTruth non-QA rows. It then reports results on the combined RAGTruth corpus, which includes QA, summarization, and data-to-text tasks.
+
+Therefore, some task types in the combined evaluation are represented in training. The held-out QA task is described as excluded from training, but the combined-set evaluation is not a fully unseen-task evaluation.
+
+**Required actions:**
+
+- [ ] Separate held-out QA results from combined RAGTruth results in the abstract, results, and conclusion.
+- [ ] Reserve “zero-shot” for an explicitly defined setting that has no target training/adaptation exposure relevant to the claim.
+- [ ] Label evaluation sets according to whether their task type, examples, groups, or documents were used in training.
+- [ ] Verify there is no overlap of examples, question groups, or source documents between training and test partitions.
+- [ ] If feasible, add an evaluation on entirely unseen task types or a separately sourced corpus.
+- [ ] State that results on task types included in training measure a different form of generalization than truly unseen-task transfer.
+
+The manuscript already acknowledges this distinction in its limitations. The terminology and framing of the results should be consistent with that acknowledgement.
+
+### 3.4 HaluEval results may be driven by dataset shortcuts
+
+**Locations:** Tables 9 and 14, pages 12 and 14; Sections 5.5, 5.8, and 5.9.
+
+Table 14 reports the following hallucinated proportions by answer length:
+
+| Answer length | Hallucinated share reported |
+|---|---:|
+| 1 word | 2.1% |
+| 2 words | 3.3% |
+| 3–4 words | 12.7% |
+| 5–8 words | 90.2% |
+| 9–16 words | 98.2% |
+| 17+ words | 99.2% |
+
+This suggests that answer length is highly predictive of the label in the HaluEval test split. The manuscript also reports that removing lexical features reduces F1 by 0.0247, while removing semantic features slightly increases F1.
+
+The issue is not merely that the model has a high F1. It is whether that performance reflects robust hallucination detection or dataset-specific correlations.
+
+**Required actions:**
+
+- [ ] Add a length-only baseline.
+- [ ] Add a lexical-overlap-only baseline.
+- [ ] Report the performance of the proposed model on a length-balanced evaluation subset.
+- [ ] Test whether performance remains strong after controlling for answer length.
+- [ ] Evaluate on a dataset whose label construction does not have the same length-label relationship.
+- [ ] Include stronger neural or established hallucination-detection baselines where feasible.
+- [ ] Explain how these shortcut tests change the interpretation of the headline HaluEval result.
+
+The paper should preserve its current error analysis and use it to motivate these additional controls.
+
+### 3.5 Lower ECE does not automatically mean a useful decision threshold
+
+**Location:** Table 8 and Figure 5, page 11.
+
+Table 8 reports:
+
+| Calibration method | ECE | Brier score | Predicted-positive rate |
+|---|---:|---:|---:|
+| Raw scores | 0.8185 | 0.8164 | 0.999 |
+| Source Platt | 0.8089 | 0.8011 | 0.999 |
+| Target Platt | 0.1335 | 0.1639 | 0.000 |
+| Target isotonic | 0.1316 | 0.1663 | 0.000 |
+
+Calibration substantially reduces the reported probability errors. However, the predicted-positive rate becomes zero at the fixed 0.5 threshold after target calibration.
+
+A lower ECE does not establish that the model is useful for classifying hallucinations at the chosen threshold.
+
+**Required actions:**
+
+- [ ] Report the positive-label prevalence on the target test set.
+- [ ] Explain the change in predicted-positive rate.
+- [ ] Select any operational threshold using a designated calibration/validation set, never the final held-out test labels.
+- [ ] Report precision, recall, F1, and false-positive rate at the chosen threshold.
+- [ ] Show reliability plots and Brier score alongside threshold-based results.
+- [ ] Explain the trade-off between false alarms and missed hallucinations.
+- [ ] Clearly distinguish probability calibration from classification performance.
+
+### 3.6 EC-XGB and the deployed verification application are not clearly separated
+
+**Locations:** Figures 1–3, pages 4–7; Sections 3.3–3.5.
+
+The paper describes both:
+
+1. A feature-based EC-XGB risk model.
+2. A larger application that uses claim decomposition, evidence retrieval, NLI, and an LLM judge for uncertain cases.
+
+The application also adjusts the displayed risk based on claim-level verdicts. It is therefore important to establish which results belong to the classifier alone and which belong to the full application.
+
+**Required actions:**
+
+- [ ] Report raw EC-XGB results separately.
+- [ ] Report calibrated EC-XGB results separately.
+- [ ] Report claim-level verification results separately.
+- [ ] Report full-system results, including retrieval and judge fallbacks, separately.
+- [ ] Explain whether the headline F1 and AUROC numbers come from the classifier or the full system.
+- [ ] Report latency and cost for each component and for the complete user-facing pipeline.
+- [ ] Clarify how the displayed risk score is adjusted and whether that adjusted score has been independently calibrated and evaluated.
+
+### 3.7 Source-indicator effects require further analysis
+
+**Locations:** Figure 1 and Sections 3.3–3.4.
+
+The paper includes a source indicator in the 35-feature model. Different sources can differ in writing style, length, label prevalence, and task type. The model could learn source-specific patterns rather than evidence quality.
+
+**Required actions:**
+
+- [ ] Add an ablation without the source indicator.
+- [ ] Report how removing it changes in-domain and cross-domain results.
+- [ ] Document how the indicator is assigned at inference time.
+- [ ] Explain whether its value reveals information that will not be available for future sources.
+- [ ] Test whether the model remains useful on a new source whose identity is not represented during training.
+
+---
+
+## 4. Numerical and reporting consistency audit
+
+These are the specific manuscript checks identified during review. Verify each against the actual artifacts before editing the paper.
+
+### 4.1 In-domain results
+
+- [ ] Table 4 reports standard XGBoost F1 as 0.985 after rounding.
+- [ ] Table 5 reports full EC-XGB F1 as 0.9855.
+- [ ] The conclusion reports EC-XGB F1 as 0.9855.
+- [ ] Explain the distinction between standard XGBoost and EC-XGB wherever their results appear.
+- [ ] Use consistent precision and rounding rules across all tables and text.
+
+### 4.2 RAGTruth results
+
+- [ ] Table 6 combined-RAGTruth AUROC: standard 0.4753, EC-XGB 0.5815.
+- [ ] Table 6 combined-RAGTruth ECE: standard 0.6346, EC-XGB 0.2782.
+- [ ] Table 6 combined-RAGTruth flag rate: standard 99.9%, EC-XGB 61.3%.
+- [ ] Table 6 held-out RAGTruth QA flag rate: standard 99.9%, EC-XGB 97.4%.
+- [ ] Do not use the 61.3% combined-set flag rate as though it were the held-out QA flag rate.
+- [ ] Reconcile Section 5.2's raw ECE of 0.726 with Table 8's 0.8185.
+- [ ] Reconcile the abstract's 0.126 with Table 8's 0.1335 and 0.1316.
+
+### 4.3 Model count
+
+**Location:** Section 4.3, page 8, and Table 4, page 9.
+
+- [ ] The text says eight models are compared, but Table 4 visibly lists seven model rows.
+- [ ] Determine whether the majority baseline is intentionally omitted from Table 4.
+- [ ] Either include the missing baseline or correct the model count and explain where the baseline is reported.
+
+### 4.4 Feature count
+
+**Locations:** Tables 1, 2, and 5; Section 3.3.
+
+- [ ] Verify the 26 base features.
+- [ ] Verify the eight claim-level aggregates.
+- [ ] Verify the single source indicator.
+- [ ] Confirm that the final total is 35.
+- [ ] Explain why the claim-level variant in Table 5 uses 34 features and the final variant uses 35.
+- [ ] Ensure feature names and order match the code, equations, and tables.
+
+### 4.5 Latency
+
+**Location:** Table 11, page 13.
+
+The table reports median and mean values for individual components and a total median latency of 61.77 ms. The component mean values do not directly add to that total when interpreted as a simple additive total.
+
+- [ ] Verify whether component timings overlap or were measured separately.
+- [ ] Explain how the total latency was measured.
+- [ ] State whether feature extraction, model inference, SHAP, retrieval, and judge fallback are included in each timing.
+- [ ] Report median and percentile values with a consistent aggregation method.
+- [ ] Distinguish batch latency from single-request interactive latency.
+
+### 4.6 Error analysis
+
+**Location:** Section 5.8, page 14.
+
+- [ ] The manuscript reports 48 errors in the 3,000-row test set: 12 false positives and 36 false negatives.
+- [ ] Table 13 summarizes a separate sample of 20 misclassifications.
+- [ ] Explicitly distinguish full-test error counts from the manually inspected sample.
+- [ ] State the selection method for the 20 cases.
+- [ ] Do not generalize the sample's category proportions to the full test set without justification.
+
+---
+
+## 5. Experimental design improvements
+
+### 5.1 Stronger baselines
+
+The current comparison includes conventional classifiers and text-based baselines, which is useful. However, it does not by itself establish superiority over the broader hallucination-detection literature.
+
+- [ ] Add at least one established hallucination detector if it can be evaluated fairly.
+- [ ] Add a claim-verification baseline.
+- [ ] Add a competitive neural classifier where feasible.
+- [ ] Ensure all baselines use comparable splits and labels.
+- [ ] Report computational cost and input requirements for each baseline.
+
+### 5.2 Confidence intervals and significance tests
+
+The manuscript reports three seeds, McNemar's test, bootstrap confidence intervals, and Wilcoxon tests.
+
+- [ ] State precisely which predictions are paired for McNemar's test.
+- [ ] State whether bootstrap resampling respects question/document groups.
+- [ ] Add uncertainty estimates for cross-domain metrics.
+- [ ] Explain that three seed-level observations provide limited evidence for a Wilcoxon test.
+- [ ] Avoid presenting tiny metric differences as practically meaningful merely because a test is significant.
+
+### 5.3 Calibration robustness
+
+- [ ] Evaluate calibration with different amounts of labeled target-domain data.
+- [ ] Keep a final target test set untouched by calibration and threshold selection.
+- [ ] Compare raw, source-calibrated, and target-calibrated probabilities.
+- [ ] Report ECE, Brier score, and a suitable threshold-based metric.
+- [ ] Explain the assumptions and practical cost of requiring labeled target examples.
+
+### 5.4 Generalization scope
+
+- [ ] State clearly that the current feature pipeline is English-centric.
+- [ ] Avoid claims of language-independent or universal generalization.
+- [ ] Define what “distribution shift” means for each experiment.
+- [ ] Separate unseen examples, unseen task types, and unseen datasets as different evaluation conditions.
+- [ ] Explain which conclusions are supported by each condition.
+
+---
+
+## 6. Related work and contribution
+
+The paper discusses related work on self-consistency, semantic entropy, lightweight detectors, SHAP-based explanations, cross-domain detection, and hallucination benchmarks.
+
+The research gap would be clearer if the related-work section compared methods systematically.
+
+**Suggested comparison columns:**
+
+| Method | Model family | External evidence | Calibration | Explainability | Cross-domain evaluation |
+|---|---|---|---|---|---|
+| Each related method | Classifier, LLM judge, sampling-based, etc. | Yes/no/details | Reported or not | Method | Setting and result |
+
+Checklist:
+
+- [ ] Verify every reference against the original publication.
+- [ ] Confirm the paper's description of each method is accurate.
+- [ ] Explain how EC-XGB differs from the closest feature-based and NLI-based methods.
+- [ ] Distinguish a novel combination of known components from a new algorithmic contribution.
+- [ ] Support claims about gaps in previous work with specific citations.
+- [ ] Avoid stating that no previous method performs an evaluation unless the literature search supports that claim.
+
+The potential contribution is the combination of lightweight feature-based risk estimation, claim-level evidence signals, calibration, explanations, and a systematic analysis of distribution shift. The manuscript needs stronger evidence that this combination offers benefits beyond a standard XGBoost model and benchmark-specific shortcuts.
+
+---
+
+## 7. Abstract and conclusion revision checklist
+
+### Abstract
+
+- [ ] Identify the 0.9855 F1 as an in-domain HaluEval QA result.
+- [ ] Describe the 61.3% flag rate as a combined-RAGTruth result.
+- [ ] Report the held-out QA result separately.
+- [ ] Reconcile all ECE values before finalizing the abstract.
+- [ ] Describe AUROC 0.582 as an improvement but still limited discrimination.
+- [ ] Avoid suggesting broad superiority over LLM judges based only on 200 examples.
+- [ ] Keep the abstract's claims aligned with the exact tables and experiments.
+
+### Conclusion
+
+- [ ] Preserve the negative findings.
+- [ ] Explain that high in-domain performance does not establish generalization.
+- [ ] State that target-domain calibration requires labeled target examples.
+- [ ] Explain the difference between a risk estimate and a fact-checking verdict.
+- [ ] Avoid claiming general-purpose hallucination detection.
+- [ ] Make the next research steps specific: shortcut controls, stronger baselines, robust target calibration, and unseen-domain evaluation.
+
+Suggested defensible framing:
+
+> EC-XGB preserves strong performance on HaluEval QA and reduces excessive positive predictions on some shifted datasets. However, its discrimination remains limited on natural responses, and its probability calibration depends on access to labeled target-domain data. The results support further investigation of lightweight, explainable risk estimation, rather than establishing a general-purpose hallucination detector.
+
+---
+
+## 8. Writing, figures, and formatting
+
+### Writing
+
+- [ ] Break long sentences into shorter, clearer sentences.
+- [ ] Remove repeated explanations of the same results.
+- [ ] Define abbreviations at first use.
+- [ ] Use “risk estimation,” “hallucination detection,” and “claim verification” consistently.
+- [ ] Avoid overstating the significance of small differences.
+- [ ] Describe the method as designed to encourage evidence-consistent predictions, not as guaranteeing correct evidence reasoning.
+
+### Figures and tables
+
+- [ ] Increase font size where figure labels are difficult to read.
+- [ ] Ensure every table can be read at normal paper size.
+- [ ] Use consistent labels for standard XGBoost, EC-XGB, calibrated EC-XGB, and the full application.
+- [ ] Make calibration plots and axes easier to interpret.
+- [ ] Ensure figure captions identify the exact dataset and evaluation setting.
+- [ ] Check that every table is referenced and interpreted in the text.
+
+### References
+
+- [ ] Verify authors, titles, venues, years, DOIs, and URLs.
+- [ ] Use the target venue's reference style.
+- [ ] Ensure every in-text citation has a matching reference.
+- [ ] Ensure every reference is cited in the manuscript.
+- [ ] Confirm that claims about recent work are supported by the cited paper, not merely by its title.
+
+### Reproducibility and code
+
+- [ ] Verify the exact dependency versions used for the reported runs.
+- [ ] Resolve any mismatch between manuscript environment details and the repository's pinned requirements.
+- [ ] Check that saved split indices match the described grouped split.
+- [ ] Confirm that all seeds and configurations are recorded.
+- [ ] Reproduce the reported tables from saved artifacts.
+- [ ] Ensure the model, calibrator, and SHAP artifacts correspond to the manuscript's reported checkpoint.
+- [ ] Document any manual processing or excluded examples.
+- [ ] Confirm that the repository and data-download instructions are accessible to reviewers.
+
+---
+
+## 9. Prioritized revision plan
+
+### Priority 1 — Critical
+
+- [ ] Reconcile all reported metrics against the saved artifacts.
+- [ ] Audit calibration and test-set separation.
+- [ ] Correct and verify monotonic-constraint signs.
+- [ ] Clarify which RAGTruth results are truly held out.
+- [ ] Add or run shortcut controls for answer length and lexical overlap.
+
+### Priority 2 — High
+
+- [ ] Separate EC-XGB from the full verification application.
+- [ ] Add stronger baselines where feasible.
+- [ ] Add uncertainty estimates and clarify significance testing.
+- [ ] Test calibration with different target-label budgets.
+- [ ] Explain the source-indicator feature and test its contribution.
+
+### Priority 3 — Medium
+
+- [ ] Correct model counts and feature-count explanations.
+- [ ] Reconcile latency measurements.
+- [ ] Improve figure readability and table consistency.
+- [ ] Verify all references.
+- [ ] Revise the abstract and conclusion to reflect the corrected results.
+
+### Priority 4 — Final polish
+
+- [ ] Edit grammar and sentence length.
+- [ ] Standardize terminology.
+- [ ] Check equations and notation.
+- [ ] Check formatting against the target conference or journal.
+- [ ] Perform a final table-by-table and claim-by-claim audit.
+
+---
+
+## 10. Final reviewer verdict
+
+**Recommendation: Major revision before submission.**
+
+### Strengths
+
+- Important and practical research question.
+- Lightweight and interpretable modeling approach.
+- Broad set of reported evaluation metrics.
+- Cross-domain analysis and explicit negative results.
+- Useful error analysis and reproducibility intentions.
+
+### Main weaknesses
+
+- Calibration values and protocols are not sufficiently reconciled.
+- The combined RAGTruth result is not entirely zero-shot because some task types are used in training.
+- HaluEval results may be strongly affected by answer-length and lexical shortcuts.
+- Improved ECE does not necessarily yield a useful classification threshold.
+- The relationship between the classifier and the full deployed system needs clearer evaluation.
+- The novelty and generalization claims need stronger evidence.
+
+### What would most improve the paper?
+
+The most valuable next step is not simply to polish the English. It is to verify the experiments, reconcile the reported values, test the shortcut hypothesis, and clearly separate in-domain performance, unseen-task generalization, calibration, and full-system performance.
+
+A technical review of the PDF cannot establish that the code or reported experiments are authentic and reproducible. The source repository, experiment configurations, and saved outputs must be checked separately before making that claim.
+
+---
+
+## 11. Final submission-readiness checklist
+
+Use this compact list for the final pass:
+
+- [ ] All abstract numbers match the final tables.
+- [ ] All tables can be reproduced from the released artifacts.
+- [ ] Calibration protocols and splits are clearly documented.
+- [ ] No target test labels are used for calibration or threshold selection.
+- [ ] Monotonic-constraint signs match the intended behavior and code.
+- [ ] Combined-set and held-out-task results are clearly separated.
+- [ ] Length-only and lexical-only shortcuts are tested.
+- [ ] Baseline comparisons are fair and sufficiently strong.
+- [ ] Classifier-only and full-system results are separate.
+- [ ] Confidence intervals and statistical tests are correctly described.
+- [ ] Latency and cost calculations are transparent.
+- [ ] References and claims have been verified.
+- [ ] Figures and tables are readable.
+- [ ] Limitations are explicit and consistent with the conclusion.
+- [ ] The final manuscript follows the target venue's submission requirements.
+
+**Bottom line:** The manuscript has a worthwhile direction and a substantial amount of experimental work. Its readiness depends on resolving the scientific and reporting concerns above, not on achieving a higher HaluEval score alone.
