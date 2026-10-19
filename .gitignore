@@ -29,6 +29,11 @@ artifacts/results/b5/*
 !artifacts/results/b5/b5_length_error_analysis.csv
 !artifacts/results/b5/b5_length_error_analysis.json
 
+# Review-response analyses ship with the release (shortcut controls, threshold sweeps, ablation)
+!artifacts/results/extras/
+artifacts/results/extras/*
+!artifacts/results/extras/*.json
+
 # Web-local artifact mirror ships with the frontend so the Vercel build is self-contained
 !web/artifacts/
 !web/artifacts/**

@@ -31,6 +31,7 @@ def test_constraint_string_values():
     assert len(values) == len(names)
     by_name = dict(zip(names, values))
     assert by_name["nli_ctx_contradicts_ans"] == 1
+    assert by_name["nli_ctx_entails_ans"] == -1
     assert by_name["overlap_answer_context"] == -1
     assert by_name["claim_supported_ratio"] == -1
     assert by_name["claim_max_contradicts"] == 1
