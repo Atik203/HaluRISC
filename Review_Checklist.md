@@ -624,6 +624,8 @@ Every item below was checked against the current manuscript, the code, and the s
 
 ### Open items after this pass (the nine boxes left unticked above)
 
+**Title update:** after this review the title changed from "…with Evidence-Consistent XGBoost" to "…**Using** Evidence-Consistent XGBoost", propagated to the manuscript, slides, speech script, and title explanations. The reviewer header above keeps the title of the reviewed PDF.
+
 1. **Claim-level verification and full-system results as separate evaluations.** The manuscript describes the layer and demonstrates it through the interface, but does not measure it as a standalone system.
 2. **A fine-tuned encoder/neural detector baseline.**
 3. **A claim-verification baseline.**
