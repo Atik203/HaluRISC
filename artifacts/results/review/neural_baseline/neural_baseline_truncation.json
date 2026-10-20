@@ -1,0 +1,11 @@
+{
+  "source": "roberta-base tokenizer, local_files_only, add_special_tokens=True",
+  "input_format": "Question + Context + Answer",
+  "max_len": 256,
+  "n_test": 3000,
+  "n_over_256": 14,
+  "rate_pct": 0.47,
+  "max_tokens": 356,
+  "mean_tokens": 123.0,
+  "note": "truncation=true in training; 14 rows truncated"
+}

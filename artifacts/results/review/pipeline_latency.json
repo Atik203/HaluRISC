@@ -1,0 +1,60 @@
+{
+  "meta": {
+    "source": "review_pipeline_latency.py",
+    "base_url": "http://127.0.0.1:8000",
+    "n_requests": {
+      "predict": 26,
+      "analyze": 26,
+      "verify": 26,
+      "verify_judge": 6
+    },
+    "note": "End-to-end HTTP latency including JSON parsing and the feature model; judge batch uses the OpenAI judge fallback."
+  },
+  "health": {
+    "status": "ok",
+    "model": "b6-ec-xgb-v1.0",
+    "feature_version": "course-v1.0",
+    "artifacts_loaded": true,
+    "feature_models_ready": true,
+    "explainer_ready": true,
+    "ec_xgb_ready": true,
+    "n_features": 35,
+    "baselines_loaded": [
+      "logistic_regression",
+      "random_forest"
+    ],
+    "device": "cuda"
+  },
+  "predict": {
+    "n": 26,
+    "p50_ms": 42.8,
+    "p95_ms": 58.7,
+    "mean_ms": 43.3,
+    "min_ms": 21.0,
+    "max_ms": 73.8
+  },
+  "analyze": {
+    "n": 26,
+    "p50_ms": 57.1,
+    "p95_ms": 93.1,
+    "mean_ms": 61.5,
+    "min_ms": 44.9,
+    "max_ms": 99.3
+  },
+  "verify_context": {
+    "n": 26,
+    "p50_ms": 143.6,
+    "p95_ms": 236.4,
+    "mean_ms": 141.6,
+    "min_ms": 58.5,
+    "max_ms": 286.2
+  },
+  "verify_with_judge": {
+    "n": 6,
+    "p50_ms": 502.5,
+    "p95_ms": 3268.3,
+    "mean_ms": 1288.4,
+    "min_ms": 405.4,
+    "max_ms": 3597.2
+  }
+}

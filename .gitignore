@@ -40,6 +40,10 @@ artifacts/results/review/*
 !artifacts/results/review/*.json
 !artifacts/results/review/*.csv
 !artifacts/results/review/*.log
+!artifacts/results/review/neural_baseline/
+artifacts/results/review/neural_baseline/*
+!artifacts/results/review/neural_baseline/*.json
+!artifacts/results/review/neural_baseline/*.csv
 
 # Web-local artifact mirror ships with the frontend so the Vercel build is self-contained
 !web/artifacts/

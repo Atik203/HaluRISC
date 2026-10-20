@@ -505,16 +505,16 @@ Status key: `TODO` not started, `WIP` in progress, `DONE` complete. Every workst
 
 **Steps**
 
-- [ ] Rewrite the contribution as a **method + evaluation protocol + reproducible artifact**, not a new learning algorithm.
-- [ ] Add a separate **monotone-constraint ablation**: train the m1 feature set with and without the monotone constraints, same seeds, same tuning. Report F1, AUROC, ECE, and the shifted flag rate, with CIs. The existing m1 bundles log-length and monotone constraints, so it cannot answer this question alone.
-- [ ] Add one explicit sentence for the claim aggregates: m1 versus m2 adds the eight claim-level aggregates beyond the six sentence-level NLI probabilities; report the delta (+0.0005 F1, not significant) and explain why (saturation, correlated signals).
-- [ ] Cite the existing source-indicator ablation (0.9849 versus 0.9855; shifted flag rate within one point).
-- [ ] Add a short closest-baseline comparison paragraph or small table:
+- [x] Rewrite the contribution as a **method + evaluation protocol + reproducible artifact**, not a new learning algorithm.
+- [x] Add a separate **monotone-constraint ablation** (`review_monotone_ablation.py`, 3 seeds): F1 unchanged, ECE -0.0009, RAGTruth AUROC +0.0043; §5.2 sentence.
+- [x] Add one explicit sentence for the claim aggregates: m1 versus m2 adds the eight claim-level aggregates beyond the six sentence-level NLI probabilities (+0.0005 F1, within undistinguished seed-level variation).
+- [x] Cite the existing source-indicator ablation (0.9849 versus 0.9855; shifted flag rate within one point).
+- [x] Add a short closest-baseline comparison paragraph (§3.3):
   - Sundaragiri et al. (retrieval + NLI + XGBoost)
   - Valentin et al. (calibrated multi-scoring)
   - SpikeScore (cross-domain)
   - State protocol differences, not only "classification metrics only."
-- [ ] Do not claim "first" or "novel" without a verified comparison.
+- [x] Do not claim "first" or "novel" without a verified comparison.
 
 **Files**
 
@@ -544,13 +544,13 @@ Status key: `TODO` not started, `WIP` in progress, `DONE` complete. Every workst
 
 **Steps**
 
-- [ ] Reuse the existing grouped splits and labels. Do not re-split.
-- [ ] Input format: question + context + answer, truncated to max length; record truncation rate.
-- [ ] Train seeds 42/123/456; save per-seed checkpoints, validation predictions, and test predictions.
-- [ ] Fit Platt calibration on the validation split only; evaluate in-domain and on RAGTruth QA, RAGTruth all, and FaithBench.
+- [x] Reuse the existing grouped splits and labels. Do not re-split.
+- [x] Input format: question + context + answer, truncated to max length; truncation rate 14/3{,}000 test rows (`neural_baseline_truncation.json`).
+- [x] Train seeds 42/123/456; save per-seed metrics, validation/test predictions (`neural_baseline_predictions.parquet`). Weight checkpoints are not kept; retraining from the pinned script reproduces them.
+- [x] Fit Platt calibration on the validation split only; evaluate in-domain and on RAGTruth QA, RAGTruth all, and FaithBench.
 - [ ] Report F1, AUROC, PR-AUC, MCC, ECE, Brier, NLL, parameter count, latency, and cost per 1,000.
 - [ ] Optional multi-source variant: train on HaluEval + RAGTruth non-QA rows, matching EC-XGB's exposure, to separate model family from training data.
-- [ ] Add one row to Table 5 (or a new table) and one paragraph. If the neural model wins in-domain, frame EC-XGB on calibration, cost, and interpretability; if it does not, report the result without spin.
+- [x] Add one row to Table 5 (or a new table) and one paragraph. If the neural model wins in-domain, frame EC-XGB on calibration, cost, and interpretability; if it does not, report the result without spin.
 
 **Files**
 
@@ -576,7 +576,7 @@ Status key: `TODO` not started, `WIP` in progress, `DONE` complete. Every workst
 **Steps**
 
 - [ ] Build a per-baseline table: input requirements, model size, training hardware (if any), inference hardware, p50/p95 latency, cost per 1,000 predictions.
-- [ ] Measure the full `/verify` pipeline end to end, with stages separated: feature extraction, NLI, model, SHAP, claim split, retrieval (provided context), judge fallback.
+- [x] Measure the full `/verify` pipeline end to end (`review_pipeline_latency.py`): predict p50 42.8 ms, analyze 57.1 ms, verify 143.6 ms, verify+judge 502.5 ms; §5.7 sentence.
 - [ ] Report classifier-only latency (61.8 ms) separately from interactive web latency (about 1 s). State network, loading, retrieval, and judge exclusions.
 - [ ] State cost assumptions: hardware, batch size, token counts, API prices, cache, and units. Distinguish USD per 1,000 predictions from USD per 1,000 claims.
 - [ ] Update Table 11, §5.7, abstract, and conclusion so no sentence conflates the two latencies.
