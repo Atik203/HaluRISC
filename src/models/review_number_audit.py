@@ -47,6 +47,8 @@ abl = pd.read_csv(RES / "ablation_results.csv").set_index("removed_group")
 pert = pd.read_csv(RES / "b5" / "b5_perturbation_aggregates.csv").set_index("perturbation")
 lat = json.loads((RES / "latency_analysis.json").read_text())
 judge = json.loads((RES / "llm_judge_results.json").read_text())
+gpt_new = json.loads((RES / "review" / "llm_judge_gpt_ec_xgb.json").read_text())
+qwen_new = json.loads((RES / "review" / "llm_judge_qwen.json").read_text())
 err = json.loads((RES / "error_analysis.json").read_text())
 length = pd.read_csv(RES / "b5" / "b5_length_error_analysis.csv").set_index("bin")
 
@@ -159,12 +161,21 @@ for stage, expected in t11.items():
 check("Table 11 / total / p50", 61.8, lat["total_per_sample_ms"]["p50"], RES / "latency_analysis.json", "total_per_sample_ms.p50", tol=0.05)
 
 # Table 12: LLM judge
-for key, expected in (("accuracy", 0.860), ("precision", 0.974), ("recall", 0.740), ("f1", 0.841)):
-    check(f"Table 12 / judge / {key}", expected, judge["judge"][key], RES / "llm_judge_results.json", f"judge.{key}")
-for key, expected in (("accuracy", 0.985), ("precision", 0.980), ("recall", 0.990), ("f1", 0.985)):
-    check(f"Table 12 / EC-XGB / {key}", expected, judge["xgboost_on_same_subset"][key], RES / "llm_judge_results.json", f"xgboost_on_same_subset.{key}")
-check("Table 12 / judge / p50 ms", 1310, judge["judge"]["latency_ms_p50"], RES / "llm_judge_results.json", "judge.latency_ms_p50")
-check("Table 12 / judge / cost per 1k", 0.105, judge["cost_per_1000_usd"], RES / "llm_judge_results.json", "cost_per_1000_usd")
+for key, expected in (("accuracy", 0.865), ("precision", 0.987), ("recall", 0.740), ("f1", 0.846)):
+    check(f"Table 12 / GPT / {key}", expected, gpt_new["gpt"][key],
+          RES / "review" / "llm_judge_gpt_ec_xgb.json", f"gpt.{key}")
+for key, expected in (("accuracy", 0.800), ("precision", 0.969), ("recall", 0.620), ("f1", 0.756)):
+    check(f"Table 12 / Qwen / {key}", expected, qwen_new["qwen"][key],
+          RES / "review" / "llm_judge_qwen.json", f"qwen.{key}")
+for key, expected in (("accuracy", 0.990), ("precision", 0.990), ("recall", 0.990), ("f1", 0.990)):
+    check(f"Table 12 / EC-XGB / {key}", expected, gpt_new["ec_xgb_same_rows"][key],
+          RES / "review" / "llm_judge_gpt_ec_xgb.json", f"ec_xgb_same_rows.{key}")
+check("Table 12 / GPT / p50 ms", 1443, gpt_new["latency_ms_p50"],
+      RES / "review" / "llm_judge_gpt_ec_xgb.json", "latency_ms_p50", tol=2)
+check("Table 12 / GPT / cost per 1k", 0.106, gpt_new["cost_per_1000_usd"],
+      RES / "review" / "llm_judge_gpt_ec_xgb.json", "cost_per_1000_usd", tol=0.001)
+check("Table 12 / Qwen / p50 ms", 2623, qwen_new["latency_ms_p50"],
+      RES / "review" / "llm_judge_qwen.json", "latency_ms_p50", tol=2)
 
 # Table 13: error taxonomy
 check("Table 13 / label ambiguity FP", 7, err["category_counts"]["false_positive"]["label_ambiguity"], RES / "error_analysis.json", "category_counts.false_positive.label_ambiguity", tol=0)
@@ -203,9 +214,9 @@ check("Headline / 252-row ECE", 0.133, extras["x4_label_budget"]["0.05"]["ece"],
 check("Headline / McNemar XGB vs RF", 0.044, json.loads((RES / "b2" / "b2_statistical_tests.json").read_text())["mcnemar_pairs"]["rf_full"], RES / "b2" / "b2_statistical_tests.json", "mcnemar_pairs.rf_full", tol=0.001)
 check("Headline / McNemar m0 vs m3", 0.45, json.loads((RES / "b6" / "b6_statistical_tests.json").read_text())["mcnemar"]["m0_vs_m3"], RES / "b6" / "b6_statistical_tests.json", "mcnemar.m0_vs_m3", tol=0.01)
 check("Headline / Wilcoxon m0 vs m3", 0.25, json.loads((RES / "b6" / "b6_statistical_tests.json").read_text())["wilcoxon"]["m0_vs_m3"], RES / "b6" / "b6_statistical_tests.json", "wilcoxon.m0_vs_m3", tol=0.01)
-check("Headline / judge p-value", 1.63e-5, judge["mcnemar_judge_vs_xgboost_p"], RES / "llm_judge_results.json", "mcnemar_judge_vs_xgboost_p", tol=1e-6)
-check("Headline / judge discordant 28", 28, judge["discordant_pairs"]["judge_wrong_xgb_right"], RES / "llm_judge_results.json", "discordant_pairs.judge_wrong_xgb_right", tol=0)
-check("Headline / judge discordant 3", 3, judge["discordant_pairs"]["judge_right_xgb_wrong"], RES / "llm_judge_results.json", "discordant_pairs.judge_right_xgb_wrong", tol=0)
+check("Headline / judge p-value", 8.32e-6, gpt_new["mcnemar_p"], RES / "review" / "llm_judge_gpt_ec_xgb.json", "mcnemar_p", tol=1e-7)
+check("Headline / judge discordant 27", 27, gpt_new["discordant_pairs"]["gpt_wrong_ec_right"], RES / "review" / "llm_judge_gpt_ec_xgb.json", "discordant_pairs.gpt_wrong_ec_right", tol=0)
+check("Headline / judge discordant 2", 2, gpt_new["discordant_pairs"]["gpt_right_ec_wrong"], RES / "review" / "llm_judge_gpt_ec_xgb.json", "discordant_pairs.gpt_right_ec_wrong", tol=0)
 
 df = pd.DataFrame(rows)
 OUT.mkdir(parents=True, exist_ok=True)

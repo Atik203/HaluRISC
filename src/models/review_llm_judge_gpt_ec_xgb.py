@@ -1,9 +1,9 @@
 """Fresh GPT judge comparison against EC-XGB on the same 200 rows (P2, G1-G3).
 
 The saved 2026 comparison used the B2 calibrated model, not EC-XGB. This script
-re-runs GPT 5.6 Luna on the same balanced 200-row sample with temperature 0,
-pairs it with EC-XGB (m3, seed 42), and adds bootstrap CIs plus the length-only
-baseline. Cost is about $0.02.
+re-runs GPT 5.6 Luna on the same balanced 200-row sample with the model's
+default decoding, pairs it with EC-XGB (m3, seed 42), and adds bootstrap CIs
+plus the length-only baseline. Cost is about $0.02.
 
 Run (repo root, .env with OPENAI_API_KEY):
   python src/models/review_llm_judge_gpt_ec_xgb.py
@@ -24,6 +24,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, roc_auc_score
 from sklearn.preprocessing import StandardScaler
 from statsmodels.stats.contingency_tables import mcnemar
+from tqdm import tqdm
 
 from src.models.config import FEATURES_FULL, RESULTS_DIR, SAMPLE_SEED
 from src.models.eval_llm_judge import JUDGE_SYSTEM, load_test_set
@@ -42,7 +43,6 @@ def gpt_call(client, model, q, c, a):
         model=model,
         messages=[{"role": "system", "content": JUDGE_SYSTEM}, {"role": "user", "content": user}],
         max_completion_tokens=1000,
-        temperature=0,
         response_format={"type": "json_object"},
     )
     content = resp.choices[0].message.content.strip()
@@ -88,6 +88,9 @@ def main() -> None:
 
     rows = []
     in_tokens = out_tokens = 0
+    n_total = len(sample)
+    t_start = time.time()
+    pbar = tqdm(total=n_total, desc="GPT judge", unit="sample", dynamic_ncols=True)
     for i, row in sample.iterrows():
         t0 = time.perf_counter()
         pred, conf, usage = gpt_call(client, model, row["question"], row["context"], row["answer"])
@@ -96,8 +99,13 @@ def main() -> None:
         out_tokens += usage.completion_tokens
         rows.append({"sample_id": row["sample_id"], "label": int(row["label"]),
                      "gpt_pred": pred, "gpt_conf": conf, "latency_ms": latency})
-        if (i + 1) % 25 == 0:
-            print(f"judged {i + 1}/{len(sample)}")
+        done = i + 1
+        pbar.update(1)
+        if done % 25 == 0 or done == n_total:
+            elapsed = time.time() - t_start
+            eta = elapsed / done * (n_total - done)
+            print(f"[{done}/{n_total}] {100 * done / n_total:.1f}% | elapsed {elapsed:.0f}s | ETA {eta:.0f}s", flush=True)
+    pbar.close()
 
     gdf = pd.DataFrame(rows)
     y_g = gdf["gpt_pred"].to_numpy()
@@ -144,7 +152,7 @@ def main() -> None:
         "meta": {
             "source": "review_llm_judge_gpt_ec_xgb.py",
             "model": model,
-            "temperature": 0,
+            "temperature": "default (model rejects 0)",
             "n_samples": N_SAMPLES,
             "sample_prevalence": float(y_sub.mean()),
             "sample_seed": int(SAMPLE_SEED),
