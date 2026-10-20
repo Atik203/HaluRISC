@@ -849,7 +849,7 @@ HALU_JUDGE_API_KEY=ollama
 
 > A follow-up review raised four points. Each was checked against the manuscript before acting.
 
-1. **Calibration numbers inconsistent.** Valid but narrow. `0.726 → 0.126` is the seed-42 deployed fit, Table 8 is three-seed means (`0.7433 → 0.1263`). Fixed in §5.3 with one clause naming both sources.
+1. **Calibration numbers inconsistent.** Valid but narrow. `0.726 → 0.126` is the seed-42 deployed fit, Table 9 is three-seed means (`0.7433 → 0.1263`). Fixed in §5.3 with one clause naming both sources.
 2. **Length shortcut.** Partly valid. The 158-row control was nested inside the 1,482-row reweighted subset. New `review_length_matched_repeat.py` matches on the full test set (163 pairs, 326 rows), repeats the matching 200 times, and adds a length-conditional AUROC over 12 exact-length strata. Numbers in `length_matched_repeat.json`; §5.8 rewritten.
 3. **Weak generalization.** Already stated in the abstract, §5.2, and §5.3. Added one explicit sentence in the Discussion naming EC-XGB a domain-specific estimator rather than a general-purpose detector.
 4. **Zero-shot versus target-calibrated.** Already separated in §3.3, §3.4, §4.4, §5.3, and the Table 5 caption. Added Table 4 (`tab:protocols`) with P0/P1/P2 against calibrator fit, threshold fit, and zero-shot status.
