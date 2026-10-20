@@ -50,7 +50,11 @@ artifacts/results/review/neural_baseline/*
 !web/artifacts/**
 
 # Environment & Keys
+.env
+.env.local
 .env.*.local
+*.pem
+*.key
 
 # Node / Next.js
 web/node_modules/
