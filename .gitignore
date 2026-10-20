@@ -50,8 +50,6 @@ artifacts/results/review/neural_baseline/*
 !web/artifacts/**
 
 # Environment & Keys
-.env
-.env.local
 .env.*.local
 
 # Node / Next.js
@@ -66,7 +64,6 @@ web/*.log
 web/data/
 
 # IDE & OS
-.vscode/
 .idea/
 .DS_Store
 Thumbs.db
@@ -74,3 +71,5 @@ Thumbs.db
 
 
 artifacts/results/review/api_server.log
+config.bat
+node_modules
