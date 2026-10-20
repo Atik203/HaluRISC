@@ -1,0 +1,375 @@
+{
+  "checks": [
+    {
+      "area": "manifest",
+      "item": "git_commit",
+      "expected": "recorded",
+      "actual": "9bdb329e3f8382dc316d4f42d031589c4d8a8b29",
+      "status": "match",
+      "note": "frozen Version A manifest",
+      "artifact": "docs\\manifest.frozen.json"
+    },
+    {
+      "area": "manifest",
+      "item": "seeds",
+      "expected": [
+        42,
+        123,
+        456
+      ],
+      "actual": [
+        42,
+        123,
+        456
+      ],
+      "status": "match",
+      "note": "",
+      "artifact": "docs\\manifest.frozen.json"
+    },
+    {
+      "area": "manifest hash",
+      "item": "qa_clean.parquet",
+      "expected": "1284545f54fde4cd80481822d792ba0483562bc537b0c751c634319d80443ad4",
+      "actual": "1284545f54fde4cd80481822d792ba0483562bc537b0c751c634319d80443ad4",
+      "status": "match",
+      "note": "",
+      "artifact": "data\\processed\\qa_clean.parquet"
+    },
+    {
+      "area": "manifest hash",
+      "item": "features_full.parquet",
+      "expected": "30caf0cdf62daf57d447926d491f9f5d658a3dc2b567426b86dd4bfcb910adb6",
+      "actual": "30caf0cdf62daf57d447926d491f9f5d658a3dc2b567426b86dd4bfcb910adb6",
+      "status": "match",
+      "note": "",
+      "artifact": "data\\processed\\features_full.parquet"
+    },
+    {
+      "area": "manifest hash",
+      "item": "model_xgboost_raw.joblib",
+      "expected": "2265b6ecdc08147e8e690e44c6d280b4ddf37e49f0810d02fe9bd728cd52764b",
+      "actual": "2265b6ecdc08147e8e690e44c6d280b4ddf37e49f0810d02fe9bd728cd52764b",
+      "status": "match",
+      "note": "",
+      "artifact": "artifacts\\models\\model_xgboost_raw.joblib"
+    },
+    {
+      "area": "manifest hash",
+      "item": "model_xgboost_calibrated.joblib",
+      "expected": "e4442bb4c3f7e51712d0205f109adaabd0011338444d2a50734c4626fc5c38d0",
+      "actual": "e4442bb4c3f7e51712d0205f109adaabd0011338444d2a50734c4626fc5c38d0",
+      "status": "match",
+      "note": "",
+      "artifact": "artifacts\\models\\model_xgboost_calibrated.joblib"
+    },
+    {
+      "area": "manifest hash",
+      "item": "split_indices.json",
+      "expected": "ba928cd2b4a6bcc2d503a652112ff564703a76ad2046a9227f9af9c085573e71",
+      "actual": "a95f3172f91b62e4b9f9dddfccffce9a107c07d924516083dd9d17cc654fe507",
+      "status": "explain",
+      "note": "The frozen manifest predates the current split file schema. The current file is verified against features_full.parquet: row assignment exact, every item_idx in one split, 7000/1500/1500 groups, no overlap. Re-freezing the manifest would change Version A provenance.",
+      "artifact": "artifacts\\split_indices.json"
+    },
+    {
+      "area": "manifest hash",
+      "item": "split_integrity_report.json",
+      "expected": "0aaa84bc1a7be6a9f0d6e1ff4afd9aadd912bca67b760063e0c4835c3e291a6b",
+      "actual": "a0ffc48fdfc6ff59161d971eb9786afc0c51db2d908a5e0cf27028922468ea18",
+      "status": "explain",
+      "note": "The frozen manifest predates the current split file schema. The current file is verified against features_full.parquet: row assignment exact, every item_idx in one split, 7000/1500/1500 groups, no overlap. Re-freezing the manifest would change Version A provenance.",
+      "artifact": "artifacts\\split_integrity_report.json"
+    },
+    {
+      "area": "split report",
+      "item": "split",
+      "expected": "group_by_item_idx",
+      "actual": "group_by_item_idx",
+      "status": "match",
+      "note": "",
+      "artifact": "artifacts/split_integrity_report.json"
+    },
+    {
+      "area": "split report",
+      "item": "seed",
+      "expected": 42,
+      "actual": 42,
+      "status": "match",
+      "note": "",
+      "artifact": "artifacts/split_integrity_report.json"
+    },
+    {
+      "area": "split report",
+      "item": "n_groups_per_split",
+      "expected": {
+        "test": 1500,
+        "train": 7000,
+        "val": 1500
+      },
+      "actual": {
+        "test": 1500,
+        "train": 7000,
+        "val": 1500
+      },
+      "status": "match",
+      "note": "",
+      "artifact": "artifacts/split_integrity_report.json"
+    },
+    {
+      "area": "split report",
+      "item": "n_rows_per_split",
+      "expected": {
+        "test": 3000,
+        "train": 14000,
+        "val": 3000
+      },
+      "actual": {
+        "test": 3000,
+        "train": 14000,
+        "val": 3000
+      },
+      "status": "match",
+      "note": "",
+      "artifact": "artifacts/split_integrity_report.json"
+    },
+    {
+      "area": "split report",
+      "item": "groups_spanning_multiple_splits",
+      "expected": 0,
+      "actual": 0,
+      "status": "match",
+      "note": "",
+      "artifact": "artifacts/split_integrity_report.json"
+    },
+    {
+      "area": "split report",
+      "item": "leakage_free",
+      "expected": true,
+      "actual": true,
+      "status": "match",
+      "note": "",
+      "artifact": "artifacts/split_integrity_report.json"
+    },
+    {
+      "area": "split file",
+      "item": "row split sizes",
+      "expected": [
+        14000,
+        3000,
+        3000
+      ],
+      "actual": [
+        14000,
+        3000,
+        3000
+      ],
+      "status": "match",
+      "note": "",
+      "artifact": "artifacts/split_indices.json"
+    },
+    {
+      "area": "split file",
+      "item": "row split disjoint",
+      "expected": true,
+      "actual": true,
+      "status": "match",
+      "note": "",
+      "artifact": "artifacts/split_indices.json"
+    },
+    {
+      "area": "split file",
+      "item": "row split covers 20,000 rows",
+      "expected": true,
+      "actual": true,
+      "status": "match",
+      "note": "",
+      "artifact": "artifacts/split_indices.json"
+    },
+    {
+      "area": "split vs features",
+      "item": "train row assignment",
+      "expected": true,
+      "actual": true,
+      "status": "match",
+      "note": "",
+      "artifact": "data/processed/features_full.parquet"
+    },
+    {
+      "area": "split vs features",
+      "item": "val row assignment",
+      "expected": true,
+      "actual": true,
+      "status": "match",
+      "note": "",
+      "artifact": "data/processed/features_full.parquet"
+    },
+    {
+      "area": "split vs features",
+      "item": "test row assignment",
+      "expected": true,
+      "actual": true,
+      "status": "match",
+      "note": "",
+      "artifact": "data/processed/features_full.parquet"
+    },
+    {
+      "area": "split vs features",
+      "item": "items spanning splits",
+      "expected": 0,
+      "actual": 0,
+      "status": "match",
+      "note": "",
+      "artifact": "data/processed/features_full.parquet"
+    },
+    {
+      "area": "predictions",
+      "item": "b2_predictions test ids",
+      "expected": 3000,
+      "actual": 3000,
+      "status": "match",
+      "note": "sample_ids equal the features test split",
+      "artifact": "artifacts/results/b2/b2_predictions.parquet"
+    },
+    {
+      "area": "predictions",
+      "item": "b6_predictions test ids",
+      "expected": 3000,
+      "actual": 3000,
+      "status": "match",
+      "note": "sample_ids equal the features test split",
+      "artifact": "artifacts/results/b6/b6_predictions.parquet"
+    },
+    {
+      "area": "requirements",
+      "item": "exact pins",
+      "expected": "all pinned with ==",
+      "actual": "31 pins; 0 range pins",
+      "status": "match",
+      "note": "xgboost stays at 3.3.0",
+      "artifact": "requirements.txt"
+    },
+    {
+      "area": "requirements",
+      "item": "xgboost version",
+      "expected": "3.3.0",
+      "actual": "3.3.0",
+      "status": "match",
+      "note": "pinned 3.3.0; installed 3.3.0",
+      "artifact": "requirements.txt"
+    },
+    {
+      "area": "requirements",
+      "item": "torch version",
+      "expected": "2.11.0+cu128",
+      "actual": "2.11.0+cu128",
+      "status": "match",
+      "note": "pinned 2.11.0+cu128; installed 2.11.0+cu128",
+      "artifact": "requirements.txt"
+    },
+    {
+      "area": "requirements",
+      "item": "transformers version",
+      "expected": "5.14.1",
+      "actual": "5.14.1",
+      "status": "match",
+      "note": "pinned 5.14.1; installed 5.14.1",
+      "artifact": "requirements.txt"
+    },
+    {
+      "area": "requirements",
+      "item": "scikit-learn version",
+      "expected": "1.9.0",
+      "actual": "1.9.0",
+      "status": "match",
+      "note": "pinned 1.9.0; installed 1.9.0",
+      "artifact": "requirements.txt"
+    },
+    {
+      "area": "requirements",
+      "item": "pandas version",
+      "expected": "3.0.5",
+      "actual": "3.0.5",
+      "status": "match",
+      "note": "pinned 3.0.5; installed 3.0.5",
+      "artifact": "requirements.txt"
+    },
+    {
+      "area": "requirements",
+      "item": "numpy version",
+      "expected": "2.4.6",
+      "actual": "2.4.6",
+      "status": "match",
+      "note": "pinned 2.4.6; installed 2.4.6",
+      "artifact": "requirements.txt"
+    },
+    {
+      "area": "licenses",
+      "item": "dataset count",
+      "expected": 3,
+      "actual": 3,
+      "status": "match",
+      "note": "",
+      "artifact": "artifacts\\results\\dataset_license_manifest.json"
+    },
+    {
+      "area": "licenses",
+      "item": "halueval license",
+      "expected": "MIT",
+      "actual": "MIT",
+      "status": "match",
+      "note": "",
+      "artifact": "artifacts\\results\\dataset_license_manifest.json"
+    },
+    {
+      "area": "licenses",
+      "item": "ragtruth license",
+      "expected": "MIT",
+      "actual": "MIT",
+      "status": "match",
+      "note": "",
+      "artifact": "artifacts\\results\\dataset_license_manifest.json"
+    },
+    {
+      "area": "licenses",
+      "item": "faithbench license",
+      "expected": "CC BY-NC-SA 4.0",
+      "actual": "CC BY-NC-SA 4.0",
+      "status": "match",
+      "note": "",
+      "artifact": "artifacts\\results\\dataset_license_manifest.json"
+    },
+    {
+      "area": "licenses",
+      "item": "faithbench redistribution",
+      "expected": false,
+      "actual": false,
+      "status": "match",
+      "note": "not redistributed; download notes only",
+      "artifact": "artifacts\\results\\dataset_license_manifest.json"
+    },
+    {
+      "area": "raw hashes",
+      "item": "all raw files match the license manifest",
+      "expected": true,
+      "actual": true,
+      "status": "match",
+      "note": "18 files checked",
+      "artifact": "artifacts\\results\\dataset_license_manifest.json"
+    },
+    {
+      "area": "repository",
+      "item": "LICENSE present",
+      "expected": true,
+      "actual": true,
+      "status": "match",
+      "note": "",
+      "artifact": "LICENSE"
+    }
+  ],
+  "summary": {
+    "n": 37,
+    "match": 35,
+    "explain": 2,
+    "mismatch": 0
+  }
+}

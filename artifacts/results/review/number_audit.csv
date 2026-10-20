@@ -1,0 +1,184 @@
+paper,paper_value,artifact,artifact_key,artifact_value,abs_diff,status
+Table 4 / xgboost / F1,0.9846,artifacts\results\b2\b2_model_comparison.csv,xgboost.f1_mean,0.9846463173227584,4.631732275839351e-05,match
+Table 4 / xgboost / AUROC,0.9979,artifacts\results\b2\b2_model_comparison.csv,xgboost.auroc_mean,0.9979192592592592,1.9259259259163386e-05,match
+Table 4 / rf_full / F1,0.9842,artifacts\results\b2\b2_model_comparison.csv,rf_full.f1_mean,0.9842475685313744,4.756853137444228e-05,match
+Table 4 / rf_full / AUROC,0.998,artifacts\results\b2\b2_model_comparison.csv,rf_full.auroc_mean,0.998001777777778,1.7777777779892645e-06,match
+Table 4 / lr_full / F1,0.966,artifacts\results\b2\b2_model_comparison.csv,lr_full.f1_mean,0.965958881024604,4.111897539593734e-05,match
+Table 4 / lr_full / AUROC,0.9932,artifacts\results\b2\b2_model_comparison.csv,lr_full.auroc_mean,0.9931875555555556,1.244444444437054e-05,match
+Table 4 / heuristic_overlap / F1,0.9352,artifacts\results\b2\b2_model_comparison.csv,heuristic_overlap.f1_mean,0.9351789331532748,2.106684672520398e-05,match
+Table 4 / heuristic_overlap / AUROC,0.9132,artifacts\results\b2\b2_model_comparison.csv,heuristic_overlap.auroc_mean,0.9132162222222222,1.622222222219527e-05,match
+Table 4 / nli_only / F1,0.6714,artifacts\results\b2\b2_model_comparison.csv,nli_only.f1_mean,0.6713780918727915,2.19081272084809e-05,match
+Table 4 / nli_only / AUROC,0.7177,artifacts\results\b2\b2_model_comparison.csv,nli_only.auroc_mean,0.7177248888888887,2.488888888874108e-05,match
+Table 4 / tfidf_answer / F1,0.9224,artifacts\results\b2\b2_model_comparison.csv,tfidf_answer.f1_mean,0.922440537745605,4.053774560497381e-05,match
+Table 4 / tfidf_answer / AUROC,0.9696,artifacts\results\b2\b2_model_comparison.csv,tfidf_answer.auroc_mean,0.9696068888888888,6.888888888778588e-06,match
+Table 4 / tfidf_all / F1,0.5999,artifacts\results\b2\b2_model_comparison.csv,tfidf_all.f1_mean,0.5998583569405099,4.164305949005964e-05,match
+Table 4 / tfidf_all / AUROC,0.6754,artifacts\results\b2\b2_model_comparison.csv,tfidf_all.auroc_mean,0.6754275555555557,2.7555555555669464e-05,match
+Table 4 / majority / F1,0.0,artifacts\results\b2\b2_model_comparison.csv,majority.f1_mean,0.0,0.0,match
+Table 5 / m0 / f1_mean,0.9844,artifacts\results\b6\b6_model_comparison.csv,m0.f1_mean,0.9844189772387352,1.8977238735118362e-05,match
+Table 5 / m0 / auroc_mean,0.998,artifacts\results\b6\b6_model_comparison.csv,m0.auroc_mean,0.9980244444444444,2.444444444438254e-05,match
+Table 5 / m0 / mcc_mean,0.9693,artifacts\results\b6\b6_model_comparison.csv,m0.mcc_mean,0.9692618402550696,3.815974493048824e-05,match
+Table 5 / m0 / ece_mean,0.0066,artifacts\results\b6\b6_model_comparison.csv,m0.ece_mean,0.0065823630355298,1.763696447019958e-05,match
+Table 5 / m1 / f1_mean,0.9852,artifacts\results\b6\b6_model_comparison.csv,m1.f1_mean,0.9852114328093317,1.1432809331690663e-05,match
+Table 5 / m1 / auroc_mean,0.9976,artifacts\results\b6\b6_model_comparison.csv,m1.auroc_mean,0.9976385185185184,3.851851851832677e-05,match
+Table 5 / m1 / mcc_mean,0.9708,artifacts\results\b6\b6_model_comparison.csv,m1.mcc_mean,0.9707988297868798,1.1702131201829502e-06,match
+Table 5 / m1 / ece_mean,0.0051,artifacts\results\b6\b6_model_comparison.csv,m1.ece_mean,0.0051458383589569,4.583835895689923e-05,match
+Table 5 / m2 / f1_mean,0.9857,artifacts\results\b6\b6_model_comparison.csv,m2.f1_mean,0.9856695516222912,3.0448377708824914e-05,match
+Table 5 / m2 / auroc_mean,0.9984,artifacts\results\b6\b6_model_comparison.csv,m2.auroc_mean,0.9984355555555554,3.555555555545542e-05,match
+Table 5 / m2 / mcc_mean,0.9717,artifacts\results\b6\b6_model_comparison.csv,m2.mcc_mean,0.971666694956,3.330504400000933e-05,match
+Table 5 / m2 / ece_mean,0.0078,artifacts\results\b6\b6_model_comparison.csv,m2.ece_mean,0.0078462436025341,4.624360253410037e-05,match
+Table 5 / m3 / f1_mean,0.9855,artifacts\results\b6\b6_model_comparison.csv,m3.f1_mean,0.9855462152201352,4.621522013514845e-05,match
+Table 5 / m3 / auroc_mean,0.9984,artifacts\results\b6\b6_model_comparison.csv,m3.auroc_mean,0.9984158518518518,1.5851851851822474e-05,match
+Table 5 / m3 / mcc_mean,0.9715,artifacts\results\b6\b6_model_comparison.csv,m3.mcc_mean,0.971468701111444,3.129888855601948e-05,match
+Table 5 / m3 / ece_mean,0.0074,artifacts\results\b6\b6_model_comparison.csv,m3.ece_mean,0.0074362202673736,3.6220267373599825e-05,match
+Table 6 / m0 / ragtruth_all_test / f1,0.5181,artifacts\results\b6\b6_external_metrics.csv,m0.ragtruth_all_test.f1,0.5181318681318682,3.18681318681735e-05,match
+Table 6 / m0 / ragtruth_all_test / auroc,0.4753,artifacts\results\b6\b6_external_metrics.csv,m0.ragtruth_all_test.auroc,0.4753375529845471,3.755298454710676e-05,match
+Table 6 / m0 / ragtruth_all_test / predicted_positive_rate,0.9989,artifacts\results\b6\b6_external_metrics.csv,m0.ragtruth_all_test.predicted_positive_rate,0.998888888888889,1.1111111110961858e-05,match
+Table 6 / m0 / ragtruth_all_test / ece,0.6346,artifacts\results\b6\b6_external_metrics.csv,m0.ragtruth_all_test.ece,0.6345889345363335,1.1065463666581898e-05,match
+Table 6 / m0 / ragtruth_qa_test / f1,0.3022,artifacts\results\b6\b6_external_metrics.csv,m0.ragtruth_qa_test.f1,0.3021718602455146,2.813975448540118e-05,match
+Table 6 / m0 / ragtruth_qa_test / auroc,0.5465,artifacts\results\b6\b6_external_metrics.csv,m0.ragtruth_qa_test.auroc,0.5465160472972973,1.604729729731691e-05,match
+Table 6 / m0 / ragtruth_qa_test / predicted_positive_rate,0.9989,artifacts\results\b6\b6_external_metrics.csv,m0.ragtruth_qa_test.predicted_positive_rate,0.998888888888889,1.1111111110961858e-05,match
+Table 6 / m0 / ragtruth_qa_test / ece,0.8149,artifacts\results\b6\b6_external_metrics.csv,m0.ragtruth_qa_test.ece,0.8148609976084145,3.9002391585496454e-05,match
+Table 6 / m0 / faithbench / f1,0.813,artifacts\results\b6\b6_external_metrics.csv,m0.faithbench.f1,0.8130469371519492,4.693715194925563e-05,match
+Table 6 / m0 / faithbench / auroc,0.5089,artifacts\results\b6\b6_external_metrics.csv,m0.faithbench.auroc,0.5088567552888067,4.324471119332429e-05,match
+Table 6 / m0 / faithbench / predicted_positive_rate,0.9947,artifacts\results\b6\b6_external_metrics.csv,m0.faithbench.predicted_positive_rate,0.9946666666666668,3.333333333321864e-05,match
+Table 6 / m0 / faithbench / ece,0.2917,artifacts\results\b6\b6_external_metrics.csv,m0.faithbench.ece,0.2917436836792363,4.36836792362949e-05,match
+Table 6 / m3 / ragtruth_all_test / f1,0.5608,artifacts\results\b6\b6_external_metrics.csv,m3.ragtruth_all_test.f1,0.5608150533176531,1.505331765316864e-05,match
+Table 6 / m3 / ragtruth_all_test / auroc,0.5815,artifacts\results\b6\b6_external_metrics.csv,m3.ragtruth_all_test.auroc,0.5815407259514184,4.0725951418352224e-05,match
+Table 6 / m3 / ragtruth_all_test / predicted_positive_rate,0.6132,artifacts\results\b6\b6_external_metrics.csv,m3.ragtruth_all_test.predicted_positive_rate,0.6132098765432099,9.876543209941246e-06,match
+Table 6 / m3 / ragtruth_all_test / ece,0.2782,artifacts\results\b6\b6_external_metrics.csv,m3.ragtruth_all_test.ece,0.2782230046170729,2.3004617072885925e-05,match
+Table 6 / m3 / ragtruth_qa_test / f1,0.3081,artifacts\results\b6\b6_external_metrics.csv,m3.ragtruth_qa_test.f1,0.3080668367959344,3.316320406560047e-05,match
+Table 6 / m3 / ragtruth_qa_test / auroc,0.5491,artifacts\results\b6\b6_external_metrics.csv,m3.ragtruth_qa_test.auroc,0.5490765765765766,2.3423423423429846e-05,match
+Table 6 / m3 / ragtruth_qa_test / predicted_positive_rate,0.9741,artifacts\results\b6\b6_external_metrics.csv,m3.ragtruth_qa_test.predicted_positive_rate,0.9740740740740742,2.5925925925762705e-05,match
+Table 6 / m3 / ragtruth_qa_test / ece,0.7433,artifacts\results\b6\b6_external_metrics.csv,m3.ragtruth_qa_test.ece,0.7433099641595726,9.964159572661835e-06,match
+Table 6 / m3 / faithbench / f1,0.1201,artifacts\results\b6\b6_external_metrics.csv,m3.faithbench.f1,0.1201298124477679,2.9812447767896266e-05,match
+Table 6 / m3 / faithbench / auroc,0.5941,artifacts\results\b6\b6_external_metrics.csv,m3.faithbench.auroc,0.5940863076473782,1.3692352621719195e-05,match
+Table 6 / m3 / faithbench / predicted_positive_rate,0.0733,artifacts\results\b6\b6_external_metrics.csv,m3.faithbench.predicted_positive_rate,0.0733333333333333,3.333333333330191e-05,match
+Table 6 / m3 / faithbench / ece,0.45,artifacts\results\b6\b6_external_metrics.csv,m3.faithbench.ece,0.4500202720827526,2.027208275257042e-05,match
+Table 7 / raw / f1_mean,0.9846,artifacts\results\b4\b4_calibration_metrics.json,halueval_test.raw.f1_mean,0.9846463173227583,4.6317322758282486e-05,match
+Table 7 / raw / ece_mean,0.0045,artifacts\results\b4\b4_calibration_metrics.json,halueval_test.raw.ece_mean,0.004465554729309392,3.4445270690608085e-05,match
+Table 7 / raw / brier_mean,0.0117,artifacts\results\b4\b4_calibration_metrics.json,halueval_test.raw.brier_mean,0.011742369056199499,4.2369056199498614e-05,match
+Table 7 / raw / nll_mean,0.0449,artifacts\results\b4\b4_calibration_metrics.json,halueval_test.raw.nll_mean,0.04492114877357319,2.1148773573190227e-05,match
+Table 7 / platt / f1_mean,0.9848,artifacts\results\b4\b4_calibration_metrics.json,halueval_test.platt.f1_mean,0.984756629100462,4.3370899537986674e-05,match
+Table 7 / platt / ece_mean,0.0091,artifacts\results\b4\b4_calibration_metrics.json,halueval_test.platt.ece_mean,0.009138263120123275,3.826312012327436e-05,match
+Table 7 / platt / brier_mean,0.0129,artifacts\results\b4\b4_calibration_metrics.json,halueval_test.platt.brier_mean,0.012935888071110803,3.5888071110802555e-05,match
+Table 7 / platt / nll_mean,0.0579,artifacts\results\b4\b4_calibration_metrics.json,halueval_test.platt.nll_mean,0.05794885723423513,4.8857234235130664e-05,match
+Table 7 / isotonic / f1_mean,0.9844,artifacts\results\b4\b4_calibration_metrics.json,halueval_test.isotonic.f1_mean,0.9844122745224292,1.2274522429134294e-05,match
+Table 7 / isotonic / ece_mean,0.007,artifacts\results\b4\b4_calibration_metrics.json,halueval_test.isotonic.ece_mean,0.006953303990607832,4.6696009392168183e-05,match
+Table 7 / isotonic / brier_mean,0.0124,artifacts\results\b4\b4_calibration_metrics.json,halueval_test.isotonic.brier_mean,0.012372829347272499,2.7170652727500494e-05,match
+Table 7 / isotonic / nll_mean,0.0727,artifacts\results\b4\b4_calibration_metrics.json,halueval_test.isotonic.nll_mean,0.07274729040356226,4.729040356225844e-05,match
+Table 8 / standard / raw / ece,0.8185,artifacts\results\review\calibration_protocol.json,standard.raw.ece,0.8184592978049207,4.070219507934514e-05,match
+Table 8 / standard / raw / brier,0.8164,artifacts\results\review\calibration_protocol.json,standard.raw.brier,0.8163649987855192,3.500121448085647e-05,match
+Table 8 / standard / raw / nll,5.2,artifacts\results\review\calibration_protocol.json,standard.raw.nll,5.197582237577506,0.002417762422494363,match
+Table 8 / standard / raw / predicted_positive_rate,0.999,artifacts\results\review\calibration_protocol.json,standard.raw.predicted_positive_rate,0.998888888888889,0.00011111111111095084,match
+Table 8 / standard / source_platt / ece,0.8089,artifacts\results\review\calibration_protocol.json,standard.source_platt.ece,0.8089086140495173,8.614049517352562e-06,match
+Table 8 / standard / source_platt / brier,0.8011,artifacts\results\review\calibration_protocol.json,standard.source_platt.brier,0.8010526384772306,4.736152276940686e-05,match
+Table 8 / standard / source_platt / nll,3.62,artifacts\results\review\calibration_protocol.json,standard.source_platt.nll,3.623232093919862,0.0032320939198617893,match
+Table 8 / standard / source_platt / predicted_positive_rate,0.999,artifacts\results\review\calibration_protocol.json,standard.source_platt.predicted_positive_rate,0.998888888888889,0.00011111111111095084,match
+Table 8 / standard / target_platt / ece,0.1335,artifacts\results\review\calibration_protocol.json,standard.target_platt.ece,0.1335055020876962,5.502087696201974e-06,match
+Table 8 / standard / target_platt / brier,0.1639,artifacts\results\review\calibration_protocol.json,standard.target_platt.brier,0.1638827517730619,1.7248226938076927e-05,match
+Table 8 / standard / target_platt / nll,0.51,artifacts\results\review\calibration_protocol.json,standard.target_platt.nll,0.5137142505481701,0.003714250548170095,match
+Table 8 / standard / target_platt / predicted_positive_rate,0.0,artifacts\results\review\calibration_protocol.json,standard.target_platt.predicted_positive_rate,0.0,0.0,match
+Table 8 / standard / target_isotonic / ece,0.1316,artifacts\results\review\calibration_protocol.json,standard.target_isotonic.ece,0.13159966534987866,3.346501213363773e-07,match
+Table 8 / standard / target_isotonic / brier,0.1663,artifacts\results\review\calibration_protocol.json,standard.target_isotonic.brier,0.16628693026537192,1.3069734628085028e-05,match
+Table 8 / standard / target_isotonic / nll,0.53,artifacts\results\review\calibration_protocol.json,standard.target_isotonic.nll,0.5279404894825434,0.0020595105174566752,match
+Table 8 / standard / target_isotonic / predicted_positive_rate,0.0,artifacts\results\review\calibration_protocol.json,standard.target_isotonic.predicted_positive_rate,0.0,0.0,match
+Table 8 / ec_xgb / raw / ece,0.7433,artifacts\results\review\calibration_protocol.json,ec_xgb.raw.ece,0.7433099987882154,9.998788215392906e-06,match
+Table 8 / ec_xgb / raw / brier,0.7061,artifacts\results\review\calibration_protocol.json,ec_xgb.raw.brier,0.7061215767948917,2.1576794891786655e-05,match
+Table 8 / ec_xgb / raw / nll,2.91,artifacts\results\review\calibration_protocol.json,ec_xgb.raw.nll,2.913288230596377,0.003288230596377062,match
+Table 8 / ec_xgb / raw / predicted_positive_rate,0.974,artifacts\results\review\calibration_protocol.json,ec_xgb.raw.predicted_positive_rate,0.974074074074074,7.407407407400424e-05,match
+Table 8 / ec_xgb / source_platt / ece,0.7735,artifacts\results\review\calibration_protocol.json,ec_xgb.source_platt.ece,0.7734688204161474,3.117958385256969e-05,match
+Table 8 / ec_xgb / source_platt / brier,0.7527,artifacts\results\review\calibration_protocol.json,ec_xgb.source_platt.brier,0.7527026184302225,2.6184302224230294e-06,match
+Table 8 / ec_xgb / source_platt / nll,3.18,artifacts\results\review\calibration_protocol.json,ec_xgb.source_platt.nll,3.1766360128987343,0.0033639871012658418,match
+Table 8 / ec_xgb / source_platt / predicted_positive_rate,0.975,artifacts\results\review\calibration_protocol.json,ec_xgb.source_platt.predicted_positive_rate,0.9751851851851852,0.00018518518518517713,match
+Table 8 / ec_xgb / target_platt / ece,0.1263,artifacts\results\review\calibration_protocol.json,ec_xgb.target_platt.ece,0.12633650679198136,3.6506791981361086e-05,match
+Table 8 / ec_xgb / target_platt / brier,0.1613,artifacts\results\review\calibration_protocol.json,ec_xgb.target_platt.brier,0.1612626575736111,3.734242638889218e-05,match
+Table 8 / ec_xgb / target_platt / nll,0.5,artifacts\results\review\calibration_protocol.json,ec_xgb.target_platt.nll,0.5036819113444172,0.003681911344417199,match
+Table 8 / ec_xgb / target_platt / predicted_positive_rate,0.0,artifacts\results\review\calibration_protocol.json,ec_xgb.target_platt.predicted_positive_rate,0.0,0.0,match
+Table 8 / ec_xgb / target_isotonic / ece,0.126,artifacts\results\review\calibration_protocol.json,ec_xgb.target_isotonic.ece,0.1260250277299896,2.502772998960734e-05,match
+Table 8 / ec_xgb / target_isotonic / brier,0.1618,artifacts\results\review\calibration_protocol.json,ec_xgb.target_isotonic.brier,0.16183562599321774,3.5625993217741625e-05,match
+Table 8 / ec_xgb / target_isotonic / nll,0.5,artifacts\results\review\calibration_protocol.json,ec_xgb.target_isotonic.nll,0.5040745898230371,0.0040745898230371,match
+Table 8 / ec_xgb / target_isotonic / predicted_positive_rate,0.0,artifacts\results\review\calibration_protocol.json,ec_xgb.target_isotonic.predicted_positive_rate,0.0,0.0,match
+Table 9 / length / F1,0.9801,artifacts\results\ablation_results.csv,length.f1_mean,0.9800875910861804,1.2408913819594858e-05,match
+Table 9 / length / AUROC,0.9963,artifacts\results\ablation_results.csv,length.auroc_mean,0.9963423703703704,4.237037037047031e-05,match
+Table 9 / lexical / F1,0.96,artifacts\results\ablation_results.csv,lexical.f1_mean,0.959955356163138,4.464383686197948e-05,match
+Table 9 / lexical / AUROC,0.9923,artifacts\results\ablation_results.csv,lexical.auroc_mean,0.9922992592592592,7.407407407455935e-07,match
+Table 9 / entity / F1,0.9847,artifacts\results\ablation_results.csv,entity.f1_mean,0.9846842057226132,1.579427738684913e-05,match
+Table 9 / entity / AUROC,0.9982,artifacts\results\ablation_results.csv,entity.auroc_mean,0.9981826666666668,1.733333333320264e-05,match
+Table 9 / nli / F1,0.9823,artifacts\results\ablation_results.csv,nli.f1_mean,0.982346418204799,4.6418204799003604e-05,match
+Table 9 / nli / AUROC,0.9973,artifacts\results\ablation_results.csv,nli.auroc_mean,0.9973477037037038,4.7703703703882994e-05,match
+Table 9 / numeric / F1,0.9844,artifacts\results\ablation_results.csv,numeric.f1_mean,0.9844432232588698,4.32232588697401e-05,match
+Table 9 / numeric / AUROC,0.9982,artifacts\results\ablation_results.csv,numeric.auroc_mean,0.9981524444444444,4.7555555555578444e-05,match
+Table 9 / hedging / F1,0.9848,artifacts\results\ablation_results.csv,hedging.f1_mean,0.9847806370584692,1.936294153082052e-05,match
+Table 9 / hedging / AUROC,0.9981,artifacts\results\ablation_results.csv,hedging.auroc_mean,0.9981274074074072,2.7407407407253892e-05,match
+Table 9 / semantic / F1,0.986,artifacts\results\ablation_results.csv,semantic.f1_mean,0.9860069631259792,6.963125979253526e-06,match
+Table 9 / semantic / AUROC,0.9982,artifacts\results\ablation_results.csv,semantic.auroc_mean,0.9981632592592592,3.67407407407816e-05,match
+Table 10 / entity / mean delta,0.36,artifacts\results\b5\b5_perturbation_aggregates.csv,entity.mean_abs_score_delta,0.360174,0.00017400000000000748,match
+Table 10 / entity / Spearman,0.84,artifacts\results\b5\b5_perturbation_aggregates.csv,entity.mean_spearman,0.839746,0.00025399999999997647,match
+Table 10 / numeric / mean delta,0.345,artifacts\results\b5\b5_perturbation_aggregates.csv,numeric.mean_abs_score_delta,0.344905,9.499999999995623e-05,match
+Table 10 / numeric / Spearman,0.852,artifacts\results\b5\b5_perturbation_aggregates.csv,numeric.mean_spearman,0.852479,0.0004790000000000072,match
+Table 10 / date / mean delta,0.279,artifacts\results\b5\b5_perturbation_aggregates.csv,date.mean_abs_score_delta,0.278606,0.00039400000000000546,match
+Table 10 / date / Spearman,0.87,artifacts\results\b5\b5_perturbation_aggregates.csv,date.mean_spearman,0.870434,0.00043400000000004546,match
+Table 10 / support_removal / mean delta,0.272,artifacts\results\b5\b5_perturbation_aggregates.csv,support_removal.mean_abs_score_delta,0.272101,0.00010099999999996223,match
+Table 10 / support_removal / Spearman,0.874,artifacts\results\b5\b5_perturbation_aggregates.csv,support_removal.mean_spearman,0.874192,0.00019199999999996997,match
+Table 10 / irrelevant_insert / mean delta,0.006,artifacts\results\b5\b5_perturbation_aggregates.csv,irrelevant_insert.mean_abs_score_delta,0.005907,9.30000000000002e-05,match
+Table 10 / irrelevant_insert / Spearman,0.948,artifacts\results\b5\b5_perturbation_aggregates.csv,irrelevant_insert.mean_spearman,0.9483,0.000300000000000078,match
+Table 10 / clause_shuffle / mean delta,0.001,artifacts\results\b5\b5_perturbation_aggregates.csv,clause_shuffle.mean_abs_score_delta,0.00121,0.0002099999999999999,match
+Table 10 / clause_shuffle / Spearman,0.921,artifacts\results\b5\b5_perturbation_aggregates.csv,clause_shuffle.mean_spearman,0.921211,0.00021099999999996122,match
+Table 11 / core_lexical / p50,0.1,artifacts\results\latency_analysis.json,latency_ms.core_lexical.p50,0.1,0.0,match
+Table 11 / entity / p50,21.13,artifacts\results\latency_analysis.json,latency_ms.entity.p50,21.13,0.0,match
+Table 11 / nli / p50,27.09,artifacts\results\latency_analysis.json,latency_ms.nli.p50,27.09,0.0,match
+Table 11 / semantic / p50,9.25,artifacts\results\latency_analysis.json,latency_ms.semantic.p50,9.25,0.0,match
+Table 11 / model / p50,1.26,artifacts\results\latency_analysis.json,latency_ms.model.p50,1.26,0.0,match
+Table 11 / shap / p50,1.91,artifacts\results\latency_analysis.json,latency_ms.shap.p50,1.91,0.0,match
+Table 11 / total / p50,61.8,artifacts\results\latency_analysis.json,total_per_sample_ms.p50,61.77,0.02999999999999403,match
+Table 12 / judge / accuracy,0.86,artifacts\results\llm_judge_results.json,judge.accuracy,0.86,0.0,match
+Table 12 / judge / precision,0.974,artifacts\results\llm_judge_results.json,judge.precision,0.9737,0.00029999999999996696,match
+Table 12 / judge / recall,0.74,artifacts\results\llm_judge_results.json,judge.recall,0.74,0.0,match
+Table 12 / judge / f1,0.841,artifacts\results\llm_judge_results.json,judge.f1,0.8409,9.999999999998899e-05,match
+Table 12 / EC-XGB / accuracy,0.985,artifacts\results\llm_judge_results.json,xgboost_on_same_subset.accuracy,0.985,0.0,match
+Table 12 / EC-XGB / precision,0.98,artifacts\results\llm_judge_results.json,xgboost_on_same_subset.precision,0.9802,0.00019999999999997797,match
+Table 12 / EC-XGB / recall,0.99,artifacts\results\llm_judge_results.json,xgboost_on_same_subset.recall,0.99,0.0,match
+Table 12 / EC-XGB / f1,0.985,artifacts\results\llm_judge_results.json,xgboost_on_same_subset.f1,0.9851,9.999999999998899e-05,match
+Table 12 / judge / p50 ms,1310.0,artifacts\results\llm_judge_results.json,judge.latency_ms_p50,1310.0,0.0,match
+Table 12 / judge / cost per 1k,0.105,artifacts\results\llm_judge_results.json,cost_per_1000_usd,0.105,0.0,match
+Table 13 / label ambiguity FP,7.0,artifacts\results\error_analysis.json,category_counts.false_positive.label_ambiguity,7.0,0.0,match
+Table 13 / label ambiguity FN,4.0,artifacts\results\error_analysis.json,category_counts.false_negative.label_ambiguity,4.0,0.0,match
+Table 13 / short-answer FP,3.0,artifacts\results\error_analysis.json,category_counts.false_positive.short_answer_ambiguity,3.0,0.0,match
+Table 13 / short-answer FN,6.0,artifacts\results\error_analysis.json,category_counts.false_negative.short_answer_ambiguity,6.0,0.0,match
+Table 14 / 1 / rows,524.0,artifacts\results\b5\b5_length_error_analysis.csv,1.rows,524.0,0.0,match
+Table 14 / 1 / pos rate,0.021,artifacts\results\b5\b5_length_error_analysis.csv,1.pos_rate,0.021,0.0,match
+Table 14 / 1 / mean score,0.024,artifacts\results\b5\b5_length_error_analysis.csv,1.mean_score,0.0241,9.99999999999994e-05,match
+Table 14 / 2 / rows,514.0,artifacts\results\b5\b5_length_error_analysis.csv,2.rows,514.0,0.0,match
+Table 14 / 2 / pos rate,0.033,artifacts\results\b5\b5_length_error_analysis.csv,2.pos_rate,0.0331,9.999999999999593e-05,match
+Table 14 / 2 / mean score,0.035,artifacts\results\b5\b5_length_error_analysis.csv,2.mean_score,0.0352,0.0001999999999999988,match
+Table 14 / 3-4 / rows,474.0,artifacts\results\b5\b5_length_error_analysis.csv,3-4.rows,474.0,0.0,match
+Table 14 / 3-4 / pos rate,0.127,artifacts\results\b5\b5_length_error_analysis.csv,3-4.pos_rate,0.1266,0.00040000000000001146,match
+Table 14 / 3-4 / mean score,0.126,artifacts\results\b5\b5_length_error_analysis.csv,3-4.mean_score,0.1257,0.0002999999999999947,match
+Table 14 / 5-8 / rows,641.0,artifacts\results\b5\b5_length_error_analysis.csv,5-8.rows,641.0,0.0,match
+Table 14 / 5-8 / pos rate,0.902,artifacts\results\b5\b5_length_error_analysis.csv,5-8.pos_rate,0.9017,0.000300000000000078,match
+Table 14 / 5-8 / mean score,0.888,artifacts\results\b5\b5_length_error_analysis.csv,5-8.mean_score,0.8883,0.00029999999999996696,match
+Table 14 / 9-16 / rows,600.0,artifacts\results\b5\b5_length_error_analysis.csv,9-16.rows,600.0,0.0,match
+Table 14 / 9-16 / pos rate,0.982,artifacts\results\b5\b5_length_error_analysis.csv,9-16.pos_rate,0.9817,0.00029999999999996696,match
+Table 14 / 9-16 / mean score,0.98,artifacts\results\b5\b5_length_error_analysis.csv,9-16.mean_score,0.98,0.0,match
+Table 14 / 17+ / rows,247.0,artifacts\results\b5\b5_length_error_analysis.csv,17+.rows,247.0,0.0,match
+Table 14 / 17+ / pos rate,0.992,artifacts\results\b5\b5_length_error_analysis.csv,17+.pos_rate,0.9919,9.999999999998899e-05,match
+Table 14 / 17+ / mean score,0.993,artifacts\results\b5\b5_length_error_analysis.csv,17+.mean_score,0.9934,0.00039999999999995595,match
+Headline / EC-XGB HaluEval F1,0.9855,artifacts\results\b6\b6_model_comparison.csv,m3.f1_mean,0.9855462152201352,4.621522013514845e-05,match
+Headline / EC-XGB HaluEval AUROC,0.9984,artifacts\results\b6\b6_model_comparison.csv,m3.auroc_mean,0.9984158518518518,1.5851851851822474e-05,match
+Headline / RAGTruth all flag standard,0.999,artifacts\results\b6\b6_external_metrics.csv,m0.ragtruth_all_test.predicted_positive_rate,0.998888888888889,0.00011111111111095084,match
+Headline / RAGTruth all flag EC-XGB,0.613,artifacts\results\b6\b6_external_metrics.csv,m3.ragtruth_all_test.predicted_positive_rate,0.6132098765432099,0.00020987654320991922,match
+Headline / RAGTruth all AUROC standard,0.475,artifacts\results\b6\b6_external_metrics.csv,m0.ragtruth_all_test.auroc,0.4753375529845471,0.00033755298454712923,match
+Headline / RAGTruth all AUROC EC-XGB,0.582,artifacts\results\b6\b6_external_metrics.csv,m3.ragtruth_all_test.auroc,0.5815407259514184,0.0004592740485815927,match
+Headline / held-out QA F1,0.3,artifacts\results\b6\b6_external_metrics.csv,m3.ragtruth_qa_test.f1,0.3080668367959344,0.008066836795934396,match
+Headline / EC-XGB display ECE before,0.726,artifacts\results\b6\b6_calibration.json,test_raw.ece,0.7257247571067678,0.0002752428932322193,match
+Headline / EC-XGB display ECE after,0.126,artifacts\results\b6\b6_calibration.json,test_platt.ece,0.12554463670547644,0.0004553632945235586,match
+Headline / target prevalence,0.178,artifacts\results\review\calibration_protocol.json,meta.positive_prevalence_test,0.17777777777777778,0.000222222222222207,match
+Headline / calibration rows,5034.0,artifacts\results\review\calibration_protocol.json,meta.n_calibration,5034.0,0.0,match
+Headline / test rows,900.0,artifacts\results\review\calibration_protocol.json,meta.n_test,900.0,0.0,match
+Headline / 252-row ECE,0.133,artifacts\results\extras\review_extras.json,x4_label_budget.0.05.ece,0.13297560629882976,2.439370117024442e-05,match
+Headline / McNemar XGB vs RF,0.044,artifacts\results\b2\b2_statistical_tests.json,mcnemar_pairs.rf_full,0.04417134490844271,0.00017134490844271377,match
+Headline / McNemar m0 vs m3,0.45,artifacts\results\b6\b6_statistical_tests.json,mcnemar.m0_vs_m3,0.4532547047537363,0.0032547047537362928,match
+Headline / Wilcoxon m0 vs m3,0.25,artifacts\results\b6\b6_statistical_tests.json,wilcoxon.m0_vs_m3,0.25,0.0,match
+Headline / judge p-value,1.63e-05,artifacts\results\llm_judge_results.json,mcnemar_judge_vs_xgboost_p,1.6286575766479503e-05,1.3424233520496531e-08,match
+Headline / judge discordant 28,28.0,artifacts\results\llm_judge_results.json,discordant_pairs.judge_wrong_xgb_right,28.0,0.0,match
+Headline / judge discordant 3,3.0,artifacts\results\llm_judge_results.json,discordant_pairs.judge_right_xgb_wrong,3.0,0.0,match

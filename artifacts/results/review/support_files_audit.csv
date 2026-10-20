@@ -1,0 +1,38 @@
+area,item,expected,actual,status,note,artifact
+manifest,git_commit,recorded,9bdb329e3f8382dc316d4f42d031589c4d8a8b29,match,frozen Version A manifest,docs\manifest.frozen.json
+manifest,seeds,"[42, 123, 456]","[42, 123, 456]",match,,docs\manifest.frozen.json
+manifest hash,qa_clean.parquet,1284545f54fde4cd80481822d792ba0483562bc537b0c751c634319d80443ad4,1284545f54fde4cd80481822d792ba0483562bc537b0c751c634319d80443ad4,match,,data\processed\qa_clean.parquet
+manifest hash,features_full.parquet,30caf0cdf62daf57d447926d491f9f5d658a3dc2b567426b86dd4bfcb910adb6,30caf0cdf62daf57d447926d491f9f5d658a3dc2b567426b86dd4bfcb910adb6,match,,data\processed\features_full.parquet
+manifest hash,model_xgboost_raw.joblib,2265b6ecdc08147e8e690e44c6d280b4ddf37e49f0810d02fe9bd728cd52764b,2265b6ecdc08147e8e690e44c6d280b4ddf37e49f0810d02fe9bd728cd52764b,match,,artifacts\models\model_xgboost_raw.joblib
+manifest hash,model_xgboost_calibrated.joblib,e4442bb4c3f7e51712d0205f109adaabd0011338444d2a50734c4626fc5c38d0,e4442bb4c3f7e51712d0205f109adaabd0011338444d2a50734c4626fc5c38d0,match,,artifacts\models\model_xgboost_calibrated.joblib
+manifest hash,split_indices.json,ba928cd2b4a6bcc2d503a652112ff564703a76ad2046a9227f9af9c085573e71,a95f3172f91b62e4b9f9dddfccffce9a107c07d924516083dd9d17cc654fe507,explain,"The frozen manifest predates the current split file schema. The current file is verified against features_full.parquet: row assignment exact, every item_idx in one split, 7000/1500/1500 groups, no overlap. Re-freezing the manifest would change Version A provenance.",artifacts\split_indices.json
+manifest hash,split_integrity_report.json,0aaa84bc1a7be6a9f0d6e1ff4afd9aadd912bca67b760063e0c4835c3e291a6b,a0ffc48fdfc6ff59161d971eb9786afc0c51db2d908a5e0cf27028922468ea18,explain,"The frozen manifest predates the current split file schema. The current file is verified against features_full.parquet: row assignment exact, every item_idx in one split, 7000/1500/1500 groups, no overlap. Re-freezing the manifest would change Version A provenance.",artifacts\split_integrity_report.json
+split report,split,group_by_item_idx,group_by_item_idx,match,,artifacts/split_integrity_report.json
+split report,seed,42,42,match,,artifacts/split_integrity_report.json
+split report,n_groups_per_split,"{'test': 1500, 'train': 7000, 'val': 1500}","{'test': 1500, 'train': 7000, 'val': 1500}",match,,artifacts/split_integrity_report.json
+split report,n_rows_per_split,"{'test': 3000, 'train': 14000, 'val': 3000}","{'test': 3000, 'train': 14000, 'val': 3000}",match,,artifacts/split_integrity_report.json
+split report,groups_spanning_multiple_splits,0,0,match,,artifacts/split_integrity_report.json
+split report,leakage_free,True,True,match,,artifacts/split_integrity_report.json
+split file,row split sizes,"[14000, 3000, 3000]","[14000, 3000, 3000]",match,,artifacts/split_indices.json
+split file,row split disjoint,True,True,match,,artifacts/split_indices.json
+split file,"row split covers 20,000 rows",True,True,match,,artifacts/split_indices.json
+split vs features,train row assignment,True,True,match,,data/processed/features_full.parquet
+split vs features,val row assignment,True,True,match,,data/processed/features_full.parquet
+split vs features,test row assignment,True,True,match,,data/processed/features_full.parquet
+split vs features,items spanning splits,0,0,match,,data/processed/features_full.parquet
+predictions,b2_predictions test ids,3000,3000,match,sample_ids equal the features test split,artifacts/results/b2/b2_predictions.parquet
+predictions,b6_predictions test ids,3000,3000,match,sample_ids equal the features test split,artifacts/results/b6/b6_predictions.parquet
+requirements,exact pins,all pinned with ==,31 pins; 0 range pins,match,xgboost stays at 3.3.0,requirements.txt
+requirements,xgboost version,3.3.0,3.3.0,match,pinned 3.3.0; installed 3.3.0,requirements.txt
+requirements,torch version,2.11.0+cu128,2.11.0+cu128,match,pinned 2.11.0+cu128; installed 2.11.0+cu128,requirements.txt
+requirements,transformers version,5.14.1,5.14.1,match,pinned 5.14.1; installed 5.14.1,requirements.txt
+requirements,scikit-learn version,1.9.0,1.9.0,match,pinned 1.9.0; installed 1.9.0,requirements.txt
+requirements,pandas version,3.0.5,3.0.5,match,pinned 3.0.5; installed 3.0.5,requirements.txt
+requirements,numpy version,2.4.6,2.4.6,match,pinned 2.4.6; installed 2.4.6,requirements.txt
+licenses,dataset count,3,3,match,,artifacts\results\dataset_license_manifest.json
+licenses,halueval license,MIT,MIT,match,,artifacts\results\dataset_license_manifest.json
+licenses,ragtruth license,MIT,MIT,match,,artifacts\results\dataset_license_manifest.json
+licenses,faithbench license,CC BY-NC-SA 4.0,CC BY-NC-SA 4.0,match,,artifacts\results\dataset_license_manifest.json
+licenses,faithbench redistribution,False,False,match,not redistributed; download notes only,artifacts\results\dataset_license_manifest.json
+raw hashes,all raw files match the license manifest,True,True,match,18 files checked,artifacts\results\dataset_license_manifest.json
+repository,LICENSE present,True,True,match,,LICENSE
