@@ -1,0 +1,82 @@
+{
+  "meta": {
+    "source": "review_llm_judge_qwen.py",
+    "model": "qwen3.5:4b",
+    "serving": "Ollama native /api/chat, think=false, temperature=0",
+    "n_samples": 200,
+    "sample_prevalence": 0.5,
+    "sample_seed": 42,
+    "ec_xgb": "b6 m3 seed 42",
+    "gpt_reference": {
+      "n_samples": 200,
+      "model": "gpt-5.6-luna",
+      "judge": {
+        "accuracy": 0.86,
+        "precision": 0.9737,
+        "recall": 0.74,
+        "f1": 0.8409,
+        "latency_ms_p50": 1310.0,
+        "latency_ms_p95": 2706.9
+      },
+      "xgboost_on_same_subset": {
+        "accuracy": 0.985,
+        "precision": 0.9802,
+        "recall": 0.99,
+        "f1": 0.9851
+      },
+      "agreement_with_xgboost": 0.845,
+      "mcnemar_judge_vs_xgboost_p": 1.6286575766479503e-05,
+      "discordant_pairs": {
+        "judge_wrong_xgb_right": 28,
+        "judge_right_xgb_wrong": 3
+      },
+      "cost_usd": 0.021,
+      "cost_per_1000_usd": 0.105,
+      "tokens": {
+        "input": 40198,
+        "output": 10780
+      },
+      "pricing": {
+        "input_per_mtok": 0.2,
+        "output_per_mtok": 1.2
+      }
+    },
+    "note": "GPT reference was produced by eval_llm_judge.py with the B2 calibrated model; this run uses EC-XGB and should be paired with a fresh GPT run before the paper table is final."
+  },
+  "qwen": {
+    "accuracy": 0.8,
+    "precision": 0.96875,
+    "recall": 0.62,
+    "f1": 0.7560975609756098,
+    "f1_ci95": [
+      0.6666666666666666,
+      0.8241774891774891
+    ],
+    "precision_ci95": [
+      0.921843998015873,
+      1.0
+    ],
+    "recall_ci95": [
+      0.5118788819875776,
+      0.7111261261261261
+    ]
+  },
+  "ec_xgb_same_rows": {
+    "accuracy": 0.99,
+    "precision": 0.99,
+    "recall": 0.99,
+    "f1": 0.99,
+    "auroc": 0.9994999999999999
+  },
+  "length_only_same_rows": {
+    "accuracy": 0.905,
+    "precision": 0.900990099009901,
+    "recall": 0.91,
+    "f1": 0.9054726368159204,
+    "auroc": 0.9582999999999999
+  },
+  "agreement_qwen_ec_xgb": 0.79,
+  "agreement_qwen_labels": 0.8,
+  "latency_ms_p50": 2622.5562999998147,
+  "latency_ms_p95": 2688.541090000035
+}
