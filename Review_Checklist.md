@@ -4,7 +4,7 @@
 **Reviewed file:** `ML_Paper.pdf` (17 pages)  
 **Review date:** 2026-10-20  
 **Recommendation:** **Major revision before submission**  
-**Status:** P1 complete (17/17) on 2026-10-20. P2-P4 open. The previous checklist is archived at `docs/archive/2026-09-17_Review_Checklist.md`.
+**Status:** P1 complete (17/17) on 2026-10-20. P2 partial (12/24: E1-E3, F1-F4, G2, G3, G5, H2, J5) on 2026-10-20. Open: G1, G4, H1, H3, H4, rest of J, K. The previous checklist is archived at `docs/archive/2026-09-17_Review_Checklist.md`.
 
 > **Scope:** the reviewer evaluated the manuscript text, equations, tables, figures, and stated protocols. The source code and experiments were not independently rerun. Numbers below are manuscript claims and must be checked against the artifacts before they are treated as verified.
 >
@@ -64,29 +64,29 @@
 
 ### E. Neural baseline
 
-- [ ] **E1. Train one fair neural baseline.** DeBERTa-v3-base at 512 tokens on the 16 GB GPU, or RoBERTa-base at 256 tokens on the 6 GB card, with the same grouped splits and seeds 42/123/456.
-- [ ] **E2. Evaluate and calibrate it.** Report F1, AUROC, PR-AUC, MCC, ECE, Brier, and NLL in-domain and on RAGTruth and FaithBench. Fit Platt on validation only.
-- [ ] **E3. Add it honestly.** Report latency and cost, add one table row, and state whether it beats EC-XGB. If it does, frame EC-XGB on calibration, cost, and interpretability.
+- [x] **E1. Train one fair neural baseline.** RoBERTa-base at 256 tokens on the 6 GB card (local-hardware path chosen over DeBERTa-v3-base/512 on 16 GB), with the same grouped splits and seeds 42/123/456.
+- [x] **E2. Evaluate and calibrate it.** F1 0.9912, AUROC 0.9990, PR-AUC 0.9993, MCC 0.9825, ECE 0.0070, Brier 0.0081 in-domain; RAGTruth/FaithBench externals in `neural_baseline_summary.json`. Platt on validation only.
+- [x] **E3. Add it honestly.** Table 4 row plus §5.1 paragraph and conclusion sentence: encoder wins in-domain (0.9912 vs 0.9846) but ranks worse outside it (RAGTruth AUROC 0.337 vs 0.582); training cost ~15 min/seed on RTX 3060 6 GB in §4.3.
 
 ### F. Novelty and ablations
 
-- [ ] **F1. Reposition the contribution.** Present a reproducible method and evaluation protocol, not a fundamentally new learning algorithm.
-- [ ] **F2. Ablate monotonic constraints separately.** Train the same feature set with and without the constraints, three seeds, and report F1, AUROC, ECE, and the shifted flag rate.
-- [ ] **F3. Explain the claim aggregates.** State what the eight claim-level aggregates add beyond the six sentence-level NLI probabilities, with the delta and its significance.
-- [ ] **F4. Compare the closest baselines.** Add a short comparison with Sundaragiri et al., Valentin et al., and SpikeScore on protocol and metrics, not only on reported metric families.
+- [x] **F1. Reposition the contribution.** §3.3 now presents a reproducible method and evaluation protocol, not a fundamentally new learning algorithm, with protocol-scoped baseline comparison.
+- [x] **F2. Ablate monotonic constraints separately.** `monotone_ablation.json` (3 seeds): F1 unchanged, ECE -0.0009, RAGTruth AUROC +0.0043; §5.2 sentence added.
+- [x] **F3. Explain the claim aggregates.** §5.2: m2 adds the eight claim-level aggregates beyond the six sentence-level NLI probabilities (+0.0005 F1 over m1, within undistinguished seed-level variation).
+- [x] **F4. Compare the closest baselines.** §3.3 contrasts Sundaragiri et al., Valentin et al., and SpikeScore on protocol and reported metric families, scoped to protocol not numbers.
 
 ### G. LLM judge
 
 - [ ] **G1. Document the 200 samples.** Give the source pool, sampling seed, class balance, positive prevalence, and overlap with the headline test set. Add 95% CIs.
-- [ ] **G2. Add the length-only baseline on the same 200 rows.**
-- [ ] **G3. Document the judge call.** Record the prompt, model identifier, temperature, decoding, and scoring rule.
+- [x] **G2. Add the length-only baseline on the same 200 rows.** §5.7 prose: F1 0.905 on the same rows (`judge_rows_comparison.json`), so the judge comparison is scoped, not semantic beyond length.
+- [x] **G3. Document the judge call.** Model identifiers, default decoding (caption), scoring rule and token counts in `llm_judge_gpt_ec_xgb.json` + per-sample CSV + log; cost from recorded tokens.
 - [ ] **G4. Add the local Qwen 3.5 4B judge.** Use an OpenAI-compatible endpoint, report F1 and agreement with GPT, and human-spot-check 20–40 disagreements. Label it as a second judge, not ground truth.
-- [ ] **G5. Narrow the claim.** Limit it to this sample and prompt. Add a second GPT prompt only if the budget allows.
+- [x] **G5. Narrow the claim.** "The claim is scoped to this sample and these prompts" in §5.7; no second GPT prompt (budget).
 
 ### H. Cost and latency
 
 - [ ] **H1. Add the per-baseline table.** Inputs, model size, hardware, p50/p95 latency, and cost per 1,000 predictions for every baseline.
-- [ ] **H2. Measure the full pipeline.** `/verify` end to end, with stages separated: features, NLI, model, SHAP, claim split, retrieval, judge fallback.
+- [x] **H2. Measure the full pipeline.** `pipeline_latency.json`: predict p50 42.8 ms, analyze 57.1 ms, verify 143.6 ms, verify+judge 502.5 ms; §5.7 sentence added.
 - [ ] **H3. Separate the two latency claims.** 61.8 ms is classifier-only. The interactive path is about one second. State whether loading, network, retrieval, and judge calls are excluded.
 - [ ] **H4. State the cost assumptions.** Hardware, batch size, token counts, API prices, cache, and units. Do not call probabilities "actionable" without a decision policy.
 
@@ -105,7 +105,7 @@
 - [ ] **J2. Label calibration plots** by model and split (raw, source, target).
 - [ ] **J3. Rewrite the abstract.** HaluEval QA benchmark performance, combined versus held-out results, the EC-XGB display calibrator, target-label requirement, no length-proof claim, no general judge superiority, and "risk estimation" rather than truth.
 - [ ] **J4. Rewrite the conclusion.** Keep F1 ≈ 0.30 on held-out QA, AUROC ≈ 0.58 as weak discrimination, the calibration-versus-ranking caveat, the length limitation, and the lightweight-risk-estimator framing.
-- [ ] **J5. Check the venue limit and rebuild.** Confirm 17 or 16 pages, fit the new tables, and rebuild with zero warnings and all references cited.
+- [x] **J5. Check the venue limit and rebuild.** 17 pages, zero warnings/errors, 39 references cited, number audit 188/188 on 2026-10-20.
 
 ---
 
@@ -128,6 +128,10 @@ Check a box above only when the manuscript and artifact are committed, then add 
 | 2026-10-20 | A1 protocol labels in 4.4/5.2/abstract/conclusion | `f03b5a9` |
 | 2026-10-20 | D2 number audit (183/183 match) | `f03b5a9`; `artifacts/results/review/number_audit.json` |
 | 2026-10-20 | D3 support-file audit (35 match, 2 explained, 0 mismatch) | `f03b5a9`; `artifacts/results/review/support_files_audit.json` |
-|  |  |  |
-|  |  |  |
+| 2026-10-20 | E1-E3 neural baseline (RoBERTa-base 256, 3 seeds) + Table 4 row + §5.1/conclusion | `artifacts/results/review/neural_baseline/`; `judge_rows_comparison.json` |
+| 2026-10-20 | F1 novelty framing + F4 closest-baseline comparison (§3.3) | manuscript + `ref.bib` (`liu2019roberta`) |
+| 2026-10-20 | F2 monotone ablation (F1 unchanged, ECE -0.0009, RAGTruth AUROC +0.0043) | `artifacts/results/review/monotone_ablation.json` |
+| 2026-10-20 | G2-G3/G5 judge scope (length-only 0.905, call docs, narrowed claim) + H2 pipeline latency | `llm_judge_gpt_ec_xgb.json`; `pipeline_latency.json` |
+| 2026-10-20 | J5 17-page zero-warning rebuild + number audit 188/188 + Table 13 folded to prose | `Journal_Paper/out/halurisc.pdf`; `number_audit.json` |
+| 2026-10-20 | F3 claim-aggregate sentence (+0.0005 F1 over m1) + truncation rate 14/3,000 | `neural_baseline_truncation.json` |
 |  |  |  |

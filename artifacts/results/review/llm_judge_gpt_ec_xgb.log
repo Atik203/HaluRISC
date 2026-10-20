@@ -1,0 +1,448 @@
+
+GPT judge:   0%|          | 0/200 [00:00<?, ?sample/s]2026-10-20 14:22:56,028 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:   0%|          | 1/200 [00:03<12:03,  3.63s/sample]2026-10-20 14:22:57,659 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:   1%|          | 2/200 [00:05<08:05,  2.45s/sample]2026-10-20 14:22:59,725 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:   2%|ΓûÅ         | 3/200 [00:07<07:28,  2.28s/sample]2026-10-20 14:23:01,164 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:   2%|ΓûÅ         | 4/200 [00:08<06:21,  1.94s/sample]2026-10-20 14:23:02,935 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:   2%|ΓûÄ         | 5/200 [00:10<06:07,  1.88s/sample]2026-10-20 14:23:04,379 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:   3%|ΓûÄ         | 6/200 [00:11<05:36,  1.73s/sample]2026-10-20 14:23:05,379 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:   4%|ΓûÄ         | 7/200 [00:12<04:48,  1.49s/sample]2026-10-20 14:23:07,257 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:   4%|Γûì         | 8/200 [00:14<05:10,  1.62s/sample]2026-10-20 14:23:09,723 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:   4%|Γûì         | 9/200 [00:17<05:59,  1.88s/sample]2026-10-20 14:23:11,095 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:   5%|Γûî         | 10/200 [00:18<05:27,  1.72s/sample]2026-10-20 14:23:12,773 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:   6%|Γûî         | 11/200 [00:20<05:23,  1.71s/sample]2026-10-20 14:23:13,971 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:   6%|Γûî         | 12/200 [00:21<04:52,  1.55s/sample]2026-10-20 14:23:17,018 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:   6%|Γûï         | 13/200 [00:24<06:15,  2.01s/sample]2026-10-20 14:23:18,460 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:   7%|Γûï         | 14/200 [00:26<05:41,  1.84s/sample]2026-10-20 14:23:20,050 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:   8%|Γûè         | 15/200 [00:27<05:25,  1.76s/sample]2026-10-20 14:23:21,650 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:   8%|Γûè         | 16/200 [00:29<05:15,  1.71s/sample]2026-10-20 14:23:22,656 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:   8%|Γûè         | 17/200 [00:30<04:34,  1.50s/sample]2026-10-20 14:23:24,040 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:   9%|Γûë         | 18/200 [00:31<04:26,  1.47s/sample]2026-10-20 14:23:25,494 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  10%|Γûë         | 19/200 [00:33<04:24,  1.46s/sample]2026-10-20 14:23:27,034 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  10%|Γûê         | 20/200 [00:34<04:27,  1.49s/sample]2026-10-20 14:23:28,374 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  10%|Γûê         | 21/200 [00:35<04:18,  1.44s/sample]2026-10-20 14:23:29,699 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  11%|Γûê         | 22/200 [00:37<04:10,  1.41s/sample]2026-10-20 14:23:31,125 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  12%|ΓûêΓûÅ        | 23/200 [00:38<04:10,  1.41s/sample]2026-10-20 14:23:34,074 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  12%|ΓûêΓûÅ        | 24/200 [00:41<05:29,  1.87s/sample]2026-10-20 14:23:35,493 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+[25/200] 12.5% | elapsed 43s | ETA 302s
+GPT judge:  12%|ΓûêΓûÄ        | 25/200 [00:43<05:03,  1.74s/sample]2026-10-20 14:23:38,300 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  13%|ΓûêΓûÄ        | 26/200 [00:45<05:58,  2.06s/sample]2026-10-20 14:23:40,531 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  14%|ΓûêΓûÄ        | 27/200 [00:48<06:05,  2.11s/sample]2026-10-20 14:23:41,820 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  14%|ΓûêΓûì        | 28/200 [00:49<05:20,  1.86s/sample]2026-10-20 14:23:43,449 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  14%|ΓûêΓûì        | 29/200 [00:51<05:06,  1.79s/sample]2026-10-20 14:23:45,660 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  15%|ΓûêΓûî        | 30/200 [00:53<05:26,  1.92s/sample]2026-10-20 14:23:48,222 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  16%|ΓûêΓûî        | 31/200 [00:55<05:56,  2.11s/sample]2026-10-20 14:23:49,736 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  16%|ΓûêΓûî        | 32/200 [00:57<05:24,  1.93s/sample]2026-10-20 14:23:52,048 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  16%|ΓûêΓûï        | 33/200 [00:59<05:41,  2.05s/sample]2026-10-20 14:23:57,115 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  17%|ΓûêΓûï        | 34/200 [01:04<08:10,  2.95s/sample]2026-10-20 14:23:58,944 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  18%|ΓûêΓûè        | 35/200 [01:06<07:11,  2.62s/sample]2026-10-20 14:24:00,691 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  18%|ΓûêΓûè        | 36/200 [01:08<06:26,  2.35s/sample]2026-10-20 14:24:02,304 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  18%|ΓûêΓûè        | 37/200 [01:09<05:47,  2.13s/sample]2026-10-20 14:24:03,902 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  19%|ΓûêΓûë        | 38/200 [01:11<05:19,  1.97s/sample]2026-10-20 14:24:07,087 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  20%|ΓûêΓûë        | 39/200 [01:14<06:16,  2.34s/sample]2026-10-20 14:24:08,682 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  20%|ΓûêΓûê        | 40/200 [01:16<05:38,  2.11s/sample]2026-10-20 14:24:10,289 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  20%|ΓûêΓûê        | 41/200 [01:17<05:11,  1.96s/sample]2026-10-20 14:24:13,501 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  21%|ΓûêΓûê        | 42/200 [01:21<06:09,  2.34s/sample]2026-10-20 14:24:14,862 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  22%|ΓûêΓûêΓûÅ       | 43/200 [01:22<05:20,  2.04s/sample]2026-10-20 14:24:17,050 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  22%|ΓûêΓûêΓûÅ       | 44/200 [01:24<05:25,  2.09s/sample]2026-10-20 14:24:18,700 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  22%|ΓûêΓûêΓûÄ       | 45/200 [01:26<05:03,  1.96s/sample]2026-10-20 14:24:21,501 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  23%|ΓûêΓûêΓûÄ       | 46/200 [01:29<05:40,  2.21s/sample]2026-10-20 14:24:23,099 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  24%|ΓûêΓûêΓûÄ       | 47/200 [01:30<05:10,  2.03s/sample]2026-10-20 14:24:24,691 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  24%|ΓûêΓûêΓûì       | 48/200 [01:32<04:48,  1.90s/sample]2026-10-20 14:24:27,460 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  24%|ΓûêΓûêΓûì       | 49/200 [01:35<05:25,  2.16s/sample]2026-10-20 14:24:29,260 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+[50/200] 25.0% | elapsed 97s | ETA 291s
+GPT judge:  25%|ΓûêΓûêΓûî       | 50/200 [01:36<05:07,  2.05s/sample]2026-10-20 14:24:31,356 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  26%|ΓûêΓûêΓûî       | 51/200 [01:38<05:07,  2.06s/sample]2026-10-20 14:24:33,955 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  26%|ΓûêΓûêΓûî       | 52/200 [01:41<05:29,  2.22s/sample]2026-10-20 14:24:36,085 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  26%|ΓûêΓûêΓûï       | 53/200 [01:43<05:22,  2.20s/sample]2026-10-20 14:24:37,786 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  27%|ΓûêΓûêΓûï       | 54/200 [01:45<04:58,  2.05s/sample]2026-10-20 14:24:38,728 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  28%|ΓûêΓûêΓûè       | 55/200 [01:46<04:08,  1.72s/sample]2026-10-20 14:24:40,034 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  28%|ΓûêΓûêΓûè       | 56/200 [01:47<03:49,  1.59s/sample]2026-10-20 14:24:41,407 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  28%|ΓûêΓûêΓûè       | 57/200 [01:49<03:38,  1.53s/sample]2026-10-20 14:24:43,449 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  29%|ΓûêΓûêΓûë       | 58/200 [01:51<03:58,  1.68s/sample]2026-10-20 14:24:46,004 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  30%|ΓûêΓûêΓûë       | 59/200 [01:53<04:34,  1.94s/sample]2026-10-20 14:24:47,287 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  30%|ΓûêΓûêΓûê       | 60/200 [01:54<04:04,  1.75s/sample]2026-10-20 14:24:49,075 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  30%|ΓûêΓûêΓûê       | 61/200 [01:56<04:04,  1.76s/sample]2026-10-20 14:24:51,302 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  31%|ΓûêΓûêΓûê       | 62/200 [01:58<04:22,  1.90s/sample]2026-10-20 14:24:52,721 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  32%|ΓûêΓûêΓûêΓûÅ      | 63/200 [02:00<04:00,  1.75s/sample]2026-10-20 14:24:53,899 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  32%|ΓûêΓûêΓûêΓûÅ      | 64/200 [02:01<03:35,  1.58s/sample]2026-10-20 14:24:55,856 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  32%|ΓûêΓûêΓûêΓûÄ      | 65/200 [02:03<03:48,  1.69s/sample]2026-10-20 14:24:59,374 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  33%|ΓûêΓûêΓûêΓûÄ      | 66/200 [02:06<05:00,  2.24s/sample]2026-10-20 14:25:00,824 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  34%|ΓûêΓûêΓûêΓûÄ      | 67/200 [02:08<04:26,  2.00s/sample]2026-10-20 14:25:03,638 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  34%|ΓûêΓûêΓûêΓûì      | 68/200 [02:11<04:56,  2.25s/sample]2026-10-20 14:25:04,900 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  34%|ΓûêΓûêΓûêΓûì      | 69/200 [02:12<04:15,  1.95s/sample]2026-10-20 14:25:06,553 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  35%|ΓûêΓûêΓûêΓûî      | 70/200 [02:14<04:02,  1.86s/sample]2026-10-20 14:25:08,076 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  36%|ΓûêΓûêΓûêΓûî      | 71/200 [02:15<03:47,  1.76s/sample]2026-10-20 14:25:11,797 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  36%|ΓûêΓûêΓûêΓûî      | 72/200 [02:19<05:00,  2.35s/sample]2026-10-20 14:25:13,205 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  36%|ΓûêΓûêΓûêΓûï      | 73/200 [02:20<04:22,  2.07s/sample]2026-10-20 14:25:16,525 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  37%|ΓûêΓûêΓûêΓûï      | 74/200 [02:24<05:07,  2.44s/sample]2026-10-20 14:25:19,030 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+[75/200] 37.5% | elapsed 147s | ETA 244s
+GPT judge:  38%|ΓûêΓûêΓûêΓûè      | 75/200 [02:26<05:07,  2.46s/sample]2026-10-20 14:25:20,140 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  38%|ΓûêΓûêΓûêΓûè      | 76/200 [02:27<04:14,  2.06s/sample]2026-10-20 14:25:21,497 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  38%|ΓûêΓûêΓûêΓûè      | 77/200 [02:29<03:47,  1.85s/sample]2026-10-20 14:25:23,384 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  39%|ΓûêΓûêΓûêΓûë      | 78/200 [02:30<03:46,  1.86s/sample]2026-10-20 14:25:25,389 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  40%|ΓûêΓûêΓûêΓûë      | 79/200 [02:32<03:50,  1.90s/sample]2026-10-20 14:25:26,598 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  40%|ΓûêΓûêΓûêΓûê      | 80/200 [02:34<03:23,  1.69s/sample]2026-10-20 14:25:28,077 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  40%|ΓûêΓûêΓûêΓûê      | 81/200 [02:35<03:14,  1.63s/sample]2026-10-20 14:25:29,818 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  41%|ΓûêΓûêΓûêΓûê      | 82/200 [02:37<03:16,  1.66s/sample]2026-10-20 14:25:31,279 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  42%|ΓûêΓûêΓûêΓûêΓûÅ     | 83/200 [02:38<03:07,  1.60s/sample]2026-10-20 14:25:32,852 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  42%|ΓûêΓûêΓûêΓûêΓûÅ     | 84/200 [02:40<03:04,  1.59s/sample]2026-10-20 14:25:34,142 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  42%|ΓûêΓûêΓûêΓûêΓûÄ     | 85/200 [02:41<02:52,  1.50s/sample]2026-10-20 14:25:35,426 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  43%|ΓûêΓûêΓûêΓûêΓûÄ     | 86/200 [02:43<02:43,  1.44s/sample]2026-10-20 14:25:36,951 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  44%|ΓûêΓûêΓûêΓûêΓûÄ     | 87/200 [02:44<02:45,  1.46s/sample]2026-10-20 14:25:41,702 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  44%|ΓûêΓûêΓûêΓûêΓûì     | 88/200 [02:49<04:34,  2.45s/sample]2026-10-20 14:25:43,015 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  44%|ΓûêΓûêΓûêΓûêΓûì     | 89/200 [02:50<03:54,  2.11s/sample]2026-10-20 14:25:44,065 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  45%|ΓûêΓûêΓûêΓûêΓûî     | 90/200 [02:51<03:17,  1.79s/sample]2026-10-20 14:25:46,994 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  46%|ΓûêΓûêΓûêΓûêΓûî     | 91/200 [02:54<03:52,  2.13s/sample]2026-10-20 14:25:48,575 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  46%|ΓûêΓûêΓûêΓûêΓûî     | 92/200 [02:56<03:32,  1.97s/sample]2026-10-20 14:25:49,576 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  46%|ΓûêΓûêΓûêΓûêΓûï     | 93/200 [02:57<02:59,  1.68s/sample]2026-10-20 14:25:51,322 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  47%|ΓûêΓûêΓûêΓûêΓûï     | 94/200 [02:58<02:59,  1.70s/sample]2026-10-20 14:25:53,345 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  48%|ΓûêΓûêΓûêΓûêΓûè     | 95/200 [03:00<03:08,  1.80s/sample]2026-10-20 14:25:54,844 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  48%|ΓûêΓûêΓûêΓûêΓûè     | 96/200 [03:02<02:57,  1.71s/sample]2026-10-20 14:25:56,531 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  48%|ΓûêΓûêΓûêΓûêΓûè     | 97/200 [03:04<02:55,  1.70s/sample]2026-10-20 14:25:59,407 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  49%|ΓûêΓûêΓûêΓûêΓûë     | 98/200 [03:07<03:29,  2.05s/sample]2026-10-20 14:26:00,543 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  50%|ΓûêΓûêΓûêΓûêΓûë     | 99/200 [03:08<02:59,  1.78s/sample]2026-10-20 14:26:02,202 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+[100/200] 50.0% | elapsed 190s | ETA 190s
+GPT judge:  50%|ΓûêΓûêΓûêΓûêΓûê     | 100/200 [03:09<02:54,  1.74s/sample]2026-10-20 14:26:03,713 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  50%|ΓûêΓûêΓûêΓûêΓûê     | 101/200 [03:11<02:45,  1.67s/sample]2026-10-20 14:26:05,078 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  51%|ΓûêΓûêΓûêΓûêΓûê     | 102/200 [03:12<02:34,  1.58s/sample]2026-10-20 14:26:06,561 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  52%|ΓûêΓûêΓûêΓûêΓûêΓûÅ    | 103/200 [03:14<02:30,  1.55s/sample]2026-10-20 14:26:07,557 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  52%|ΓûêΓûêΓûêΓûêΓûêΓûÅ    | 104/200 [03:15<02:12,  1.38s/sample]2026-10-20 14:26:09,834 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  52%|ΓûêΓûêΓûêΓûêΓûêΓûÄ    | 105/200 [03:17<02:36,  1.65s/sample]2026-10-20 14:26:11,192 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  53%|ΓûêΓûêΓûêΓûêΓûêΓûÄ    | 106/200 [03:18<02:27,  1.56s/sample]2026-10-20 14:26:12,113 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  54%|ΓûêΓûêΓûêΓûêΓûêΓûÄ    | 107/200 [03:19<02:07,  1.37s/sample]2026-10-20 14:26:13,194 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  54%|ΓûêΓûêΓûêΓûêΓûêΓûì    | 108/200 [03:20<01:58,  1.28s/sample]2026-10-20 14:26:14,429 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  55%|ΓûêΓûêΓûêΓûêΓûêΓûì    | 109/200 [03:22<01:55,  1.27s/sample]2026-10-20 14:26:15,544 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  55%|ΓûêΓûêΓûêΓûêΓûêΓûî    | 110/200 [03:23<01:50,  1.22s/sample]2026-10-20 14:26:18,755 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  56%|ΓûêΓûêΓûêΓûêΓûêΓûî    | 111/200 [03:26<02:41,  1.82s/sample]2026-10-20 14:26:20,149 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  56%|ΓûêΓûêΓûêΓûêΓûêΓûî    | 112/200 [03:27<02:28,  1.69s/sample]2026-10-20 14:26:21,222 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  56%|ΓûêΓûêΓûêΓûêΓûêΓûï    | 113/200 [03:28<02:11,  1.51s/sample]2026-10-20 14:26:22,129 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  57%|ΓûêΓûêΓûêΓûêΓûêΓûï    | 114/200 [03:29<01:54,  1.33s/sample]2026-10-20 14:26:23,119 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  57%|ΓûêΓûêΓûêΓûêΓûêΓûè    | 115/200 [03:30<01:44,  1.23s/sample]2026-10-20 14:26:25,656 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  58%|ΓûêΓûêΓûêΓûêΓûêΓûè    | 116/200 [03:33<02:16,  1.62s/sample]2026-10-20 14:26:27,074 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  58%|ΓûêΓûêΓûêΓûêΓûêΓûè    | 117/200 [03:34<02:09,  1.56s/sample]2026-10-20 14:26:28,492 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  59%|ΓûêΓûêΓûêΓûêΓûêΓûë    | 118/200 [03:36<02:04,  1.52s/sample]2026-10-20 14:26:29,585 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  60%|ΓûêΓûêΓûêΓûêΓûêΓûë    | 119/200 [03:37<01:52,  1.39s/sample]2026-10-20 14:26:30,750 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  60%|ΓûêΓûêΓûêΓûêΓûêΓûê    | 120/200 [03:38<01:45,  1.32s/sample]2026-10-20 14:26:31,991 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  60%|ΓûêΓûêΓûêΓûêΓûêΓûê    | 121/200 [03:39<01:42,  1.30s/sample]2026-10-20 14:26:33,273 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  61%|ΓûêΓûêΓûêΓûêΓûêΓûê    | 122/200 [03:40<01:40,  1.29s/sample]2026-10-20 14:26:34,326 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  62%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûÅ   | 123/200 [03:41<01:34,  1.22s/sample]2026-10-20 14:26:35,508 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  62%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûÅ   | 124/200 [03:43<01:31,  1.21s/sample]2026-10-20 14:26:37,261 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+[125/200] 62.5% | elapsed 225s | ETA 135s
+GPT judge:  62%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûÄ   | 125/200 [03:44<01:42,  1.37s/sample]2026-10-20 14:26:39,052 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  63%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûÄ   | 126/200 [03:46<01:50,  1.50s/sample]2026-10-20 14:26:40,135 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  64%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûÄ   | 127/200 [03:47<01:40,  1.37s/sample]2026-10-20 14:26:41,152 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  64%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûì   | 128/200 [03:48<01:31,  1.27s/sample]2026-10-20 14:26:43,313 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  64%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûì   | 129/200 [03:50<01:48,  1.53s/sample]2026-10-20 14:26:46,017 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  65%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûî   | 130/200 [03:53<02:11,  1.89s/sample]2026-10-20 14:26:47,597 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  66%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûî   | 131/200 [03:55<02:03,  1.79s/sample]2026-10-20 14:26:48,859 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  66%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûî   | 132/200 [03:56<01:51,  1.63s/sample]2026-10-20 14:26:50,294 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  66%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûï   | 133/200 [03:57<01:45,  1.57s/sample]2026-10-20 14:26:51,251 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  67%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûï   | 134/200 [03:58<01:31,  1.39s/sample]2026-10-20 14:26:53,544 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  68%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûè   | 135/200 [04:01<01:47,  1.66s/sample]2026-10-20 14:26:54,791 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  68%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûè   | 136/200 [04:02<01:38,  1.54s/sample]2026-10-20 14:26:56,194 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  68%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûè   | 137/200 [04:03<01:34,  1.50s/sample]2026-10-20 14:26:57,801 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  69%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûë   | 138/200 [04:05<01:34,  1.53s/sample]2026-10-20 14:26:59,377 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  70%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûë   | 139/200 [04:06<01:34,  1.54s/sample]2026-10-20 14:27:00,661 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  70%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûê   | 140/200 [04:08<01:27,  1.47s/sample]2026-10-20 14:27:01,757 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  70%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûê   | 141/200 [04:09<01:19,  1.35s/sample]2026-10-20 14:27:02,806 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  71%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûê   | 142/200 [04:10<01:13,  1.26s/sample]2026-10-20 14:27:04,761 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  72%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûÅ  | 143/200 [04:12<01:23,  1.47s/sample]2026-10-20 14:27:06,436 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  72%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûÅ  | 144/200 [04:14<01:25,  1.53s/sample]2026-10-20 14:27:07,406 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  72%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûÄ  | 145/200 [04:15<01:14,  1.36s/sample]2026-10-20 14:27:08,610 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  73%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûÄ  | 146/200 [04:16<01:11,  1.32s/sample]2026-10-20 14:27:10,294 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  74%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûÄ  | 147/200 [04:17<01:15,  1.43s/sample]2026-10-20 14:27:11,452 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  74%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûì  | 148/200 [04:19<01:09,  1.35s/sample]2026-10-20 14:27:13,043 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  74%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûì  | 149/200 [04:20<01:12,  1.42s/sample]2026-10-20 14:27:14,475 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+[150/200] 75.0% | elapsed 262s | ETA 87s
+GPT judge:  75%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûî  | 150/200 [04:22<01:11,  1.42s/sample]2026-10-20 14:27:15,694 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  76%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûî  | 151/200 [04:23<01:06,  1.36s/sample]2026-10-20 14:27:16,737 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  76%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûî  | 152/200 [04:24<01:00,  1.27s/sample]2026-10-20 14:27:17,796 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  76%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûï  | 153/200 [04:25<00:56,  1.20s/sample]2026-10-20 14:27:18,776 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  77%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûï  | 154/200 [04:26<00:52,  1.14s/sample]2026-10-20 14:27:20,105 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  78%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûè  | 155/200 [04:27<00:53,  1.19s/sample]2026-10-20 14:27:21,217 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  78%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûè  | 156/200 [04:28<00:51,  1.17s/sample]2026-10-20 14:27:22,256 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  78%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûè  | 157/200 [04:29<00:48,  1.13s/sample]2026-10-20 14:27:23,958 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  79%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûë  | 158/200 [04:31<00:54,  1.30s/sample]2026-10-20 14:27:27,968 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  80%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûë  | 159/200 [04:35<01:26,  2.11s/sample]2026-10-20 14:27:29,505 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  80%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê  | 160/200 [04:37<01:17,  1.94s/sample]2026-10-20 14:27:30,575 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  80%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê  | 161/200 [04:38<01:05,  1.68s/sample]2026-10-20 14:27:31,594 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  81%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê  | 162/200 [04:39<00:56,  1.48s/sample]2026-10-20 14:27:32,702 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  82%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûÅ | 163/200 [04:40<00:50,  1.37s/sample]2026-10-20 14:27:36,443 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  82%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûÅ | 164/200 [04:44<01:14,  2.08s/sample]2026-10-20 14:27:37,526 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  82%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûÄ | 165/200 [04:45<01:02,  1.78s/sample]2026-10-20 14:27:38,782 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  83%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûÄ | 166/200 [04:46<00:55,  1.62s/sample]2026-10-20 14:27:39,918 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  84%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûÄ | 167/200 [04:47<00:48,  1.48s/sample]2026-10-20 14:27:40,946 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  84%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûì | 168/200 [04:48<00:42,  1.34s/sample]2026-10-20 14:27:44,763 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  84%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûì | 169/200 [04:52<01:04,  2.08s/sample]2026-10-20 14:27:46,148 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  85%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûî | 170/200 [04:53<00:56,  1.87s/sample]2026-10-20 14:27:47,343 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  86%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûî | 171/200 [04:54<00:48,  1.67s/sample]2026-10-20 14:27:48,385 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  86%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûî | 172/200 [04:55<00:41,  1.48s/sample]2026-10-20 14:27:49,358 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  86%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûï | 173/200 [04:56<00:35,  1.33s/sample]2026-10-20 14:27:50,904 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  87%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûï | 174/200 [04:58<00:36,  1.39s/sample]2026-10-20 14:27:53,699 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+[175/200] 87.5% | elapsed 301s | ETA 43s
+GPT judge:  88%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûè | 175/200 [05:01<00:45,  1.81s/sample]2026-10-20 14:27:54,795 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  88%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûè | 176/200 [05:02<00:38,  1.60s/sample]2026-10-20 14:27:56,132 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  88%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûè | 177/200 [05:03<00:34,  1.52s/sample]2026-10-20 14:27:57,549 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  89%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûë | 178/200 [05:05<00:32,  1.49s/sample]2026-10-20 14:27:58,774 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  90%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûë | 179/200 [05:06<00:29,  1.41s/sample]2026-10-20 14:27:59,859 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  90%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê | 180/200 [05:07<00:26,  1.31s/sample]2026-10-20 14:28:01,075 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  90%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê | 181/200 [05:08<00:24,  1.28s/sample]2026-10-20 14:28:02,293 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  91%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê | 182/200 [05:09<00:22,  1.26s/sample]2026-10-20 14:28:03,460 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  92%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûÅ| 183/200 [05:11<00:20,  1.23s/sample]2026-10-20 14:28:04,606 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  92%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûÅ| 184/200 [05:12<00:19,  1.21s/sample]2026-10-20 14:28:05,653 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  92%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûÄ| 185/200 [05:13<00:17,  1.16s/sample]2026-10-20 14:28:06,878 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  93%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûÄ| 186/200 [05:14<00:16,  1.18s/sample]2026-10-20 14:28:09,060 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  94%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûÄ| 187/200 [05:16<00:19,  1.48s/sample]2026-10-20 14:28:10,342 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  94%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûì| 188/200 [05:17<00:17,  1.42s/sample]2026-10-20 14:28:12,173 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  94%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûì| 189/200 [05:19<00:16,  1.54s/sample]2026-10-20 14:28:13,589 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  95%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûî| 190/200 [05:21<00:15,  1.51s/sample]2026-10-20 14:28:14,895 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  96%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûî| 191/200 [05:22<00:13,  1.45s/sample]2026-10-20 14:28:15,969 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  96%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûî| 192/200 [05:23<00:10,  1.33s/sample]2026-10-20 14:28:17,147 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  96%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûï| 193/200 [05:24<00:09,  1.29s/sample]2026-10-20 14:28:18,300 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  97%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûï| 194/200 [05:25<00:07,  1.25s/sample]2026-10-20 14:28:21,269 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  98%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûè| 195/200 [05:28<00:08,  1.76s/sample]2026-10-20 14:28:22,240 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  98%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûè| 196/200 [05:29<00:06,  1.53s/sample]2026-10-20 14:28:23,687 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  98%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûè| 197/200 [05:31<00:04,  1.50s/sample]2026-10-20 14:28:24,859 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge:  99%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûë| 198/200 [05:32<00:02,  1.40s/sample]2026-10-20 14:28:27,785 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+GPT judge: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûë| 199/200 [05:35<00:01,  1.86s/sample]2026-10-20 14:28:30,915 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+
+[200/200] 100.0% | elapsed 339s | ETA 0s
+GPT judge: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 200/200 [05:38<00:00,  2.24s/sample]
+GPT judge: 100%|ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûê| 200/200 [05:38<00:00,  1.69s/sample]
+{
+  "gpt": {
+    "accuracy": 0.865,
+    "precision": 0.9866666666666667,
+    "recall": 0.74,
+    "f1": 0.8457142857142858,
+    "f1_ci95": [
+      0.781059009483667,
+      0.897965293901992
+    ],
+    "precision_ci95": [
+      0.9565217391304348,
+      1.0
+    ],
+    "recall_ci95": [
+      0.6458238636363637,
+      0.8217821782178217
+    ]
+  },
+  "ec_xgb_same_rows": {
+    "accuracy": 0.99,
+    "precision": 0.99,
+    "recall": 0.99,
+    "f1": 0.99,
+    "auroc": 0.9994999999999999
+  },
+  "length_only_same_rows": {
+    "accuracy": 0.905,
+    "precision": 0.900990099009901,
+    "recall": 0.91,
+    "f1": 0.9054726368159204,
+    "auroc": 0.9582999999999999
+  },
+  "agreement_gpt_ec_xgb": 0.855,
+  "mcnemar_p": 8.323556199256734e-06,
+  "cost_usd": 0.0212
+}
