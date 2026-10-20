@@ -1,8 +1,8 @@
-PWD g:/HaluRISC/Journal_Paper
+PWD G:/HaluRISC/Journal_Paper
 INPUT c:/texlive/2025/texmf.cnf
 INPUT c:/texlive/2025/texmf-dist/web2c/texmf.cnf
 INPUT c:/texlive/2025/texmf-var/web2c/pdftex/pdflatex.fmt
-INPUT g:/HaluRISC/Journal_Paper/halurisc.tex
+INPUT halurisc.tex
 OUTPUT out/halurisc.log
 INPUT ./cas-sc.cls
 INPUT cas-sc.cls
