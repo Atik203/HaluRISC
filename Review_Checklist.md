@@ -4,7 +4,7 @@
 **Reviewed file:** `ML_Paper.pdf` (17 pages)  
 **Review date:** 2026-10-20  
 **Recommendation:** **Major revision before submission**  
-**Status:** open items only. The previous checklist is archived at `docs/archive/2026-09-17_Review_Checklist.md`.
+**Status:** P1 complete (17/17) on 2026-10-20. P2-P4 open. The previous checklist is archived at `docs/archive/2026-09-17_Review_Checklist.md`.
 
 > **Scope:** the reviewer evaluated the manuscript text, equations, tables, figures, and stated protocols. The source code and experiments were not independently rerun. Numbers below are manuscript claims and must be checked against the artifacts before they are treated as verified.
 >
@@ -31,7 +31,7 @@
 
 ### A. Calibration and threshold protocol
 
-- [ ] **A1. Define the three protocols.** Write source-only, target-calibrated, and target-calibrated-plus-target-thresholded as named protocols in §3.3–§3.4, and use the same names in Algorithm 2, §4.4, §5.2–§5.3, the abstract, and the conclusion. _Status: definitions and Algorithm 2 are in; still to propagate to §4.4 and §5.2._
+- [x] **A1. Define the three protocols.** Write source-only, target-calibrated, and target-calibrated-plus-target-thresholded as named protocols in §3.3–§3.4, and use the same names in Algorithm 2, §4.4, §5.2–§5.3, the abstract, and the conclusion.
 - [x] **A2. Build one combined table.** Standard XGBoost versus EC-XGB on the same 900-row RAGTruth QA test set, with raw, source-calibrated, and target-calibrated ECE, Brier score, NLL, and predicted-positive rate.
 - [x] **A3. Label every calibration value.** Record checkpoint, calibrator, fit split, test split, and seed aggregation. Explain why 0.7433 and 0.726 differ, and why 0.126 differs from 0.1335 and 0.1316.
 - [x] **A4. State the label rules.** Confirm that no final-test label enters calibration fitting or threshold selection, and disclose that target calibration needs labeled target rows.
@@ -55,8 +55,8 @@
 ### D. Number and artifact audit
 
 - [x] **D1. Run the reproduction check.** Run `src/models/verify_artifacts.py` and save the log under `artifacts/results/review/`.
-- [ ] **D2. Build and trace the number audit.** Map each value in Tables 4-14 and every headline number to an artifact file and key, write `number_audit.csv`, and mark it match, explain, or fix.
-- [ ] **D3. Verify the support files.** Check split hashes, seeds, dependency pins, repository claims, and data-license notes.
+- [x] **D2. Build and trace the number audit.** Map each value in Tables 4-14 and every headline number to an artifact file and key, write `number_audit.csv`, and mark it match, explain, or fix.
+- [x] **D3. Verify the support files.** Check split hashes, seeds, dependency pins, repository claims, and data-license notes.
 
 ---
 
@@ -125,6 +125,9 @@ Check a box above only when the manuscript and artifact are committed, then add 
 | 2026-10-20 | B1-B5 length control and matched subset | `c4ace66`; `artifacts/results/review/length_control.json` |
 | 2026-10-20 | C1-C3 zero-shot wording | `c4ace66`, `b1adc9b` |
 | 2026-10-20 | D1 artifact verification | `8a4d238`; `artifacts/results/review/verify_artifacts.log` |
+| 2026-10-20 | A1 protocol labels in 4.4/5.2/abstract/conclusion | `f03b5a9` |
+| 2026-10-20 | D2 number audit (183/183 match) | `f03b5a9`; `artifacts/results/review/number_audit.json` |
+| 2026-10-20 | D3 support-file audit (35 match, 2 explained, 0 mismatch) | `f03b5a9`; `artifacts/results/review/support_files_audit.json` |
 |  |  |  |
 |  |  |  |
 |  |  |  |
