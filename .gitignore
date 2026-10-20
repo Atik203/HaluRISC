@@ -73,3 +73,4 @@ Thumbs.db
 *.tmp
 
 
+artifacts/results/review/api_server.log
