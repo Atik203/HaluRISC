@@ -131,16 +131,21 @@ Table 11 / semantic / p50,9.25,artifacts\results\latency_analysis.json,latency_m
 Table 11 / model / p50,1.26,artifacts\results\latency_analysis.json,latency_ms.model.p50,1.26,0.0,match
 Table 11 / shap / p50,1.91,artifacts\results\latency_analysis.json,latency_ms.shap.p50,1.91,0.0,match
 Table 11 / total / p50,61.8,artifacts\results\latency_analysis.json,total_per_sample_ms.p50,61.77,0.02999999999999403,match
-Table 12 / judge / accuracy,0.86,artifacts\results\llm_judge_results.json,judge.accuracy,0.86,0.0,match
-Table 12 / judge / precision,0.974,artifacts\results\llm_judge_results.json,judge.precision,0.9737,0.00029999999999996696,match
-Table 12 / judge / recall,0.74,artifacts\results\llm_judge_results.json,judge.recall,0.74,0.0,match
-Table 12 / judge / f1,0.841,artifacts\results\llm_judge_results.json,judge.f1,0.8409,9.999999999998899e-05,match
-Table 12 / EC-XGB / accuracy,0.985,artifacts\results\llm_judge_results.json,xgboost_on_same_subset.accuracy,0.985,0.0,match
-Table 12 / EC-XGB / precision,0.98,artifacts\results\llm_judge_results.json,xgboost_on_same_subset.precision,0.9802,0.00019999999999997797,match
-Table 12 / EC-XGB / recall,0.99,artifacts\results\llm_judge_results.json,xgboost_on_same_subset.recall,0.99,0.0,match
-Table 12 / EC-XGB / f1,0.985,artifacts\results\llm_judge_results.json,xgboost_on_same_subset.f1,0.9851,9.999999999998899e-05,match
-Table 12 / judge / p50 ms,1310.0,artifacts\results\llm_judge_results.json,judge.latency_ms_p50,1310.0,0.0,match
-Table 12 / judge / cost per 1k,0.105,artifacts\results\llm_judge_results.json,cost_per_1000_usd,0.105,0.0,match
+Table 12 / GPT / accuracy,0.865,artifacts\results\review\llm_judge_gpt_ec_xgb.json,gpt.accuracy,0.865,0.0,match
+Table 12 / GPT / precision,0.987,artifacts\results\review\llm_judge_gpt_ec_xgb.json,gpt.precision,0.9866666666666667,0.0003333333333332966,match
+Table 12 / GPT / recall,0.74,artifacts\results\review\llm_judge_gpt_ec_xgb.json,gpt.recall,0.74,0.0,match
+Table 12 / GPT / f1,0.846,artifacts\results\review\llm_judge_gpt_ec_xgb.json,gpt.f1,0.8457142857142858,0.0002857142857142225,match
+Table 12 / Qwen / accuracy,0.8,artifacts\results\review\llm_judge_qwen.json,qwen.accuracy,0.8,0.0,match
+Table 12 / Qwen / precision,0.969,artifacts\results\review\llm_judge_qwen.json,qwen.precision,0.96875,0.00024999999999997247,match
+Table 12 / Qwen / recall,0.62,artifacts\results\review\llm_judge_qwen.json,qwen.recall,0.62,0.0,match
+Table 12 / Qwen / f1,0.756,artifacts\results\review\llm_judge_qwen.json,qwen.f1,0.7560975609756098,9.756097560975618e-05,match
+Table 12 / EC-XGB / accuracy,0.99,artifacts\results\review\llm_judge_gpt_ec_xgb.json,ec_xgb_same_rows.accuracy,0.99,0.0,match
+Table 12 / EC-XGB / precision,0.99,artifacts\results\review\llm_judge_gpt_ec_xgb.json,ec_xgb_same_rows.precision,0.99,0.0,match
+Table 12 / EC-XGB / recall,0.99,artifacts\results\review\llm_judge_gpt_ec_xgb.json,ec_xgb_same_rows.recall,0.99,0.0,match
+Table 12 / EC-XGB / f1,0.99,artifacts\results\review\llm_judge_gpt_ec_xgb.json,ec_xgb_same_rows.f1,0.99,0.0,match
+Table 12 / GPT / p50 ms,1443.0,artifacts\results\review\llm_judge_gpt_ec_xgb.json,latency_ms_p50,1442.9848999998285,0.015100000171514694,match
+Table 12 / GPT / cost per 1k,0.106,artifacts\results\review\llm_judge_gpt_ec_xgb.json,cost_per_1000_usd,0.106,0.0,match
+Table 12 / Qwen / p50 ms,2623.0,artifacts\results\review\llm_judge_qwen.json,latency_ms_p50,2622.5562999998147,0.44370000018534483,match
 Table 13 / label ambiguity FP,7.0,artifacts\results\error_analysis.json,category_counts.false_positive.label_ambiguity,7.0,0.0,match
 Table 13 / label ambiguity FN,4.0,artifacts\results\error_analysis.json,category_counts.false_negative.label_ambiguity,4.0,0.0,match
 Table 13 / short-answer FP,3.0,artifacts\results\error_analysis.json,category_counts.false_positive.short_answer_ambiguity,3.0,0.0,match
@@ -179,6 +184,6 @@ Headline / 252-row ECE,0.133,artifacts\results\extras\review_extras.json,x4_labe
 Headline / McNemar XGB vs RF,0.044,artifacts\results\b2\b2_statistical_tests.json,mcnemar_pairs.rf_full,0.04417134490844271,0.00017134490844271377,match
 Headline / McNemar m0 vs m3,0.45,artifacts\results\b6\b6_statistical_tests.json,mcnemar.m0_vs_m3,0.4532547047537363,0.0032547047537362928,match
 Headline / Wilcoxon m0 vs m3,0.25,artifacts\results\b6\b6_statistical_tests.json,wilcoxon.m0_vs_m3,0.25,0.0,match
-Headline / judge p-value,1.63e-05,artifacts\results\llm_judge_results.json,mcnemar_judge_vs_xgboost_p,1.6286575766479503e-05,1.3424233520496531e-08,match
-Headline / judge discordant 28,28.0,artifacts\results\llm_judge_results.json,discordant_pairs.judge_wrong_xgb_right,28.0,0.0,match
-Headline / judge discordant 3,3.0,artifacts\results\llm_judge_results.json,discordant_pairs.judge_right_xgb_wrong,3.0,0.0,match
+Headline / judge p-value,8.32e-06,artifacts\results\review\llm_judge_gpt_ec_xgb.json,mcnemar_p,8.323556199256734e-06,3.5561992567342994e-09,match
+Headline / judge discordant 27,27.0,artifacts\results\review\llm_judge_gpt_ec_xgb.json,discordant_pairs.gpt_wrong_ec_right,27.0,0.0,match
+Headline / judge discordant 2,2.0,artifacts\results\review\llm_judge_gpt_ec_xgb.json,discordant_pairs.gpt_right_ec_wrong,2.0,0.0,match

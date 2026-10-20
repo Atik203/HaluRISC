@@ -1,0 +1,58 @@
+{
+  "meta": {
+    "source": "review_llm_judge_gpt_ec_xgb.py",
+    "model": "gpt-5.6-luna",
+    "temperature": "default (model rejects 0)",
+    "n_samples": 200,
+    "sample_prevalence": 0.5,
+    "sample_seed": 42,
+    "ec_xgb": "b6 m3 seed 42",
+    "note": "Fresh run with EC-XGB; supersedes the B2-model judge table in llm_judge_results.json."
+  },
+  "gpt": {
+    "accuracy": 0.865,
+    "precision": 0.9866666666666667,
+    "recall": 0.74,
+    "f1": 0.8457142857142858,
+    "f1_ci95": [
+      0.781059009483667,
+      0.897965293901992
+    ],
+    "precision_ci95": [
+      0.9565217391304348,
+      1.0
+    ],
+    "recall_ci95": [
+      0.6458238636363637,
+      0.8217821782178217
+    ]
+  },
+  "ec_xgb_same_rows": {
+    "accuracy": 0.99,
+    "precision": 0.99,
+    "recall": 0.99,
+    "f1": 0.99,
+    "auroc": 0.9994999999999999
+  },
+  "length_only_same_rows": {
+    "accuracy": 0.905,
+    "precision": 0.900990099009901,
+    "recall": 0.91,
+    "f1": 0.9054726368159204,
+    "auroc": 0.9582999999999999
+  },
+  "agreement_gpt_ec_xgb": 0.855,
+  "mcnemar_p": 8.323556199256734e-06,
+  "discordant_pairs": {
+    "gpt_wrong_ec_right": 27,
+    "gpt_right_ec_wrong": 2
+  },
+  "cost_usd": 0.0212,
+  "cost_per_1000_usd": 0.106,
+  "tokens": {
+    "input": 40198,
+    "output": 10982
+  },
+  "latency_ms_p50": 1442.9848999998285,
+  "latency_ms_p95": 3208.490329999813
+}

@@ -22,6 +22,7 @@ import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, roc_auc_score
 from sklearn.preprocessing import StandardScaler
+from tqdm import tqdm
 
 from src.models.config import FEATURES_FULL, RESULTS_DIR, SAMPLE_SEED
 from src.models.eval_llm_judge import JUDGE_SYSTEM, load_test_set
@@ -94,6 +95,9 @@ def main() -> None:
     y_sub = sample["label"].to_numpy()
 
     rows = []
+    n_total = len(sample)
+    t_start = time.time()
+    pbar = tqdm(total=n_total, desc="Qwen judge", unit="sample", dynamic_ncols=True)
     for i, row in sample.iterrows():
         pred, conf, raw, latency = qwen_call(row["question"], row["context"], row["answer"])
         rows.append({
@@ -104,8 +108,13 @@ def main() -> None:
             "latency_ms": latency,
             "raw": raw,
         })
-        if (i + 1) % 25 == 0:
-            print(f"judged {i + 1}/{len(sample)}")
+        done = i + 1
+        pbar.update(1)
+        if done % 25 == 0 or done == n_total:
+            elapsed = time.time() - t_start
+            eta = elapsed / done * (n_total - done)
+            print(f"[{done}/{n_total}] {100 * done / n_total:.1f}% | elapsed {elapsed:.0f}s | ETA {eta:.0f}s", flush=True)
+    pbar.close()
 
     qdf = pd.DataFrame(rows)
     y_q = qdf["qwen_pred"].to_numpy()
