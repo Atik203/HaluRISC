@@ -31,31 +31,31 @@
 
 ### A. Calibration and threshold protocol
 
-- [ ] **A1. Define the three protocols.** Write source-only, target-calibrated, and target-calibrated-plus-target-thresholded as named protocols in §3.3–§3.4, and use the same names in Algorithm 2, §4.4, §5.2–§5.3, the abstract, and the conclusion.
-- [ ] **A2. Build one combined table.** Standard XGBoost versus EC-XGB on the same 900-row RAGTruth QA test set, with raw, source-calibrated, and target-calibrated ECE, Brier score, NLL, and predicted-positive rate.
-- [ ] **A3. Label every calibration value.** Record checkpoint, calibrator, fit split, test split, and seed aggregation. Explain why 0.7433 and 0.726 differ, and why 0.126 differs from 0.1335 and 0.1316.
-- [ ] **A4. State the label rules.** Confirm that no final-test label enters calibration fitting or threshold selection, and disclose that target calibration needs labeled target rows.
-- [ ] **A5. Separate operating points.** Report source-only and target-adapted thresholds separately, with 95% CIs for recall and FPR. Explain why the test FPR is 5.8% when the target is 5%.
-- [ ] **A6. Align the abstract and conclusion.** Remove any wording that conflicts with the protocol definitions or implies the target-tuned result is source-only.
+- [ ] **A1. Define the three protocols.** Write source-only, target-calibrated, and target-calibrated-plus-target-thresholded as named protocols in §3.3–§3.4, and use the same names in Algorithm 2, §4.4, §5.2–§5.3, the abstract, and the conclusion. _Status: definitions and Algorithm 2 are in; still to propagate to §4.4 and §5.2._
+- [x] **A2. Build one combined table.** Standard XGBoost versus EC-XGB on the same 900-row RAGTruth QA test set, with raw, source-calibrated, and target-calibrated ECE, Brier score, NLL, and predicted-positive rate.
+- [x] **A3. Label every calibration value.** Record checkpoint, calibrator, fit split, test split, and seed aggregation. Explain why 0.7433 and 0.726 differ, and why 0.126 differs from 0.1335 and 0.1316.
+- [x] **A4. State the label rules.** Confirm that no final-test label enters calibration fitting or threshold selection, and disclose that target calibration needs labeled target rows.
+- [x] **A5. Separate operating points.** Report source-only and target-adapted thresholds separately, with 95% CIs for recall and FPR. Explain why the test FPR is 5.8% when the target is 5%.
+- [x] **A6. Align the abstract and conclusion.** Remove any wording that conflicts with the protocol definitions or implies the target-tuned result is source-only.
 
 ### B. Length-shortcut control
 
-- [ ] **B1. Report per-bin label counts.** In the 247×6 subset, give n, positives, negatives, positive rate, mean length, and class-length SMD for every bin.
-- [ ] **B2. Evaluate the length-only baseline on exactly the same rows.** Add ΔF1 and ΔAUROC versus EC-XGB with group-bootstrap 95% CIs.
-- [ ] **B3. Build the matched subset.** Match positives to negatives on exact answer length (widen to a one-word caliper only if needed), equal counts per bin, and report n, prevalence, and SMD.
-- [ ] **B4. Rename the current test.** Call it a length-bin reweighting control, not a neutralization or proof of shortcut robustness. State what it does and does not show.
-- [ ] **B5. Add the external or limitation check.** Use RAGTruth QA and FaithBench first. Add one free, license-clean dataset with a different length–label relation only if required; otherwise declare the limitation.
+- [x] **B1. Report per-bin label counts.** In the 247×6 subset, give n, positives, negatives, positive rate, mean length, and class-length SMD for every bin.
+- [x] **B2. Evaluate the length-only baseline on exactly the same rows.** Add ΔF1 and ΔAUROC versus EC-XGB with group-bootstrap 95% CIs.
+- [x] **B3. Build the matched subset.** Match positives to negatives on exact answer length (widen to a one-word caliper only if needed), equal counts per bin, and report n, prevalence, and SMD.
+- [x] **B4. Rename the current test.** Call it a length-bin reweighting control, not a neutralization or proof of shortcut robustness. State what it does and does not show.
+- [x] **B5. Add the external or limitation check.** Use RAGTruth QA and FaithBench first. Add one free, license-clean dataset with a different length–label relation only if required; otherwise declare the limitation.
 
 ### C. Zero-shot and exposure
 
-- [ ] **C1. Define zero-shot.** Specify no target examples, groups, tasks, or sources for training, calibration, or threshold selection.
-- [ ] **C2. Separate classifier from display score.** The held-out QA classifier is zero-shot. The QA display score is target-calibrated and is not zero-shot.
-- [ ] **C3. Label the other results.** Combined RAGTruth is seen-task adaptation. Name the calibrator used for FaithBench and define "unseen" on the relevant axis.
+- [x] **C1. Define zero-shot.** Specify no target examples, groups, tasks, or sources for training, calibration, or threshold selection.
+- [x] **C2. Separate classifier from display score.** The held-out QA classifier is zero-shot. The QA display score is target-calibrated and is not zero-shot.
+- [x] **C3. Label the other results.** Combined RAGTruth is seen-task adaptation. Name the calibrator used for FaithBench and define "unseen" on the relevant axis.
 
 ### D. Number and artifact audit
 
-- [ ] **D1. Run the reproduction check.** Run `src/models/verify_artifacts.py`, save the log under `artifacts/results/review/`, and build `number_audit.csv`.
-- [ ] **D2. Trace every number.** Map each value in Tables 4–14 and every headline number to an artifact file and key; mark it match, explain, or fix.
+- [x] **D1. Run the reproduction check.** Run `src/models/verify_artifacts.py` and save the log under `artifacts/results/review/`.
+- [ ] **D2. Build and trace the number audit.** Map each value in Tables 4-14 and every headline number to an artifact file and key, write `number_audit.csv`, and mark it match, explain, or fix.
 - [ ] **D3. Verify the support files.** Check split hashes, seeds, dependency pins, repository claims, and data-license notes.
 
 ---
@@ -121,6 +121,10 @@ Check a box above only when the manuscript and artifact are committed, then add 
 
 | Date | Item | Evidence (artifact / commit) |
 |---|---|---|
+| 2026-10-20 | A2-A6 calibration protocol and combined table | `c4ace66`; `artifacts/results/review/calibration_protocol.json` |
+| 2026-10-20 | B1-B5 length control and matched subset | `c4ace66`; `artifacts/results/review/length_control.json` |
+| 2026-10-20 | C1-C3 zero-shot wording | `c4ace66`, `b1adc9b` |
+| 2026-10-20 | D1 artifact verification | `8a4d238`; `artifacts/results/review/verify_artifacts.log` |
 |  |  |  |
 |  |  |  |
 |  |  |  |
