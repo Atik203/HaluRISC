@@ -187,3 +187,15 @@ Headline / Wilcoxon m0 vs m3,0.25,artifacts\results\b6\b6_statistical_tests.json
 Headline / judge p-value,8.32e-06,artifacts\results\review\llm_judge_gpt_ec_xgb.json,mcnemar_p,8.323556199256734e-06,3.5561992567342994e-09,match
 Headline / judge discordant 27,27.0,artifacts\results\review\llm_judge_gpt_ec_xgb.json,discordant_pairs.gpt_wrong_ec_right,27.0,0.0,match
 Headline / judge discordant 2,2.0,artifacts\results\review\llm_judge_gpt_ec_xgb.json,discordant_pairs.gpt_right_ec_wrong,2.0,0.0,match
+Length repeat / pool rows,326.0,artifacts\results\review\length_matched_repeat.json,meta.pool_matched_rows,326.0,0.0,match
+Length repeat / pool pairs,163.0,artifacts\results\review\length_matched_repeat.json,meta.pool_matched_pairs,163.0,0.0,match
+Length repeat / EC-XGB AUROC,0.9608,artifacts\results\review\length_matched_repeat.json,repeated_matching.ec_xgb_auroc_mean,0.9607986751477285,1.324852271444854e-06,match
+Length repeat / EC-XGB AUROC sd,0.0022,artifacts\results\review\length_matched_repeat.json,repeated_matching.ec_xgb_auroc_std,0.0022216250261134583,2.1625026113458127e-05,match
+Length repeat / length-only AUROC,0.5257,artifacts\results\review\length_matched_repeat.json,repeated_matching.length_only_auroc_mean,0.5257120140012798,1.2014001279814224e-05,match
+Length repeat / length-only sd,0.0034,artifacts\results\review\length_matched_repeat.json,repeated_matching.length_only_auroc_std,0.0033896212546716945,1.0378745328305274e-05,match
+Length repeat / gap,0.4351,artifacts\results\review\length_matched_repeat.json,repeated_matching.gap_mean,0.4350866611464489,1.3338853551092544e-05,match
+Length repeat / gap low,0.429,artifacts\results\review\length_matched_repeat.json,repeated_matching.gap_ci95[0],0.4290584578518826,5.845785188263175e-05,match
+Length repeat / gap high,0.442,artifacts\results\review\length_matched_repeat.json,repeated_matching.gap_ci95[1],0.44195459620861405,4.540379138595618e-05,match
+Length conditional / AUROC mean,0.9773,artifacts\results\review\length_matched_repeat.json,conditional_auroc.mean,0.9772756026588031,2.439734119685788e-05,match
+Length conditional / AUROC sd,0.0009,artifacts\results\review\length_matched_repeat.json,conditional_auroc.std,0.0008652247923036178,3.477520769638214e-05,match
+Length conditional / strata,12.0,artifacts\results\review\length_matched_repeat.json,conditional_auroc.42.n_strata,12.0,0.0,match

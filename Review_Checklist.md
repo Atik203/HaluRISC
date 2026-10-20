@@ -4,7 +4,14 @@
 **Reviewed file:** `ML_Paper.pdf` (17 pages)  
 **Review date:** 2026-10-20  
 **Recommendation:** **Major revision before submission**  
-**Status:** P1 complete (17/17) and P2 complete (20/20) on 2026-10-20, with the G4 disagreement review AI-conducted at author direction in place of a human pass. J1-J5 and K1 verified. No open boxes. The previous checklist is archived at `docs/archive/2026-09-17_Review_Checklist.md`.
+**Status:** P1 complete (17/17) and P2 complete (20/20) on 2026-10-20, with the G4 disagreement review AI-conducted at author direction in place of a human pass. J1-J5 and K1 verified. The previous checklist is archived at `docs/archive/2026-09-17_Review_Checklist.md`.
+
+## Second external review (2026-10-21)
+
+- [x] **R1. Calibration number provenance.** §5.3 now states that `0.726 → 0.126` is the seed-42 deployed fit and that Table 8 reports three-seed means (`0.7433 → 0.1263`).
+- [x] **R2. Length shortcut, stronger controls.** Full-test-set exact matching (163 pairs), 200 repeated draws (EC-XGB 0.9608 ± 0.0022 vs length-only 0.5257 ± 0.0034), and a length-conditional AUROC over 12 strata (0.9773 ± 0.0009). `length_matched_repeat.json`.
+- [x] **R3. Generalization framing.** Discussion names EC-XGB a domain-specific estimator, not a general-purpose detector, and reads the held-out QA AUROC of 0.549 as near chance.
+- [x] **R4. Protocol separation.** Table `tab:protocols` lists P0/P1/P2 against calibrator fit, threshold fit, and zero-shot status in one place.
 
 > **Scope:** the reviewer evaluated the manuscript text, equations, tables, figures, and stated protocols. The source code and experiments were not independently rerun. Numbers below are manuscript claims and must be checked against the artifacts before they are treated as verified.
 >
@@ -136,4 +143,5 @@ Check a box above only when the manuscript and artifact are committed, then add 
 | 2026-10-20 | F3 claim-aggregate sentence (+0.0005 F1 over m1) + truncation rate 14/3,000 | `neural_baseline_truncation.json` |
 | 2026-10-20 | G1 judge sample docs + H1/H3/H4 cost-latency | `baseline_latency.json`; 17pp zero-warning rebuild |
 | 2026-10-20 | G4 full 40-error review in place of human pass (20 strict-label, 6 ambiguous, 12 GPT-caught misses, 2 false alarms) | `qwen_disagreement_review.json` |
+| 2026-10-21 | R1-R4 second review response (calibration provenance, repeated length matching, generalization wording, P0/P1/P2 table) | `length_matched_repeat.json`; 18pp zero-warning build; audit 200/200 |
 |  |  |  |
