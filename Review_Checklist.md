@@ -25,6 +25,7 @@
 
 - [x] Drop the standalone limitations subsection. Results now ends with a four-sentence `Discussion` that interprets the findings; the honest caveats stay inline in §5.1 (encoder comparison), §5.2 (FaithBench F1 drop), §5.3 (held-out ranking near chance), and §5.8 (length shortcut control), and the conclusion keeps a negative-results paragraph.
 - [x] Abstract rewritten to answer the six guideline questions in order with key results only: 275 words, 15 sentences, one paragraph, no nested clauses.
+- [x] Terminology: every reference to the baseline model now says `conventional` instead of `standard`, matching the section name and the faculty instruction. Generic uses of `standard` stay (standard metrics, standard deviation, standard logistic loss). Abstract names the comparison explicitly as `a conventional XGBoost baseline`.
 
 > **Scope:** the reviewer evaluated the manuscript text, equations, tables, figures, and stated protocols. The source code and experiments were not independently rerun. Numbers below are manuscript claims and must be checked against the artifacts before they are treated as verified.
 >
