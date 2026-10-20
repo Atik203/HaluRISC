@@ -21,6 +21,11 @@
 - [x] Citation rule: one reference per claim, two at most. The triple survey citation is now two sentences with two and one reference.
 - [x] 17 pages, zero warnings, audit 200/200, 34 references all cited.
 
+## Supervisor instruction (2026-10-21)
+
+- [x] Drop the standalone limitations subsection. Results now ends with a four-sentence `Discussion` that interprets the findings; the honest caveats stay inline in §5.1 (encoder comparison), §5.2 (FaithBench F1 drop), §5.3 (held-out ranking near chance), and §5.8 (length shortcut control), and the conclusion keeps a negative-results paragraph.
+- [x] Abstract rewritten to answer the six guideline questions in order with key results only: 275 words, 15 sentences, one paragraph, no nested clauses.
+
 > **Scope:** the reviewer evaluated the manuscript text, equations, tables, figures, and stated protocols. The source code and experiments were not independently rerun. Numbers below are manuscript claims and must be checked against the artifacts before they are treated as verified.
 >
 > **How to use:** check a box only when the fix is in `Journal_Paper/halurisc.tex` and the backing artifact is committed. Record the date, item, and commit hash in the done log at the end. Workstreams A–J match `roadmap.md` §18.3.
