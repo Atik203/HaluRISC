@@ -1,0 +1,279 @@
+{
+ "meta": {
+  "source": "review_length_matched_repeat.py",
+  "test_rows": 3000,
+  "seeds": [
+   42,
+   123,
+   456
+  ],
+  "n_resample": 200,
+  "score": "EC-XGB m3 raw probability, threshold 0.5",
+  "length_baseline": "logistic regression on log1p(n_words) and log1p(n_chars), trained on the training split",
+  "pool_matched_rows": 326,
+  "pool_matched_pairs": 163
+ },
+ "conditional_auroc": {
+  "42": {
+   "auroc": 0.9782488102537152,
+   "n_strata": 12,
+   "n_pairs": 34251,
+   "strata": [
+    {
+     "words": 1,
+     "positives": 11,
+     "negatives": 513,
+     "auroc": 0.9984
+    },
+    {
+     "words": 2,
+     "positives": 17,
+     "negatives": 497,
+     "auroc": 0.9845
+    },
+    {
+     "words": 3,
+     "positives": 22,
+     "negatives": 312,
+     "auroc": 0.961
+    },
+    {
+     "words": 4,
+     "positives": 38,
+     "negatives": 102,
+     "auroc": 0.9626
+    },
+    {
+     "words": 5,
+     "positives": 128,
+     "negatives": 46,
+     "auroc": 0.9715
+    },
+    {
+     "words": 6,
+     "positives": 179,
+     "negatives": 10,
+     "auroc": 0.9916
+    },
+    {
+     "words": 7,
+     "positives": 143,
+     "negatives": 4,
+     "auroc": 0.9878
+    },
+    {
+     "words": 8,
+     "positives": 128,
+     "negatives": 3,
+     "auroc": 0.9948
+    },
+    {
+     "words": 9,
+     "positives": 108,
+     "negatives": 2,
+     "auroc": 1.0
+    },
+    {
+     "words": 10,
+     "positives": 87,
+     "negatives": 3,
+     "auroc": 1.0
+    },
+    {
+     "words": 11,
+     "positives": 98,
+     "negatives": 2,
+     "auroc": 1.0
+    },
+    {
+     "words": 14,
+     "positives": 56,
+     "negatives": 2,
+     "auroc": 1.0
+    }
+   ]
+  },
+  "123": {
+   "auroc": 0.9774313158739891,
+   "n_strata": 12,
+   "n_pairs": 34251,
+   "strata": [
+    {
+     "words": 1,
+     "positives": 11,
+     "negatives": 513,
+     "auroc": 0.9986
+    },
+    {
+     "words": 2,
+     "positives": 17,
+     "negatives": 497,
+     "auroc": 0.9827
+    },
+    {
+     "words": 3,
+     "positives": 22,
+     "negatives": 312,
+     "auroc": 0.956
+    },
+    {
+     "words": 4,
+     "positives": 38,
+     "negatives": 102,
+     "auroc": 0.96
+    },
+    {
+     "words": 5,
+     "positives": 128,
+     "negatives": 46,
+     "auroc": 0.9759
+    },
+    {
+     "words": 6,
+     "positives": 179,
+     "negatives": 10,
+     "auroc": 0.9933
+    },
+    {
+     "words": 7,
+     "positives": 143,
+     "negatives": 4,
+     "auroc": 0.9878
+    },
+    {
+     "words": 8,
+     "positives": 128,
+     "negatives": 3,
+     "auroc": 0.9974
+    },
+    {
+     "words": 9,
+     "positives": 108,
+     "negatives": 2,
+     "auroc": 1.0
+    },
+    {
+     "words": 10,
+     "positives": 87,
+     "negatives": 3,
+     "auroc": 1.0
+    },
+    {
+     "words": 11,
+     "positives": 98,
+     "negatives": 2,
+     "auroc": 1.0
+    },
+    {
+     "words": 14,
+     "positives": 56,
+     "negatives": 2,
+     "auroc": 1.0
+    }
+   ]
+  },
+  "456": {
+   "auroc": 0.9761466818487051,
+   "n_strata": 12,
+   "n_pairs": 34251,
+   "strata": [
+    {
+     "words": 1,
+     "positives": 11,
+     "negatives": 513,
+     "auroc": 0.9986
+    },
+    {
+     "words": 2,
+     "positives": 17,
+     "negatives": 497,
+     "auroc": 0.9738
+    },
+    {
+     "words": 3,
+     "positives": 22,
+     "negatives": 312,
+     "auroc": 0.9652
+    },
+    {
+     "words": 4,
+     "positives": 38,
+     "negatives": 102,
+     "auroc": 0.9603
+    },
+    {
+     "words": 5,
+     "positives": 128,
+     "negatives": 46,
+     "auroc": 0.9711
+    },
+    {
+     "words": 6,
+     "positives": 179,
+     "negatives": 10,
+     "auroc": 0.9911
+    },
+    {
+     "words": 7,
+     "positives": 143,
+     "negatives": 4,
+     "auroc": 0.9878
+    },
+    {
+     "words": 8,
+     "positives": 128,
+     "negatives": 3,
+     "auroc": 0.9948
+    },
+    {
+     "words": 9,
+     "positives": 108,
+     "negatives": 2,
+     "auroc": 1.0
+    },
+    {
+     "words": 10,
+     "positives": 87,
+     "negatives": 3,
+     "auroc": 1.0
+    },
+    {
+     "words": 11,
+     "positives": 98,
+     "negatives": 2,
+     "auroc": 1.0
+    },
+    {
+     "words": 14,
+     "positives": 56,
+     "negatives": 2,
+     "auroc": 1.0
+    }
+   ]
+  },
+  "mean": 0.9772756026588031,
+  "std": 0.0008652247923036178,
+  "length_only_expectation": 0.5
+ },
+ "repeated_matching": {
+  "n_draws": 200,
+  "rows_per_draw": 326,
+  "ec_xgb_auroc_mean": 0.9607986751477285,
+  "ec_xgb_auroc_std": 0.0022216250261134583,
+  "length_only_auroc_mean": 0.5257120140012798,
+  "length_only_auroc_std": 0.0033896212546716945,
+  "gap_mean": 0.4350866611464489,
+  "gap_std": 0.003388542151328398,
+  "gap_ci95": [
+   0.4290584578518826,
+   0.44195459620861405
+  ]
+ },
+ "single_draw": {
+  "rows": 326,
+  "ec_xgb_auroc": 0.9618854052969,
+  "ec_xgb_f1": 0.9131895740857466,
+  "length_only_auroc": 0.530486657382664,
+  "length_only_f1": 0.5077399380804953
+ }
+}
