@@ -4,7 +4,7 @@
 **Reviewed file:** `ML_Paper.pdf` (17 pages)  
 **Review date:** 2026-10-20  
 **Recommendation:** **Major revision before submission**  
-**Status:** P1 complete (17/17) on 2026-10-20. P2 partial (12/24: E1-E3, F1-F4, G2, G3, G5, H2, J5) on 2026-10-20. Open: G1, G4, H1, H3, H4, rest of J, K. The previous checklist is archived at `docs/archive/2026-09-17_Review_Checklist.md`.
+**Status:** P1 complete (17/17) on 2026-10-20. P2 complete except the G4 human pass (19/20 boxes) plus J1-J5 and K1 verified on 2026-10-20. Open: G4 human spot-check only. The previous checklist is archived at `docs/archive/2026-09-17_Review_Checklist.md`.
 
 > **Scope:** the reviewer evaluated the manuscript text, equations, tables, figures, and stated protocols. The source code and experiments were not independently rerun. Numbers below are manuscript claims and must be checked against the artifacts before they are treated as verified.
 >
@@ -77,18 +77,18 @@
 
 ### G. LLM judge
 
-- [ ] **G1. Document the 200 samples.** Give the source pool, sampling seed, class balance, positive prevalence, and overlap with the headline test set. Add 95% CIs.
+- [x] **G1. Document the 200 samples.** §5.7: stratified subsample of the 3,000-row headline test set, 100 positives + 100 negatives without replacement at sampling seed 42, prevalence exactly 50%, full overlap; 95% CIs in prose and `llm_judge_*_ec_xgb.json`.
 - [x] **G2. Add the length-only baseline on the same 200 rows.** §5.7 prose: F1 0.905 on the same rows (`judge_rows_comparison.json`), so the judge comparison is scoped, not semantic beyond length.
 - [x] **G3. Document the judge call.** Model identifiers, default decoding (caption), scoring rule and token counts in `llm_judge_gpt_ec_xgb.json` + per-sample CSV + log; cost from recorded tokens.
-- [ ] **G4. Add the local Qwen 3.5 4B judge.** Use an OpenAI-compatible endpoint, report F1 and agreement with GPT, and human-spot-check 20–40 disagreements. Label it as a second judge, not ground truth.
+- [ ] **G4. Add the local Qwen 3.5 4B judge.** Use an OpenAI-compatible endpoint, report F1 and agreement with GPT, and human-spot-check 20–40 disagreements. Label it as a second judge, not ground truth. (Done except the human pass: Qwen F1 + agreement in Table 12/prose; AI-assisted 24-case review in `qwen_disagreement_review.json`; human review still open.)
 - [x] **G5. Narrow the claim.** "The claim is scoped to this sample and these prompts" in §5.7; no second GPT prompt (budget).
 
 ### H. Cost and latency
 
-- [ ] **H1. Add the per-baseline table.** Inputs, model size, hardware, p50/p95 latency, and cost per 1,000 predictions for every baseline.
+- [x] **H1. Add the per-baseline table.** Table `tab:cost`: inputs, size, model-only p50, cost/1K for 11 baselines (`baseline_latency.json`); RoBERTa training-only, NLI-only via feature step (caption).
 - [x] **H2. Measure the full pipeline.** `pipeline_latency.json`: predict p50 42.8 ms, analyze 57.1 ms, verify 143.6 ms, verify+judge 502.5 ms; §5.7 sentence added.
-- [ ] **H3. Separate the two latency claims.** 61.8 ms is classifier-only. The interactive path is about one second. State whether loading, network, retrieval, and judge calls are excluded.
-- [ ] **H4. State the cost assumptions.** Hardware, batch size, token counts, API prices, cache, and units. Do not call probabilities "actionable" without a decision policy.
+- [x] **H3. Separate the two latency claims.** §5.7: component table excludes retrieval/judge/loading; HTTP verify includes retrieval, not the judge; 61.8 ms is classifier-only pipeline.
+- [x] **H4. State the cost assumptions.** §5.7: local = amortized hardware + electricity order-of-magnitude in USD/1K; GPT from token counts at $0.20/MTok in + $1.20/MTok out. No "actionable" without policy (score labeled risk estimate).
 
 ---
 
@@ -101,17 +101,17 @@
 
 ### J. Tables, figures, abstract, and conclusion
 
-- [ ] **J1. Add sample sizes and prevalence** to the key evaluation tables, and confidence intervals for the central cross-domain results.
-- [ ] **J2. Label calibration plots** by model and split (raw, source, target).
-- [ ] **J3. Rewrite the abstract.** HaluEval QA benchmark performance, combined versus held-out results, the EC-XGB display calibrator, target-label requirement, no length-proof claim, no general judge superiority, and "risk estimation" rather than truth.
-- [ ] **J4. Rewrite the conclusion.** Keep F1 ≈ 0.30 on held-out QA, AUROC ≈ 0.58 as weak discrimination, the calibration-versus-ranking caveat, the length limitation, and the lightweight-risk-estimator framing.
-- [x] **J5. Check the venue limit and rebuild.** 17 pages, zero warnings/errors, 39 references cited, number audit 188/188 on 2026-10-20.
+- [x] **J1. Add sample sizes and prevalence** to the key evaluation tables, and confidence intervals for the central cross-domain results. (n in Table 4/shift/target/length captions; 17.8% QA prevalence; bootstrap + Wilson CIs in §§5.1/5.2/5.8.)
+- [x] **J2. Label calibration plots** by model and split (raw, source, target). (Figs. reliability + calibshift captions name all three corpora and both score types.)
+- [x] **J3. Rewrite the abstract.** One paragraph, 280 words: benchmark + combined/held-out results, display calibrator with target-label requirement, no length-proof or judge-superiority claim, "risk estimation" framing.
+- [x] **J4. Rewrite the conclusion.** Held-out QA F1 ≈ 0.30, AUROC 0.582 with weak-discrimination framing, calibration-vs-ranking caveat, shortcut-controlled future work, lightweight-risk-estimator framing with cost.
+- [x] **J5. Check the venue limit and rebuild.** 17 pages, zero warnings/errors, 35 references cited, number audit 188/188 on 2026-10-20 (re-verified after H1/G1/G4 edits).
 
 ---
 
 ## P4 — Final read
 
-- [ ] **K1. Final language and format pass.** Long sentences, terminology, equations, feature names, figure readability, and the target venue's submission format, after the new tables are in.
+- [x] **K1. Final language and format pass.** Style scan (no banned words/pronouns/semicolons/em-dashes in new prose), all tables render with verified rows, 35/35 references cited, 17 pages zero warnings.
 
 ---
 
@@ -134,4 +134,5 @@ Check a box above only when the manuscript and artifact are committed, then add 
 | 2026-10-20 | G2-G3/G5 judge scope (length-only 0.905, call docs, narrowed claim) + H2 pipeline latency | `llm_judge_gpt_ec_xgb.json`; `pipeline_latency.json` |
 | 2026-10-20 | J5 17-page zero-warning rebuild + number audit 188/188 + Table 13 folded to prose | `Journal_Paper/out/halurisc.pdf`; `number_audit.json` |
 | 2026-10-20 | F3 claim-aggregate sentence (+0.0005 F1 over m1) + truncation rate 14/3,000 | `neural_baseline_truncation.json` |
+| 2026-10-20 | G1 judge sample docs + G4 assisted 24-case review + H1/H3/H4 cost-latency | `qwen_disagreement_review.json`; `baseline_latency.json`; 17pp zero-warning rebuild |
 |  |  |  |

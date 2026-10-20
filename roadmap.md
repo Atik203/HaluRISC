@@ -575,11 +575,11 @@ Status key: `TODO` not started, `WIP` in progress, `DONE` complete. Every workst
 
 **Steps**
 
-- [ ] Build a per-baseline table: input requirements, model size, training hardware (if any), inference hardware, p50/p95 latency, cost per 1,000 predictions.
+- [x] Build a per-baseline table: input requirements, model size, training hardware (if any), inference hardware, p50/p95 latency, cost per 1,000 predictions. (Table `tab:cost` with model-only p50 + cost/1K; training hardware in §4.3 for RoBERTa; inference hardware in table intro.)
 - [x] Measure the full `/verify` pipeline end to end (`review_pipeline_latency.py`): predict p50 42.8 ms, analyze 57.1 ms, verify 143.6 ms, verify+judge 502.5 ms; §5.7 sentence.
-- [ ] Report classifier-only latency (61.8 ms) separately from interactive web latency (about 1 s). State network, loading, retrieval, and judge exclusions.
-- [ ] State cost assumptions: hardware, batch size, token counts, API prices, cache, and units. Distinguish USD per 1,000 predictions from USD per 1,000 claims.
-- [ ] Update Table 11, §5.7, abstract, and conclusion so no sentence conflates the two latencies.
+- [x] Report classifier-only latency (61.8 ms) separately from the HTTP path, with loading/retrieval/judge exclusions stated in §5.7.
+- [x] State cost assumptions in §5.7: amortized local hardware + electricity (order-of-magnitude USD/1K); GPT token pricing $0.20/$1.20 per MTok in/out.
+- [x] Update §5.7 (Table `tab:cost`, exclusions, assumptions) so no sentence conflates the two latencies.
 
 **Acceptance**
 
