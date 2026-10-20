@@ -854,4 +854,4 @@ HALU_JUDGE_API_KEY=ollama
 3. **Weak generalization.** Already stated in the abstract, §5.2, and §5.3. Added one explicit sentence in the Discussion naming EC-XGB a domain-specific estimator rather than a general-purpose detector.
 4. **Zero-shot versus target-calibrated.** Already separated in §3.3, §3.4, §4.4, §5.3, and the Table 5 caption. Added Table 4 (`tab:protocols`) with P0/P1/P2 against calibrator fit, threshold fit, and zero-shot status.
 
-**Outcome:** 18 pages, zero warnings, number audit 200/200, 231 tests pass.
+**Outcome:** 17 pages after shortening the conclusion and trimming duplicated protocol text, zero warnings, number audit 200/200, 231 tests pass. Citation rule from the author: one reference per claim, two at most, never three. The only triple citation was split into two sentences.

@@ -13,6 +13,14 @@
 - [x] **R3. Generalization framing.** Discussion names EC-XGB a domain-specific estimator, not a general-purpose detector, and reads the held-out QA AUROC of 0.549 as near chance.
 - [x] **R4. Protocol separation.** Table `tab:protocols` lists P0/P1/P2 against calibrator fit, threshold fit, and zero-shot status in one place.
 
+## Final polish (2026-10-21)
+
+- [x] Conclusion shortened to two paragraphs (objective, contribution, findings, caveats, negative results, future work).
+- [x] Duplicated protocol text removed (hyperparameter search, seed sentence, SHAP perturbation rationale, analyze-page sentence); §3.3 split into three paragraphs for readability.
+- [x] Eight 37-45 word sentences split without changing any number or claim.
+- [x] Citation rule: one reference per claim, two at most. The triple survey citation is now two sentences with two and one reference.
+- [x] 17 pages, zero warnings, audit 200/200, 34 references all cited.
+
 > **Scope:** the reviewer evaluated the manuscript text, equations, tables, figures, and stated protocols. The source code and experiments were not independently rerun. Numbers below are manuscript claims and must be checked against the artifacts before they are treated as verified.
 >
 > **How to use:** check a box only when the fix is in `Journal_Paper/halurisc.tex` and the backing artifact is committed. Record the date, item, and commit hash in the done log at the end. Workstreams A–J match `roadmap.md` §18.3.
@@ -143,5 +151,6 @@ Check a box above only when the manuscript and artifact are committed, then add 
 | 2026-10-20 | F3 claim-aggregate sentence (+0.0005 F1 over m1) + truncation rate 14/3,000 | `neural_baseline_truncation.json` |
 | 2026-10-20 | G1 judge sample docs + H1/H3/H4 cost-latency | `baseline_latency.json`; 17pp zero-warning rebuild |
 | 2026-10-20 | G4 full 40-error review in place of human pass (20 strict-label, 6 ambiguous, 12 GPT-caught misses, 2 false alarms) | `qwen_disagreement_review.json` |
-| 2026-10-21 | R1-R4 second review response (calibration provenance, repeated length matching, generalization wording, P0/P1/P2 table) | `length_matched_repeat.json`; 18pp zero-warning build; audit 200/200 |
+| 2026-10-21 | R1-R4 second review response (calibration provenance, repeated length matching, generalization wording, P0/P1/P2 table) | `length_matched_repeat.json`; audit 200/200 |
+| 2026-10-21 | Final polish: conclusion shortened, duplicates removed, 8 long sentences split, 17 pages | `halurisc.pdf`; 17pp zero-warning build |
 |  |  |  |
