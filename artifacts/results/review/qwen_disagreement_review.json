@@ -1,0 +1,190 @@
+{
+ "meta": {
+  "source": "assisted review of Qwen 3.5 4B errors (review_mode = ai-assisted, NOT human)",
+  "n_reviewed": 24,
+  "sampling": "all 2 Qwen false alarms + 22 of 38 misses at seed 42",
+  "qwen_gpt_agreement": 0.885,
+  "qwen_wrong": 40,
+  "gpt_wrong": 27,
+  "both_wrong": 22,
+  "qwen_wrong_gpt_right": 18,
+  "gpt_wrong_qwen_right": 5,
+  "note": "Every genuine Qwen miss in this sample was caught by GPT; most shared errors read as supported answers under a strict label."
+ },
+ "category_counts": {
+  "label-noise-likely": 11,
+  "genuine-miss": 8,
+  "false-alarm": 2,
+  "ambiguous": 3
+ },
+ "cases": [
+  {
+   "sample_id": "q_6622_hallucinated",
+   "label": 1,
+   "qwen_pred": 0,
+   "gpt_pred": 0,
+   "category": "label-noise-likely"
+  },
+  {
+   "sample_id": "q_3457_hallucinated",
+   "label": 1,
+   "qwen_pred": 0,
+   "gpt_pred": 1,
+   "category": "genuine-miss"
+  },
+  {
+   "sample_id": "q_5128_correct",
+   "label": 0,
+   "qwen_pred": 1,
+   "gpt_pred": 0,
+   "category": "false-alarm"
+  },
+  {
+   "sample_id": "q_4229_hallucinated",
+   "label": 1,
+   "qwen_pred": 0,
+   "gpt_pred": 0,
+   "category": "label-noise-likely"
+  },
+  {
+   "sample_id": "q_1233_hallucinated",
+   "label": 1,
+   "qwen_pred": 0,
+   "gpt_pred": 0,
+   "category": "label-noise-likely"
+  },
+  {
+   "sample_id": "q_3720_hallucinated",
+   "label": 1,
+   "qwen_pred": 0,
+   "gpt_pred": 1,
+   "category": "genuine-miss"
+  },
+  {
+   "sample_id": "q_9556_hallucinated",
+   "label": 1,
+   "qwen_pred": 0,
+   "gpt_pred": 1,
+   "category": "genuine-miss"
+  },
+  {
+   "sample_id": "q_8478_correct",
+   "label": 0,
+   "qwen_pred": 1,
+   "gpt_pred": 0,
+   "category": "false-alarm"
+  },
+  {
+   "sample_id": "q_730_hallucinated",
+   "label": 1,
+   "qwen_pred": 0,
+   "gpt_pred": 0,
+   "category": "label-noise-likely"
+  },
+  {
+   "sample_id": "q_1600_hallucinated",
+   "label": 1,
+   "qwen_pred": 0,
+   "gpt_pred": 0,
+   "category": "label-noise-likely"
+  },
+  {
+   "sample_id": "q_4185_hallucinated",
+   "label": 1,
+   "qwen_pred": 0,
+   "gpt_pred": 0,
+   "category": "label-noise-likely"
+  },
+  {
+   "sample_id": "q_4502_hallucinated",
+   "label": 1,
+   "qwen_pred": 0,
+   "gpt_pred": 0,
+   "category": "label-noise-likely"
+  },
+  {
+   "sample_id": "q_503_hallucinated",
+   "label": 1,
+   "qwen_pred": 0,
+   "gpt_pred": 0,
+   "category": "label-noise-likely"
+  },
+  {
+   "sample_id": "q_3963_hallucinated",
+   "label": 1,
+   "qwen_pred": 0,
+   "gpt_pred": 0,
+   "category": "label-noise-likely"
+  },
+  {
+   "sample_id": "q_3905_hallucinated",
+   "label": 1,
+   "qwen_pred": 0,
+   "gpt_pred": 1,
+   "category": "genuine-miss"
+  },
+  {
+   "sample_id": "q_7231_hallucinated",
+   "label": 1,
+   "qwen_pred": 0,
+   "gpt_pred": 1,
+   "category": "genuine-miss"
+  },
+  {
+   "sample_id": "q_7841_hallucinated",
+   "label": 1,
+   "qwen_pred": 0,
+   "gpt_pred": 0,
+   "category": "label-noise-likely"
+  },
+  {
+   "sample_id": "q_6906_hallucinated",
+   "label": 1,
+   "qwen_pred": 0,
+   "gpt_pred": 1,
+   "category": "genuine-miss"
+  },
+  {
+   "sample_id": "q_1180_hallucinated",
+   "label": 1,
+   "qwen_pred": 0,
+   "gpt_pred": 1,
+   "category": "genuine-miss"
+  },
+  {
+   "sample_id": "q_7267_hallucinated",
+   "label": 1,
+   "qwen_pred": 0,
+   "gpt_pred": 0,
+   "category": "ambiguous"
+  },
+  {
+   "sample_id": "q_1513_hallucinated",
+   "label": 1,
+   "qwen_pred": 0,
+   "gpt_pred": 0,
+   "category": "label-noise-likely"
+  },
+  {
+   "sample_id": "q_9510_hallucinated",
+   "label": 1,
+   "qwen_pred": 0,
+   "gpt_pred": 1,
+   "category": "ambiguous"
+  },
+  {
+   "sample_id": "q_2214_hallucinated",
+   "label": 1,
+   "qwen_pred": 0,
+   "gpt_pred": 1,
+   "category": "ambiguous"
+  },
+  {
+   "sample_id": "q_2142_hallucinated",
+   "label": 1,
+   "qwen_pred": 0,
+   "gpt_pred": 1,
+   "category": "genuine-miss"
+  }
+ ]
+}

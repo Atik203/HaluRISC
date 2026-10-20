@@ -1,0 +1,63 @@
+{
+ "meta": {
+  "source": "review_baseline_latency.py",
+  "machine": "reference laptop, RTX 3060 6GB; sklearn/XGBoost on CPU",
+  "n_rows": 200,
+  "reps": 5,
+  "seed": 42,
+  "unit": "ms per row, model-only unless noted"
+ },
+ "baselines": {
+  "logistic_regression": {
+   "inputs": "26 base features (standardized)",
+   "size_bytes": 1071,
+   "p50_ms": 0.001,
+   "p95_ms": 0.001,
+   "mean_ms": 0.001
+  },
+  "random_forest": {
+   "inputs": "26 base features",
+   "size_bytes": 8397641,
+   "p50_ms": 0.331,
+   "p95_ms": 0.34,
+   "mean_ms": 0.331
+  },
+  "xgboost_standard": {
+   "inputs": "26 base features",
+   "size_bytes": 493881,
+   "p50_ms": 0.005,
+   "p95_ms": 0.006,
+   "mean_ms": 0.005
+  },
+  "ec_xgb": {
+   "inputs": "35 features (26 base + 8 claim aggregates + source)",
+   "size_bytes": 677688,
+   "p50_ms": 0.008,
+   "p95_ms": 0.009,
+   "mean_ms": 0.008
+  },
+  "heuristic_overlap": {
+   "inputs": "answer + context tokens",
+   "size_bytes": 0,
+   "p50_ms": 0.009,
+   "p95_ms": 0.009,
+   "mean_ms": 0.009
+  },
+  "tfidf_answer": {
+   "inputs": "answer text",
+   "size_bytes": 575536,
+   "p50_ms": 0.014,
+   "p95_ms": 0.015,
+   "mean_ms": 0.014,
+   "note": "vectorizer transform only; linear head not persisted"
+  },
+  "tfidf_all": {
+   "inputs": "question + context + answer",
+   "size_bytes": 4045619,
+   "p50_ms": 0.11,
+   "p95_ms": 0.114,
+   "mean_ms": 0.111,
+   "note": "vectorizer transform only; linear head not persisted"
+  }
+ }
+}
