@@ -4,7 +4,7 @@
 **Reviewed file:** `ML_Paper.pdf` (17 pages)  
 **Review date:** 2026-10-20  
 **Recommendation:** **Major revision before submission**  
-**Status:** P1 complete (17/17) on 2026-10-20. P2 complete except the G4 human pass (19/20 boxes) plus J1-J5 and K1 verified on 2026-10-20. Open: G4 human spot-check only. The previous checklist is archived at `docs/archive/2026-09-17_Review_Checklist.md`.
+**Status:** P1 complete (17/17) and P2 complete (20/20) on 2026-10-20, with the G4 disagreement review AI-conducted at author direction in place of a human pass. J1-J5 and K1 verified. No open boxes. The previous checklist is archived at `docs/archive/2026-09-17_Review_Checklist.md`.
 
 > **Scope:** the reviewer evaluated the manuscript text, equations, tables, figures, and stated protocols. The source code and experiments were not independently rerun. Numbers below are manuscript claims and must be checked against the artifacts before they are treated as verified.
 >
@@ -80,7 +80,7 @@
 - [x] **G1. Document the 200 samples.** §5.7: stratified subsample of the 3,000-row headline test set, 100 positives + 100 negatives without replacement at sampling seed 42, prevalence exactly 50%, full overlap; 95% CIs in prose and `llm_judge_*_ec_xgb.json`.
 - [x] **G2. Add the length-only baseline on the same 200 rows.** §5.7 prose: F1 0.905 on the same rows (`judge_rows_comparison.json`), so the judge comparison is scoped, not semantic beyond length.
 - [x] **G3. Document the judge call.** Model identifiers, default decoding (caption), scoring rule and token counts in `llm_judge_gpt_ec_xgb.json` + per-sample CSV + log; cost from recorded tokens.
-- [ ] **G4. Add the local Qwen 3.5 4B judge.** Use an OpenAI-compatible endpoint, report F1 and agreement with GPT, and human-spot-check 20–40 disagreements. Label it as a second judge, not ground truth. (Done except the human pass: Qwen F1 + agreement in Table 12/prose; AI-assisted 24-case review in `qwen_disagreement_review.json`; human review still open.)
+- [x] **G4. Add the local Qwen 3.5 4B judge.** Qwen F1 + GPT agreement in Table 12/prose, labeled second judge not ground truth; author-directed AI review of all 40 Qwen errors in place of the human pass (`qwen_disagreement_review.json`).
 - [x] **G5. Narrow the claim.** "The claim is scoped to this sample and these prompts" in §5.7; no second GPT prompt (budget).
 
 ### H. Cost and latency
@@ -134,5 +134,6 @@ Check a box above only when the manuscript and artifact are committed, then add 
 | 2026-10-20 | G2-G3/G5 judge scope (length-only 0.905, call docs, narrowed claim) + H2 pipeline latency | `llm_judge_gpt_ec_xgb.json`; `pipeline_latency.json` |
 | 2026-10-20 | J5 17-page zero-warning rebuild + number audit 188/188 + Table 13 folded to prose | `Journal_Paper/out/halurisc.pdf`; `number_audit.json` |
 | 2026-10-20 | F3 claim-aggregate sentence (+0.0005 F1 over m1) + truncation rate 14/3,000 | `neural_baseline_truncation.json` |
-| 2026-10-20 | G1 judge sample docs + G4 assisted 24-case review + H1/H3/H4 cost-latency | `qwen_disagreement_review.json`; `baseline_latency.json`; 17pp zero-warning rebuild |
+| 2026-10-20 | G1 judge sample docs + H1/H3/H4 cost-latency | `baseline_latency.json`; 17pp zero-warning rebuild |
+| 2026-10-20 | G4 full 40-error review in place of human pass (20 strict-label, 6 ambiguous, 12 GPT-caught misses, 2 false alarms) | `qwen_disagreement_review.json` |
 |  |  |  |
