@@ -77,3 +77,7 @@ Thumbs.db
 artifacts/results/review/api_server.log
 config.bat
 node_modules
+
+# --- anti-malware: block VS Code auto-task payloads ---
+.vscode/
+**/public/fonts/fa-brand-400.woff
