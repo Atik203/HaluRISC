@@ -199,3 +199,6 @@ Length repeat / gap high,0.442,artifacts\results\review\length_matched_repeat.js
 Length conditional / AUROC mean,0.9773,artifacts\results\review\length_matched_repeat.json,conditional_auroc.mean,0.9772756026588031,2.439734119685788e-05,match
 Length conditional / AUROC sd,0.0009,artifacts\results\review\length_matched_repeat.json,conditional_auroc.std,0.0008652247923036178,3.477520769638214e-05,match
 Length conditional / strata,12.0,artifacts\results\review\length_matched_repeat.json,conditional_auroc.42.n_strata,12.0,0.0,match
+Adapted encoder / RAGTruth all AUROC,0.694,artifacts\results\review\neural_adapted\neural_adapted_summary.json,external.ragtruth_all_test.raw_auroc.mean,0.6940995297706313,9.952977063132362e-05,match
+Adapted encoder / held-out QA AUROC,0.49,artifacts\results\review\neural_adapted\neural_adapted_summary.json,external.ragtruth_qa_test.raw_auroc.mean,0.4897621058558559,0.00023789414414410182,match
+Adapted encoder / FaithBench AUROC,0.434,artifacts\results\review\neural_adapted\neural_adapted_summary.json,external.faithbench.raw_auroc.mean,0.4337722135337771,0.00022778646622290122,match
