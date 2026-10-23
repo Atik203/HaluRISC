@@ -33,8 +33,8 @@ Chosen path: all three reviewer risks, including the adapted-encoder run.
 
 - [x] **T1. Modern table styling.** Booktabs three-rule tables, no vertical rules, no per-row `\hline`, grouped blocks where the data has groups.
 - [ ] **T2. Adapted-encoder run.** Train RoBERTa-base on HaluEval plus RAGTruth non-QA rows with the EC-XGB recipe (grouped splits, seeds 42/123/456), evaluate on HaluEval test, RAGTruth all, held-out QA, and FaithBench, then add the row and the source-only versus adapted comparison to §5.1 and Table 5.
-- [ ] **T3. Disambiguate the shift headline.** Abstract and conclusion must say that the AUROC gain is on the RAGTruth task types used in training, while the held-out QA task stays near chance.
-- [ ] **T4. Surface the 252-row calibration result.** Move the label-budget finding (ECE 0.133 from 252 rows) into the abstract or the conclusion without breaking the 300-word limit.
+- [x] **T3. Disambiguate the shift headline.** Abstract and conclusion state the AUROC gain is on the RAGTruth task types used in training, while the held-out QA task stays near chance.
+- [x] **T4. Surface the 252-row calibration result.** The label-budget finding (252 rows give test ECE 0.133) now sits in the conclusion next to the 5,034-row calibrator sentence. Abstract 281 words, audit still 200/200.
 - [ ] **T5. Integrate, verify, push.** New numbers in `review_number_audit.py`, rebuild to 17 pages with zero warnings, run the audit and tests, update this checklist and the guideline matrix.
 
 > **Scope:** the reviewer evaluated the manuscript text, equations, tables, figures, and stated protocols. The source code and experiments were not independently rerun. Numbers below are manuscript claims and must be checked against the artifacts before they are treated as verified.
