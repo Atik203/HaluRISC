@@ -27,6 +27,16 @@
 - [x] Abstract rewritten to answer the six guideline questions in order with key results only: 275 words, 15 sentences, one paragraph, no nested clauses.
 - [x] Terminology: every reference to the baseline model now says `conventional` instead of `standard`, matching the section name and the faculty instruction. Generic uses of `standard` stay (standard metrics, standard deviation, standard logistic loss). Abstract names the comparison explicitly as `a conventional XGBoost baseline`.
 
+## Full-path review fixes (2026-10-23)
+
+Chosen path: all three reviewer risks, including the adapted-encoder run.
+
+- [x] **T1. Modern table styling.** Booktabs three-rule tables, no vertical rules, no per-row `\hline`, grouped blocks where the data has groups.
+- [ ] **T2. Adapted-encoder run.** Train RoBERTa-base on HaluEval plus RAGTruth non-QA rows with the EC-XGB recipe (grouped splits, seeds 42/123/456), evaluate on HaluEval test, RAGTruth all, held-out QA, and FaithBench, then add the row and the source-only versus adapted comparison to §5.1 and Table 5.
+- [ ] **T3. Disambiguate the shift headline.** Abstract and conclusion must say that the AUROC gain is on the RAGTruth task types used in training, while the held-out QA task stays near chance.
+- [ ] **T4. Surface the 252-row calibration result.** Move the label-budget finding (ECE 0.133 from 252 rows) into the abstract or the conclusion without breaking the 300-word limit.
+- [ ] **T5. Integrate, verify, push.** New numbers in `review_number_audit.py`, rebuild to 17 pages with zero warnings, run the audit and tests, update this checklist and the guideline matrix.
+
 > **Scope:** the reviewer evaluated the manuscript text, equations, tables, figures, and stated protocols. The source code and experiments were not independently rerun. Numbers below are manuscript claims and must be checked against the artifacts before they are treated as verified.
 >
 > **How to use:** check a box only when the fix is in `Journal_Paper/halurisc.tex` and the backing artifact is committed. Record the date, item, and commit hash in the done log at the end. Workstreams A–J match `roadmap.md` §18.3.
