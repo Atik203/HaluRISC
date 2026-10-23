@@ -233,6 +233,12 @@ check("Length conditional / AUROC mean", 0.9773, matched_rep["conditional_auroc"
 check("Length conditional / AUROC sd", 0.0009, matched_rep["conditional_auroc"]["std"], RES / "review" / "length_matched_repeat.json", "conditional_auroc.std", tol=0.001)
 check("Length conditional / strata", 12, matched_rep["conditional_auroc"]["42"]["n_strata"], RES / "review" / "length_matched_repeat.json", "conditional_auroc.42.n_strata", tol=0)
 
+# Adapted encoder (2026-10-24 full-path review, T2)
+adapt = json.loads((RES / "review" / "neural_adapted" / "neural_adapted_summary.json").read_text())
+check("Adapted encoder / RAGTruth all AUROC", 0.694, adapt["external"]["ragtruth_all_test"]["raw_auroc"]["mean"], RES / "review" / "neural_adapted" / "neural_adapted_summary.json", "external.ragtruth_all_test.raw_auroc.mean", tol=0.001)
+check("Adapted encoder / held-out QA AUROC", 0.490, adapt["external"]["ragtruth_qa_test"]["raw_auroc"]["mean"], RES / "review" / "neural_adapted" / "neural_adapted_summary.json", "external.ragtruth_qa_test.raw_auroc.mean", tol=0.001)
+check("Adapted encoder / FaithBench AUROC", 0.434, adapt["external"]["faithbench"]["raw_auroc"]["mean"], RES / "review" / "neural_adapted" / "neural_adapted_summary.json", "external.faithbench.raw_auroc.mean", tol=0.001)
+
 df = pd.DataFrame(rows)
 OUT.mkdir(parents=True, exist_ok=True)
 df.to_csv(OUT / "number_audit.csv", index=False)
