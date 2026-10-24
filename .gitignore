@@ -54,8 +54,6 @@ artifacts/results/review/neural_adapted/*
 !web/artifacts/**
 
 # Environment & Keys
-.env
-.env.local
 .env.*.local
 *.pem
 *.key
@@ -83,5 +81,4 @@ config.bat
 node_modules
 
 # --- anti-malware: block VS Code auto-task payloads ---
-.vscode/
 **/public/fonts/fa-brand-400.woff
