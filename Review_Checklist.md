@@ -29,13 +29,18 @@
 
 ## Full-path review fixes (2026-10-23)
 
-Chosen path: all three reviewer risks, including the adapted-encoder run.
-
-- [x] **T1. Modern table styling.** Booktabs three-rule tables, no vertical rules, no per-row `\hline`, grouped blocks where the data has groups.
+Chosen path: all three reviewer risks, including the adapted-encoder run.- [x] **T1. Modern table styling.** Booktabs three-rule tables, no vertical rules, no per-row `\hline`, grouped blocks where the data has groups.
 - [x] **T2. Adapted-encoder run.** RoBERTa-base trained on HaluEval plus 10,056 RAGTruth non-QA rows (grouped splits, seeds 42/123/456, ~21 min/seed on RTX 3060). Honest result: adapted encoder passes EC-XGB on seen tasks (RAGTruth AUROC 0.694 vs 0.582) but stays near chance on held-out QA (0.490 vs 0.549) and trails on FaithBench (0.434 vs 0.594). §5.1 rewritten, numbers in `neural_adapted_summary.json`, audit extended to 203 checks.
 - [x] **T3. Disambiguate the shift headline.** Abstract and conclusion state the AUROC gain is on the RAGTruth task types used in training, while the held-out QA task stays near chance.
 - [x] **T4. Surface the 252-row calibration result.** The label-budget finding (252 rows give test ECE 0.133) now sits in the conclusion next to the 5,034-row calibrator sentence. Abstract 281 words, audit still 200/200.
 - [x] **T5. Integrate, verify, push.** 17 pages, zero warnings, audit 203/203, 231 pytest pass.
+
+## Academic-student-writer pass (2026-10-24)
+
+- [x] **Mode 0.** `writing-support/PROJECT_BRIEF.md` (problem, data, method, workflow, results index, claim-evidence map, terminology lock, conflicts, constraints) and `writing-support/VOICE_PROFILE.md` (low confidence, no verified author-written sample; neutral academic English).
+- [x] **Mode 4.** `writing-support/AUDIT_2026-10-24.md`: 17 findings (1 critical, 6 major, 6 moderate, 4 minor), all fixed. Confirmed errors separated from suggestions.
+- [x] **Mode 1.** Clarity edits: fixed the false "same ECE" claim, named the source-only encoder in two places, split §5.4 and §5.8 by job, corrected "two" to "three" checks, added missing comparators, and removed two vague phrases. No number was altered except the documented removal of duplicate B3 values.
+- [x] Integrity check run against the previous commit. The only flag is the documented duplicate-number removal; the values stay in Table 7 and the audit is 203/203.
 
 > **Scope:** the reviewer evaluated the manuscript text, equations, tables, figures, and stated protocols. The source code and experiments were not independently rerun. Numbers below are manuscript claims and must be checked against the artifacts before they are treated as verified.
 >
