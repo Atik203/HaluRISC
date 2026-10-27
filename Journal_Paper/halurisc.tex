@@ -341,7 +341,7 @@ The benchmark itself represents one limiting factor, since close to 85\% of Halu
 
 \subsection{Working Principle and Task}
 
-Figure~\ref{fig:pipeline} shows the full proposed pipeline at a glance. The system takes a question, an optional reference context, and a candidate answer produced by a black-box LLM, and it returns a calibrated risk probability together with per-feature explanations.
+The entire proposed pipeline is illustrated in Figure~\ref{fig:pipeline}. The system accepts a question, an optional reference context (evidence), and a candidate answer produced by a black-box LLM, and it produces the calibrated risk probability and per-feature explanations for that answer.
 
 \begin{figure}[pos=htbp]
   \centering
@@ -350,11 +350,11 @@ Figure~\ref{fig:pipeline} shows the full proposed pipeline at a glance. The syst
   \label{fig:pipeline}
 \end{figure}
 
-Given a question $q$, an optional reference context $c$ (evidence), and a candidate answer $a$ produced by a black-box LLM, the task is to predict the probability $P(\text{hallucinated} \mid q, c, a)$. The proposed model predicts risk, not truth. It flags answers that are unsupported by, or contradictory to, the available evidence.
+The goal is to estimate the conditional probability $P(\text{hallucinated}\mid q,c,a)$ of hallucination, conditioned on the question $q$, the reference context $c$ (if applicable), and the candidate answer $a$ produced by a black-box LLM. The approach does not estimate truth. It flags cases where an answer does not follow from, or contradicts, the provided evidence.
 
 \subsection{Features}
 
-Table~\ref{tab:features} lists the 26 base features in seven groups, and Table~\ref{tab:claim} lists the eight claim-level aggregates that the proposed model adds. Natural language inference (NLI) decides whether one sentence follows from another. The NLI signals come from a DeBERTa-v3 cross-encoder \cite{deberta} trained on SNLI \cite{snli} and MultiNLI \cite{mnli}, evaluated in both directions, context-to-answer and answer-to-context, which yields six probability features. Semantic similarity uses MiniLM sentence embeddings \cite{sbert,minilm}, entity features use spaCy NER \cite{spacy}, and the numeric and hedging groups are collected with regular expressions and a small hedging lexicon.
+The model uses 26 base features in seven categories (Table~\ref{tab:features}) and eight claim-level aggregates (Table~\ref{tab:claim}). For NLI, six signal probabilities are determined using a DeBERTa-v3 cross-encoder \cite{deberta} trained on SNLI \cite{snli} and MultiNLI \cite{mnli}. These probabilities capture whether a given statement follows logically from another. Semantic similarity uses MiniLM sentence embeddings \cite{sbert,minilm}, entities are detected by spaCy named entity recognition \cite{spacy}, and numeric and hedging features are found through regular expression matching or a small hedging lexicon.
 
 \begin{table}[pos=htbp]
   \centering
@@ -392,18 +392,18 @@ Table~\ref{tab:features} lists the 26 base features in seven groups, and Table~\
 
 \subsection{Evidence-Consistent XGBoost}
 
-EC-XGB keeps the base XGBoost learner and changes three things, added cumulatively so that each change can be measured on its own. The first change replaces the raw length counts with log-scaled values and adds monotone constraints, so risk cannot fall when contradiction or novelty rises and cannot climb when entailment, overlap, or semantic similarity rises. A log-scaled length feature replaces the raw count, $\ell' = \log(1 + \ell)$, which compresses the long tail of the length distribution. A monotone constraint fixes the sign of the model response for a chosen feature, so an evidence-positive feature $x_j$ keeps $\partial \hat{y} / \partial x_j \leq 0$, and the sign flips for an evidence-negative feature such as contradiction. In plain terms, more contradiction can never lower the risk score, and more entailment can never raise it.
+EC-XGB alters three key aspects of the conventional XGBoost learner. These changes allow each component of the learning process to be assessed individually. First, raw-length counts are replaced with log-scaled values, and monotonicity constraints ensure that risk cannot decrease as contradiction or novelty rises and cannot increase as entailment, overlap, or semantic similarity rises. Raw-count length is replaced with its log-scaled value, $\ell' = \log(1+\ell)$.
 
-The second change appends the eight claim-level aggregates from Table~\ref{tab:claim}, which lets the classifier see the same evidence signals that the deployed verification layer reports. Take an answer split into $K$ claims, with $c_k$ the contradiction and $e_k$ the entailment of claim $k$. The aggregate vector and the full model input are
+Second, the eight claim-level aggregates in Table~\ref{tab:claim} are added to the evidence signals that the deployed verification layer reports, so the classifier sees the same signals. Consider an answer composed of $K$ claims, with $C(k)$ the contradiction and $E(k)$ the entailment of claim $k$, and let $v_k$ be the verdict of claim $k$. The aggregate vector is
 \begin{gather}
-  \psi(x) = \big[ \max_k c_k, \ \overline{c}, \ r_{\text{con}}, \ r_{\text{sup}}, \ r_{\text{unsup}}, \ \min_k e_k, \ \overline{e}, \ K \big], \\
-  \phi'(x) = \big[ \ell', \ \tilde{\phi}(x), \ \psi(x), \ s \big],
+  \psi(x) = [\max_k C(k), \overline{C}, r_{\text{con}}, r_{\text{sup}}, r_{\text{unsup}}, \min_k E(k), \overline{E}, K], \\
+  r_{\text{con}} = \frac{1}{K}\sum_{k=1}^{K} \mathbf{1}[v_k = \text{contradicted}], \quad
+  r_{\text{sup}} = \frac{1}{K}\sum_{k=1}^{K} \mathbf{1}[v_k = \text{supported}], \\
+  r_{\text{unsup}} = \frac{1}{K}\sum_{k=1}^{K} \mathbf{1}[v_k = \text{unsupported}].
 \end{gather}
-where $r_{\text{con}}$, $r_{\text{sup}}$, and $r_{\text{unsup}}$ are the contradicted, supported, and unsupported claim ratios, and $\tilde{\phi}(x)$ holds the remaining base features after the length change, which gives 35 inputs in total.
+Here $\overline{C}$ and $\overline{E}$ are the means of $C(k)$ and $E(k)$ over the claims. Let $\phi'(x)$ be the complete model input and $\tilde{\phi}(x)$ the remaining 25 base features excluding $\ell'$; there are 35 input features in total.
 
-The third change adds RAGTruth summarization and data-to-text training rows with a binary source indicator $s \in \{0,1\}$, while every RAGTruth QA row stays out of training, which keeps the held-out QA classifier zero-shot. The deployed display score is fitted on labeled target rows and is not zero-shot. The deployed checkpoint combines all three changes and is called EC-XGB.
-
-Three protocols are distinguished. P0 is source-only: the calibrator and the threshold are fitted on HaluEval validation. P1 is target-calibrated: the calibrator is fitted on the 5{,}034 RAGTruth QA calibration rows and the threshold is fixed at 0.5. P2 is target-thresholded: the threshold is selected on the same target calibration split at a five percent false-positive budget. Algorithm~\ref{alg:ecxgb} lists the full procedure.
+Third, a source indicator $s \in \{0,1\}$ is added as a training column for RAGTruth summarization and data-to-text. Because all RAGTruth QA rows are excluded during training, the QA setting remains zero-shot. The deployed display score is fitted on labeled target rows and is therefore not zero-shot. The deployed checkpoint incorporating all three modifications is referred to as EC-XGB.
 
 \begin{algorithm}[H]
   \caption{Evidence-consistent XGBoost (EC-XGB) training and deployment}
