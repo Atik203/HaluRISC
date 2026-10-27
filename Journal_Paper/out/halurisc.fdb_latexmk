@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex out/halurisc"] 1792785256.44262 "out/halurisc.aux" "out/halurisc.bbl" "out/halurisc" 1793136071.01915 0
+["bibtex out/halurisc"] 1793136801.6522 "out/halurisc.aux" "out/halurisc.bbl" "out/halurisc" 1793137095.23302 0
   "./ref.bib" 1792778522 13208 e4e32c57c69ac9e0d4293f01fbe559c9 ""
   "c:/texlive/2025/texmf-dist/bibtex/bst/elsarticle/elsarticle-num.bst" 1761153866 29462 3b2a1af2ce1e224a3b46ee048ffd4b98 ""
-  "out/halurisc.aux" 1793136069 20692 4b9455bf1300bf542060e5eed37a806a "pdflatex"
+  "out/halurisc.aux" 1793137093 20732 695a64c6d79cd46de6c6e34d8db7efc2 "pdflatex"
   (generated)
   "out/halurisc.bbl"
   "out/halurisc.blg"
   (rewritten before read)
-["pdflatex"] 1793136065.07401 "halurisc.tex" "out/halurisc.pdf" "halurisc" 1793136071.02057 0
+["pdflatex"] 1793137089.30116 "halurisc.tex" "out/halurisc.pdf" "halurisc" 1793137095.23427 0
   "c:/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1761152797 2971 def0b6c1f0b107b3b936def894055589 ""
   "c:/texlive/2025/texmf-dist/fonts/enc/dvips/stix/stix-t1.enc" 1761161519 7013 c55cc8669071ac14036c4a0c96c16202 ""
   "c:/texlive/2025/texmf-dist/fonts/enc/dvips/stix/stix-ts1.enc" 1761161519 2836 154e6b0061f9b8cb549144b55b268339 ""
@@ -235,11 +235,11 @@
   "figures/b4/calibration_shift.png" 1792264709 187302 f02a613c7d7bf7aa46748d89cd3ab3c1 ""
   "figures/b4/reliability_diagrams.png" 1792264710 348460 181b2cb99d9872610ddf7503748b11f5 ""
   "figures/fig_shap_importance_b5.png" 1792264711 189920 47b2918b0ed4e2dbfe9f0f636f6f7f31 ""
-  "halurisc.tex" 1793136058 79434 1a65451a47c740922cbe992a46f644b1 ""
-  "out/halurisc.abs" 1793136066 1841 9d96d62c06c06e7a2a31d2d8283de50c "pdflatex"
-  "out/halurisc.aux" 1793136069 20692 4b9455bf1300bf542060e5eed37a806a "pdflatex"
-  "out/halurisc.bbl" 1792785256 10550 5204d5bdc274cce1169712ef2aab1b9e "bibtex out/halurisc"
-  "out/halurisc.out" 1793136066 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "halurisc.tex" 1793137082 78635 a23fbb4ae014cd462492ebed20ee506d ""
+  "out/halurisc.abs" 1793137090 1841 9d96d62c06c06e7a2a31d2d8283de50c "pdflatex"
+  "out/halurisc.aux" 1793137093 20732 695a64c6d79cd46de6c6e34d8db7efc2 "pdflatex"
+  "out/halurisc.bbl" 1793136802 10550 59450420b1134ab081c0039598ba66e5 "bibtex out/halurisc"
+  "out/halurisc.out" 1793137090 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
   "screenshots/analyze-arctic-model-comparison.png" 1792261649 635515 5869c53cb02b60c54e9604953d0ce432 ""
   "screenshots/analyze-arctic-risk-card.png" 1792261649 933786 12e53d3ee37102a25bf1a72a34235d55 ""
   (generated)
