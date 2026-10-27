@@ -453,7 +453,6 @@ INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/stix/stix-mathsfit.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/stix/stix-mathsfit.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/stix/stix-mathtt.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/stix/stix-mathtt.tfm
-INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/stix/t1-stixgeneral.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/jknappen/ec/ecss0900.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/stix/t1-stixgeneral-italic.tfm
 INPUT c:/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map
@@ -469,6 +468,7 @@ INPUT ./figures/architecture-flow.png
 INPUT ./figures/architecture-flow.png
 INPUT ./figures/architecture-flow.png
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/jknappen/ec/ecsx0900.tfm
+INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/stix/t1-stixgeneral.tfm
 INPUT ./screenshots/analyze-arctic-risk-card.png
 INPUT ./screenshots/analyze-arctic-risk-card.png
 INPUT ./screenshots/analyze-arctic-risk-card.png
