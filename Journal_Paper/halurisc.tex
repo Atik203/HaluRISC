@@ -270,7 +270,7 @@
 % Abstract
 \linenumbers
 \begin{abstract}
-Large language models answer questions in fluent text, and some answers are wrong in ways the evidence does not support. Detectors for false information have many limitations. For example, they require a large judge model; a computer with graphics capability to run an encoder classifier; feature-based detectors provide little information regarding how well their estimates are calibrated or how well these detectors perform outside the domain of their training data. Therefore, this study was designed to see if a simple black-box model could accurately predict the likelihood of hallucinations from the candidate answer itself along with the question asked and the supporting evidence provided. The proposed method, Evidence Consistent eXtreme Gradient Boosting (EC-XGB), uses an ensemble of decision trees trained over 35 features derived from the input evidence. Eight of the 35 features represent the extent to which the claims are supported. Because the benchmark is nearly fully saturated, the useful gain comes from better reliability during out-of-domain shifts. A tree model using only explicit evidence features requires no model access and remains inexpensive to interpret. Results show that EC-XGB achieves an F1 of 0.9855 and an AUROC of 0.9984 on the HaluEval question answering task, competitive with a conventional XGBoost model. When evaluating results on task type categories (RAGTruth) included in the training set, the AUROC increases from 0.475 to 0.582, while the proportion of natural RAGTruth answers identified as at-risk decreases from 99.9\% to 61.3\%. Performance on a QA evaluation task not seen during training is consistent with random guessing (i.e., an F1 near 0.30). Finally, a model-specific display calibrator fit to labeled target rows reduces the average target calibration error from 0.726 to 0.126.
+  Large language models answer questions in fluent text, and some answers are wrong in ways the evidence does not support. Detectors for false information have many limitations. For example, they require a large judge model; a computer with graphics capability to run an encoder classifier; feature-based detectors provide little information regarding how well their estimates are calibrated or how well these detectors perform outside the domain of their training data. Therefore, this study was designed to see if a simple black-box model could accurately predict the likelihood of hallucinations from the candidate answer itself along with the question asked and the supporting evidence provided. The proposed method, Evidence Consistent eXtreme Gradient Boosting (EC-XGB), uses an ensemble of decision trees trained over 35 features derived from the input evidence. Eight of the 35 features represent the extent to which the claims are supported. Because the benchmark is nearly fully saturated, the useful gain comes from better reliability during out-of-domain shifts. A tree model using only explicit evidence features requires no model access and remains inexpensive to interpret. Results show that EC-XGB achieves an F1 of 0.9855 and an AUROC of 0.9984 on the HaluEval question answering task, competitive with a conventional XGBoost model. When evaluating results on task type categories (RAGTruth) included in the training set, the AUROC increases from 0.475 to 0.582, while the proportion of natural RAGTruth answers identified as at-risk decreases from 99.9\% to 61.3\%. Performance on a QA evaluation task not seen during training is consistent with random guessing (i.e., an F1 near 0.30). Finally, a model-specific display calibrator fit to labeled target rows reduces the average target calibration error from 0.726 to 0.126.
 \end{abstract}
 
 % Keywords
@@ -435,7 +435,7 @@ Calibrators are fit on the validation split only. Platt scaling fits a sigmoid $
 \end{equation}
 where $\mathrm{acc}(B_m)$ and $\mathrm{conf}(B_m)$ are the accuracy and mean confidence in bin $B_m$, together with the Brier score $\mathrm{BS} = \frac{1}{n}\sum_i (\hat{p}_i - y_i)^2$ and reliability diagrams \cite{guo}. A second step targets a new domain. The calibrator can be re-fit on a small labeled sample of the target corpus, and the effect is measured on a disjoint held-out part of the target corpus. The deployed EC-XGB display score follows the same rule: its calibrator is fitted on the 5{,}034-row RAGTruth QA calibration split, and the source indicator is set to one for natural responses. This target calibration needs labeled target rows and is not zero-shot. The source-only protocol uses the HaluEval validation split for both the calibrator and the threshold.
 
-Global explanations come from SHAP \cite{shap}: a TreeExplainer over the raw XGBoost model produces mean absolute importance and beeswarm summaries, and local explanations show the feature contributions behind a single verdict. Explanation reliability is measured directly in this work, since feature-attribution methods can be unstable \cite{adebayo2018}. Each test answer is perturbed in six ways, by replacing entities, numbers, or dates, removing supporting context, inserting irrelevant context, and shuffling clauses. Stability is quantified with Spearman and Kendall rank correlation between the original and perturbed scores, the fraction of top-1 flips, and the top-$k$ Jaccard overlap of the SHAP feature rankings.
+The global SHAP \cite{shap} explanations from a TreeExplainer applied to the raw XGBoost model were used to create the Mean Absolute Importance and Beeswarm Summaries. The local explanations of features that contribute to a particular prediction are provided. Many feature attribution methods can be unreliable so explanation reliability is measured directly \cite{adebayo2018}. The test answers were changed in six different ways (replacing entity names, numbers, and dates; removing supporting context; adding irrelevant context; and shuffling the clauses). This study quantify the reliability by calculating four different measures (the mean absolute score change; the fraction of large score changes; the top-1 flip rate; and the Spearman rank correlation between the original and perturbed scores.)
 
 \subsection{System and Reproducibility}
 
@@ -491,7 +491,7 @@ Transfer is measured on RAGTruth \cite{ragtruth}, a corpus of naturally generate
     \textbf{Corpus} & \textbf{Rows} & \textbf{Groups} & \textbf{Use}              \\
     \midrule
     HaluEval QA     & 20{,}000      & 10{,}000        & train / validation / test \\
-    RAGTruth QA     & 5{,}934       & 989             & held-out + recalibration \\
+    RAGTruth QA     & 5{,}934       & 989             & held-out + recalibration  \\
     RAGTruth full   & 17{,}790      & 2{,}965         & transfer (seen tasks)     \\
     FaithBench      & 750           & 750             & zero-shot                 \\
     \bottomrule
@@ -525,11 +525,11 @@ Raw, Platt, and isotonic probabilities are compared on the test split. Calibrati
   \footnotesize
   \begin{tabular}{lllc}
     \toprule
-    \textbf{Protocol} & \textbf{Calibrator fit} & \textbf{Threshold fit} & \textbf{Zero-shot} \\
+    \textbf{Protocol}     & \textbf{Calibrator fit}           & \textbf{Threshold fit} & \textbf{Zero-shot} \\
     \midrule
-    P0 source-only        & HaluEval validation (3{,}000)     & HaluEval validation        & yes \\
-    P1 target-calibrated  & RAGTruth QA calibration (5{,}034) & fixed at 0.5               & no  \\
-    P2 target-thresholded & RAGTruth QA calibration (5{,}034) & same rows at 5\% FPR       & no  \\
+    P0 source-only        & HaluEval validation (3{,}000)     & HaluEval validation    & yes                \\
+    P1 target-calibrated  & RAGTruth QA calibration (5{,}034) & fixed at 0.5           & no                 \\
+    P2 target-thresholded & RAGTruth QA calibration (5{,}034) & same rows at 5\% FPR   & no                 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -561,15 +561,15 @@ The split design is checked against a known confound. A row-level split, where t
     \toprule
     \textbf{Model}          & \textbf{P} & \textbf{R} & \textbf{F1} & \textbf{AUROC} & \textbf{PR-AUC} & \textbf{MCC} & \textbf{ECE} & \textbf{Brier} \\
     \midrule
-    Heuristic (1$-$overlap) & 0.9473 & 0.9233 & 0.9352 & 0.9132 & 0.8196 & 0.8723 & 0.3541 & 0.2672 \\
-    Logistic regression     & 0.9768 & 0.9553 & 0.9660 & 0.9932 & 0.9901 & 0.9329 & 0.0099 & 0.0253 \\
-    Random forest           & 0.9897 & 0.9789 & 0.9842 & 0.9980 & 0.9983 & 0.9687 & 0.0143 & 0.0127 \\
-    NLI-only                & 0.6479 & 0.6967 & 0.6714 & 0.7177 & 0.7531 & 0.3189 & 0.0678 & 0.2182 \\
-    TF-IDF (answer-only)    & 0.9550 & 0.8920 & 0.9224 & 0.9696 & 0.9665 & 0.8519 & 0.0831 & 0.0662 \\
-    TF-IDF (full input)     & 0.6397 & 0.5647 & 0.5999 & 0.6754 & 0.6785 & 0.2484 & 0.0679 & 0.2328 \\
-    XGBoost (conventional)      & 0.9932 & 0.9762 & 0.9846 & 0.9979 & 0.9983 & 0.9697 & 0.0045 & 0.0117 \\
-    RoBERTa-base           & 0.9955 & 0.9869 & 0.9912 & 0.9990 & 0.9993 & 0.9825 & 0.0070 & 0.0081 \\
-    Majority (negative)     & 0.0000 & 0.0000 & 0.0000 & ---    & ---    & 0.0000 & ---    & ---    \\
+    Heuristic (1$-$overlap) & 0.9473     & 0.9233     & 0.9352      & 0.9132         & 0.8196          & 0.8723       & 0.3541       & 0.2672         \\
+    Logistic regression     & 0.9768     & 0.9553     & 0.9660      & 0.9932         & 0.9901          & 0.9329       & 0.0099       & 0.0253         \\
+    Random forest           & 0.9897     & 0.9789     & 0.9842      & 0.9980         & 0.9983          & 0.9687       & 0.0143       & 0.0127         \\
+    NLI-only                & 0.6479     & 0.6967     & 0.6714      & 0.7177         & 0.7531          & 0.3189       & 0.0678       & 0.2182         \\
+    TF-IDF (answer-only)    & 0.9550     & 0.8920     & 0.9224      & 0.9696         & 0.9665          & 0.8519       & 0.0831       & 0.0662         \\
+    TF-IDF (full input)     & 0.6397     & 0.5647     & 0.5999      & 0.6754         & 0.6785          & 0.2484       & 0.0679       & 0.2328         \\
+    XGBoost (conventional)  & 0.9932     & 0.9762     & 0.9846      & 0.9979         & 0.9983          & 0.9697       & 0.0045       & 0.0117         \\
+    RoBERTa-base            & 0.9955     & 0.9869     & 0.9912      & 0.9990         & 0.9993          & 0.9825       & 0.0070       & 0.0081         \\
+    Majority (negative)     & 0.0000     & 0.0000     & 0.0000      & ---            & ---             & 0.0000       & ---          & ---            \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -591,7 +591,7 @@ The benchmark is saturated, so this ablation is a preservation check rather than
     \toprule
     \textbf{Variant} & \textbf{Features} & \textbf{F1} & \textbf{AUROC} & \textbf{MCC} & \textbf{ECE} \\
     \midrule
-    m0 conventional      & 26                & 0.9844      & 0.9980         & 0.9693       & 0.0066       \\
+    m0 conventional  & 26                & 0.9844      & 0.9980         & 0.9693       & 0.0066       \\
     m1 debias        & 26                & 0.9852      & 0.9976         & 0.9708       & 0.0051       \\
     m2 + claims      & 34                & 0.9857      & 0.9984         & 0.9717       & 0.0078       \\
     m3 EC-XGB        & 35                & 0.9855      & 0.9984         & 0.9715       & 0.0074       \\
@@ -610,13 +610,13 @@ Table~\ref{tab:shift} shows where the modification matters. Every model is appli
     \toprule
     \textbf{Corpus} & \textbf{Model} & \textbf{F1} & \textbf{AUROC} & \textbf{Flagged} & \textbf{ECE} \\
     \midrule
-    RAGTruth all    & Conventional & 0.5181      & 0.4753         & 99.9\%           & 0.6346       \\
+    RAGTruth all    & Conventional   & 0.5181      & 0.4753         & 99.9\%           & 0.6346       \\
     RAGTruth all    & EC-XGB         & 0.5608      & 0.5815         & 61.3\%           & 0.2782       \\
     \addlinespace
-    RAGTruth QA     & Conventional & 0.3022      & 0.5465         & 99.9\%           & 0.8149       \\
+    RAGTruth QA     & Conventional   & 0.3022      & 0.5465         & 99.9\%           & 0.8149       \\
     RAGTruth QA     & EC-XGB         & 0.3081      & 0.5491         & 97.4\%           & 0.7433       \\
     \addlinespace
-    FaithBench      & Conventional & 0.8130      & 0.5089         & 99.5\%           & 0.2917       \\
+    FaithBench      & Conventional   & 0.8130      & 0.5089         & 99.5\%           & 0.2917       \\
     FaithBench      & EC-XGB         & 0.1201      & 0.5941         & 7.3\%            & 0.4500       \\
     \bottomrule
   \end{tabular}
@@ -661,17 +661,17 @@ Figure~\ref{fig:calibshift} shows the raw and target-calibrated score distributi
   \footnotesize
   \begin{tabular}{llrrrr}
     \toprule
-    \textbf{Model} & \textbf{Calibrator} & \textbf{ECE} & \textbf{Brier} & \textbf{NLL} & \textbf{Pred. pos.} \\
+    \textbf{Model} & \textbf{Calibrator}     & \textbf{ECE} & \textbf{Brier} & \textbf{NLL} & \textbf{Pred. pos.} \\
     \midrule
-    Conventional & Raw                      & 0.8185 & 0.8164 & 5.20 & 0.999 \\
-    Conventional & Source Platt (HaluEval)  & 0.8089 & 0.8011 & 3.62 & 0.999 \\
-    Conventional & Target Platt (RAGTruth)  & 0.1335 & 0.1639 & 0.51 & 0.000 \\
-    Conventional & Target isotonic          & 0.1316 & 0.1663 & 0.53 & 0.000 \\
+    Conventional   & Raw                     & 0.8185       & 0.8164         & 5.20         & 0.999               \\
+    Conventional   & Source Platt (HaluEval) & 0.8089       & 0.8011         & 3.62         & 0.999               \\
+    Conventional   & Target Platt (RAGTruth) & 0.1335       & 0.1639         & 0.51         & 0.000               \\
+    Conventional   & Target isotonic         & 0.1316       & 0.1663         & 0.53         & 0.000               \\
     \midrule
-    EC-XGB   & Raw                      & 0.7433 & 0.7061 & 2.91 & 0.974 \\
-    EC-XGB   & Source Platt (HaluEval)  & 0.7735 & 0.7527 & 3.18 & 0.975 \\
-    EC-XGB   & Target Platt (RAGTruth)  & 0.1263 & 0.1613 & 0.50 & 0.000 \\
-    EC-XGB   & Target isotonic          & 0.1260 & 0.1618 & 0.50 & 0.000 \\
+    EC-XGB         & Raw                     & 0.7433       & 0.7061         & 2.91         & 0.974               \\
+    EC-XGB         & Source Platt (HaluEval) & 0.7735       & 0.7527         & 3.18         & 0.975               \\
+    EC-XGB         & Target Platt (RAGTruth) & 0.1263       & 0.1613         & 0.50         & 0.000               \\
+    EC-XGB         & Target isotonic         & 0.1260       & 0.1618         & 0.50         & 0.000               \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -785,18 +785,18 @@ Table~\ref{tab:cost} puts every baseline on the same footing. The model-only p50
   \footnotesize
   \begin{tabular}{llrrr}
     \toprule
-    \textbf{Baseline} & \textbf{Inputs} & \textbf{Size} & \textbf{Model p50 (ms)} & \textbf{Cost/1K} \\
+    \textbf{Baseline}      & \textbf{Inputs} & \textbf{Size} & \textbf{Model p50 (ms)} & \textbf{Cost/1K} \\
     \midrule
-    Heuristic (overlap)  & text & ---       & 0.009  & $\approx$\$0     \\
-    Logistic regression & 26 feats  & 1.1\,KB   & 0.001  & $\approx$\$0.001 \\
-    Random forest       & 26 feats  & 8.4\,MB   & 0.331  & $\approx$\$0.001 \\
-    NLI-only            & 6 NLI probs      & ---       & ---    & $\approx$\$0.001 \\
-    TF-IDF (answer/full)& text      & 0.58/4.1\,MB & 0.014/0.110$^\ast$ & $\approx$\$0.001 \\
-    XGBoost (conventional)  & 26 feats      & 0.49\,MB  & 0.005  & $\approx$\$0.001 \\
-    RoBERTa-base        & 256 tokens   & 125M params & ---  & training only   \\
-    EC-XGB (proposed)   & 35 feats      & 0.68\,MB  & 0.008  & $\approx$\$0.001 \\
-    GPT 5.6 Luna judge  & API       & ---       & 1443   & \$0.106          \\
-    Qwen 3.5 4B judge   & 4-bit local      & 4B params & 2623   & \$0              \\
+    Heuristic (overlap)    & text            & ---           & 0.009                   & $\approx$\$0     \\
+    Logistic regression    & 26 feats        & 1.1\,KB       & 0.001                   & $\approx$\$0.001 \\
+    Random forest          & 26 feats        & 8.4\,MB       & 0.331                   & $\approx$\$0.001 \\
+    NLI-only               & 6 NLI probs     & ---           & ---                     & $\approx$\$0.001 \\
+    TF-IDF (answer/full)   & text            & 0.58/4.1\,MB  & 0.014/0.110$^\ast$      & $\approx$\$0.001 \\
+    XGBoost (conventional) & 26 feats        & 0.49\,MB      & 0.005                   & $\approx$\$0.001 \\
+    RoBERTa-base           & 256 tokens      & 125M params   & ---                     & training only    \\
+    EC-XGB (proposed)      & 35 feats        & 0.68\,MB      & 0.008                   & $\approx$\$0.001 \\
+    GPT 5.6 Luna judge     & API             & ---           & 1443                    & \$0.106          \\
+    Qwen 3.5 4B judge      & 4-bit local     & 4B params     & 2623                    & \$0              \\
     \bottomrule
   \end{tabular}
 \end{table}
