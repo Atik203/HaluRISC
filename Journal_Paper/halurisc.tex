@@ -548,17 +548,17 @@ Latency was determined on 200 test samples on a reference laptop equipped with a
 
 \subsection{Model comparison}
 
-Table~\ref{tab:models} reports the test-set performance of every baseline, averaged over the three seeds. XGBoost reaches an F1 of 0.9846 with an AUROC of 0.9979, ahead of the random forest by 0.0004 in F1 and the logistic regression by 0.0186. The overlap heuristic, which needs no training beyond its threshold, still reaches an F1 of 0.9352, and a majority baseline scores zero, which confirms balanced labels. The NLI-only baseline lags at 0.6714, which shows that the lexical, length, and semantic signals carry information the NLI cross-encoder alone does not. The TF-IDF variants sit between these extremes, with an answer-only linear model at 0.9224 and a full-input model at 0.5999.
+The performance of all the baselines has been averaged across the three runs to report their overall performance on the test set. For example, the F1 score of 0.9846 and AUROC of 0.9979 were both obtained when using the XGBoost method. These values are slightly greater than those achieved through the use of the random forest (by 0.0004) and greater than those obtained using logistic regression (by 0.0186). The heuristic (which finds its own threshold without any need for further training) yielded an F1 value of 0.9352, and the majority baseline (wherein the classifier always predicts the most common label) produced an F1 value of 0.0000, providing evidence that the data is well-balanced. The NLI-only baseline scored very poorly at 0.6714. This shows that the other baselines captured some information about the lexical, length, and semantic properties of the input texts that was not available via the NLI cross-encoder alone. The TF-IDF models were positioned between these two extremes; the answer-only linear model scored 0.9224, and the full-input model scored 0.5999.
 
-The XGBoost margin over the random forest is small but significant in a McNemar test on the paired seed-42 test predictions ($p = 0.044$). The logistic regression ($p = 0.43$) and heuristic ($p = 0.35$) comparisons are not. Bootstrap confidence intervals over 1{,}000 question-group resamples for XGBoost are F1 $[0.9809,\,0.9896]$ and AUROC $[0.9964,\,0.9989]$. The conventional XGBoost row in Table~\ref{tab:models} and the m0 row in Table~\ref{tab:ec} come from the baseline and modified pipelines.
+Although the XGBoost margin over random forest is relatively small (only 0.0004 in F1), it was statistically significant in a McNemar test comparing the paired seed-42 test predictions ($p=0.044$). However, there were no such statistical differences when comparing XGBoost to logistic regression ($p = 0.43$) or the heuristic ($p = 0.35$).
 
-The source-only neural baseline wins in-domain (F1 0.9912 against 0.9846) but collapses under shift, with a RAGTruth AUROC of 0.337 against 0.582 for EC-XGB. An adapted encoder trained on the same multi-source rows as EC-XGB closes the seen-task gap and passes EC-XGB there (0.694 against 0.582). It does not transfer: on the held-out QA task it stays near chance (0.490 against 0.549), and on FaithBench it falls behind (0.434 against 0.594). Adaptation lifts any model on seen tasks, while the feature model keeps more of its ranking on unseen ones.
+A neural baseline trained solely on the source material outperforms EC-XGB in-domain (F1 0.9912 vs 0.9846), but fails completely to generalize across domains (RAGTruth AUROC = 0.337 vs EC-XGB AUROC = 0.582). Training an adapted encoder on exactly the same multi-source rows used to train EC-XGB reduces this domain-shift loss and raises the adapted encoder to 0.694, against EC-XGB's 0.582. This adaptation does not enable transfer learning, since neither the adapted encoder nor the original EC-XGB generalizes to the unseen QA task (adapted encoder = 0.490 vs original = 0.549), and even less so to FaithBench (adapted encoder = 0.434 vs original = 0.594). Adaptation improves any model's performance on seen tasks, whereas the feature model retains its relative ordering on unseen tasks.
 
-The split design is checked against a known confound. A row-level split, where the two rows of one question can fall into different partitions, inflates F1 to 0.9886. The grouped split corrects this to 0.9846, a drop of 0.004 in F1 and 0.0001 in AUROC.
+Single-answer behavior shows how individual answers can disagree in ways that aggregate measures hide. For example, if two answers were generated from one question and one context, both would have an exact match under the overlap heuristic. They could also produce an identical result for an NLI-only model. However, logistic regression, random forest, and XGBoost all produced different results.
 
 \begin{table}[pos=htbp]
   \centering
-  \caption{Test-set performance on HaluEval QA, mean over seeds 42/123/456 (n = 3{,}000). The ECE and Brier columns measure the reliability of each model's risk score. The neural baseline is a fine-tuned RoBERTa-base with 256-token inputs. The majority baseline predicts the negative class for every row. Probability-based metrics are undefined for a constant score.}
+  \caption{Test-set performance on HaluEval QA, mean over seeds 42/123/456 (n = 3{,}000). The ECE and Brier columns show the reliability of each model's risk score. The neural baseline is a fine-tuned RoBERTa-base with 256-token inputs. The majority baseline predicts the negative class for every row. Probability-based metrics cannot be calculated when the score is constant.}
   \label{tab:models}
   \footnotesize
   \begin{tabular}{lrrrrrrrr}
@@ -578,7 +578,6 @@ The split design is checked against a known confound. A row-level split, where t
   \end{tabular}
 \end{table}
 
-Single-answer behavior shows where aggregate metrics hide disagreements. For a grounded span and a hallucinated sentence that share one question and one context, the overlap heuristic and the NLI-only model fail to separate the pair. Logistic regression, random forest, and XGBoost separate it cleanly.
 
 \subsection{Evidence-consistent XGBoost}
 
