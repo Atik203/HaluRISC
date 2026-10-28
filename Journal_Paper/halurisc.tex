@@ -602,33 +602,6 @@ The benchmark is saturated, so this ablation is a preservation check rather than
   \end{tabular}
 \end{table}
 
-Table~\ref{tab:shift} shows where the modification matters. Every model is applied without retraining to the RAGTruth and FaithBench corpora. The conventional model flags almost every natural answer as risky, since 99.9\% of RAGTruth rows and 99.5\% of FaithBench rows cross the 0.5 threshold, which makes the decision rule useless outside the benchmark even though recall stays high. EC-XGB cuts the flag rate (the share of answers above the 0.5 threshold) to 61.3\% on the RAGTruth test tasks and to 7.3\% on FaithBench. It raises the AUROC from 0.475 to 0.582 and from 0.509 to 0.594, and it lowers the ECE on RAGTruth from 0.635 to 0.278. The held-out RAGTruth QA task is the strictest test, since its rows never enter training. There the F1 stays flat (0.3022 against 0.3081) and the ECE improves from 0.815 to 0.743, which shows that multi-source training does not transfer a new task for free. On FaithBench the conservative regime lowers the F1 from 0.813 to 0.120. The conventional model earns that F1 by flagging nearly every row, so the AUROC and the flag rate are the fair comparison at this operating point, and the F1 drop is reported as a limitation.
-
-\begin{table}[pos=htbp]
-  \centering
-  \caption{Cross-domain behavior, mean over seeds. Conventional is the B2 XGBoost trained on HaluEval only. Its external results are zero-shot. EC-XGB adds the RAGTruth non-QA training rows, so its summarization and data-to-text results measure adaptation, while its QA results are held out. RAGTruth all uses the 2{,}700-row test split, RAGTruth QA uses the 900-row held-out split, and FaithBench uses all 750 rows. Flagged is the share of rows above the 0.5 threshold.}
-  \label{tab:shift}
-  \footnotesize
-  \begin{tabular}{llcccc}
-    \toprule
-    \textbf{Corpus} & \textbf{Model} & \textbf{F1} & \textbf{AUROC} & \textbf{Flagged} & \textbf{ECE} \\
-    \midrule
-    RAGTruth all    & Conventional   & 0.5181      & 0.4753         & 99.9\%           & 0.6346       \\
-    RAGTruth all    & EC-XGB         & 0.5608      & 0.5815         & 61.3\%           & 0.2782       \\
-    \addlinespace
-    RAGTruth QA     & Conventional   & 0.3022      & 0.5465         & 99.9\%           & 0.8149       \\
-    RAGTruth QA     & EC-XGB         & 0.3081      & 0.5491         & 97.4\%           & 0.7433       \\
-    \addlinespace
-    FaithBench      & Conventional   & 0.8130      & 0.5089         & 99.5\%           & 0.2917       \\
-    FaithBench      & EC-XGB         & 0.1201      & 0.5941         & 7.3\%            & 0.4500       \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-The source-only operating point (P0) selects the threshold on the HaluEval validation split that maximizes recall under a five percent false-positive budget. The test false-positive rate stays near 5\% while recall stays above 99\%, a recall-first option at about one point of F1. Table~\ref{tab:target} puts both models on the same 900-row RAGTruth QA test set. Source calibration barely moves the ECE, while target Platt cuts it to 0.1335 for the conventional model and 0.1263 for EC-XGB, with isotonic close behind. The target-calibrated display score (P1) is the seed-42 target Platt fit, which moves the raw ECE from 0.726 to 0.126. The table reports three-seed means, which is why its raw and calibrated cells read 0.7433 and 0.1263.
-
-AUROC is unchanged by calibration, and every target-calibrated score falls below 0.5, so the fixed threshold predicts no positives. The target-thresholded mode (P2) selects a threshold on the target calibration split at a five percent false-positive budget (0.313). It recovers a test recall of 5.0\% at a 5.8\% false-positive rate (precision 15.7\%, F1 0.076; Wilson 95\% intervals: recall [2.6, 9.6], FPR [4.3, 7.7]). The test rate sits above the 5\% target because the threshold is fixed on calibration. Target recalibration fixes the probability scale, not the ranking. Already 252 labeled target rows give a test ECE of 0.133.
-
 \subsection{Calibration}
 
 Table~\ref{tab:calib} compares raw, Platt-scaled, and isotonic probabilities: the raw model is already well calibrated (ECE 0.0045), neither recalibration improves it, and the reliability diagrams confirm the same.
@@ -686,11 +659,39 @@ Figure~\ref{fig:calibshift} shows the raw and target-calibrated score distributi
   \label{fig:calibshift}
 \end{figure}
 
+The source-only operating point (P0) selects the threshold on the HaluEval validation split that maximizes recall under a five percent false-positive budget. The test false-positive rate stays near 5\% while recall stays above 99\%, a recall-first option at about one point of F1. Table~\ref{tab:target} puts both models on the same 900-row RAGTruth QA test set. Source calibration barely moves the ECE, while target Platt cuts it to 0.1335 for the conventional model and 0.1263 for EC-XGB, with isotonic close behind. The target-calibrated display score (P1) is the seed-42 target Platt fit, which moves the raw ECE from 0.726 to 0.126. The table reports three-seed means, which is why its raw and calibrated cells read 0.7433 and 0.1263.
+
+
+
+
+
+
+AUROC is unchanged by calibration, and every target-calibrated score falls below 0.5, so the fixed threshold predicts no positives. The target-thresholded mode (P2) selects a threshold on the target calibration split at a five percent false-positive budget (0.313). It recovers a test recall of 5.0\% at a 5.8\% false-positive rate (precision 15.7\%, F1 0.076; Wilson 95\% intervals: recall [2.6, 9.6], FPR [4.3, 7.7]). The test rate sits above the 5\% target because the threshold is fixed on calibration. Target recalibration fixes the probability scale, not the ranking. Already 252 labeled target rows give a test ECE of 0.133.
+
 \subsection{Cross-domain transfer}
 
-The transfer evaluation is the central negative result. The conventional model is applied without adaptation, so its external numbers are zero-shot. EC-XGB has seen the RAGTruth summarization and data-to-text rows, so those results measure adaptation. The EC-XGB held-out QA classifier is zero-shot, but the QA display score is target-calibrated and is not. FaithBench is scored with the source calibrator because no official calibration split exists.
+The conventional model is applied without retraining, so its external numbers are zero-shot; EC-XGB has seen the RAGTruth summarization and data-to-text rows, so those results measure adaptation. Table~\ref{tab:shift} shows where the modification matters. The conventional model flags almost every natural answer as risky, since 99.9\% of RAGTruth rows and 99.5\% of FaithBench rows cross the 0.5 threshold, which makes the decision rule useless outside the benchmark even though recall stays high. EC-XGB cuts the flag rate (the share of answers above the 0.5 threshold) to 61.3\% on the RAGTruth test tasks and to 7.3\% on FaithBench. It raises the AUROC from 0.475 to 0.582 and from 0.509 to 0.594, and it lowers the ECE on RAGTruth from 0.635 to 0.278. The held-out RAGTruth QA task is the strictest test, since its rows never enter training. There the F1 stays flat (0.3022 against 0.3081) and the ECE improves from 0.815 to 0.743, which shows that multi-source training does not transfer a new task for free. On FaithBench the conservative regime lowers the F1 from 0.813 to 0.120. The conventional model earns that F1 by flagging nearly every row, so the AUROC and the flag rate are the fair comparison at this operating point, and the F1 drop is reported as a limitation.
 
-On the full 17{,}790-row RAGTruth corpus the conventional model reaches an F1 of 0.603, an AUROC of 0.497, and an ECE of 0.560. Its recall is 1.0 on every corpus: it flags almost everything, precision lands on the label prior, and the AUROC stays near 0.5 because synthetic HaluEval hallucinations differ from natural responses. On FaithBench the same model reaches an F1 of 0.8130 and an AUROC of 0.5314. Task populations repeat the pattern (F1 0.4515 QA, 0.4603 summarization, 0.8140 data-to-text), rising from 0.4940 on very short contexts to 0.7091 at 128 to 511 characters. Table~\ref{tab:shift} reports the EC-XGB comparison on the 2{,}700-row test split, whose lower positive rate (35\% against 43\%) explains the lower level. Group-aware bootstrap intervals (1{,}000 resamples) keep the held-out QA AUROC near chance ([0.514, 0.607] conventional, [0.502, 0.603] EC-XGB), and Figure~\ref{fig:transferscore} plots the score distributions.
+\begin{table}[pos=htbp]
+  \centering
+  \caption{Cross-domain behavior, mean over seeds. Conventional is the B2 XGBoost trained on HaluEval only. Its external results are zero-shot. EC-XGB adds the RAGTruth non-QA training rows, so its summarization and data-to-text results measure adaptation, while its QA results are held out. RAGTruth all uses the 2{,}700-row test split, RAGTruth QA uses the 900-row held-out split, and FaithBench uses all 750 rows. Flagged is the share of rows above the 0.5 threshold.}
+  \label{tab:shift}
+  \footnotesize
+  \begin{tabular}{llcccc}
+    \toprule
+    \textbf{Corpus} & \textbf{Model} & \textbf{F1} & \textbf{AUROC} & \textbf{Flagged} & \textbf{ECE} \\
+    \midrule
+    RAGTruth all    & Conventional   & 0.5181      & 0.4753         & 99.9\%           & 0.6346       \\
+    RAGTruth all    & EC-XGB         & 0.5608      & 0.5815         & 61.3\%           & 0.2782       \\
+    \addlinespace
+    RAGTruth QA     & Conventional   & 0.3022      & 0.5465         & 99.9\%           & 0.8149       \\
+    RAGTruth QA     & EC-XGB         & 0.3081      & 0.5491         & 97.4\%           & 0.7433       \\
+    \addlinespace
+    FaithBench      & Conventional   & 0.8130      & 0.5089         & 99.5\%           & 0.2917       \\
+    FaithBench      & EC-XGB         & 0.1201      & 0.5941         & 7.3\%            & 0.4500       \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 \begin{figure}[pos=htbp]
   \centering
@@ -698,6 +699,8 @@ On the full 17{,}790-row RAGTruth corpus the conventional model reaches an F1 of
   \caption{Raw model score distributions on the HaluEval test set and the external corpora, with the 0.5 threshold marked. The source panel separates the classes, while every external panel piles both labels at 1.0.}
   \label{fig:transferscore}
 \end{figure}
+
+
 
 \subsection{Ablation}
 
