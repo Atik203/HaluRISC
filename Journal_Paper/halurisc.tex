@@ -514,7 +514,7 @@ Evaluation uses precision, recall, F1, the area under the receiver operating cha
 
 \subsection{Additional Protocols}
 
-Raw, Platt, and isotonic probabilities are compared on the test split. Calibration is known to degrade under distribution shift \cite{ovadia2019}, so the target-domain protocol follows the same principle. Section~\ref{sec:proposed} names the three protocols (P0, P1, and P2, summarized in Table~\ref{tab:protocols}) and the split that fits each one. All P1 and P2 numbers come from the disjoint 900-row test set, and no test label enters either fit.
+Calibration methods were evaluated through a comparison of the three probability sets (raw, Platt, and isotonic) on the test split. As well as being influenced by distribution shift \cite{ovadia2019}, the same comparison was performed during the target-domain evaluation. Section~\ref{sec:proposed} presents the details of the three protocols (P0, P1, and P2; presented in Table~\ref{tab:protocols}), along with the row split for each protocol.
 
 \begin{table}[pos=htbp]
   \centering
@@ -532,11 +532,17 @@ Raw, Platt, and isotonic probabilities are compared on the test split. Calibrati
   \end{tabular}
 \end{table}
 
-Global explanations come from a SHAP TreeExplainer \cite{shap} over the raw XGBoost model. Three measurements check whether the explanations are trustworthy. First, the mean absolute SHAP ranking is compared against permutation importance with a Kendall tau correlation. Second, the top-5 feature set is re-estimated from 1{,}000 bootstrap resamples and compared with the Jaccard index.
+Both P1 and P2 metrics utilized the 900 rows of the test set. No calibration row used to fit either model overlaps this subset.
 
-Third, two perturbation studies are run on the test answers. Content edits replace entities, numbers, or dates, remove the supporting context, or insert an irrelevant sentence, and each edit should move the calibrated score if it changes the evidence. Structure edits shuffle the clause order, and these should leave the score nearly unchanged. For each operator the mean absolute score change, the fraction of large score changes, the top-1 SHAP flip rate, and the Spearman correlation between the original and perturbed scores are recorded. A neutralization study sets the top-$k$ SHAP features of each sample to its median and tracks the mean score change for $k = 1, 3, 5, 10$.
+SHAP \cite{shap} TreeExplainers provide global explanations for the raw XGBoost model. There are three ways to determine whether these explanations can be trusted. First, the mean absolute SHAP ranking is compared with permutation importance via Kendall's tau correlation. Secondly, the top five feature set is re-estimated based upon 1{,}000 bootstrap resamples of the data, then the Jaccard index is computed between these two feature sets. Finally, two perturbation studies are performed on the test responses.
 
-Latency is measured on 200 test samples on the reference laptop with an RTX 3060 6\,GB GPU, where NLI and embeddings run on the GPU and the remaining features on the CPU. The LLM-as-judge comparison uses GPT 5.6 Luna, a standard but biased comparator \cite{zheng2023judge}, on the same 200 samples with a fixed prompt, and the cost is computed from the recorded token counts.
+In content edits, entities, numbers, or dates are changed, supporting context is removed or an unrelated sentence is added to the content; each edit should affect the calibrated score if it alters the evidence. In structural edits, clause order is modified; the calibrated score should remain constant under such modifications. Four different metrics are computed for each type of operator.
+
+The first metric is the mean absolute score change of each operator. The second metric is the proportion of operators for which a ``large'' change occurred. The third metric is the top-1 SHAP flip rate of each operator. The fourth metric is the Spearman rank correlation between original and perturbed scores.
+
+A neutralization study determines how much the score assigned to each sample by a model will change once its $k$ largest SHAP feature values have been reset to their respective medians. Mean changes are reported over samples for $k = 1, 3, 5, 10$.
+
+Latency was determined on 200 test samples on a reference laptop equipped with an NVIDIA GeForce RTX 3060 6\,GB GPU. Features in the models other than those corresponding to NLI and embedding computations ran on the CPU. Latency was also measured on the same 200 samples using GPT 5.6 Luna \cite{zheng2023judge}, a biased model that serves as a standard judge comparison, with a fixed prompt, and costs were calculated from the recorded token counts.
 
 \section{Results}\label{sec:results}
 
