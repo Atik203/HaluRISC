@@ -476,7 +476,9 @@ Figure~\ref{fig:screens} presents the analyze page for the hallucinated-number c
 
 \subsection{Experimental Setup and Conditions}
 
-All experiments run on a Windows 11 laptop with an NVIDIA RTX 3060 6\,GB GPU (CUDA 12.8, torch 2.11.0+cu128) and 32\,GB of RAM, and the code runs on Python 3.12. The model uses scikit-learn 1.9.0, XGBoost 3.3.0, SHAP 0.52.0, spaCy 3.8.14, and sentence-transformers 5.6.1. Saved split indices and centralized seeds make every run reproducible.
+All experiments were run on a Windows-based computer (laptop), with an NVIDIA RTX 3060 6\,GB GPU, CUDA 12.8, torch 2.11.0+cu128, and 32\,GB of RAM. The programming language used to run the code is Python. The Python version used in this experiment is 3.12. The code utilizes the following packages: scikit-learn 1.9.0, XGBoost 3.3.0, SHAP 0.52.0, spaCy 3.8.14, and sentence-transformers 5.6.1. Each run can be reproduced because of saved split indices and centralized seeds.
+
+A randomized search was performed over 30 hyperparameter configurations with grouped five-fold cross-validation. The configuration used for XGBoost has a maximum tree depth of 4, a learning rate of 0.01, 500 trees, a subsampling ratio of 0.9, and a column sampling ratio of 0.7. Seeds 42, 123, and 456 are repeated throughout.
 
 \subsection{Dataset}
 
@@ -508,13 +510,7 @@ Nine methods are tested. The overlap heuristic sets risk to one minus the lexica
 
 A RoBERTa-base classifier fine-tuned on the labeled source data provides the source-only neural evaluation \cite{liu2019roberta}. The classifier receives the answer, question, and context as a single input sequence of up to 256 tokens. The model is trained with binary cross-entropy loss for three epochs. Platt scaling is fitted on the validation split.
 
-\subsection{Parameter Configuration}
-
-Hyperparameters come from a randomized search over 30 configurations, scored with grouped 5-fold cross-validation on the training split. For XGBoost the search selects depth 4, learning rate 0.01, 500 trees, subsample 0.9, and column subsample 0.7, with a cross-validated AUROC of 0.9970. The neural baseline uses 256-token inputs, three epochs, and binary cross-entropy, and its Platt calibrator is fitted on validation, never on test rows. Table~\ref{tab:protocols} fixes the calibrator and threshold for each protocol, and seeds 42, 123, and 456 are repeated throughout.
-
-\subsection{Evaluation Metrics}
-
-Evaluation uses precision, recall, F1, AUROC, the area under the precision-recall curve (PR-AUC), and the Matthews correlation coefficient (MCC). Calibration is measured with expected calibration error over 10 bins, the Brier score, and negative log-likelihood. Metric tables report four decimals, and latency is reported in milliseconds. Significance is assessed with McNemar's test on the paired seed-42 test predictions, bootstrap 95\% confidence intervals from 1{,}000 resamples over question or source groups, and a Wilcoxon signed-rank test across seeds. The group structure is respected everywhere, so the two rows of one question never appear in both the training and the evaluation folds.
+Evaluation uses precision, recall, F1, the area under the receiver operating characteristic curve (AUROC), the area under the precision-recall curve (PR-AUC), and the Matthews correlation coefficient (MCC). Calibration is measured with expected calibration error over 10 bins, the Brier score, and negative log-likelihood. Metrics are reported to four decimal places, and latency in milliseconds. Significance is assessed with McNemar's test on the paired seed-42 predictions, bootstrap 95\% confidence intervals from 1{,}000 resamples over question or source groups, and a Wilcoxon signed-rank test across seeds. Rows that represent the same question never occur in both the training and evaluation splits.
 
 \subsection{Additional Protocols}
 
