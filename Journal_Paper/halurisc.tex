@@ -480,9 +480,9 @@ All experiments run on a Windows 11 laptop with an NVIDIA RTX 3060 6\,GB GPU (CU
 
 \subsection{Dataset}
 
-The QA subset of HaluEval \cite{haluEval} is the training source. It contains 10{,}000 questions, each with a knowledge passage, a correct answer, and a hallucinated answer, which gives 20{,}000 labeled rows. The rows are split 70/15/15 at the question-group level, producing 14{,}000 training, 3{,}000 validation, and 3{,}000 test rows. Both answer variants of a question share the same context, so a random split would let the model memorize the pairing.
+The QA subset of HaluEval \cite{haluEval} serves as the training data. This dataset has 10{,}000 questions. Each question has a knowledge passage that it is based upon, a correct answer, and a hallucinated version of that answer. Therefore, there are 20{,}000 rows of labeled data. The 20{,}000 rows are split 70/15/15 at the group level into 14{,}000 training, 3{,}000 validation, and 3{,}000 test rows. Since both versions of the answer to each question come from the same knowledge passage, the model can easily learn the relationship between the context and the answers, so the split is at the group level.
 
-Transfer is measured on RAGTruth \cite{ragtruth}, a corpus of naturally generated responses with human word-level span annotations, and on FaithBench \cite{faithbench}, a summarization hallucination benchmark built from modern LLM outputs. The RAGTruth QA task contributes 5{,}934 rows in 989 groups, of which 5{,}034 rows (839 groups) form the recalibration set and 900 rows (150 groups) the held-out test, with no overlapping groups between the two. Table~\ref{tab:datasets} summarizes the corpora.
+Transfer was evaluated using two datasets. First, RAGTruth \cite{ragtruth}: a collection of responses produced through natural processes that have been annotated with word-level spans by humans. Second, FaithBench \cite{faithbench}: a hallucination-based summarization benchmark based on outputs from modern large language models. The RAGTruth QA task contributed 5{,}934 rows of QA tasks in 989 groups. The remaining 900 rows in 150 groups formed the test set, and none of these groups overlap with those used in the recalibration set. The summary of the corpora is provided in Table~\ref{tab:datasets}.
 
 \begin{table}[pos=htbp]
   \centering
@@ -500,7 +500,7 @@ Transfer is measured on RAGTruth \cite{ragtruth}, a corpus of naturally generate
   \end{tabular}
 \end{table}
 
-Text is whitespace-normalized. Lexical features operate on lowercased token sets, while NER and NLI keep the original casing. Missing context is handled explicitly, with lexical overlap set to zero and NLI probabilities to one third. All three corpora are used under their original licenses: HaluEval and RAGTruth are MIT-licensed, and FaithBench is distributed under CC BY-NC-SA 4.0. Raw files are not redistributed. The repository ships the download scripts, source revisions, and SHA-256 hashes instead, so every split can be regenerated from the original repositories.
+Text is normalized for whitespace. Lexical features work on lowercased token collections. NER and NLI use the original case. Missing context is treated as a special condition. Lexical overlap is 0, and NLI has all probabilities equal to one third. All three of these datasets were developed using their original licensing agreements: HaluEval and RAGTruth (MIT) and FaithBench (CC BY-NC-SA 4.0). The raw data is not redistributed; however, the repository ships the download scripts, the source revisions, and the SHA-256 hashes, which allows regeneration of each of the splits based upon the original repositories.
 
 \subsection{Experimental Procedure}
 
