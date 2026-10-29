@@ -606,7 +606,7 @@ When the monotone constraints were removed, there was no effect on the F1 score.
 
 \subsection{Calibration}
 
-Table~\ref{tab:calib} compares raw, Platt-scaled, and isotonic probabilities: the raw model is already well calibrated (ECE 0.0045), neither recalibration improves it, and the reliability diagrams confirm the same.
+The raw, Platt-scaled, and isotonic models are compared in Table~\ref{tab:calib}: all three have a very low ECE (raw 0.0045, Platt 0.0091, isotonic 0.0070), but calibration does not improve on the raw model, and the HaluEval reliability plot confirms this.
 
 \begin{table}[pos=htbp]
   \centering
@@ -661,14 +661,9 @@ Figure~\ref{fig:calibshift} shows the raw and target-calibrated score distributi
   \label{fig:calibshift}
 \end{figure}
 
-The source-only operating point (P0) selects the threshold on the HaluEval validation split that maximizes recall under a five percent false-positive budget. The test false-positive rate stays near 5\% while recall stays above 99\%, a recall-first option at about one point of F1. Table~\ref{tab:target} puts both models on the same 900-row RAGTruth QA test set. Source calibration barely moves the ECE, while target Platt cuts it to 0.1335 for the conventional model and 0.1263 for EC-XGB, with isotonic close behind. The target-calibrated display score (P1) is the seed-42 target Platt fit, which moves the raw ECE from 0.726 to 0.126. The table reports three-seed means, which is why its raw and calibrated cells read 0.7433 and 0.1263.
+The source-only operating point (P0) is used to select the threshold on the HaluEval validation split that maximizes recall under a 5\% false-positive budget. Recall stays between 99.0\% and 99.5\%, and the test false-positive rate stays near 5\% as well. This is an example of selecting based on a recall-first approach and results in approximately a one-point loss in F1. Table~\ref{tab:target} puts both models on the same 900-row RAGTruth QA test set. Source calibration has little impact on the ECE, whereas target Platt calibration brings the ECE down to 0.1335 for the conventional model and 0.1263 for EC-XGB, with isotonic essentially tied. The target-calibrated display score (P1) was created using the target Platt fit for seed 42. This reduces the raw ECE from 0.726 to 0.126. The table shows average values over three seeds, so each cell reflects an average, and the EC-XGB raw and calibrated cells read 0.7433 and 0.1263.
 
-
-
-
-
-
-AUROC is unchanged by calibration, and every target-calibrated score falls below 0.5, so the fixed threshold predicts no positives. The target-thresholded mode (P2) selects a threshold on the target calibration split at a five percent false-positive budget (0.313). It recovers a test recall of 5.0\% at a 5.8\% false-positive rate (precision 15.7\%, F1 0.076; Wilson 95\% intervals: recall [2.6, 9.6], FPR [4.3, 7.7]). The test rate sits above the 5\% target because the threshold is fixed on calibration. Target recalibration fixes the probability scale, not the ranking. Already 252 labeled target rows give a test ECE of 0.133.
+There were no changes to AUROC due to target Platt calibration. Every target-calibrated test score is below 0.5, so the fixed threshold predicts zero positives. The target-thresholded mode (P2) selects a threshold at a 5\% false-positive budget (0.313) on the target calibration split. P2 achieves a test recall of 5.0\% at a false-positive rate of 5.8\% (precision 15.7\%, F1 = 0.076; Wilson 95\% intervals: recall [2.6, 9.6], FPR [4.3, 7.7]). The test rate exceeds the 5\% target because the threshold is fixed on calibration. Target recalibration fixes the probability scale, not the ranking. Already 252 labeled target rows give a test ECE of 0.133.
 
 \subsection{Cross-domain transfer}
 
