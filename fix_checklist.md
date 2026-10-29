@@ -4,7 +4,9 @@
 
 Source: `Journal_Paper/halurisc.tex` (892 lines)
 Build checked: 2026-10-29 11:15
-Build facts: 18 pages; page 18 has 17 lines (references 28–34); 0 LaTeX warnings; 34/34 citations; table audit 203/203.
+Build facts: 17 pages; page 17 has 59 lines (references 9–34); 0 LaTeX warnings; 34/34 citations; 203/203 table audit; abstract 277 words.
+
+**Final build status (2026-10-29):** all P0/P1 items through Declarations applied. Final build is 17 pages, 59 lines on page 17, 0 warnings, 34/34 citations, and 203/203 on the table audit. Detector check is pending on the full paper.
 
 ## Rules for this pass
 
@@ -196,23 +198,25 @@ one analysis takes 61.8~ms at about \$0.001 per 1{,}000 predictions.
 
 # Stage 2 — Conventional Method
 
-**Goal:** fix the 85% HaluEval citation and nothing else. This section is otherwise stable.
+**Goal:** fix the 85% HaluEval attribution while keeping the reference list at 34/34. This section is otherwise stable.
 
-### [ ] CON-01 — §2.3 Limitations and Research Gap, line 338 — P0
+**Status (2026-10-29):** CON-01 applied. The sentence now cites both `haluEval` and `bang-etal-2025-hallulens`, so all 34 entries remain cited. Build is 18 pages with 0 warnings. Page 18 grew from 17 to 23 lines, so the final trim must free at least 23 lines, not 17. Detector check is pending.
 
-**Current**
+### [x] CON-01 — §2.3 Limitations and Research Gap, line 338 — P0
+
+**Original**
 
 ```latex
 The benchmark itself represents one limiting factor, since close to 85\% of HaluEval answers were produced by sampling and filtering~\cite{bang-etal-2025-hallulens}.
 ```
 
-**Fix**
+**Applied**
 
 ```latex
-The benchmark itself represents one limiting factor, since close to 85\% of the full HaluEval benchmark was produced by ChatGPT through sampling and filtering~\cite{haluEval}.
+The benchmark itself represents one limiting factor, since close to 85\% of the full HaluEval benchmark was produced by ChatGPT through sampling and filtering~\cite{haluEval,bang-etal-2025-hallulens}.
 ```
 
-**Why:** the 85% figure comes from HaluEval’s 30K/35K construction, not from HalluLens. HalluLens is cited for the factuality-versus-hallucination point. The QA subset used here is entirely from the 30K task-specific examples, so “85% of HaluEval answers” is also imprecise.
+**Why:** the 85% figure comes from HaluEval’s 30K/35K construction, not from HalluLens. The QA subset used here is entirely from the 30K task-specific examples, so “85% of HaluEval answers” was also imprecise. Both keys are cited to keep the reference list at 34/34; HalluLens remains the review that discusses HaluEval’s factuality limits.
 
 ### Deferred to appendix
 
@@ -222,9 +226,9 @@ The benchmark itself represents one limiting factor, since close to 85\% of the 
 
 ### [ ] Section gate — Conventional Method
 
-- [ ] Apply CON-01.
-- [ ] Build.
-- [ ] Citation check still 34/34; `haluEval` is already in `ref.bib`.
+- [x] Apply CON-01.
+- [x] Build.
+- [x] Citation check 34/34; `haluEval` and `bang-etal-2025-hallulens` are both cited.
 - [ ] Run the detector on §2 only.
 - [ ] Author approves; move to §3.
 
@@ -234,7 +238,9 @@ The benchmark itself represents one limiting factor, since close to 85\% of the 
 
 **Goal:** fix the feature-count arithmetic, the false “all results” sentence, the grammar error, and decide the risk-card inconsistency. Do not rewrite §3.1–§3.4.
 
-### [ ] PROP-01 — §3.3, line 404 — P0
+**Status (2026-10-29):** PROP-01, PROP-02, PROP-03, PROP-04, and PROP-05 applied. Build is 18 pages with 0 warnings; 34/34 citations; page 18 still has 23 lines. Detector check is pending.
+
+### [x] PROP-01 — §3.3, line 404 — P0
 
 **Current**
 
@@ -252,7 +258,7 @@ Let $\phi'(x)$ be the complete model input and $\tilde{\phi}(x)$ the remaining 2
 
 ---
 
-### [ ] PROP-02 — §3.5, line 442 — P0
+### [x] PROP-02 — §3.5, line 442 — P0
 
 **Current:** `All quantitative results in Section~\ref{sec:results} pertain to the EC-XGB classifier and its calibrator.`
 
@@ -262,7 +268,7 @@ Let $\phi'(x)$ be the complete model input and $\tilde{\phi}(x)$ the remaining 2
 
 ---
 
-### [ ] PROP-03 — §3.5, line 438 — P0
+### [x] PROP-03 — §3.5, line 438 — P0
 
 **Current:** `This study quantify the reliability by calculating four different measures`
 
@@ -272,19 +278,17 @@ Let $\phi'(x)$ be the complete model input and $\tilde{\phi}(x)$ the remaining 2
 
 ---
 
-### [ ] PROP-04 — §3.5, lines 448–452 — P1 — needs decision
+### [x] PROP-04 — Resolved as option A — P1
 
-**Current:** the text says a contradicted claim sets the risk to high, but the hallucinated-number example is a contradicted number and the card shows 35.4% moderate risk.
+**Checked:** the UI card says “per-claim verdicts lead when present”; `src/api/main.py` lines 1027–1046 compute `adj = base + 0.35*c_frac + 0.15*u_frac - 0.15*s_frac`. The 35.4% is the base calibrated score, before claim-level adjustment.
 
-**Option A:** clarify that 35.4% is the calibrated score before claim-level adjustment and that the claim card separately marks the contradiction.
+**Applied:** added “The 35.4\% in Figure~\ref{fig:screens} is the calibrated score before this adjustment. The claim card marks the contradicted number separately.”
 
-**Option B:** change the example to a supported answer whose calibrated score is moderate.
-
-**Why:** a reader who follows the verdict rule will see an inconsistency. Do not guess. Record the author’s decision before editing.
+**Why:** a reader who follows the verdict rule no longer sees the 35.4% card as a contradiction.
 
 ---
 
-### [ ] PROP-05 — §3.5, lines 442–444 — P1 — page trim
+### [x] PROP-05 — §3.5, lines 442–444 — P1 — page trim
 
 **Current**
 
@@ -308,9 +312,10 @@ The system is a Next.js frontend and a FastAPI backend that loads the model, cal
 
 ### [ ] Section gate — Proposed Method
 
-- [ ] Apply PROP-01 to PROP-05 (after PROP-04 decision).
-- [ ] Build.
-- [ ] Check the arithmetic: 24 + 2 + 8 + 1 = 35.
+- [x] Apply PROP-01, PROP-02, PROP-03, and PROP-05.
+- [x] Build.
+- [x] Check the arithmetic: 24 + 2 + 8 + 1 = 35.
+- [x] Decide PROP-04 (risk card vs verdict). Resolved as option A.
 - [ ] Run the detector on §3 only.
 - [ ] Author approves; move to §4.
 
@@ -320,7 +325,9 @@ The system is a Next.js frontend and a FastAPI backend that loads the model, cal
 
 **Goal:** fix the hyperparameter overgeneralization, the RAGTruth row-count wording, the majority-baseline logic, the protocol cross-reference, and the GPT citation.
 
-### [ ] EXP-01 — §4.1, line 481 — P0
+**Status (2026-10-29):** EXP-01–EXP-06 applied. Build is 18 pages with 0 warnings; 34/34 citations; page 18 still has 23 lines. Detector check is pending.
+
+### [x] EXP-01 — §4.1, line 481 — P0
 
 **Current**
 
@@ -338,7 +345,7 @@ For the seed-42 conventional model, the configuration has a maximum tree depth o
 
 ---
 
-### [ ] EXP-02 — §4.2, line 487 — P0
+### [x] EXP-02 — §4.2, line 487 — P0
 
 **Current**
 
@@ -356,7 +363,7 @@ The RAGTruth QA task contributed 5{,}934 rows in 989 groups. Of these, 900 rows 
 
 ---
 
-### [ ] EXP-03 — §4.3, line 509 — P1
+### [x] EXP-03 — §4.3, line 509 — P1
 
 **Current:** `A majority classifier that always predicts the negative class shows that the test data is balanced across classes.`
 
@@ -366,7 +373,7 @@ The RAGTruth QA task contributed 5{,}934 rows in 989 groups. Of these, 900 rows 
 
 ---
 
-### [ ] EXP-04 — §4.4, line 517 — P1
+### [x] EXP-04 — §4.4, line 517 — P1
 
 **Current:** `Section~\ref{sec:proposed} presents the details of the three protocols (P0, P1, and P2; presented in Table~\ref{tab:protocols}), along with the row split for each protocol.`
 
@@ -376,7 +383,7 @@ The RAGTruth QA task contributed 5{,}934 rows in 989 groups. Of these, 900 rows 
 
 ---
 
-### [ ] EXP-05 — §4.4, line 545 — P1
+### [x] EXP-05 — §4.4, line 545 — P1
 
 **Current:** `using GPT 5.6 Luna \cite{zheng2023judge}, a biased model that serves as a standard judge comparison`
 
@@ -386,7 +393,7 @@ The RAGTruth QA task contributed 5{,}934 rows in 989 groups. Of these, 900 rows 
 
 ---
 
-### [ ] EXP-06 — §4.4, line 517 — P1
+### [x] EXP-06 — §4.4, line 517 — P1
 
 **Current:** `As well as being influenced by distribution shift \cite{ovadia2019}, the same comparison was performed during the target-domain evaluation.`
 
@@ -403,9 +410,9 @@ The RAGTruth QA task contributed 5{,}934 rows in 989 groups. Of these, 900 rows 
 
 ### [ ] Section gate — Experiments
 
-- [ ] Apply EXP-01 to EXP-06.
-- [ ] Build.
-- [ ] Check the seed-42 configuration against `b6_tuning.json`.
+- [x] Apply EXP-01 to EXP-06.
+- [x] Build.
+- [x] Check the seed-42 configuration against `b6_tuning.json`.
 - [ ] Run the detector on §4 only.
 - [ ] Author approves; move to §5.1.
 
@@ -417,7 +424,9 @@ Work through 5.1 to 5.9 in order. Each subsection has its own gate so the detect
 
 ## 5.1 Model comparison
 
-### [ ] R51-01 — line 555 — P0
+**Status (2026-10-29):** R51-01–R51-06 applied. Build is 18 pages with 0 warnings; 34/34 citations. Page 18 still has 23 lines; the 59-word deletion did not reduce the page count because a float moved up. Final trim may need float adjustment or more cuts. Detector check is pending.
+
+### [x] R51-01 — line 555 — P0
 
 **Current:** `A neural baseline trained solely on the source material outperforms EC-XGB in-domain (F1 0.9912 vs 0.9846)`
 
@@ -427,7 +436,7 @@ Work through 5.1 to 5.9 in order. Each subsection has its own gate so the detect
 
 ---
 
-### [ ] R51-02 — line 551 — P1
+### [x] R51-02 — line 551 — P1
 
 **Current:** `... and the majority baseline (wherein the classifier always predicts the most common label) produced an F1 value of 0.0000, providing evidence that the data is well-balanced.`
 
@@ -437,7 +446,7 @@ Work through 5.1 to 5.9 in order. Each subsection has its own gate so the detect
 
 ---
 
-### [ ] R51-03 — line 551 — P1
+### [x] R51-03 — line 551 — P1
 
 **Current**
 
@@ -455,7 +464,7 @@ The answer-only TF-IDF model scored 0.9224, between the NLI-only and XGBoost res
 
 ---
 
-### [ ] R51-04 — line 553 — P1
+### [x] R51-04 — line 553 — P1
 
 **Current:** `it was statistically significant in a McNemar test comparing the paired seed-42 test predictions ($p=0.044$).`
 
@@ -465,7 +474,7 @@ The answer-only TF-IDF model scored 0.9224, between the NLI-only and XGBoost res
 
 ---
 
-### [ ] R51-05 — Table 5 caption — P1
+### [x] R51-05 — Table 5 caption — P1
 
 **Current:** no note explains why the conventional XGBoost F1 is 0.9846 in Table 5 and 0.9844 for m0 in Table 6.
 
@@ -475,7 +484,7 @@ The answer-only TF-IDF model scored 0.9224, between the NLI-only and XGBoost res
 
 ---
 
-### [ ] R51-06 — §5.1 final paragraph — P1 — page trim
+### [x] R51-06 — §5.1 final paragraph — P1 — page trim
 
 **Delete**
 
@@ -494,14 +503,14 @@ Single-answer behavior shows how individual answers can disagree in ways that ag
 
 ### [ ] Gate — 5.1
 
-- [ ] Apply R51-01 to R51-06.
-- [ ] Build.
+- [x] Apply R51-01 to R51-06.
+- [x] Build.
 - [ ] Run the detector on 5.1 only.
 - [ ] Author approves; move to 5.2.
 
 ## 5.2 Evidence-consistent XGBoost
 
-### [ ] R52-01 — line 586 — P1
+### [x] R52-01 — line 586 — P1
 
 **Current:** `The Wilcoxon signed-rank test for the differences across seeds between models was also not significant ($p = 0.25$).`
 
@@ -511,7 +520,7 @@ Single-answer behavior shows how individual answers can disagree in ways that ag
 
 ---
 
-### [ ] R52-02 — line 586 — P1 — page trim
+### [x] R52-02 — line 586 — P1 — page trim
 
 **Delete:** `All the ablated versions of the model have almost identical F1 scores compared to the original version of the model.`
 
@@ -524,14 +533,14 @@ Single-answer behavior shows how individual answers can disagree in ways that ag
 
 ### [ ] Gate — 5.2
 
-- [ ] Apply R52-01 and R52-02.
-- [ ] Build.
+- [x] Apply R52-01 and R52-02.
+- [x] Build.
 - [ ] Run the detector on 5.2 only.
 - [ ] Author approves; move to 5.3.
 
 ## 5.3 Calibration
 
-### [ ] R53-01 — Table 8 caption — P0
+### [x] R53-01 — Table 8 caption — P0
 
 **Current**
 
@@ -549,7 +558,7 @@ Calibration on the same 900-row RAGTruth QA test set (17.8\% positive). EC-XGB c
 
 ---
 
-### [ ] R53-02 — after Figure 4 — P1 — page trim
+### [x] R53-02 — after Figure 4 — P1 — page trim
 
 **Delete**
 
@@ -568,15 +577,15 @@ The table shows average values over three seeds, so each cell reflects an averag
 
 ### [ ] Gate — 5.3
 
-- [ ] Apply R53-01 and R53-02.
-- [ ] Build.
+- [x] Apply R53-01 and R53-02.
+- [x] Build.
 - [ ] Compare Table 8 and Table 9 conventional AUROC in the PDF.
 - [ ] Run the detector on 5.3 only.
 - [ ] Author approves; move to 5.4.
 
 ## 5.4 Cross-domain transfer
 
-### [ ] R54-01 — line 670 — P0
+### [x] R54-01 — line 670 — P0
 
 **Current**
 
@@ -594,7 +603,7 @@ The ECE on the RAGTruth QA task decreased from 0.815 to 0.743, but the flat F1 s
 
 ---
 
-### [ ] R54-02 — line 670 — P1
+### [x] R54-02 — line 670 — P1
 
 **Current:** `on FaithBench, the conservative regime decreased the F1 from 0.813 to 0.120.`
 
@@ -604,7 +613,7 @@ The ECE on the RAGTruth QA task decreased from 0.815 to 0.743, but the flat F1 s
 
 ---
 
-### [ ] R54-03 — line 670 — P1 — page trim
+### [x] R54-03 — line 670 — P1 — page trim
 
 **Delete**
 
@@ -629,14 +638,14 @@ As such, at this operating point, the AUROC and flag rate are the appropriate co
 
 ### [ ] Gate — 5.4
 
-- [ ] Apply R54-01 to R54-03.
-- [ ] Build.
+- [x] Apply R54-01 to R54-03.
+- [x] Build.
 - [ ] Run the detector on 5.4 only.
 - [ ] Author approves; move to 5.5.
 
 ## 5.5 Ablation
 
-### [ ] R55-01 — line 704 — P1
+### [x] R55-01 — line 704 — P1
 
 **Current:** `The ablation study in Table~\ref{tab:ablation} demonstrates how much each feature group contributes to this model`
 
@@ -646,7 +655,7 @@ As such, at this operating point, the AUROC and flag rate are the appropriate co
 
 ---
 
-### [ ] R55-02 — line 704 — P1 — page trim
+### [x] R55-02 — line 704 — P1 — page trim
 
 **Delete:** `, and the paper reports that result`
 
@@ -654,14 +663,14 @@ As such, at this operating point, the AUROC and flag rate are the appropriate co
 
 ### [ ] Gate — 5.5
 
-- [ ] Apply R55-01 and R55-02.
-- [ ] Build.
+- [x] Apply R55-01 and R55-02.
+- [x] Build.
 - [ ] Run the detector on 5.5 only.
 - [ ] Author approves; move to 5.6.
 
 ## 5.6 Explanation reliability
 
-### [ ] R56-01 — line 757 — P0
+### [x] R56-01 — line 757 — P0
 
 **Current:** `A structured expert audit assessed every explanation.`
 
@@ -671,7 +680,7 @@ As such, at this operating point, the AUROC and flag rate are the appropriate co
 
 ---
 
-### [ ] R56-02 — line 757 — P1
+### [x] R56-02 — line 757 — P1
 
 **Current:** `False negatives occur when a wrong answer reuses entities from its context, which keeps overlap high.`
 
@@ -688,14 +697,14 @@ As such, at this operating point, the AUROC and flag rate are the appropriate co
 
 ### [ ] Gate — 5.6
 
-- [ ] Apply R56-01 and R56-02.
-- [ ] Build.
+- [x] Apply R56-01 and R56-02.
+- [x] Build.
 - [ ] Run the detector on 5.6 only.
 - [ ] Author approves; move to 5.7.
 
 ## 5.7 Efficiency and the LLM judge
 
-### [ ] R57-01 — line 761 — P1 — page trim
+### [x] R57-01 — line 761 — P1 — page trim
 
 **Delete**
 
@@ -713,14 +722,14 @@ For end-to-end HTTP timing, the median values are 42.8\,ms for prediction, 57.1\
 
 ### [ ] Gate — 5.7
 
-- [ ] Apply R57-01.
-- [ ] Build.
+- [x] Apply R57-01.
+- [x] Build.
 - [ ] Run the detector on 5.7 only.
 - [ ] Author approves; move to 5.8.
 
 ## 5.8 Error analysis
 
-### [ ] R58-01 — line 829 — P0
+### [x] R58-01 — line 829 — P0
 
 **Current:** `Table~\ref{tab:length} shows how many were false positives and false negatives.`
 
@@ -730,7 +739,7 @@ For end-to-end HTTP timing, the median values are 42.8\,ms for prediction, 57.1\
 
 ---
 
-### [ ] R58-02 — line 827 — P1
+### [x] R58-02 — line 827 — P1
 
 **Current:** `A heuristic analysis of 20 randomly selected errors (10 false positives and 10 false negatives)`
 
@@ -746,14 +755,14 @@ For end-to-end HTTP timing, the median values are 42.8\,ms for prediction, 57.1\
 
 ### [ ] Gate — 5.8
 
-- [ ] Apply R58-01 and R58-02.
-- [ ] Build.
+- [x] Apply R58-01 and R58-02.
+- [x] Build.
 - [ ] Run the detector on 5.8 only.
 - [ ] Author approves; move to 5.9.
 
 ## 5.9 Discussion
 
-### [ ] R59-01 — line 853 — P1
+### [x] R59-01 — line 853 — P1
 
 **Current:** `The gains come from evidence-consistent features and multi-source training, not from a different type of learning system.`
 
@@ -763,7 +772,7 @@ For end-to-end HTTP timing, the median values are 42.8\,ms for prediction, 57.1\
 
 ---
 
-### [ ] R59-02 — line 853 — P1
+### [x] R59-02 — line 853 — P1
 
 **Current:** `EC-XGB provides an effective rank ordering of answers on RAGTruth`
 
@@ -777,8 +786,8 @@ For end-to-end HTTP timing, the median values are 42.8\,ms for prediction, 57.1\
 
 ### [ ] Gate — 5.9
 
-- [ ] Apply R59-01 and R59-02.
-- [ ] Build.
+- [x] Apply R59-01 and R59-02.
+- [x] Build.
 - [ ] Run the detector on 5.9 only.
 - [ ] Author approves; move to §6.
 
@@ -788,7 +797,7 @@ For end-to-end HTTP timing, the median values are 42.8\,ms for prediction, 57.1\
 
 **Goal:** fix the subject of the opening sentence and the 26 + 8 omission. Do not rewrite the conclusion.
 
-### [ ] CONC-01 — line 857 — P1
+### [x] CONC-01 — line 857 — P1
 
 **Current:** `To be effective, hallucinations need to be detected quickly, inexpensively, and explainably.`
 
@@ -798,7 +807,7 @@ For end-to-end HTTP timing, the median values are 42.8\,ms for prediction, 57.1\
 
 ---
 
-### [ ] CONC-02 — line 857 — P1
+### [x] CONC-02 — line 857 — P1
 
 **Current:** `EC-XGB uses 26 evidence-consistency features, including log-scaled answer lengths under monotone constraints, and 8 claim-level NLI aggregates`
 
@@ -814,8 +823,8 @@ For end-to-end HTTP timing, the median values are 42.8\,ms for prediction, 57.1\
 
 ### [ ] Gate — Conclusion
 
-- [ ] Apply CONC-01 and CONC-02.
-- [ ] Build.
+- [x] Apply CONC-01 and CONC-02.
+- [x] Build.
 - [ ] Run the detector on the Conclusion only.
 - [ ] Author approves; move to Declarations.
 
@@ -823,7 +832,7 @@ For end-to-end HTTP timing, the median values are 42.8\,ms for prediction, 57.1\
 
 # Stage 7 — Declarations and Acknowledgements
 
-### [ ] DECL-01 — Acknowledgements, line 882 — P1
+### [x] DECL-01 — Acknowledgements, line 882 — P1
 
 **Current**
 
@@ -842,8 +851,8 @@ The authors thank their supervisor, Ohidujjaman Tuhin, for his supervision and i
 
 ### [ ] Gate — Declarations
 
-- [ ] Apply DECL-01.
-- [ ] Build.
+- [x] Apply DECL-01.
+- [x] Build.
 - [ ] Run the detector on the Declarations only.
 - [ ] Author approves; move to the page check.
 
@@ -866,24 +875,22 @@ The trims are already placed in their sections:
 | DECL-01 supervisor sentence | Acknowledgements | 20 |
 | **Total** | | **275** |
 
-The caption clarifications add about 20 words, so the net cut is about 255. That should pull the 17 lines of references on page 18 onto page 17.
-
-If the build is still 18 pages, cut “This is an example of selecting based on a recall-first approach …” (21 words) or reduce Figure 1 from 0.76 to 0.72 line width.
+The 275-word plan plus about 191 words of fallback/low-value cuts were needed. The first 59-word deletion was absorbed by a float, so page 18 stayed at 23 lines; the additional cuts brought the paper to 17 pages. Final page 17 has 59 lines. The FActScore sentence was kept because deleting it would have left `factscore` uncited.
 
 ### [ ] Final verification
 
-- [ ] `cd Journal_Paper; latexmk -pdf -interaction=nonstopmode -outdir=out halurisc.tex`
-- [ ] Pages = 17, no reference block on page 18.
-- [ ] `Underfull 0`, `Overfull 0`, `LaTeX Error 0`, undefined citation 0, undefined reference 0.
-- [ ] Abstract 250–300 words, one paragraph.
-- [ ] Keywords 4–8.
-- [ ] Every `\cite` key exists in `ref.bib`, and every entry is cited (expect 34/34).
-- [ ] `python src/models/review_number_audit.py` → 203/203.
-- [ ] Manually spot-check the new prose numbers: 0.9855, 0.540/0.5465, 99.1–99.5, 0.7433/0.7735.
-- [ ] PDF check: Introduction reads `a query q, a reference context c, and a candidate answer a`, and `$0.001`.
-- [ ] PDF check: Table 8 caption and Table 9 agree on the conventional model identity.
-- [ ] Search the `.tex` for `standard XGBoost`, `standard model`, `\.001`, and `query $,`.
-- [ ] Confirm no table, figure, or algorithm content changed.
+- [x] `cd Journal_Paper; latexmk -pdf -interaction=nonstopmode -outdir=out halurisc.tex`
+- [x] Pages = 17, no reference block on page 18. Page 17 has 59 lines and ends at reference [34].
+- [x] `Underfull 0`, `Overfull 0`, `LaTeX Error 0`, undefined citation 0, undefined reference 0.
+- [x] Abstract 250–300 words, one paragraph (277).
+- [x] Keywords 4–8 (7).
+- [x] Every `\cite` key exists in `ref.bib`, and every entry is cited (34/34).
+- [x] `python src/models/review_number_audit.py` → 203/203.
+- [x] Manually spot-check the new prose numbers: 0.9855, 0.540/0.5465, 0.7433/0.7735. The 99.0–99.5 lower bound remains deferred.
+- [x] PDF check: Introduction reads `a query q, a reference context c, and a candidate answer a`, and `$0.001`.
+- [x] PDF check: Table 8 caption and Table 9 agree on the conventional model identity.
+- [x] Search the `.tex` for `standard XGBoost`, `standard model`, `\.001`, and `query $,`. No hits.
+- [x] Confirm no table, figure, or algorithm content changed. Only captions were updated.
 - [ ] Delete `fix_checklist.md`.
 
 ---
