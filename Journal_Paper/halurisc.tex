@@ -583,9 +583,9 @@ Single-answer behavior shows how individual answers can disagree in ways that ag
 
 Table~\ref{tab:ec} shows the results of the component ablation for EC-XGB on the HaluEval test set. The values are averages over the three seeds. The conventional XGBoost model (m0) reached an F1 of 0.9844, while the length-debias model with monotone constraints (m1) reached an F1 of 0.9852. The claim-level aggregates (m2) achieved an F1 of 0.9857 (+0.0005 above m1, within seed variability), and the full EC-XGB (m3) achieved an F1 of 0.9855 and an MCC of 0.9715.
 
-The gains are small. The paired predictions do not differ significantly in a McNemar test (m0 against m3, $p = 0.45$), and a Wilcoxon signed-rank test across seeds is also not significant ($p = 0.25$). The benchmark is already saturated, so these ablations serve primarily as a preservation check. Each component leaves the F1 essentially unchanged.
+The increases in the measures of performance are small. There was no significant difference in the McNemar test (test of m0 vs.\ m3) comparing the paired predictions made by each model ($p = 0.45$). The Wilcoxon signed-rank test for the differences across seeds between models was also not significant ($p = 0.25$). Because the benchmark is saturated, removing some components serves mainly as a validation check that the components have been preserved. All the ablated versions of the model have almost identical F1 scores compared to the original version of the model.
 
-Removing only the monotone constraints leaves the F1 score unchanged. The ECE rises by 0.0009, and the RAGTruth-all AUROC falls by 0.0043. Removing the source indicator reduces the in-domain F1 by less than 0.001 (from 0.9855 to 0.9850). The RAGTruth-all flag rate changes by only 0.2 percentage points, so the gain from multi-source training does not rely on the source indicator.
+When the monotone constraints were removed, there was no effect on the F1 score. However, the ECE increased by 0.0009, while the AUROC for RAGTruth-all decreased by 0.0043. When the source indicator was removed, the in-domain F1 score fell by less than 0.001 (the value went from 0.9855 to 0.9850). The removal changed the RAGTruth-all flag rate by only 0.2 percentage points, so the improvement due to multi-source training is not dependent upon the source indicator.
 
 \begin{table}[pos=htbp]
   \centering
