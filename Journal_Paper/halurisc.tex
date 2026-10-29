@@ -850,7 +850,7 @@ Several tests and controls support the claim that answer length drives performan
 
 \subsection{Discussion}
 
-The benchmark is close to saturation, so the informative result is the behavior outside it. EC-XGB keeps a usable ranking on RAGTruth where the conventional model flags almost every answer, and the display calibrator makes the target scores readable. The gain comes from evidence-consistent features and multi-source training, not from a new learner. A fine-tuned encoder still wins in-domain, so the feature model trades some accuracy for cost and transparency.
+The informative results are outside the benchmark, where EC-XGB provides an effective rank ordering of answers on RAGTruth: the conventional model identifies nearly all of them as unacceptable, and the display calibrator provides readable target scores. The gains come from evidence-consistent features and multi-source training, not from a different type of learning system. A fine-tuned encoder still wins in-domain, so there is a trade-off between cost, transparency, and accuracy when choosing a feature-based model over other models.
 
 \section{Conclusion}\label{sec:conclusion}
 
