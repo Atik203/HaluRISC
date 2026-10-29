@@ -757,7 +757,7 @@ A structured AI-assisted audit assessed the 26 exported explanations. The B5 exp
 
 \subsection{Efficiency and the LLM judge}
 
-Table~\ref{tab:latency} displays the total average and distribution of the latency over the 200 test samples. The NLI cross-encoder and the spaCy entity pass were the slowest components in terms of latency with medians of 27.1\,ms and 21.1\,ms, respectively. The latency for XGBoost was much lower than that for either method, at 1.3\,ms. SHAP had a somewhat greater latency to compute (1.9\,ms), but the overall per-sample latency at the median was approximately 61.8\,ms. The size of the deployed artifact was approximately 0.68\,MB. The marginal cost is about \$0.001 per 1{,}000 predictions. Local costs were based on the reference laptop with amortized hardware and electricity, so they are order-of-magnitude estimates in USD per 1{,}000 predictions. The GPT cost uses recorded token counts at \$0.20 per million input tokens and \$1.20 per million output tokens.
+Table~\ref{tab:latency} displays the total average and distribution of the latency over the 200 test samples. The NLI cross-encoder and the spaCy entity pass were the slowest components in terms of latency with medians of 27.1\,ms and 21.1\,ms, respectively. The latency for XGBoost was much lower than that for either method, at 1.3\,ms. SHAP had a somewhat greater latency to compute (1.9\,ms), but the overall per-sample latency at the median was approximately 61.8\,ms. The size of the deployed artifact was approximately 0.68\,MB. The marginal cost is about \$0.001 per 1{,}000 predictions. The cost calculations were made on the basis of the reference laptop, taking into account amortized costs of hardware and electricity, hence order-of-magnitude estimates, expressed in USD per 1{,}000 predictions. The cost calculation of GPT-related expenses is based on token usage counting by \$0.20 per million input tokens and \$1.20 per million output tokens.
 
 \begin{table}[pos=htbp]
   \centering
@@ -778,7 +778,7 @@ Table~\ref{tab:latency} displays the total average and distribution of the laten
   \end{tabular}
 \end{table}
 
-Table~\ref{tab:cost} puts every baseline on the same footing. The model-only p50 is timed per row over 200 test rows on the reference laptop, with classical models on CPU and NLI with embeddings on the GPU inside the shared feature pipeline. Classical heads cost almost nothing next to the 61.8\,ms feature pipeline, and the two judges are three orders of magnitude slower than any local model. The overlap heuristic needs no model and costs 0.009\,ms per row.
+Table~\ref{tab:cost} shows all baselines on an equal footing. The model-only p50 metric is calculated per row on 200 test rows on the reference laptop, while classical models run on the CPU and NLI with embeddings runs on the GPU in the shared feature pipeline. The classical heads have an extremely low cost compared to the 61.8\,ms cost of the feature pipeline, and both judges are approximately three orders of magnitude slower than any local model. The heuristic approach needs no model and takes just 0.009\,ms per row.
 
 \begin{table}[pos=htbp]
   \centering
@@ -803,7 +803,7 @@ Table~\ref{tab:cost} puts every baseline on the same footing. The model-only p50
   \end{tabular}
 \end{table}
 
-Table~\ref{tab:judge} compares EC-XGB with two separate judges on the same 200 balanced HaluEval rows, a subset of the 3{,}000-row headline test set, with 100 rows per class for 50\% prevalence. GPT 5.6 Luna produced an F1 score of 0.846 [0.781, 0.898], Qwen 3.5 4B produced 0.756 [0.667, 0.824], and EC-XGB produced 0.990. GPT agreed with EC-XGB on about 85.5\% of the cases. The McNemar p-value for GPT vs. EC-XGB is $8.3 \times 10^{-6}$, with 27 cases where EC-XGB was correct and GPT was wrong, and 2 cases where GPT was correct and EC-XGB was wrong. An AI-assisted review of all 40 cases where Qwen was wrong found 20 answers that read as supported under a strict label, 6 ambiguous cases, 12 cases that Qwen missed but GPT caught, and 2 false alarms. A length-only baseline reached F1 0.905 on the same rows, so GPT does not offer an advantage over the length cue. GPT costs about \$0.106 per 1{,}000 predictions and takes 1.44 s at the median. EC-XGB costs about \$0.001 per 1{,}000 predictions and takes about 61.8 ms. The claims apply only to this dataset and these prompts.
+Table~\ref{tab:judge} illustrates EC-XGB versus two judges based on the same 200 balanced HaluEval rows, which are a subset of the 3{,}000-row headline test set, including 100 rows per class at 50\% prevalence. GPT 5.6 Luna got an F1 score of 0.846 [0.781, 0.898], Qwen 3.5 4B got 0.756 [0.667, 0.824], and EC-XGB got 0.990. GPT concordance with EC-XGB is approximately 85.5\%. The McNemar p-value of GPT against EC-XGB equals $8.3 \times 10^{-6}$, with 27 rows where EC-XGB was right and GPT wrong, and 2 rows where GPT was right and EC-XGB was wrong. AI assistance on all 40 rows where Qwen was wrong led to identifying 20 answers supported under the strict label, 6 rows being ambiguous, 12 rows missed by Qwen but caught by GPT, and 2 false positives. The length-only baseline has obtained an F1 score of 0.905 on those rows, showing that GPT gives no additional advantages over the length clue. The cost of GPT is approximately \$0.106 per 1{,}000 predictions and takes a median time of 1.44\,s. The cost of EC-XGB is about \$0.001 per 1{,}000 predictions and takes approximately 61.8\,ms. The presented metrics apply only to this dataset and its prompts.
 
 \begin{table}[pos=htbp]
   \centering
@@ -869,7 +869,7 @@ An encoder trained solely on source material outperforms all other models on the
 
   \item \textbf{Conflicts of Interest:} The researchers declare no conflict of interest.
 
-  \item \textbf{Data availability:} The raw evaluation datasets are not redistributed. The repository provides the download scripts, source revisions, SHA-256 hashes, and license notes for HaluEval (MIT), RAGTruth (MIT), and FaithBench (CC BY-NC-SA 4.0). Each split and feature matrix can be recreated from the original dataset sources. Model artifacts, split indices, and the frozen experiment manifest are included with the code release.
+  \item \textbf{Data availability:} Raw evaluation datasets are not redistributed. The repository includes download scripts, source revisions, SHA-256 hashes, and license notes for HaluEval (MIT), RAGTruth (MIT), and FaithBench (CC BY-NC-SA 4.0). Splits and feature matrices can be reproduced from the original dataset sources. Model artifacts, split indices, and experiment manifest are included in the code distribution.
 
   \item \textbf{Code availability:} The training pipeline, FastAPI inference service, and Next.js dashboard are available in the project repository.
 

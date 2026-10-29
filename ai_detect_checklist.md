@@ -4,7 +4,7 @@
 
 **Baseline:** `halurisc-B (2).pdf`, 17 pages, 11,062 words, submitted 2026-10-29 13:34, **22%** detected as AI.
 **Target:** under **10%** (≤1,106 flagged words). Working target ≤9% for buffer.
-**Paper status:** AD-03, AD-04, AD-06, AD-07 and AD-10 applied; 10 blocks pending. Build verified after the edits.
+**Paper status:** AD-01, AD-02, AD-03, AD-04, AD-06, AD-07, AD-10 and AD-15 (data availability) applied; 7 blocks pending. Build verified after the edits.
 
 ---
 
@@ -105,11 +105,14 @@ Table 5 model rows, Table 12 component rows, Table 13 baseline rows, Algorithm 2
 
 | ID | Section | Date | Old | New | Build | Detector |
 |---|---|---|---:|---:|---|---|
+| AD-01 | §5.7 cost paragraph (author text) | 2026-10-29 | 132 w | 144 w | 17 pp, 0 warnings, 34/34 | pending |
+| AD-02 | §5.7 judge paragraph + Table 14 (author text) | 2026-10-29 | 189 w | 196 w | 17 pp, 0 warnings, 34/34 | pending |
 | AD-03 | §3.1 + Figure 1 caption (author text) | 2026-10-29 | 100 w | 112 w | 17 pp, 0 warnings, 34/34 | pending |
 | AD-04 | §3.2 Features (author text) | 2026-10-29 | 85 w | 63 w | 17 pp, 0 warnings, 34/34 | pending |
 | AD-06 | §2.1 Preliminaries (author text) | 2026-10-29 | 165 w | 165 w | 17 pp, 0 warnings, 34/34 | pending |
 | AD-07 | §2.3 Limitations (author text) | 2026-10-29 | 166 w | 175 w | 17 pp, 0 warnings, 34/34 | pending |
 | AD-10 | §5.3 Calibration (author text) | 2026-10-29 | 120 w | 109 w | 17 pp, 0 warnings, 34/34 | pending |
+| AD-15 | Declarations, data availability (author text) | 2026-10-29 | 61 w | 56 w | 17 pp, 0 warnings, 34/34 | pending |
 
 Author edits also landed in §3.4 (SHAP reliability paragraph), the Figure 2 caption, §3.5 (reproducibility sentence), and the §5.3 Figure 4 paragraph. These were kept as written and are covered by AD-05 and AD-10.
 
@@ -152,4 +155,4 @@ Delete this file after the final accepted score, together with the temporary ext
 | Date | Round | Blocks | Score | Notes |
 |---|---|---|---:|---|
 | 2026-10-29 | Analysis | — | 22% | Report read; 2,132 words mapped; paper untouched |
-| 2026-10-29 | Round 1 | AD-03, AD-04, AD-06, AD-07, AD-10 | pending | §2.1, §2.3, §3.1, Figure 1 caption, §3.2 and §5.3 replaced with author text; author edits in §3.4, Figure 2 caption and §3.5 kept. 17 pages, 0 warnings, 34/34, 203/203. Awaiting detector check. |
+| 2026-10-29 | Round 1 | AD-01, AD-02, AD-03, AD-04, AD-06, AD-07, AD-10, AD-15 | pending | Author text applied to §2.1, §2.3, §3.1, Figure 1 caption, §3.2, §5.3, §5.7 and the data-availability bullet. 17 pages, 0 warnings, 34/34, 203/203. Page 17 now has 63 lines. Awaiting detector check. |
