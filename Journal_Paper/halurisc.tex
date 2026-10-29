@@ -581,13 +581,15 @@ Single-answer behavior shows how individual answers can disagree in ways that ag
 
 \subsection{Evidence-consistent XGBoost}
 
-Table~\ref{tab:ec} reports the component ablation for EC-XGB on the HaluEval test set, averaged over the three seeds. The conventional XGBoost reference (m0) reaches an F1 of 0.9844, and the length debias with monotone constraints (m1) reaches 0.9852. The claim-level aggregates (m2) reach 0.9857 (+0.0005 over m1, within seed-level variation), and the full EC-XGB (m3) reaches 0.9855 with an MCC of 0.9715. The differences are small and not significant in a McNemar test on the paired predictions (m0 against m3, $p = 0.45$), and a Wilcoxon test across seeds finds no difference either ($p = 0.25$).
+Table~\ref{tab:ec} shows the results of the component ablation for EC-XGB on the HaluEval test set. The values are averages over the three seeds. The conventional XGBoost model (m0) reached an F1 of 0.9844, while the length-debias model with monotone constraints (m1) reached an F1 of 0.9852. The claim-level aggregates (m2) achieved an F1 of 0.9857 (+0.0005 above m1, within seed variability), and the full EC-XGB (m3) achieved an F1 of 0.9855 and an MCC of 0.9715.
 
-The benchmark is saturated, so this ablation is a preservation check rather than a win. Every component holds the line. Removing only the monotone constraints leaves the F1 unchanged, lowers the ECE by 0.0009, and raises the RAGTruth AUROC by 0.0043. On the seed-42 split false positives fall from 12 to 8. Removing the source indicator from the same recipe changes the in-domain F1 by less than 0.001 (0.9849 against 0.9855). The shifted flag rate moves by less than one point, so the multi-source gain does not rest on source identity. At inference, the indicator is set to one for natural responses and zero for benchmark-style rows.
+The gains are small. The paired predictions do not differ significantly in a McNemar test (m0 against m3, $p = 0.45$), and a Wilcoxon signed-rank test across seeds is also not significant ($p = 0.25$). The benchmark is already saturated, so these ablations serve primarily as a preservation check. Each component leaves the F1 essentially unchanged.
+
+Removing only the monotone constraints leaves the F1 score unchanged. The ECE rises by 0.0009, and the RAGTruth-all AUROC falls by 0.0043. Removing the source indicator reduces the in-domain F1 by less than 0.001 (from 0.9855 to 0.9850). The RAGTruth-all flag rate changes by only 0.2 percentage points, so the gain from multi-source training does not rely on the source indicator.
 
 \begin{table}[pos=htbp]
   \centering
-  \caption{EC-XGB component ablation on the HaluEval test set, mean over seeds 42/123/456 (n = 3{,}000). m0 is the conventional XGBoost reference, m1 adds log-scaled length features and monotone constraints, m2 adds the eight claim-level aggregates (34 features), and m3 adds the binary source indicator (35 features) and is the deployed EC-XGB.}
+  \caption{EC-XGB component ablation on the HaluEval test set, mean over seeds 42/123/456 (n = 3{,}000). m0 is the conventional XGBoost reference under the same protocol, m1 replaces the raw length counts with log-scaled values and adds monotone constraints (26 features), m2 adds the eight claim-level aggregates (34 features), and m3 adds the RAGTruth non-QA training rows and a binary source indicator (35 features) and is the deployed EC-XGB.}
   \label{tab:ec}
   \footnotesize
   \begin{tabular}{lccccc}
