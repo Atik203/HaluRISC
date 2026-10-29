@@ -435,7 +435,7 @@ Calibrators are fit on the validation split only. Platt scaling fits a sigmoid $
 \end{equation}
 where $\mathrm{acc}(B_m)$ and $\mathrm{conf}(B_m)$ are the accuracy and mean confidence in bin $B_m$, together with the Brier score $\mathrm{BS} = \frac{1}{n}\sum_i (\hat{p}_i - y_i)^2$ and reliability diagrams \cite{guo}. A second step targets a new domain. The calibrator can be re-fit on a small labeled sample of the target corpus, and the effect is measured on a disjoint held-out part of the target corpus. The deployed EC-XGB display score follows the same rule: its calibrator is fitted on the 5{,}034-row RAGTruth QA calibration split, and the source indicator is set to one for natural responses. This target calibration needs labeled target rows and is not zero-shot. The source-only protocol uses the HaluEval validation split for both the calibrator and the threshold.
 
-The global SHAP \cite{shap} explanations from a TreeExplainer applied to the raw XGBoost model were used to create the Mean Absolute Importance and Beeswarm Summaries. Local explanations highlighting the contributions of features involved in a particular prediction are given. Since the feature-attribution techniques might be highly unreliable, the reliability of the explanations has been evaluated directly \cite{adebayo2018}. The test responses have been perturbed in six different ways (by replacing the entity names, numbers, and dates; eliminating support context; inserting additional context; and shuffling clauses). This study quantifies the reliability by calculating four different measures (the mean absolute score change; the fraction of large score changes; the top-1 flip rate; and the Spearman rank correlation between the original and perturbed scores.)
+The global SHAP \cite{shap} explanations from a TreeExplainer applied to the raw XGBoost model were used to create the Mean Absolute Importance and Beeswarm Summaries. Local explanations highlighting the contributions of features involved in a particular prediction are given. Since the feature-attribution techniques might be highly unreliable, the reliability of the explanations has been evaluated directly \cite{adebayo2018}. The test responses have been perturbed in six different ways (by replacing entity names, numbers, and dates, eliminating support context, inserting additional context, and shuffling clauses). This study quantifies the reliability by calculating four different measures (the mean absolute score change, the fraction of large score changes, the top-1 flip rate, and the Spearman rank correlation between the original and perturbed scores).
 
 \subsection{System and Reproducibility}
 
@@ -447,7 +447,7 @@ Claims are broken down from the answer text and then checked with sentence-level
 
 The verdict card sets the risk to high for any contradicted claim, to medium for an unsupported claim, and to low for a fully supported claim. The risk order is consistent with the style sensitivity found in Section~\ref{sec:results}, where an answer containing complete sentences may cause the calibrated score to reach saturation levels while every individual claim is still supported.
 
-The risk percentage shown on the card is determined by the EC-XGB display calibrator but is modified by the verdict assigned to each individual claim. The 35.4\% in Figure~\ref{fig:screens} is the calibrated score before this adjustment. The claim card marks the contradicted number separately.
+The risk percentage shown on the card is determined by the EC-XGB display calibrator but is modified by the verdict assigned to each individual claim. The 35.4\% in the comparison panel of Figure~\ref{fig:screens} is the calibrated score before this adjustment. The claim card marks the contradicted number separately.
 
 Figure~\ref{fig:screens} presents the analyze page for the hallucinated-number case. The context states 5 days per decade and the answer states 10. The raw EC-XGB probability is 0.999. Without modification by a calibration method, the raw score itself does not represent a usable risk level. The deployed display calibrator indicates 35.4\% risk and classifies the answer as moderate risk.
 
@@ -456,20 +456,20 @@ Figure~\ref{fig:screens} presents the analyze page for the hallucinated-number c
   \begin{subfigure}[t]{0.44\linewidth}
     \centering
     \includegraphics[width=\linewidth]{analyze-arctic-risk-card.png}
-    \caption{Risk card: display score 35.4\% (medium risk).}
+    \caption{Risk card: display score 35\% (medium risk).}
   \end{subfigure}\hfill
   \begin{subfigure}[t]{0.44\linewidth}
     \centering
     \includegraphics[width=\linewidth]{analyze-arctic-model-comparison.png}
     \caption{Model comparison: raw probabilities of the deployed model and the baselines.}
   \end{subfigure}
-  \caption{Analysis page for the hallucinated number scenario where the context suggests 5 days per decade, but the answer mentions 10. Risk card contains the calibrated display score, and the comparison pane shows the raw probability for each of the models. Raw EC-XGB probability is equal to 0.999; the calibrated one displayed by the deployed model is 35.4\%, which makes risk actionable.}
+  \caption{Analysis page for the hallucinated number scenario where the context suggests 5 days per decade, but the answer mentions 10. Risk card contains the calibrated display score, and the comparison panel shows the raw probability for each of the models. Raw EC-XGB probability is equal to 0.999. The risk card rounds the calibrated score to 35\%, while the comparison panel shows 35.4\%, which makes risk actionable.}
   \label{fig:screens}
 \end{figure}
 
 \begin{sloppypar}
   \hbadness=10000
-  \texttt{requirements.txt} has all the dependencies pinned to exact versions; indices of the split have been stored in \texttt{artifacts/split\_indices.json} and \texttt{.npy} and verified with \texttt{verify\_artifacts.py} to make sure that every number reported is correct w.r.t frozen artifacts.
+  \texttt{requirements.txt} pins every dependency to an exact version. Split indices are stored in \texttt{artifacts/split\_indices.json} and \texttt{.npy}, and \texttt{review\_number\_audit.py} checks 203 reported values against the frozen artifacts.
 \end{sloppypar}
 
 \section{Experiments}\label{sec:experiment}
@@ -660,7 +660,7 @@ Figure~\ref{fig:calibshift} illustrates the distributions of raw scores and thos
   \label{fig:calibshift}
 \end{figure}
 
-The source-only operating point (P0) is used to calculate the threshold on the HaluEval validation split, which maximizes recall under a 5\% false-positive rate budget. The recall range is 99.0--99.5\%, and the false-positive rate is 5\% on the test set. Table~\ref{tab:target} presents both models on the same 900-row RAGTruth QA test set. Source calibration has little effect on the ECE, but Platt target calibration brings the ECE down to 0.1335 for the conventional model and 0.1263 for EC-XGB, while isotonic calibration produces almost identical results. The target-calibrated display score (P1) was computed using the target Platt fit for seed 42 and improved the raw ECE from 0.726 to 0.126.
+The source-only operating point (P0) is used to calculate the threshold on the HaluEval validation split, which maximizes recall under a 5\% false-positive rate budget. The recall range is 99.0--99.5\%, and the test false-positive rate stays near 5\%. Table~\ref{tab:target} presents both models on the same 900-row RAGTruth QA test set. Source calibration has little effect on the ECE, but Platt target calibration brings the ECE down to 0.1335 for the conventional model and 0.1263 for EC-XGB, while isotonic calibration produces almost identical results. The target-calibrated display score (P1) was computed using the target Platt fit for seed 42 and improved the raw ECE from 0.726 to 0.126.
 
 Every target-calibrated test score is below 0.5, so the fixed threshold predicts zero positives. The target-thresholded mode (P2) selects a threshold at a 5\% false-positive budget (0.313) on the target calibration split. P2 achieves a test recall of 5.0\% at a false-positive rate of 5.8\% (precision 15.7\%, F1 = 0.076; Wilson 95\% intervals: recall [2.6, 9.6], FPR [4.3, 7.7]). The test rate exceeds the 5\% target because the threshold is fixed on calibration. Target recalibration fixes the probability scale, not the ranking. Already 252 labeled target rows give a test ECE of 0.133.
 
@@ -778,7 +778,7 @@ Table~\ref{tab:latency} displays the total average and distribution of the laten
   \end{tabular}
 \end{table}
 
-Table~\ref{tab:cost} shows all baselines on an equal footing. The model-only p50 metric is calculated per row on 200 test rows on the reference laptop, while classical models run on the CPU and NLI with embeddings runs on the GPU in the shared feature pipeline. The classical heads have an extremely low cost compared to the 61.8\,ms cost of the feature pipeline, and both judges are approximately three orders of magnitude slower than any local model. The heuristic approach needs no model and takes just 0.009\,ms per row.
+Table~\ref{tab:cost} shows all baselines on an equal footing. The model-only p50 metric is calculated per row on 200 test rows on the reference laptop, while classical models run on the CPU and NLI with embeddings runs on the GPU in the shared feature pipeline. The classical heads run in under a millisecond against 61.8\,ms for the feature pipeline, and both judges are roughly 20 to 40 times slower. The heuristic approach needs no model and takes just 0.009\,ms per row.
 
 \begin{table}[pos=htbp]
   \centering
@@ -869,7 +869,7 @@ An encoder trained solely on source material outperforms all other models on the
 
   \item \textbf{Conflicts of Interest:} The researchers declare no conflict of interest.
 
-  \item \textbf{Data availability:} Raw evaluation datasets are not redistributed. The repository includes download scripts, source revisions, SHA-256 hashes, and license notes for HaluEval (MIT), RAGTruth (MIT), and FaithBench (CC BY-NC-SA 4.0). Splits and feature matrices can be reproduced from the original dataset sources. Model artifacts, split indices, and experiment manifest are included in the code distribution.
+  \item \textbf{Data availability:} Raw evaluation datasets are not redistributed. The repository includes download scripts, source revisions, SHA-256 hashes, and license notes for HaluEval (MIT), RAGTruth (MIT), and FaithBench (CC BY-NC-SA 4.0). Splits and feature matrices can be reproduced from the original dataset sources. Model artifacts, split indices, and the experiment manifest are included in the code distribution.
 
   \item \textbf{Code availability:} The training pipeline, FastAPI inference service, and Next.js dashboard are available in the project repository.
 

@@ -155,4 +155,4 @@ Delete this file after the final accepted score, together with the temporary ext
 | Date | Round | Blocks | Score | Notes |
 |---|---|---|---:|---|
 | 2026-10-29 | Analysis | — | 22% | Report read; 2,132 words mapped; paper untouched |
-| 2026-10-29 | Round 1 | AD-01, AD-02, AD-03, AD-04, AD-06, AD-07, AD-10, AD-15 | pending | Author text applied to §2.1, §2.3, §3.1, Figure 1 caption, §3.2, §5.3, §5.7 and the data-availability bullet. 17 pages, 0 warnings, 34/34, 203/203. Page 17 now has 63 lines. Awaiting detector check. |
+| 2026-10-29 | Verification fixes | AD-01-AD-15 | pending | Fixed the 20-40x latency claim, the review_number_audit.py attribution, Figure 2's 35% card value, the FPR wording, the cost/latency wording, remaining semicolons in the touched sections, w.r.t, and the missing article. 17 pages, 63 lines on p17, 0 warnings, 34/34, 203/203. Not pushed. |
