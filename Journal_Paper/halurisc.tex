@@ -435,7 +435,7 @@ Calibrators are fit on the validation split only. Platt scaling fits a sigmoid $
 \end{equation}
 where $\mathrm{acc}(B_m)$ and $\mathrm{conf}(B_m)$ are the accuracy and mean confidence in bin $B_m$, together with the Brier score $\mathrm{BS} = \frac{1}{n}\sum_i (\hat{p}_i - y_i)^2$ and reliability diagrams \cite{guo}. A second step targets a new domain. The calibrator can be re-fit on a small labeled sample of the target corpus, and the effect is measured on a disjoint held-out part of the target corpus. The deployed EC-XGB display score follows the same rule: its calibrator is fitted on the 5{,}034-row RAGTruth QA calibration split, and the source indicator is set to one for natural responses. This target calibration needs labeled target rows and is not zero-shot. The source-only protocol uses the HaluEval validation split for both the calibrator and the threshold.
 
-The global SHAP \cite{shap} explanations from a TreeExplainer applied to the raw XGBoost model were used to create the Mean Absolute Importance and Beeswarm Summaries. The local explanations of features that contribute to a particular prediction are provided. Many feature attribution methods can be unreliable so explanation reliability is measured directly \cite{adebayo2018}. The test answers were changed in six different ways (replacing entity names, numbers, and dates; removing supporting context; adding irrelevant context; and shuffling the clauses). This study quantifies the reliability by calculating four different measures (the mean absolute score change; the fraction of large score changes; the top-1 flip rate; and the Spearman rank correlation between the original and perturbed scores.)
+The global SHAP \cite{shap} explanations from a TreeExplainer applied to the raw XGBoost model were used to create the Mean Absolute Importance and Beeswarm Summaries. Local explanations highlighting the contributions of features involved in a particular prediction are given. Since the feature-attribution techniques might be highly unreliable, the reliability of the explanations has been evaluated directly \cite{adebayo2018}. The test responses have been perturbed in six different ways (by replacing the entity names, numbers, and dates; eliminating support context; inserting additional context; and shuffling clauses). This study quantifies the reliability by calculating four different measures (the mean absolute score change; the fraction of large score changes; the top-1 flip rate; and the Spearman rank correlation between the original and perturbed scores.)
 
 \subsection{System and Reproducibility}
 
@@ -463,13 +463,13 @@ Figure~\ref{fig:screens} presents the analyze page for the hallucinated-number c
     \includegraphics[width=\linewidth]{analyze-arctic-model-comparison.png}
     \caption{Model comparison: raw probabilities of the deployed model and the baselines.}
   \end{subfigure}
-  \caption{Analyze page for the hallucinated-number case, where the context states 5 days per decade and the answer states 10. The risk card shows the calibrated display score, and the comparison panel shows the raw probability of each model. The raw EC-XGB probability is 0.999, while the deployed display calibrator reports 35.4\%, which makes the risk level actionable.}
+  \caption{Analysis page for the hallucinated number scenario where the context suggests 5 days per decade, but the answer mentions 10. Risk card contains the calibrated display score, and the comparison pane shows the raw probability for each of the models. Raw EC-XGB probability is equal to 0.999; the calibrated one displayed by the deployed model is 35.4\%, which makes risk actionable.}
   \label{fig:screens}
 \end{figure}
 
 \begin{sloppypar}
   \hbadness=10000
-  \texttt{requirements.txt} pins every dependency with exact versions, split indices are saved to \texttt{artifacts/split\_indices.json} and \texttt{.npy}, and \texttt{verify\_artifacts.py} checks every reported number against the frozen artifacts.
+  \texttt{requirements.txt} has all the dependencies pinned to exact versions; indices of the split have been stored in \texttt{artifacts/split\_indices.json} and \texttt{.npy} and verified with \texttt{verify\_artifacts.py} to make sure that every number reported is correct w.r.t frozen artifacts.
 \end{sloppypar}
 
 \section{Experiments}\label{sec:experiment}
@@ -629,7 +629,7 @@ The raw, Platt-scaled, and isotonic models are compared in Table~\ref{tab:calib}
   \label{fig:reliability}
 \end{figure}
 
-Figure~\ref{fig:calibshift} shows the raw and target-calibrated score distributions behind the conventional-model rows. The practical constraint is the label budget: 252 labeled target rows already give the same test ECE as the full 5{,}034.
+Figure~\ref{fig:calibshift} illustrates the distributions of raw scores and those calibrated to the target distribution used for the conventional model row entries. Practical constraint is the label budget: 252 labeled target rows produce the same test ECE as 5{,}034 rows of the whole dataset.
 
 \begin{table}[pos=htbp]
   \centering
@@ -660,7 +660,7 @@ Figure~\ref{fig:calibshift} shows the raw and target-calibrated score distributi
   \label{fig:calibshift}
 \end{figure}
 
-The source-only operating point (P0) is used to select the threshold on the HaluEval validation split that maximizes recall under a 5\% false-positive budget. Recall stays between 99.0\% and 99.5\%, and the test false-positive rate stays near 5\% as well. Table~\ref{tab:target} puts both models on the same 900-row RAGTruth QA test set. Source calibration has little impact on the ECE, whereas target Platt calibration brings the ECE down to 0.1335 for the conventional model and 0.1263 for EC-XGB, with isotonic essentially tied. The target-calibrated display score (P1) was created using the target Platt fit for seed 42. This reduces the raw ECE from 0.726 to 0.126.
+The source-only operating point (P0) is used to calculate the threshold on the HaluEval validation split, which maximizes recall under a 5\% false-positive rate budget. The recall range is 99.0--99.5\%, and the false-positive rate is 5\% on the test set. Table~\ref{tab:target} presents both models on the same 900-row RAGTruth QA test set. Source calibration has little effect on the ECE, but Platt target calibration brings the ECE down to 0.1335 for the conventional model and 0.1263 for EC-XGB, while isotonic calibration produces almost identical results. The target-calibrated display score (P1) was computed using the target Platt fit for seed 42 and improved the raw ECE from 0.726 to 0.126.
 
 Every target-calibrated test score is below 0.5, so the fixed threshold predicts zero positives. The target-thresholded mode (P2) selects a threshold at a 5\% false-positive budget (0.313) on the target calibration split. P2 achieves a test recall of 5.0\% at a false-positive rate of 5.8\% (precision 15.7\%, F1 = 0.076; Wilson 95\% intervals: recall [2.6, 9.6], FPR [4.3, 7.7]). The test rate exceeds the 5\% target because the threshold is fixed on calibration. Target recalibration fixes the probability scale, not the ranking. Already 252 labeled target rows give a test ECE of 0.133.
 
