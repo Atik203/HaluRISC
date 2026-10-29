@@ -701,7 +701,7 @@ The conventional model's baseline was based solely on its zero-shot performance 
 
 \subsection{Ablation}
 
-Table~\ref{tab:ablation} removes each feature group and retrains from scratch. Lexical features dominate ($-$0.0247 F1), length and NLI contribute less, entity, numeric, and hedging stay within 0.0002 F1 of the full model, and removing the semantic group slightly improves the F1, and the paper keeps that negative result.
+The ablation study in Table~\ref{tab:ablation} demonstrates how much each feature group contributes to this model by training a new version of the model with one group removed at a time. Most of the loss is due to lexical features ($-$0.0247 F1), while the contributions of the other feature groups (length and NLI) are somewhat smaller. There is little difference when excluding each of the entity, numeric, and hedging features, as all three remain within 0.0002 of the full model's F1 value. Removing the semantic feature group slightly improves F1, and the paper reports that result.
 
 \begin{table}[pos=htbp]
   \centering
