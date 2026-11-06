@@ -29,7 +29,7 @@ export interface ModelComparisonInput {
 
 const MODEL_ORDER: Array<[string, string]> = [
   ["ec_xgb", "EC-XGB (deployed)"],
-  ["xgboost", "XGBoost (standard)"],
+  ["xgboost", "Conventional XGBoost"],
   ["random_forest", "Random forest"],
   ["logistic_regression", "Logistic regression"],
   ["heuristic_overlap", "Overlap heuristic"],

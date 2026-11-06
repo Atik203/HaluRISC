@@ -13,7 +13,7 @@ const BASELINE_ORDER: Array<[string, string]> = [
   ["nli_only", "NLI-only"],
   ["tfidf_answer", "TF-IDF (answer-only)"],
   ["tfidf_all", "TF-IDF (full input)"],
-  ["xgboost", "XGBoost (standard)"],
+  ["xgboost", "Conventional XGBoost"],
 ];
 
 const ABLATION_LABELS: Record<string, string> = {
