@@ -403,7 +403,7 @@ Second, the eight claim-level aggregates in Table~\ref{tab:claim} are added to t
 \end{gather}
 Here $\overline{C}$ and $\overline{E}$ are the means of $C(k)$ and $E(k)$ over the claims. Let $\phi'(x)$ be the complete model input and $\tilde{\phi}(x)$ the remaining 24 base features excluding the two log-scaled length columns. There are 35 input features in total (24 base + 2 log-scaled length + 8 claim + 1 source).
 
-Third, a source indicator $s \in \{0,1\}$ is added as a training column for RAGTruth summarization and data-to-text. Because all RAGTruth QA rows are excluded during training, the QA setting remains zero-shot. The deployed display score is fitted on labeled target rows and is therefore not zero-shot. The configuration incorporating all three modifications is referred to as EC-XGB. The deployed checkpoint uses seed 42.
+The third modification is the addition of a source indicator $s \in \{0,1\}$ as a training feature for RAGTruth summarization and data-to-text tasks. Since all RAGTruth QA samples are filtered out during the training phase, the QA task itself is still zero-shot. The deployed display score is fitted on the labeled target samples and is therefore not zero-shot. This combination of modifications is termed EC-XGB. The deployed checkpoint uses seed 42.
 
 \begin{algorithm}[H]
   \caption{Evidence-consistent XGBoost (EC-XGB) training and deployment}
@@ -598,10 +598,10 @@ When the monotone constraints were removed, there was no effect on the F1 score.
     \toprule
     \textbf{Variant} & \textbf{Features} & \textbf{F1} & \textbf{AUROC} & \textbf{MCC} & \textbf{ECE} & \textbf{RAGTruth AUROC} & \textbf{RAGTruth ECE} \\
     \midrule
-    m0 conventional  & 26                & 0.9844      & 0.9980         & 0.9693       & 0.0066       & 0.4753                  & 0.6346               \\
-    m1 debias        & 26                & 0.9852      & 0.9976         & 0.9708       & 0.0051       & 0.5430                  & 0.6385               \\
-    m2 + claims      & 34                & 0.9857      & 0.9984         & 0.9717       & 0.0078       & 0.5018                  & 0.6369               \\
-    EC-XGB (m3)        & 35                & 0.9855      & 0.9984         & 0.9715       & 0.0074       & 0.5815                  & 0.2782               \\
+    m0 conventional  & 26                & 0.9844      & 0.9980         & 0.9693       & 0.0066       & 0.4753                  & 0.6346                \\
+    m1 debias        & 26                & 0.9852      & 0.9976         & 0.9708       & 0.0051       & 0.5430                  & 0.6385                \\
+    m2 + claims      & 34                & 0.9857      & 0.9984         & 0.9717       & 0.0078       & 0.5018                  & 0.6369                \\
+    EC-XGB (m3)      & 35                & 0.9855      & 0.9984         & 0.9715       & 0.0074       & 0.5815                  & 0.2782                \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -641,20 +641,20 @@ Figure~\ref{fig:calibshift} illustrates the distributions of raw scores and thos
   \footnotesize
   \begin{tabular}{llrrrr}
     \toprule
-    \textbf{Model} & \textbf{Calibrator}     & \textbf{ECE} & \textbf{Brier} & \textbf{NLL} & \textbf{Pred. pos. (\%)} \\
+    \textbf{Model}    & \textbf{Calibrator}     & \textbf{ECE} & \textbf{Brier} & \textbf{NLL} & \textbf{Pred. pos. (\%)} \\
     \midrule
-    Conventional   & Raw                     & 0.8185       & 0.8164         & 5.20         & 99.9               \\
-    Conventional   & Source Platt (HaluEval) & 0.8089       & 0.8011         & 3.62         & 99.9               \\
-    Conventional   & Target Platt (RAGTruth) & 0.1335       & 0.1639         & 0.51         & 0.0                \\
-    Conventional   & Target isotonic         & 0.1316       & 0.1663         & 0.53         & 0.0                \\
+    Conventional      & Raw                     & 0.8185       & 0.8164         & 5.20         & 99.9                     \\
+    Conventional      & Source Platt (HaluEval) & 0.8089       & 0.8011         & 3.62         & 99.9                     \\
+    Conventional      & Target Platt (RAGTruth) & 0.1335       & 0.1639         & 0.51         & 0.0                      \\
+    Conventional      & Target isotonic         & 0.1316       & 0.1663         & 0.53         & 0.0                      \\
     \midrule
-    EC-XGB (mean)  & Raw                     & 0.7433       & 0.7061         & 2.91         & 97.4               \\
-    EC-XGB (mean)  & Source Platt (HaluEval) & 0.7735       & 0.7527         & 3.18         & 97.5               \\
-    EC-XGB (mean)  & Target Platt (RAGTruth) & 0.1263       & 0.1613         & 0.50         & 0.0                \\
-    EC-XGB (mean)  & Target isotonic         & 0.1260       & 0.1618         & 0.50         & 0.0                \\
+    EC-XGB (mean)     & Raw                     & 0.7433       & 0.7061         & 2.91         & 97.4                     \\
+    EC-XGB (mean)     & Source Platt (HaluEval) & 0.7735       & 0.7527         & 3.18         & 97.5                     \\
+    EC-XGB (mean)     & Target Platt (RAGTruth) & 0.1263       & 0.1613         & 0.50         & 0.0                      \\
+    EC-XGB (mean)     & Target isotonic         & 0.1260       & 0.1618         & 0.50         & 0.0                      \\
     \addlinespace
-    EC-XGB (deployed) & Raw                    & 0.7257       & 0.6823         & 2.70         & 96.3               \\
-    EC-XGB (deployed) & Target Platt (seed 42) & 0.1255       & 0.1610         & 0.50         & 0.0                \\
+    EC-XGB (deployed) & Raw                     & 0.7257       & 0.6823         & 2.70         & 96.3                     \\
+    EC-XGB (deployed) & Target Platt (seed 42)  & 0.1255       & 0.1610         & 0.50         & 0.0                      \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -672,7 +672,7 @@ Every target-calibrated test score is below 0.5, so the fixed threshold predicts
 
 \subsection{Cross-domain transfer}
 
-The conventional model was trained on HaluEval only, while EC-XGB also saw RAGTruth summarization and data-to-text rows, so the EC-XGB results for those tasks measure adaptation (Table~\ref{tab:shift}). On the pooled RAGTruth split, the flag rate fell from 99.9\% to 61.3\% and the AUROC rose from 0.475 to 0.582. The task split shows where the gain comes from. Summarization AUROC rises from 0.634 to 0.736 and ECE falls from 0.750 to 0.052, while the flag rate falls from 99.8\% to 11.6\%. The summarization F1 falls from 0.370 to 0.343 because the fixed threshold now flags far fewer answers. Data-to-text AUROC rises from 0.567 to 0.771 and ECE falls from 0.339 to 0.053. Held-out QA stays near chance (AUROC 0.547 to 0.549). FaithBench AUROC rises from 0.509 to 0.594, but F1 falls from 0.813 to 0.120 and ECE rises from 0.292 to 0.450 because the target calibrator is fitted on RAGTruth QA.
+The conventional model is trained only on the HaluEval dataset, whereas EC-XGB is exposed to RAGTruth summarization and data-to-text examples as well, so the performance of EC-XGB on these two tasks indicates its adaptation (Table~\ref{tab:shift}). On the combined RAGTruth split, the flag rate is reduced from 99.9\% to 61.3\% and AUROC increases from 0.475 to 0.582. The task-specific split reveals the source of improvement. On summarization, AUROC increases from 0.634 to 0.736 and ECE decreases from 0.750 to 0.052, while the flag rate falls from 99.8\% to 11.6\%. The summarization F1 score drops from 0.370 to 0.343 because the fixed threshold flags far fewer answers. Data-to-text AUROC goes up from 0.567 to 0.771 and ECE drops from 0.339 to 0.053. Held-out QA remains near chance (AUROC 0.547 to 0.549). FaithBench AUROC increases from 0.509 to 0.594, but F1 drops from 0.813 to 0.120, and ECE increases from 0.292 to 0.450 because the target calibrator is fitted on RAGTruth QA.
 
 \begin{table}[pos=htbp]
   \centering
@@ -683,20 +683,20 @@ The conventional model was trained on HaluEval only, while EC-XGB also saw RAGTr
     \toprule
     \textbf{Dataset / task} & \textbf{Model} & \textbf{F1} & \textbf{AUROC} & \textbf{Flagged} & \textbf{ECE} \\
     \midrule
-    RAGTruth pooled        & Conventional   & 0.5181      & 0.4753         & 99.9\%           & 0.6346       \\
-    RAGTruth pooled        & EC-XGB         & 0.5608      & 0.5815         & 61.3\%           & 0.2782       \\
+    RAGTruth pooled         & Conventional   & 0.5181      & 0.4753         & 99.9\%           & 0.6346       \\
+    RAGTruth pooled         & EC-XGB         & 0.5608      & 0.5815         & 61.3\%           & 0.2782       \\
     \addlinespace
-    RAGTruth QA            & Conventional   & 0.3022      & 0.5465         & 99.9\%           & 0.8149       \\
-    RAGTruth QA            & EC-XGB         & 0.3081      & 0.5491         & 97.4\%           & 0.7433       \\
+    RAGTruth QA             & Conventional   & 0.3022      & 0.5465         & 99.9\%           & 0.8149       \\
+    RAGTruth QA             & EC-XGB         & 0.3081      & 0.5491         & 97.4\%           & 0.7433       \\
     \addlinespace
-    RAGTruth summarization & Conventional   & 0.3702      & 0.6343         & 99.8\%           & 0.7499       \\
-    RAGTruth summarization & EC-XGB         & 0.3434      & 0.7358         & 11.6\%           & 0.0519       \\
+    RAGTruth summarization  & Conventional   & 0.3702      & 0.6343         & 99.8\%           & 0.7499       \\
+    RAGTruth summarization  & EC-XGB         & 0.3434      & 0.7358         & 11.6\%           & 0.0519       \\
     \addlinespace
-    RAGTruth data-to-text  & Conventional   & 0.7830      & 0.5665         & 100.0\%          & 0.3390       \\
-    RAGTruth data-to-text  & EC-XGB         & 0.8234      & 0.7705         & 74.9\%           & 0.0527       \\
+    RAGTruth data-to-text   & Conventional   & 0.7830      & 0.5665         & 100.0\%          & 0.3390       \\
+    RAGTruth data-to-text   & EC-XGB         & 0.8234      & 0.7705         & 74.9\%           & 0.0527       \\
     \addlinespace
-    FaithBench             & Conventional   & 0.8130      & 0.5089         & 99.5\%           & 0.2917       \\
-    FaithBench             & EC-XGB         & 0.1201      & 0.5941         & 7.3\%            & 0.4500       \\
+    FaithBench              & Conventional   & 0.8130      & 0.5089         & 99.5\%           & 0.2917       \\
+    FaithBench              & EC-XGB         & 0.1201      & 0.5941         & 7.3\%            & 0.4500       \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -735,9 +735,9 @@ The ablation study in Table~\ref{tab:ablation} demonstrates how much each featur
 
 \subsection{Statistical Analysis}
 
-Statistical tests use the paired seed-42 predictions and 1{,}000 group-level bootstrap resamples. On HaluEval QA, the McNemar test gives $p = 0.45$ for EC-XGB against the conventional model. The same test gives $p = 0.044$ against the random forest before correction and $p = 0.176$ after Holm correction across four comparisons, so the difference is not significant. The Wilcoxon signed-rank test across three seeds has a minimum attainable two-sided value of $p = 0.25$ and cannot support a significance claim.
+Statistical tests use the paired seed-42 predictions and 1{,}000 group-level bootstrap resamples. On HaluEval QA, the McNemar test compares EC-XGB with the conventional model and gives $p=0.45$, so the difference is not significant. For the random forest, the McNemar test gives $p=0.044$ before correction and $p=0.176$ after Holm correction across four comparisons, so the difference is not significant. The Wilcoxon signed-rank test across three seeds gives a minimum attainable value of $p = 0.25$, so significance cannot be claimed.
 
-Table~\ref{tab:stats} reports the external deltas with 95\% intervals. The AUROC interval excludes zero on every external task. The ECE interval excludes zero on RAGTruth QA, summarization, and data-to-text. The FaithBench ECE interval lies above zero because the target calibrator is fitted on RAGTruth QA. The summarization and FaithBench F1 intervals include zero or fall below it, which is consistent with the fixed 0.5 threshold and the changed flag rate.
+External deltas with 95\% confidence intervals are presented in Table~\ref{tab:stats}. The AUROC interval does not contain zero on any task. The ECE interval does not contain zero for RAGTruth QA, summarization, and data-to-text. The FaithBench ECE interval is positive because the target calibrator is fitted on RAGTruth QA. The summarization F1 interval includes zero, while the FaithBench interval is below zero.
 
 \begin{table}[pos=htbp]
   \centering
@@ -747,12 +747,12 @@ Table~\ref{tab:stats} reports the external deltas with 95\% intervals. The AUROC
   \setlength{\tabcolsep}{4pt}
   \begin{tabular}{lccc}
     \toprule
-    \textbf{Task} & \textbf{$\Delta$F1 [95\% CI]} & \textbf{$\Delta$AUROC [95\% CI]} & \textbf{$\Delta$ECE [95\% CI]} \\
+    \textbf{Task}          & \textbf{$\Delta$F1 [95\% CI]}    & \textbf{$\Delta$AUROC [95\% CI]} & \textbf{$\Delta$ECE [95\% CI]}   \\
     \midrule
-    RAGTruth QA & $+$0.0075 [0.0023, 0.0121] & $+$0.0367 [0.0056, 0.0681] & $-$0.0813 [$-$0.0978, $-$0.0651] \\
-    RAGTruth summarization & $-$0.0197 [$-$0.0871, 0.0471] & $+$0.0811 [0.0431, 0.1230] & $-$0.6690 [$-$0.6841, $-$0.6503] \\
-    RAGTruth data-to-text & $+$0.0414 [0.0208, 0.0601] & $+$0.2152 [0.1686, 0.2636] & $-$0.2522 [$-$0.2739, $-$0.2264] \\
-    FaithBench & $-$0.7029 [$-$0.7430, $-$0.6609] & $+$0.1242 [0.0758, 0.1736] & $+$0.1777 [0.1172, 0.2406] \\
+    RAGTruth QA            & $+$0.0075 [0.0023, 0.0121]       & $+$0.0367 [0.0056, 0.0681]       & $-$0.0813 [$-$0.0978, $-$0.0651] \\
+    RAGTruth summarization & $-$0.0197 [$-$0.0871, 0.0471]    & $+$0.0811 [0.0431, 0.1230]       & $-$0.6690 [$-$0.6841, $-$0.6503] \\
+    RAGTruth data-to-text  & $+$0.0414 [0.0208, 0.0601]       & $+$0.2152 [0.1686, 0.2636]       & $-$0.2522 [$-$0.2739, $-$0.2264] \\
+    FaithBench             & $-$0.7029 [$-$0.7430, $-$0.6609] & $+$0.1242 [0.0758, 0.1736]       & $+$0.1777 [0.1172, 0.2406]       \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -832,7 +832,7 @@ Table~\ref{tab:cost} shows all baselines on an equal footing. The model-only p50
     TF-IDF (answer/full)   & text            & 0.58/4.1\,MB  & 0.014/0.110$^\ast$      & $\approx$\$0.001 \\
     XGBoost (conventional) & 26 feats        & 0.49\,MB      & 0.005                   & $\approx$\$0.001 \\
     RoBERTa-base           & 256 tokens      & 125M params   & ---                     & training only    \\
-    EC-XGB (m3)      & 35 feats        & 0.68\,MB      & 0.008                   & $\approx$\$0.001 \\
+    EC-XGB (m3)            & 35 feats        & 0.68\,MB      & 0.008                   & $\approx$\$0.001 \\
     GPT 5.6 Luna judge     & API             & ---           & 1442.98                 & \$0.106          \\
     Qwen 3.5 4B judge      & 4-bit local     & 4B params     & 2622.56                 & \$0              \\
     \bottomrule
@@ -852,7 +852,7 @@ Table~\ref{tab:judge} illustrates EC-XGB versus two judges based on the same 200
     \midrule
     GPT 5.6 Luna judge & 0.8650       & 0.9867     & 0.7400     & 0.8457      & 1442.98           & \$0.106          \\
     Qwen 3.5 4B judge  & 0.8000       & 0.9688     & 0.6200     & 0.7561      & 2622.56           & \$0              \\
-    EC-XGB (m3)  & 0.9900       & 0.9900     & 0.9900     & 0.9900      & 61.77             & $\approx$\$0.001 \\
+    EC-XGB (m3)        & 0.9900       & 0.9900     & 0.9900     & 0.9900      & 61.77             & $\approx$\$0.001 \\
     \bottomrule
   \end{tabular}
 \end{table}
