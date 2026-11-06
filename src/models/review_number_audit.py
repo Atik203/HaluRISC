@@ -239,6 +239,78 @@ check("Adapted encoder / RAGTruth all AUROC", 0.694, adapt["external"]["ragtruth
 check("Adapted encoder / held-out QA AUROC", 0.490, adapt["external"]["ragtruth_qa_test"]["raw_auroc"]["mean"], RES / "review" / "neural_adapted" / "neural_adapted_summary.json", "external.ragtruth_qa_test.raw_auroc.mean", tol=0.001)
 check("Adapted encoder / FaithBench AUROC", 0.434, adapt["external"]["faithbench"]["raw_auroc"]["mean"], RES / "review" / "neural_adapted" / "neural_adapted_summary.json", "external.faithbench.raw_auroc.mean", tol=0.001)
 
+# Reviewer additions (2026-11-05): per-task table, shift ablation, deployed rows, statistics
+pt = json.loads((OUT / "per_task_metrics.json").read_text())
+pbs = json.loads((OUT / "per_task_bootstrap.json").read_text())
+pr = json.loads((OUT / "ec_xgb_pr_auc.json").read_text())
+
+# Table 5: EC-XGB row
+check("Table 5 / EC-XGB / P", 0.9939, b6.loc["m3", "precision_mean"], RES / "b6" / "b6_model_comparison.csv", "m3.precision_mean")
+check("Table 5 / EC-XGB / R", 0.9773, b6.loc["m3", "recall_mean"], RES / "b6" / "b6_model_comparison.csv", "m3.recall_mean")
+check("Table 5 / EC-XGB / F1", 0.9855, b6.loc["m3", "f1_mean"], RES / "b6" / "b6_model_comparison.csv", "m3.f1_mean")
+check("Table 5 / EC-XGB / AUROC", 0.9984, b6.loc["m3", "auroc_mean"], RES / "b6" / "b6_model_comparison.csv", "m3.auroc_mean")
+check("Table 5 / EC-XGB / PR-AUC", 0.9987, pr["mean"], OUT / "ec_xgb_pr_auc.json", "mean")
+check("Table 5 / EC-XGB / MCC", 0.9715, b6.loc["m3", "mcc_mean"], RES / "b6" / "b6_model_comparison.csv", "m3.mcc_mean")
+check("Table 5 / EC-XGB / ECE", 0.0074, b6.loc["m3", "ece_mean"], RES / "b6" / "b6_model_comparison.csv", "m3.ece_mean")
+check("Table 5 / EC-XGB / Brier", 0.0108, b6.loc["m3", "brier_mean"], RES / "b6" / "b6_model_comparison.csv", "m3.brier_mean")
+
+# Table 6: RAGTruth columns
+t6_shift = {"m0": (0.4753, 0.6346), "m1": (0.5430, 0.6385), "m2": (0.5018, 0.6369), "m3": (0.5815, 0.2782)}
+for variant, (auroc_v, ece_v) in t6_shift.items():
+    row = ext[(ext.variant == variant) & (ext.dataset == "ragtruth_all_test")].iloc[0]
+    check(f"Table 6 / {variant} / RAGTruth AUROC", auroc_v, row["auroc"], RES / "b6" / "b6_external_metrics.csv", f"{variant}.ragtruth_all_test.auroc")
+    check(f"Table 6 / {variant} / RAGTruth ECE", ece_v, row["ece"], RES / "b6" / "b6_external_metrics.csv", f"{variant}.ragtruth_all_test.ece")
+
+# Table 8: deployed seed-42 rows
+dep = cal["deployed_display"]
+check("Table 8 / deployed raw ECE", 0.7257, dep["test_raw"]["ece"], RES / "review" / "calibration_protocol.json", "deployed_display.test_raw.ece")
+check("Table 8 / deployed raw Brier", 0.6823, dep["test_raw"]["brier"], RES / "review" / "calibration_protocol.json", "deployed_display.test_raw.brier")
+check("Table 8 / deployed raw NLL", 2.70, cal["ec_xgb"]["per_seed"]["42"]["raw"]["nll"], RES / "review" / "calibration_protocol.json", "ec_xgb.per_seed.42.raw.nll", tol=0.01)
+check("Table 8 / deployed raw pred pos", 96.3, 100 * cal["ec_xgb"]["per_seed"]["42"]["raw"]["predicted_positive_rate"], RES / "review" / "calibration_protocol.json", "ec_xgb.per_seed.42.raw.predicted_positive_rate", tol=0.1)
+check("Table 8 / deployed target ECE", 0.1255, dep["test_platt"]["ece"], RES / "review" / "calibration_protocol.json", "deployed_display.test_platt.ece")
+check("Table 8 / deployed target Brier", 0.1610, dep["test_platt"]["brier"], RES / "review" / "calibration_protocol.json", "deployed_display.test_platt.brier")
+check("Table 8 / deployed target NLL", 0.50, cal["ec_xgb"]["per_seed"]["42"]["target_platt"]["nll"], RES / "review" / "calibration_protocol.json", "ec_xgb.per_seed.42.target_platt.nll", tol=0.01)
+
+# Table 9: pooled rows
+check("Table 9 / RAGTruth pooled / conventional F1", 0.5181, ext[(ext.variant == "m0") & (ext.dataset == "ragtruth_all_test")].iloc[0]["f1"], RES / "b6" / "b6_external_metrics.csv", "m0.ragtruth_all_test.f1")
+check("Table 9 / RAGTruth pooled / EC-XGB F1", 0.5608, ext[(ext.variant == "m3") & (ext.dataset == "ragtruth_all_test")].iloc[0]["f1"], RES / "b6" / "b6_external_metrics.csv", "m3.ragtruth_all_test.f1")
+
+# Table 9: per-task values
+t9 = {
+    "qa": ("RAGTruth QA", 0.3022, 0.5465, 99.9, 0.8149, 0.3081, 0.5491, 97.4, 0.7433),
+    "summarization": ("RAGTruth summarization", 0.3702, 0.6343, 99.8, 0.7499, 0.3434, 0.7358, 11.6, 0.0519),
+    "data_to_text": ("RAGTruth data-to-text", 0.7830, 0.5665, 100.0, 0.3390, 0.8234, 0.7705, 74.9, 0.0527),
+    "faithbench": ("FaithBench", 0.8130, 0.5089, 99.5, 0.2917, 0.1201, 0.5941, 7.3, 0.4500),
+}
+for key, (label, m0_f1, m0_auroc, m0_flag, m0_ece, m3_f1, m3_auroc, m3_flag, m3_ece) in t9.items():
+    check(f"Table 9 / {label} / m0 F1", m0_f1, pt["m0"][key]["f1"], OUT / "per_task_metrics.json", f"m0.{key}.f1", tol=0.0006)
+    check(f"Table 9 / {label} / m0 AUROC", m0_auroc, pt["m0"][key]["auroc"], OUT / "per_task_metrics.json", f"m0.{key}.auroc", tol=0.0006)
+    check(f"Table 9 / {label} / m0 flag", m0_flag, 100 * pt["m0"][key]["flag"], OUT / "per_task_metrics.json", f"m0.{key}.flag", tol=0.1)
+    check(f"Table 9 / {label} / m0 ECE", m0_ece, pt["m0"][key]["ece"], OUT / "per_task_metrics.json", f"m0.{key}.ece", tol=0.0006)
+    check(f"Table 9 / {label} / m3 F1", m3_f1, pt["m3"][key]["f1"], OUT / "per_task_metrics.json", f"m3.{key}.f1", tol=0.0006)
+    check(f"Table 9 / {label} / m3 AUROC", m3_auroc, pt["m3"][key]["auroc"], OUT / "per_task_metrics.json", f"m3.{key}.auroc", tol=0.0006)
+    check(f"Table 9 / {label} / m3 flag", m3_flag, 100 * pt["m3"][key]["flag"], OUT / "per_task_metrics.json", f"m3.{key}.flag", tol=0.1)
+    check(f"Table 9 / {label} / m3 ECE", m3_ece, pt["m3"][key]["ece"], OUT / "per_task_metrics.json", f"m3.{key}.ece", tol=0.0006)
+
+# Table 11: paired bootstrap
+t11 = {
+    "qa": (0.0075, 0.0023, 0.0121, 0.0367, 0.0056, 0.0681, -0.0813, -0.0978, -0.0651),
+    "summarization": (-0.0197, -0.0871, 0.0471, 0.0811, 0.0431, 0.1230, -0.6690, -0.6841, -0.6503),
+    "data_to_text": (0.0414, 0.0208, 0.0601, 0.2152, 0.1686, 0.2636, -0.2522, -0.2739, -0.2264),
+    "faithbench": (-0.7029, -0.7430, -0.6609, 0.1242, 0.0758, 0.1736, 0.1777, 0.1172, 0.2406),
+}
+for key, vals in t11.items():
+    d1, d1l, d1h, d2, d2l, d2h, d3, d3l, d3h = vals
+    check(f"Table 11 / {key} / dF1", d1, pbs[key]["df1"], OUT / "per_task_bootstrap.json", f"{key}.df1", tol=0.0006)
+    check(f"Table 11 / {key} / dF1 low", d1l, pbs[key]["df1_ci"][0], OUT / "per_task_bootstrap.json", f"{key}.df1_ci[0]", tol=0.0006)
+    check(f"Table 11 / {key} / dF1 high", d1h, pbs[key]["df1_ci"][1], OUT / "per_task_bootstrap.json", f"{key}.df1_ci[1]", tol=0.0006)
+    check(f"Table 11 / {key} / dAUROC", d2, pbs[key]["dauroc"], OUT / "per_task_bootstrap.json", f"{key}.dauroc", tol=0.0006)
+    check(f"Table 11 / {key} / dAUROC low", d2l, pbs[key]["dauroc_ci"][0], OUT / "per_task_bootstrap.json", f"{key}.dauroc_ci[0]", tol=0.0006)
+    check(f"Table 11 / {key} / dAUROC high", d2h, pbs[key]["dauroc_ci"][1], OUT / "per_task_bootstrap.json", f"{key}.dauroc_ci[1]", tol=0.0006)
+    check(f"Table 11 / {key} / dECE", d3, pbs[key]["dece"], OUT / "per_task_bootstrap.json", f"{key}.dece", tol=0.0006)
+    check(f"Table 11 / {key} / dECE low", d3l, pbs[key]["dece_ci"][0], OUT / "per_task_bootstrap.json", f"{key}.dece_ci[0]", tol=0.0006)
+    check(f"Table 11 / {key} / dECE high", d3h, pbs[key]["dece_ci"][1], OUT / "per_task_bootstrap.json", f"{key}.dece_ci[1]", tol=0.0006)
+
 df = pd.DataFrame(rows)
 OUT.mkdir(parents=True, exist_ok=True)
 df.to_csv(OUT / "number_audit.csv", index=False)

@@ -202,3 +202,96 @@ Length conditional / strata,12.0,artifacts\results\review\length_matched_repeat.
 Adapted encoder / RAGTruth all AUROC,0.694,artifacts\results\review\neural_adapted\neural_adapted_summary.json,external.ragtruth_all_test.raw_auroc.mean,0.6940995297706313,9.952977063132362e-05,match
 Adapted encoder / held-out QA AUROC,0.49,artifacts\results\review\neural_adapted\neural_adapted_summary.json,external.ragtruth_qa_test.raw_auroc.mean,0.4897621058558559,0.00023789414414410182,match
 Adapted encoder / FaithBench AUROC,0.434,artifacts\results\review\neural_adapted\neural_adapted_summary.json,external.faithbench.raw_auroc.mean,0.4337722135337771,0.00022778646622290122,match
+Table 5 / EC-XGB / P,0.9939,artifacts\results\b6\b6_model_comparison.csv,m3.precision_mean,0.9938987594220816,1.2405779183932708e-06,match
+Table 5 / EC-XGB / R,0.9773,artifacts\results\b6\b6_model_comparison.csv,m3.recall_mean,0.9773333333333336,3.333333333366273e-05,match
+Table 5 / EC-XGB / F1,0.9855,artifacts\results\b6\b6_model_comparison.csv,m3.f1_mean,0.9855462152201352,4.621522013514845e-05,match
+Table 5 / EC-XGB / AUROC,0.9984,artifacts\results\b6\b6_model_comparison.csv,m3.auroc_mean,0.9984158518518518,1.5851851851822474e-05,match
+Table 5 / EC-XGB / PR-AUC,0.9987,artifacts\results\review\ec_xgb_pr_auc.json,mean,0.9987157261444218,1.5726144421801536e-05,match
+Table 5 / EC-XGB / MCC,0.9715,artifacts\results\b6\b6_model_comparison.csv,m3.mcc_mean,0.971468701111444,3.129888855601948e-05,match
+Table 5 / EC-XGB / ECE,0.0074,artifacts\results\b6\b6_model_comparison.csv,m3.ece_mean,0.0074362202673736,3.6220267373599825e-05,match
+Table 5 / EC-XGB / Brier,0.0108,artifacts\results\b6\b6_model_comparison.csv,m3.brier_mean,0.010820606102546,2.0606102545998872e-05,match
+Table 6 / m0 / RAGTruth AUROC,0.4753,artifacts\results\b6\b6_external_metrics.csv,m0.ragtruth_all_test.auroc,0.4753375529845471,3.755298454710676e-05,match
+Table 6 / m0 / RAGTruth ECE,0.6346,artifacts\results\b6\b6_external_metrics.csv,m0.ragtruth_all_test.ece,0.6345889345363335,1.1065463666581898e-05,match
+Table 6 / m1 / RAGTruth AUROC,0.543,artifacts\results\b6\b6_external_metrics.csv,m1.ragtruth_all_test.auroc,0.5430446069079236,4.4606907923516737e-05,match
+Table 6 / m1 / RAGTruth ECE,0.6385,artifacts\results\b6\b6_external_metrics.csv,m1.ragtruth_all_test.ece,0.6385199972324901,1.9997232490132077e-05,match
+Table 6 / m2 / RAGTruth AUROC,0.5018,artifacts\results\b6\b6_external_metrics.csv,m2.ragtruth_all_test.auroc,0.5018139832730885,1.3983273088435944e-05,match
+Table 6 / m2 / RAGTruth ECE,0.6369,artifacts\results\b6\b6_external_metrics.csv,m2.ragtruth_all_test.ece,0.6368723398315962,2.7660168403831342e-05,match
+Table 6 / m3 / RAGTruth AUROC,0.5815,artifacts\results\b6\b6_external_metrics.csv,m3.ragtruth_all_test.auroc,0.5815407259514184,4.0725951418352224e-05,match
+Table 6 / m3 / RAGTruth ECE,0.2782,artifacts\results\b6\b6_external_metrics.csv,m3.ragtruth_all_test.ece,0.2782230046170729,2.3004617072885925e-05,match
+Table 8 / deployed raw ECE,0.7257,artifacts\results\review\calibration_protocol.json,deployed_display.test_raw.ece,0.7257247571067678,2.4757106767747672e-05,match
+Table 8 / deployed raw Brier,0.6823,artifacts\results\review\calibration_protocol.json,deployed_display.test_raw.brier,0.6823186428868058,1.86428868057531e-05,match
+Table 8 / deployed raw NLL,2.7,artifacts\results\review\calibration_protocol.json,ec_xgb.per_seed.42.raw.nll,2.699162467485122,0.0008375325148781698,match
+Table 8 / deployed raw pred pos,96.3,artifacts\results\review\calibration_protocol.json,ec_xgb.per_seed.42.raw.predicted_positive_rate,96.33333333333334,0.03333333333334565,match
+Table 8 / deployed target ECE,0.1255,artifacts\results\review\calibration_protocol.json,deployed_display.test_platt.ece,0.12554463670547644,4.463670547644183e-05,match
+Table 8 / deployed target Brier,0.161,artifacts\results\review\calibration_protocol.json,deployed_display.test_platt.brier,0.16098895491407056,1.1045085929445309e-05,match
+Table 8 / deployed target NLL,0.5,artifacts\results\review\calibration_protocol.json,ec_xgb.per_seed.42.target_platt.nll,0.5031378310122963,0.003137831012296255,match
+Table 9 / RAGTruth pooled / conventional F1,0.5181,artifacts\results\b6\b6_external_metrics.csv,m0.ragtruth_all_test.f1,0.5181318681318682,3.18681318681735e-05,match
+Table 9 / RAGTruth pooled / EC-XGB F1,0.5608,artifacts\results\b6\b6_external_metrics.csv,m3.ragtruth_all_test.f1,0.5608150533176531,1.505331765316864e-05,match
+Table 9 / RAGTruth QA / m0 F1,0.3022,artifacts\results\review\per_task_metrics.json,m0.qa.f1,0.3021718602455146,2.813975448540118e-05,match
+Table 9 / RAGTruth QA / m0 AUROC,0.5465,artifacts\results\review\per_task_metrics.json,m0.qa.auroc,0.5465160472972973,1.604729729731691e-05,match
+Table 9 / RAGTruth QA / m0 flag,99.9,artifacts\results\review\per_task_metrics.json,m0.qa.flag,99.8888888888889,0.011111111111105743,match
+Table 9 / RAGTruth QA / m0 ECE,0.8149,artifacts\results\review\per_task_metrics.json,m0.qa.ece,0.8148610197504361,3.8980249563835834e-05,match
+Table 9 / RAGTruth QA / m3 F1,0.3081,artifacts\results\review\per_task_metrics.json,m3.qa.f1,0.30806683679593444,3.316320406554496e-05,match
+Table 9 / RAGTruth QA / m3 AUROC,0.5491,artifacts\results\review\per_task_metrics.json,m3.qa.auroc,0.5490765765765766,2.3423423423429846e-05,match
+Table 9 / RAGTruth QA / m3 flag,97.4,artifacts\results\review\per_task_metrics.json,m3.qa.flag,97.4074074074074,0.007407407407399091,match
+Table 9 / RAGTruth QA / m3 ECE,0.7433,artifacts\results\review\per_task_metrics.json,m3.qa.ece,0.7433099987882154,9.998788215392906e-06,match
+Table 9 / RAGTruth summarization / m0 F1,0.3702,artifacts\results\review\per_task_metrics.json,m0.summarization.f1,0.3702359346642468,3.593466424683944e-05,match
+Table 9 / RAGTruth summarization / m0 AUROC,0.6343,artifacts\results\review\per_task_metrics.json,m0.summarization.auroc,0.6343273420479303,2.734204793031214e-05,match
+Table 9 / RAGTruth summarization / m0 flag,99.8,artifacts\results\review\per_task_metrics.json,m0.summarization.flag,99.77777777777777,0.022222222222225696,match
+Table 9 / RAGTruth summarization / m0 ECE,0.7499,artifacts\results\review\per_task_metrics.json,m0.summarization.ece,0.749938768997478,3.8768997478011435e-05,match
+Table 9 / RAGTruth summarization / m3 F1,0.3434,artifacts\results\review\per_task_metrics.json,m3.summarization.f1,0.34340632398884824,6.3239888482558015e-06,match
+Table 9 / RAGTruth summarization / m3 AUROC,0.7358,artifacts\results\review\per_task_metrics.json,m3.summarization.auroc,0.7358317369093231,3.173690932312123e-05,match
+Table 9 / RAGTruth summarization / m3 flag,11.6,artifacts\results\review\per_task_metrics.json,m3.summarization.flag,11.62962962962963,0.029629629629630116,match
+Table 9 / RAGTruth summarization / m3 ECE,0.0519,artifacts\results\review\per_task_metrics.json,m3.summarization.ece,0.05190630010794848,6.300107948477296e-06,match
+Table 9 / RAGTruth data-to-text / m0 F1,0.783,artifacts\results\review\per_task_metrics.json,m0.data_to_text.f1,0.7829614604462475,3.853955375254792e-05,match
+Table 9 / RAGTruth data-to-text / m0 AUROC,0.5665,artifacts\results\review\per_task_metrics.json,m0.data_to_text.auroc,0.5665056126777109,5.612677710931102e-06,match
+Table 9 / RAGTruth data-to-text / m0 flag,100.0,artifacts\results\review\per_task_metrics.json,m0.data_to_text.flag,100.0,0.0,match
+Table 9 / RAGTruth data-to-text / m0 ECE,0.339,artifacts\results\review\per_task_metrics.json,m0.data_to_text.ece,0.3389670639347147,3.293606528531612e-05,match
+Table 9 / RAGTruth data-to-text / m3 F1,0.8234,artifacts\results\review\per_task_metrics.json,m3.data_to_text.f1,0.8234064676624254,6.46766242540231e-06,match
+Table 9 / RAGTruth data-to-text / m3 AUROC,0.7705,artifacts\results\review\per_task_metrics.json,m3.data_to_text.auroc,0.7704586093041857,4.139069581421406e-05,match
+Table 9 / RAGTruth data-to-text / m3 flag,74.9,artifacts\results\review\per_task_metrics.json,m3.data_to_text.flag,74.92592592592592,0.025925925925918136,match
+Table 9 / RAGTruth data-to-text / m3 ECE,0.0527,artifacts\results\review\per_task_metrics.json,m3.data_to_text.ece,0.0527003142858545,3.1428585450105073e-07,match
+Table 9 / FaithBench / m0 F1,0.813,artifacts\results\review\per_task_metrics.json,m0.faithbench.f1,0.8130469371519492,4.693715194925563e-05,match
+Table 9 / FaithBench / m0 AUROC,0.5089,artifacts\results\review\per_task_metrics.json,m0.faithbench.auroc,0.5088567552888067,4.324471119332429e-05,match
+Table 9 / FaithBench / m0 flag,99.5,artifacts\results\review\per_task_metrics.json,m0.faithbench.flag,99.46666666666667,0.03333333333333144,match
+Table 9 / FaithBench / m0 ECE,0.2917,artifacts\results\review\per_task_metrics.json,m0.faithbench.ece,0.2917436536126252,4.3653612625205174e-05,match
+Table 9 / FaithBench / m3 F1,0.1201,artifacts\results\review\per_task_metrics.json,m3.faithbench.f1,0.120129812447768,2.981244776800729e-05,match
+Table 9 / FaithBench / m3 AUROC,0.5941,artifacts\results\review\per_task_metrics.json,m3.faithbench.auroc,0.5940863076473782,1.3692352621719195e-05,match
+Table 9 / FaithBench / m3 flag,7.3,artifacts\results\review\per_task_metrics.json,m3.faithbench.flag,7.333333333333335,0.03333333333333499,match
+Table 9 / FaithBench / m3 ECE,0.45,artifacts\results\review\per_task_metrics.json,m3.faithbench.ece,0.4500202730869253,2.0273086925315376e-05,match
+Table 11 / qa / dF1,0.0075,artifacts\results\review\per_task_bootstrap.json,qa.df1,0.007496941911010857,3.058088989142671e-06,match
+Table 11 / qa / dF1 low,0.0023,artifacts\results\review\per_task_bootstrap.json,qa.df1_ci[0],0.002269850079794354,3.014992020564577e-05,match
+Table 11 / qa / dF1 high,0.0121,artifacts\results\review\per_task_bootstrap.json,qa.df1_ci[1],0.012093225475259482,6.774524740517721e-06,match
+Table 11 / qa / dAUROC,0.0367,artifacts\results\review\per_task_bootstrap.json,qa.dauroc,0.03667153644574872,2.8463554251283163e-05,match
+Table 11 / qa / dAUROC low,0.0056,artifacts\results\review\per_task_bootstrap.json,qa.dauroc_ci[0],0.00561817655633409,1.8176556334089863e-05,match
+Table 11 / qa / dAUROC high,0.0681,artifacts\results\review\per_task_bootstrap.json,qa.dauroc_ci[1],0.06808699615629273,1.3003843707268259e-05,match
+Table 11 / qa / dECE,-0.0813,artifacts\results\review\per_task_bootstrap.json,qa.dece,-0.08133230681634612,3.230681634612542e-05,match
+Table 11 / qa / dECE low,-0.0978,artifacts\results\review\per_task_bootstrap.json,qa.dece_ci[0],-0.09782524991718425,2.524991718425018e-05,match
+Table 11 / qa / dECE high,-0.0651,artifacts\results\review\per_task_bootstrap.json,qa.dece_ci[1],-0.0651166681471385,1.6668147138493294e-05,match
+Table 11 / summarization / dF1,-0.0197,artifacts\results\review\per_task_bootstrap.json,summarization.df1,-0.01967813540436869,2.1864595631308076e-05,match
+Table 11 / summarization / dF1 low,-0.0871,artifacts\results\review\per_task_bootstrap.json,summarization.df1_ci[0],-0.0871004988672837,4.988672837047403e-07,match
+Table 11 / summarization / dF1 high,0.0471,artifacts\results\review\per_task_bootstrap.json,summarization.df1_ci[1],0.04710336806159381,3.3680615938100344e-06,match
+Table 11 / summarization / dAUROC,0.0811,artifacts\results\review\per_task_bootstrap.json,summarization.dauroc,0.08113983591637886,3.9835916378849756e-05,match
+Table 11 / summarization / dAUROC low,0.0431,artifacts\results\review\per_task_bootstrap.json,summarization.dauroc_ci[0],0.04313536505918348,3.536505918348004e-05,match
+Table 11 / summarization / dAUROC high,0.123,artifacts\results\review\per_task_bootstrap.json,summarization.dauroc_ci[1],0.12302210799918221,2.210799918221651e-05,match
+Table 11 / summarization / dECE,-0.669,artifacts\results\review\per_task_bootstrap.json,summarization.dece,-0.6690264421116767,2.644211167668331e-05,match
+Table 11 / summarization / dECE low,-0.6841,artifacts\results\review\per_task_bootstrap.json,summarization.dece_ci[0],-0.6840901796797859,9.82032021412671e-06,match
+Table 11 / summarization / dECE high,-0.6503,artifacts\results\review\per_task_bootstrap.json,summarization.dece_ci[1],-0.6503052528412212,5.252841221214943e-06,match
+Table 11 / data_to_text / dF1,0.0414,artifacts\results\review\per_task_bootstrap.json,data_to_text.df1,0.04135414843553814,4.585156446185873e-05,match
+Table 11 / data_to_text / dF1 low,0.0208,artifacts\results\review\per_task_bootstrap.json,data_to_text.df1_ci[0],0.020763174457413516,3.6825542586483434e-05,match
+Table 11 / data_to_text / dF1 high,0.0601,artifacts\results\review\per_task_bootstrap.json,data_to_text.df1_ci[1],0.060074808789002884,2.519121099711641e-05,match
+Table 11 / data_to_text / dAUROC,0.2152,artifacts\results\review\per_task_bootstrap.json,data_to_text.dauroc,0.21516491299612078,3.508700387921948e-05,match
+Table 11 / data_to_text / dAUROC low,0.1686,artifacts\results\review\per_task_bootstrap.json,data_to_text.dauroc_ci[0],0.1685647103408532,3.528965914678661e-05,match
+Table 11 / data_to_text / dAUROC high,0.2636,artifacts\results\review\per_task_bootstrap.json,data_to_text.dauroc_ci[1],0.26356578235434835,3.421764565164631e-05,match
+Table 11 / data_to_text / dECE,-0.2522,artifacts\results\review\per_task_bootstrap.json,data_to_text.dece,-0.2521540756854746,4.5924314525380705e-05,match
+Table 11 / data_to_text / dECE low,-0.2739,artifacts\results\review\per_task_bootstrap.json,data_to_text.dece_ci[0],-0.27394875809840025,4.875809840027001e-05,match
+Table 11 / data_to_text / dECE high,-0.2264,artifacts\results\review\per_task_bootstrap.json,data_to_text.dece_ci[1],-0.22635566046730507,4.43395326949203e-05,match
+Table 11 / faithbench / dF1,-0.7029,artifacts\results\review\per_task_bootstrap.json,faithbench.df1,-0.70287231876662,2.7681233379928116e-05,match
+Table 11 / faithbench / dF1 low,-0.743,artifacts\results\review\per_task_bootstrap.json,faithbench.df1_ci[0],-0.7430076781507937,7.678150793721805e-06,match
+Table 11 / faithbench / dF1 high,-0.6609,artifacts\results\review\per_task_bootstrap.json,faithbench.df1_ci[1],-0.6608754090231562,2.4590976843819057e-05,match
+Table 11 / faithbench / dAUROC,0.1242,artifacts\results\review\per_task_bootstrap.json,faithbench.dauroc,0.1242164380211884,1.6438021188391883e-05,match
+Table 11 / faithbench / dAUROC low,0.0758,artifacts\results\review\per_task_bootstrap.json,faithbench.dauroc_ci[0],0.07583954321588822,3.954321588821308e-05,match
+Table 11 / faithbench / dAUROC high,0.1736,artifacts\results\review\per_task_bootstrap.json,faithbench.dauroc_ci[1],0.17357007473054137,2.992526945863605e-05,match
+Table 11 / faithbench / dECE,0.1777,artifacts\results\review\per_task_bootstrap.json,faithbench.dece,0.17771885053999725,1.8850539997256055e-05,match
+Table 11 / faithbench / dECE low,0.1172,artifacts\results\review\per_task_bootstrap.json,faithbench.dece_ci[0],0.11723775946109867,3.7759461098671454e-05,match
+Table 11 / faithbench / dECE high,0.2406,artifacts\results\review\per_task_bootstrap.json,faithbench.dece_ci[1],0.24064559174239003,4.559174239002206e-05,match

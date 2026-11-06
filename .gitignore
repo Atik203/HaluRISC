@@ -10,7 +10,7 @@ __pycache__/
 data/raw/
 data/processed/*.parquet
 !data/processed/.gitkeep
-
+.env
 # Runtime retrieval index built from uploaded documents (Chat mode)
 data/processed/retrieval_index/
 

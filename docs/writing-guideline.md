@@ -68,14 +68,14 @@ Status of every rule is tracked in `G0` and in the mapping section at the end.
 | ID | Requirement | Mechanical check | Evidence anchor | Status (2026-10-23) |
 | :-- | :--- | :--- | :--- | :--- |
 | G1 | Title is clear, specific, and free of unexplained abbreviations | title names the task and the method | `\title` | PASS |
-| G2 | Abstract is 250–300 words, one paragraph, six questions in order, headline numbers only | word count, sentence-to-question map | `abstract` | PASS (276 words) |
+| G2 | Abstract is 250-300 words, one paragraph, six questions in order, headline numbers only | word count, sentence-to-question map | `abstract` | PASS (281 words) |
 | G3 | 4–8 specific keywords covering topic, method, problem, domain | count `\sep` + 1 | `keywords` | PASS (7) |
 | G4 | Introduction is exactly four paragraphs in P1–P4 order | paragraph count, then read each paragraph's job | `sec:intro` | PASS |
 | G5 | The article follows the method-based section order | compare heading list with the table above | whole file | PASS |
 | G6 | Dataset/Corpus section only for dataset-based or corpus+method papers | confirm article type | `sec:experiment` (dataset inside §4.2) | N/A |
 | G7 | Conventional Method gives baseline, why it was selected, working principle, formulation, algorithm, characteristics, limitation, gap | subsection list plus one sentence on selection | `sec:conventional` | PASS |
 | G8 | Proposed Method gives working principle, formulation, algorithm, and contribution | subsection list | `sec:proposed` | PASS |
-| G9 | Experiments give setup, dataset, procedure, parameters, metrics | §4.1–§4.5 titles in order | `sec:experiment` | PASS (`§4.6` is an extra protocol block) |
+| G9 | Experiments give setup, dataset, procedure, parameters, metrics | §4.1–§4.5 titles in order | `sec:experiment` | PASS (4.3 baselines, 4.4 procedure, 4.5 protocols) |
 | G10 | Results cover metric-wise results, comparison, ablation, statistics, findings | map each results subsection to one bullet | `sec:results` | PASS with deviation (see below) |
 | G11 | Conclusion gives objective, contribution, findings, significance, future work, and no new references | paragraph map, citation scan | `sec:conclusion` | PASS |
 | G12 | Every author has CRediT roles | one `\credit{}` per author | author block | PASS |
@@ -85,10 +85,11 @@ Status of every rule is tracked in `G0` and in the mapping section at the end.
 
 ### Recorded deviations (do not "fix" these back)
 
-- **G10 order (2026-10-21):** The supervisor removed the standalone limitations subsection. The Results order is comparison → components → calibration → transfer → ablation → explanations → efficiency → error analysis → discussion. Statistical tests sit inside §5.1, §5.2, and §5.5, and §5.9 is interpretation only. The limitations that `G10` asks for stay inline: encoder comparison (§5.1), FaithBench F1 drop (§5.2), held-out ranking near chance (§5.3), length-shortcut control (§5.8), and the negative-results paragraph in the Conclusion.
+- **G10 order (2026-11-05):** The supervisor requested a visible statistical analysis block. The Results order is comparison → components → calibration → transfer → ablation → statistical analysis → explanations → efficiency → error analysis → discussion. This supersedes the 2026-10-21 note that statistical tests sit only inside §5.1, §5.2, and §5.5. The limitations that `G10` asks for stay inline: encoder comparison (§5.1), FaithBench F1 drop (§5.4), held-out ranking near chance (§5.4), length-shortcut control (§5.9), and the negative-results paragraph in the Conclusion.
+- **G9 baseline block (2026-11-05):** §4.3 is titled "Baselines and Comparative Models" so the nine baselines are visible as a block. Experimental Procedure is §4.4 and Additional Protocols is §4.5. The 4.5 slot holds protocols rather than a separate parameter/metrics subsection, matching the earlier compressed structure.
 - **Terminology (2026-10-21):** The baseline model is always "conventional" or "conventional XGBoost", matching the §2 title. Never call it "the standard model". Generic uses such as "standard metrics", "standard logistic loss", and "standard deviation" remain correct.
-- **Abstract style (2026-10-23):** The abstract is 276 words, inside the 250–300 band but above the 250 target. It stays there because every sentence answers a required question and the extra words are the cost, latency, and calibration results, not filler.
-- **Page budget (2026-10-21):** 17 pages in CAS single column. Do not add length without supervisor approval.
+- **Abstract style (2026-11-05):** The abstract is 281 words, inside the 250–300 band but above the 250 target. It stays there because every sentence answers a required question and the extra words are the cost, latency, and calibration results, not filler.
+- **Page budget (2026-11-05):** 18 pages in CAS single column, approved by the supervisor for the reviewer response. Do not add further length without supervisor approval.
 
 ### Audit procedure (MUST run after every edit)
 
@@ -107,7 +108,7 @@ cd ..
 
 Then check, in this order:
 
-1. `pages = 17`, and no reference block spills onto page 18.
+1. `pages = 18`, and no reference block spills onto page 19.
 2. `Underfull 0`, `Overfull 0`, `LaTeX Error 0`, undefined citation 0, undefined reference 0.
 3. Abstract word count 250–300, one paragraph, all six questions answered in order.
 4. Keywords 4–8.
@@ -621,8 +622,8 @@ zero LaTeX warnings.
 | G4 | `sec:intro` | P1 current state, P2 literature and gap, P3 objective and approach, P4 scope and contribution |
 | G7 | `sec:conventional` | 2.1 Preliminaries, 2.2 Baseline Method (why selected, formulation, Algorithm 1), 2.3 Limitations and Research Gap |
 | G8 | `sec:proposed` | 3.1 Working Principle and Task, 3.2 Features, 3.3 Evidence-Consistent XGBoost (Algorithm 2), 3.4 Calibration and Explainability, 3.5 System and Reproducibility |
-| G9 | `sec:experiment` | 4.1 Experimental Setup and Conditions, 4.2 Dataset, 4.3 Experimental Procedure, 4.4 Parameter Configuration, 4.5 Evaluation Metrics, 4.6 Additional Protocols |
-| G10 | `sec:results` | 5.1 Model comparison, 5.2 Evidence-consistent XGBoost, 5.3 Calibration, 5.4 Cross-domain transfer, 5.5 Ablation, 5.6 Explanation reliability, 5.7 Efficiency and the LLM judge, 5.8 Error analysis, 5.9 Discussion |
+| G9 | `sec:experiment` | 4.1 Experimental Setup and Conditions, 4.2 Dataset, 4.3 Baselines and Comparative Models, 4.4 Experimental Procedure, 4.5 Additional Protocols |
+| G10 | `sec:results` | 5.1 Model comparison, 5.2 Evidence-consistent XGBoost, 5.3 Calibration, 5.4 Cross-domain transfer, 5.5 Ablation, 5.6 Statistical Analysis, 5.7 Explanation reliability, 5.8 Efficiency and the LLM judge, 5.9 Error analysis, 5.10 Discussion |
 | G11 | `sec:conclusion` | Objective, contribution, key findings, negative results, significance, future work |
 | G12 | author block | One `\credit{}` per author, printed by `\printcredits` before the Declarations |
 | G13 | `Declarations` | Funding, conflicts of interest, data availability, code availability, ethical approval |
