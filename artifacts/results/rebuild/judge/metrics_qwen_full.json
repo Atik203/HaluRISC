@@ -1,0 +1,133 @@
+{
+  "meta": {
+    "work_package": "WP6",
+    "backend": "qwen",
+    "model": "qwen3.5:4b",
+    "dataset": "ragtruth_qa_test",
+    "out_tag": "full",
+    "n_rows": 900,
+    "n_predictions": 900,
+    "seeds": [
+      42
+    ],
+    "prevalence": 0.17777777777777778,
+    "max_completion_tokens": 300,
+    "system_prompt_sha256": "5688460de11af09e053037b0eb1c4f8d4fcdabb6aa3cea10cf44d3c41244156e",
+    "system_prompt_tokens_o200k": 1150,
+    "prompt_doc": "docs/rebuild/judge_prompt.md",
+    "pilot": false,
+    "note": "Pilot numbers are not final; only --limit 0 produces the WP6 table."
+  },
+  "per_seed": {
+    "42": {
+      "n": 900,
+      "prevalence": 0.17777777777777778,
+      "accuracy": 0.85,
+      "precision": 0.5698324022346368,
+      "recall": 0.6375,
+      "f1": 0.6017699115044248,
+      "auroc": 0.778298141891892,
+      "predicted_positive_rate": 0.1988888888888889,
+      "confusion": {
+        "tp": 102,
+        "fp": 77,
+        "tn": 663,
+        "fn": 58
+      },
+      "ci95": {
+        "accuracy": [
+          0.8277777777777777,
+          0.8733333333333333
+        ],
+        "precision": [
+          0.49641234485815605,
+          0.6453209130484592
+        ],
+        "recall": [
+          0.5640822784810127,
+          0.707154344193818
+        ],
+        "f1": [
+          0.5396635300826917,
+          0.6628962278216789
+        ],
+        "predicted_positive_rate": [
+          0.17333333333333334,
+          0.22333333333333333
+        ],
+        "auroc": [
+          0.741300528824306,
+          0.8167492599006995
+        ]
+      },
+      "parse_failures": 2
+    }
+  },
+  "mean_across_seeds": {
+    "accuracy": {
+      "mean": 0.85,
+      "sd": 0.0
+    },
+    "precision": {
+      "mean": 0.5698324022346368,
+      "sd": 0.0
+    },
+    "recall": {
+      "mean": 0.6375,
+      "sd": 0.0
+    },
+    "f1": {
+      "mean": 0.6017699115044248,
+      "sd": 0.0
+    },
+    "auroc": {
+      "mean": 0.778298141891892,
+      "sd": 0.0
+    },
+    "predicted_positive_rate": {
+      "mean": 0.1988888888888889,
+      "sd": 0.0
+    }
+  },
+  "agreement": {
+    "n_common_rows": 900,
+    "pairwise": {},
+    "vs_ec_xgb_seed42": {
+      "42": {
+        "n": 900,
+        "exact_match": 0.23333333333333334,
+        "cohen_kappa": 0.01586969544257355
+      }
+    }
+  },
+  "tokens": {
+    "calls": 900,
+    "prompt_tokens": 1490710,
+    "cached_prompt_tokens": 0,
+    "uncached_prompt_tokens": 1490710,
+    "completion_tokens": 36372,
+    "reasoning_tokens": 0,
+    "total_tokens": 1527082,
+    "mean_prompt_tokens": 1656.3444444444444,
+    "mean_completion_tokens": 40.413333333333334,
+    "cache_hit_rate": 0.0
+  },
+  "cost": {
+    "usd": 0.0,
+    "usd_per_1000_calls": 0.0,
+    "pricing": null,
+    "assumption": "Local Ollama inference; no API charge. Electricity and hardware are excluded."
+  },
+  "latency": {
+    "n": 900,
+    "mean_ms": 3063.667288888889,
+    "p50_ms": 3049.955,
+    "p95_ms": 3270.7909999999997,
+    "min_ms": 2601.18,
+    "max_ms": 3893.87
+  },
+  "errors": {
+    "n_failed_calls": 0,
+    "first_errors": []
+  }
+}

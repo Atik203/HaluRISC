@@ -362,7 +362,7 @@ export function AutoRiskCard() {
               <p className="mt-0.5 text-[11px] leading-snug opacity-80">
                 {claimRisk
                   ? `${claims.length} claim${claims.length > 1 ? "s" : ""} checked · headline follows the claim evidence`
-                  : "Evidence-calibrated risk probability"}
+                  : "Evidence-adjusted risk score"}
               </p>
             </div>
             <div className="text-right">

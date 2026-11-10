@@ -402,6 +402,8 @@ def run_b6(cfg: B6Config) -> dict:
     comparison_df = pd.DataFrame(summary).T
     comparison_df.to_csv(cfg.results_dir / "b6_model_comparison.csv")
     results_df.drop(columns=["confusion"]).to_csv(cfg.results_dir / "b6_per_seed_metrics.csv", index=False)
+    if cfg.fixed_params is not None:
+        results_df.drop(columns=["confusion"]).to_csv(cfg.results_dir / "fixed_hp_ablation.csv", index=False)
 
     confusions = {}
     for row in result_rows:
@@ -463,6 +465,8 @@ def run_b6(cfg: B6Config) -> dict:
 
     if prediction_rows:
         pd.DataFrame(prediction_rows).to_parquet(cfg.results_dir / "b6_predictions.parquet", index=False)
+        if cfg.fixed_params is not None:
+            pd.DataFrame(prediction_rows).to_parquet(cfg.results_dir / "fixed_hp_predictions.parquet", index=False)
 
     config_out = {
         "schema": "b6-config-v1",

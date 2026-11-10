@@ -1,0 +1,200 @@
+{
+  "model": "EC-XGB",
+  "model_version": "m3-fixed-hp-seed-42",
+  "model_path": "artifacts\\models\\rebuild\\fixed_hp\\xgboost_m3_seed_42.joblib",
+  "n_rows": 1000,
+  "n_features": 35,
+  "sample_seed": 42,
+  "sampling": "label-stratified without replacement",
+  "shap_space": "raw margin (log-odds)",
+  "mean_bias": 0.01558484137058258,
+  "sum_mean_abs_shap": 8.922322343489947,
+  "margin_error_max": 9.240582585334778e-06,
+  "mean_score": 0.49849189371208197,
+  "positive_rate": 0.5,
+  "top_10": [
+    {
+      "rank": 1,
+      "feature": "overlap_answer_context",
+      "feature_group": "lexical",
+      "mean_abs_shap": 1.6611606419347227,
+      "share_pct": 18.61802990279505
+    },
+    {
+      "rank": 2,
+      "feature": "n_words",
+      "feature_group": "length",
+      "mean_abs_shap": 1.1083456756472587,
+      "share_pct": 12.422165810406394
+    },
+    {
+      "rank": 3,
+      "feature": "cosine_q_ans",
+      "feature_group": "semantic",
+      "mean_abs_shap": 0.9571558607912156,
+      "share_pct": 10.727653899319067
+    },
+    {
+      "rank": 4,
+      "feature": "n_chars",
+      "feature_group": "length",
+      "mean_abs_shap": 0.8227514739478938,
+      "share_pct": 9.221270452621603
+    },
+    {
+      "rank": 5,
+      "feature": "jaccard_ans_q",
+      "feature_group": "lexical",
+      "mean_abs_shap": 0.7799107983385911,
+      "share_pct": 8.741118828862339
+    },
+    {
+      "rank": 6,
+      "feature": "overlap_answer_question",
+      "feature_group": "lexical",
+      "mean_abs_shap": 0.6045963484048843,
+      "share_pct": 6.77622176300344
+    },
+    {
+      "rank": 7,
+      "feature": "nli_ctx_contradicts_ans",
+      "feature_group": "nli",
+      "mean_abs_shap": 0.41874843323847744,
+      "share_pct": 4.693267258428649
+    },
+    {
+      "rank": 8,
+      "feature": "claim_mean_contradicts",
+      "feature_group": "claim_nli",
+      "mean_abs_shap": 0.2215089962556958,
+      "share_pct": 2.482638350511029
+    },
+    {
+      "rank": 9,
+      "feature": "nli_ctx_neutral_ans",
+      "feature_group": "nli",
+      "mean_abs_shap": 0.2069883019493427,
+      "share_pct": 2.3198926689794943
+    },
+    {
+      "rank": 10,
+      "feature": "jaccard_ans_ctx",
+      "feature_group": "lexical",
+      "mean_abs_shap": 0.16765739374095573,
+      "share_pct": 1.879077971928292
+    }
+  ],
+  "top_15": [
+    {
+      "rank": 1,
+      "feature": "overlap_answer_context",
+      "feature_group": "lexical",
+      "mean_abs_shap": 1.6611606419347227,
+      "share_pct": 18.61802990279505
+    },
+    {
+      "rank": 2,
+      "feature": "n_words",
+      "feature_group": "length",
+      "mean_abs_shap": 1.1083456756472587,
+      "share_pct": 12.422165810406394
+    },
+    {
+      "rank": 3,
+      "feature": "cosine_q_ans",
+      "feature_group": "semantic",
+      "mean_abs_shap": 0.9571558607912156,
+      "share_pct": 10.727653899319067
+    },
+    {
+      "rank": 4,
+      "feature": "n_chars",
+      "feature_group": "length",
+      "mean_abs_shap": 0.8227514739478938,
+      "share_pct": 9.221270452621603
+    },
+    {
+      "rank": 5,
+      "feature": "jaccard_ans_q",
+      "feature_group": "lexical",
+      "mean_abs_shap": 0.7799107983385911,
+      "share_pct": 8.741118828862339
+    },
+    {
+      "rank": 6,
+      "feature": "overlap_answer_question",
+      "feature_group": "lexical",
+      "mean_abs_shap": 0.6045963484048843,
+      "share_pct": 6.77622176300344
+    },
+    {
+      "rank": 7,
+      "feature": "nli_ctx_contradicts_ans",
+      "feature_group": "nli",
+      "mean_abs_shap": 0.41874843323847744,
+      "share_pct": 4.693267258428649
+    },
+    {
+      "rank": 8,
+      "feature": "claim_mean_contradicts",
+      "feature_group": "claim_nli",
+      "mean_abs_shap": 0.2215089962556958,
+      "share_pct": 2.482638350511029
+    },
+    {
+      "rank": 9,
+      "feature": "nli_ctx_neutral_ans",
+      "feature_group": "nli",
+      "mean_abs_shap": 0.2069883019493427,
+      "share_pct": 2.3198926689794943
+    },
+    {
+      "rank": 10,
+      "feature": "jaccard_ans_ctx",
+      "feature_group": "lexical",
+      "mean_abs_shap": 0.16765739374095573,
+      "share_pct": 1.879077971928292
+    },
+    {
+      "rank": 11,
+      "feature": "source_ragtruth",
+      "feature_group": "source",
+      "mean_abs_shap": 0.16583805104345084,
+      "share_pct": 1.8586870621688798
+    },
+    {
+      "rank": 12,
+      "feature": "nli_ctx_entails_ans",
+      "feature_group": "nli",
+      "mean_abs_shap": 0.15616371176624672,
+      "share_pct": 1.7502585734328404
+    },
+    {
+      "rank": 13,
+      "feature": "nli_ans_contradicts_ctx",
+      "feature_group": "nli",
+      "mean_abs_shap": 0.15391961299552348,
+      "share_pct": 1.7251070637212391
+    },
+    {
+      "rank": 14,
+      "feature": "entity_overlap_ratio",
+      "feature_group": "entity",
+      "mean_abs_shap": 0.1472404711149866,
+      "share_pct": 1.6502482811822936
+    },
+    {
+      "rank": 15,
+      "feature": "avg_word_len",
+      "feature_group": "length",
+      "mean_abs_shap": 0.13031809696307756,
+      "share_pct": 1.4605849457810993
+    }
+  ],
+  "constant_features": [
+    "source_ragtruth",
+    "hedge_count",
+    "hedge_density"
+  ],
+  "caveat": "TreeSHAP explains the raw margin, not the Platt display score. source_ragtruth is constant 0 on HaluEval; its nonzero attributions come from interaction structure, not within-domain source variation."
+}

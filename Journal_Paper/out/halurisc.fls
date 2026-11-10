@@ -587,10 +587,11 @@ INPUT ./figures/b3/transfer_score_distributions.png
 INPUT ./figures/b3/transfer_score_distributions.png
 INPUT ./figures/b3/transfer_score_distributions.png
 INPUT ./figures/b3/transfer_score_distributions.png
-INPUT ./figures/revision/shap_summary.png
-INPUT ./figures/revision/shap_summary.png
-INPUT ./figures/revision/shap_summary.png
-INPUT ./figures/revision/shap_summary.png
+INPUT ./figures/revision/m3_shap_summary.png
+INPUT ./figures/revision/m3_shap_summary.png
+INPUT ./figures/revision/m3_shap_summary.png
+INPUT ./figures/revision/m3_shap_summary.png
+INPUT c:/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/ecss0800.tfm
 INPUT ./figures/revision/length_analysis.png
 INPUT ./figures/revision/length_analysis.png
 INPUT ./figures/revision/length_analysis.png

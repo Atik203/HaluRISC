@@ -123,8 +123,8 @@ function RiskPanel({ result, meta, title }: { result: AnalysisResult; meta: Meta
         </summary>
         <ul className="mt-2 space-y-1.5 text-[11px] leading-relaxed text-muted-foreground">
           <li>
-            The percentage is a calibrated probability. On the calibration data, answers that scored near this value
-            were hallucinated about this often.
+            The percentage is a target-calibrated display score, fitted on RAGTruth QA. It is not a general
+            probability for other domains, and it needs recalibration after a domain shift.
           </li>
           <li>
             The notches on the gauge are the low, medium, and high decision cutoffs. The needle points at this
@@ -152,7 +152,7 @@ function RiskPanel({ result, meta, title }: { result: AnalysisResult; meta: Meta
           <ShapChart features={explanation.top_features} baseValue={explanation.base_value} />
           <p className="text-[11px] leading-relaxed text-muted-foreground">
             SHAP values explain the <strong className="font-semibold text-foreground">raw XGBoost model</strong>, not the
-            calibrated score.
+            display score.
           </p>
         </div>
       )}

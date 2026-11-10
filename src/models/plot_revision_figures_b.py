@@ -185,7 +185,8 @@ def length_analysis() -> None:
 # 2. per-seed stability
 # --------------------------------------------------------------------------
 def per_seed_stability() -> None:
-    src = RESULTS / "b6" / "b6_per_seed_metrics.csv"
+    rebuild_src = RESULTS / "rebuild" / "fixed_hp" / "fixed_hp_ablation.csv"
+    src = rebuild_src if rebuild_src.exists() else RESULTS / "b6" / "b6_per_seed_metrics.csv"
     df = pd.read_csv(src)
     variants = ["m0", "m1", "m2", "m3"]
     assert sorted(df["variant"].unique()) == variants
@@ -205,9 +206,9 @@ def per_seed_stability() -> None:
         print(f"  {v}: F1 {f1m:.4f} +/- {f1s:.4f} | AUROC {aum:.4f} +/- {aus:.4f} | ECE {em:.4f} +/- {es:.4f}")
 
     specs = [
-        ("f1", "F1", (0.9818, 0.9910), "%.4f"),
-        ("auroc", "AUROC", (0.9970, 1.0000), "%.4f"),
-        ("ece", "ECE", (0.0015, 0.0190), "%.4f"),
+        ("f1", "F1", (0.9835, 0.9865), "%.4f"),
+        ("auroc", "AUROC", (0.9972, 0.9989), "%.4f"),
+        ("ece", "ECE", (0.0025, 0.0105), "%.4f"),
     ]
     fig, axes = plt.subplots(1, 3, figsize=(6.35, 3.35))
     offsets = {42: -0.075, 123: 0.0, 456: 0.075}

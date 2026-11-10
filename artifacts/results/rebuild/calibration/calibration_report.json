@@ -1,0 +1,845 @@
+{
+  "schema": "rebuild-wp2-calibration-v1",
+  "generated_at_utc": "2026-11-10T20:33:13.833162+00:00",
+  "script": "src/models/rebuild_calibration.py",
+  "protocol": {
+    "variant": "m3",
+    "seeds": [
+      42,
+      123,
+      456
+    ],
+    "threshold": 0.5,
+    "ece_bins": 10,
+    "fpr_target": 0.05,
+    "n_boot": 1000,
+    "bootstrap": "row bootstrap, percentile interval",
+    "source_calibration_split": "HaluEval validation (3,000 rows)",
+    "target_calibration_split": "RAGTruth QA calibration (5,034 rows)",
+    "evaluation_splits": [
+      "HaluEval test (3,000 rows)",
+      "RAGTruth QA test (900 rows)"
+    ],
+    "calibrators": [
+      "raw",
+      "source_platt",
+      "target_platt",
+      "source_isotonic",
+      "target_isotonic"
+    ],
+    "selection_rule": "Platt is fixed a priori; test ECE is never used for selection",
+    "prior_constants": [
+      0.31068732618196265,
+      0.17777777777777778
+    ],
+    "label_budget": {
+      "sizes": [
+        50,
+        100,
+        252,
+        500,
+        1000,
+        5034
+      ],
+      "draws_per_size": 100,
+      "sampling": "without replacement from the 5,034 calibration rows",
+      "evaluation": "900-row RAGTruth QA test, one Platt fit per draw"
+    }
+  },
+  "split_sizes": {
+    "halueval_val": 3000,
+    "ragtruth_qa_calibration": 5034,
+    "halueval_test": 3000,
+    "ragtruth_qa_test": 900
+  },
+  "prevalences": {
+    "ragtruth_qa_calibration": 0.31068732618196265,
+    "ragtruth_qa_test": 0.17777777777777778,
+    "halueval_val": 0.5,
+    "halueval_test": 0.5
+  },
+  "slopes": {
+    "fixed_hp": {
+      "halueval_val": {
+        "n_fit": 3000,
+        "fit_prevalence": 0.5,
+        "mean": {
+          "platt_coef": 8.997382021338124,
+          "platt_intercept": -4.475389855398448,
+          "cal_slope": 1.1297601543612366,
+          "cal_intercept": -0.18763906433340757
+        },
+        "per_seed": {
+          "42": {
+            "platt_coef": 8.97081352021595,
+            "platt_intercept": -4.450911956218165,
+            "cal_slope": 1.1235734860484698,
+            "cal_intercept": -0.17471866271098463
+          },
+          "123": {
+            "platt_coef": 8.999189887023157,
+            "platt_intercept": -4.471655422436122,
+            "cal_slope": 1.132396260974173,
+            "cal_intercept": -0.18859014110294903
+          },
+          "456": {
+            "platt_coef": 9.022142656775268,
+            "platt_intercept": -4.50360218754106,
+            "cal_slope": 1.1333107160610667,
+            "cal_intercept": -0.19960838918628904
+          }
+        }
+      },
+      "ragtruth_qa_calibration": {
+        "n_fit": 5034,
+        "fit_prevalence": 0.31068732618196265,
+        "mean": {
+          "platt_coef": 3.3107154256142373,
+          "platt_intercept": -3.8873438902650777,
+          "cal_slope": 0.18059309735847676,
+          "cal_intercept": -1.4192918697540533
+        },
+        "per_seed": {
+          "42": {
+            "platt_coef": 2.780257474846139,
+            "platt_intercept": -3.377148981688077,
+            "cal_slope": 0.15852997786568565,
+            "cal_intercept": -1.3341214143129099
+          },
+          "123": {
+            "platt_coef": 3.170223148382542,
+            "platt_intercept": -3.7881463426892967,
+            "cal_slope": 0.1566760822743625,
+            "cal_intercept": -1.3739408567035163
+          },
+          "456": {
+            "platt_coef": 3.981665653614031,
+            "platt_intercept": -4.496736346417861,
+            "cal_slope": 0.22657323193538215,
+            "cal_intercept": -1.5498133382457338
+          }
+        }
+      }
+    },
+    "frozen_b6_tuned": {
+      "halueval_val": {
+        "n_fit": 3000,
+        "fit_prevalence": 0.5,
+        "mean": {
+          "platt_coef": 8.978538846824936,
+          "platt_intercept": -4.446563949613664,
+          "cal_slope": 1.1150810300088239,
+          "cal_intercept": -0.17971393881884848
+        },
+        "per_seed": {
+          "42": {
+            "platt_coef": 8.972833474616149,
+            "platt_intercept": -4.452746758542708,
+            "cal_slope": 1.125146825785297,
+            "cal_intercept": -0.17514857591406102
+          },
+          "123": {
+            "platt_coef": 8.935624548240236,
+            "platt_intercept": -4.388932510161289,
+            "cal_slope": 1.0969000460780627,
+            "cal_intercept": -0.16316856237316846
+          },
+          "456": {
+            "platt_coef": 9.027158517618421,
+            "platt_intercept": -4.498012580136997,
+            "cal_slope": 1.1231962181631119,
+            "cal_intercept": -0.20082467816931596
+          }
+        }
+      },
+      "ragtruth_qa_calibration": {
+        "n_fit": 5034,
+        "fit_prevalence": 0.31068732618196265,
+        "mean": {
+          "platt_coef": 3.250470120368375,
+          "platt_intercept": -3.8593208717274012,
+          "cal_slope": 0.1574856046186213,
+          "cal_intercept": -1.3656090900702218
+        },
+        "per_seed": {
+          "42": {
+            "platt_coef": 2.7645017469994566,
+            "platt_intercept": -3.363393886005619,
+            "cal_slope": 0.1553616386284895,
+            "cal_intercept": -1.3232086731886044
+          },
+          "123": {
+            "platt_coef": 2.9975412986826058,
+            "platt_intercept": -3.674668770748816,
+            "cal_slope": 0.10863641178134498,
+            "cal_intercept": -1.2314820849827606
+          },
+          "456": {
+            "platt_coef": 3.989367315423061,
+            "platt_intercept": -4.539899958427768,
+            "cal_slope": 0.20845876344602943,
+            "cal_intercept": -1.5421365120393007
+          }
+        }
+      }
+    }
+  },
+  "headline": {
+    "source_platt_halueval_test": {
+      "dataset": "halueval_test",
+      "calibrator": "source_platt",
+      "pooled": {
+        "ece": 0.008768516730925324,
+        "brier": 0.011509743624537418,
+        "brier_skill_score": 0.9539610255018504,
+        "auroc": 0.9985515555555556,
+        "pr_auc": 0.9988018148750933,
+        "f1": 0.9855462927229305,
+        "precision": 0.9938986096405283,
+        "recall": 0.9773333333333335,
+        "predicted_positive_rate": 0.4916666666666667,
+        "recall_at_5pct_fpr": 0.9948888888888888
+      },
+      "pooled_ci": {
+        "ece_ci": [
+          0.0072489624336565354,
+          0.012907765892434439
+        ],
+        "brier_ci": [
+          0.008165564297254476,
+          0.01461461685077074
+        ],
+        "brier_skill_score_ci": [
+          0.941488930614274,
+          0.967300704702672
+        ],
+        "auroc_ci": [
+          0.9975333195381482,
+          0.9994148766016013
+        ],
+        "pr_auc_ci": [
+          0.998043037108048,
+          0.9994483497722542
+        ],
+        "f1_ci": [
+          0.9814116546576821,
+          0.989705149594803
+        ]
+      },
+      "per_seed": {
+        "42": {
+          "ece": 0.008417070628871872,
+          "brier": 0.011368290189684885,
+          "brier_skill_score": 0.9545268392412605,
+          "auroc": 0.9985062222222222,
+          "pr_auc": 0.9987950347128722,
+          "f1": 0.9858776059179556,
+          "precision": 0.994572591587517,
+          "recall": 0.9773333333333334,
+          "predicted_positive_rate": 0.49133333333333334,
+          "recall_at_5pct_fpr": 0.994
+        },
+        "123": {
+          "ece": 0.008873224228919962,
+          "brier": 0.011692926615629134,
+          "brier_skill_score": 0.9532282935374835,
+          "auroc": 0.9985337777777777,
+          "pr_auc": 0.9987824450559407,
+          "f1": 0.985546218487395,
+          "precision": 0.9938983050847457,
+          "recall": 0.9773333333333334,
+          "predicted_positive_rate": 0.49166666666666664,
+          "recall_at_5pct_fpr": 0.9953333333333333
+        },
+        "456": {
+          "ece": 0.009015255334984137,
+          "brier": 0.011468014068298235,
+          "brier_skill_score": 0.9541279437268071,
+          "auroc": 0.9986146666666667,
+          "pr_auc": 0.9988279648564671,
+          "f1": 0.9852150537634409,
+          "precision": 0.9932249322493225,
+          "recall": 0.9773333333333334,
+          "predicted_positive_rate": 0.492,
+          "recall_at_5pct_fpr": 0.9953333333333333
+        }
+      }
+    },
+    "raw_ragtruth_qa_test": {
+      "dataset": "ragtruth_qa_test",
+      "calibrator": "raw",
+      "pooled": {
+        "ece": 0.7309697361814754,
+        "brier": 0.6885506093321135,
+        "brier_skill_score": -3.710523594248411,
+        "auroc": 0.5577125563063062,
+        "pr_auc": 0.1909889098384716,
+        "f1": 0.3097409577533939,
+        "precision": 0.18332223035068718,
+        "recall": 0.9979166666666667,
+        "predicted_positive_rate": 0.9677777777777777,
+        "recall_at_5pct_fpr": 0.03958333333333333
+      },
+      "pooled_ci": {
+        "ece_ci": [
+          0.7062707525448252,
+          0.756615240384652
+        ],
+        "brier_ci": [
+          0.6635890151327809,
+          0.7125385549349699
+        ],
+        "brier_skill_score_ci": [
+          -4.466494405111597,
+          -3.122017827371925
+        ],
+        "auroc_ci": [
+          0.5128996061365456,
+          0.6021278059264785
+        ],
+        "pr_auc_ci": [
+          0.15997962647754346,
+          0.2326073830643239
+        ],
+        "f1_ci": [
+          0.27412874940071674,
+          0.34490419426089536
+        ]
+      },
+      "per_seed": {
+        "42": {
+          "ece": 0.7249658832699061,
+          "brier": 0.6815089539335993,
+          "brier_skill_score": -3.6623501071470894,
+          "auroc": 0.5536655405405405,
+          "pr_auc": 0.1894574876418999,
+          "f1": 0.30963972736124634,
+          "precision": 0.18339100346020762,
+          "recall": 0.99375,
+          "predicted_positive_rate": 0.9633333333333334,
+          "recall_at_5pct_fpr": 0.03125
+        },
+        "123": {
+          "ece": 0.7447750936365789,
+          "brier": 0.7077558731249284,
+          "brier_skill_score": -3.8419109563445266,
+          "auroc": 0.5403209459459459,
+          "pr_auc": 0.18447174628552082,
+          "f1": 0.3076923076923077,
+          "precision": 0.18181818181818182,
+          "recall": 1.0,
+          "predicted_positive_rate": 0.9777777777777777,
+          "recall_at_5pct_fpr": 0.04375
+        },
+        "456": {
+          "ece": 0.7231682316379415,
+          "brier": 0.6763870009378129,
+          "brier_skill_score": -3.627309719253618,
+          "auroc": 0.5791511824324325,
+          "pr_auc": 0.19903749558799405,
+          "f1": 0.31189083820662766,
+          "precision": 0.18475750577367206,
+          "recall": 1.0,
+          "predicted_positive_rate": 0.9622222222222222,
+          "recall_at_5pct_fpr": 0.04375
+        }
+      }
+    },
+    "source_platt_ragtruth_qa_test": {
+      "dataset": "ragtruth_qa_test",
+      "calibrator": "source_platt",
+      "pooled": {
+        "ece": 0.7654717881702697,
+        "brier": 0.7417193078383942,
+        "brier_skill_score": -4.07426215666469,
+        "auroc": 0.5577125563063062,
+        "pr_auc": 0.1909889098384716,
+        "f1": 0.3097409577533939,
+        "precision": 0.18332223035068718,
+        "recall": 0.9979166666666667,
+        "predicted_positive_rate": 0.9677777777777777,
+        "recall_at_5pct_fpr": 0.03958333333333333
+      },
+      "pooled_ci": {
+        "ece_ci": [
+          0.7400490398884835,
+          0.7898621522994457
+        ],
+        "brier_ci": [
+          0.7160535720316028,
+          0.7651487722445754
+        ],
+        "brier_skill_score_ci": [
+          -4.875944538057546,
+          -3.4337230026704146
+        ],
+        "auroc_ci": [
+          0.5125098987413863,
+          0.6017485708182192
+        ],
+        "pr_auc_ci": [
+          0.16076881787104758,
+          0.2307984001615757
+        ],
+        "f1_ci": [
+          0.27327244442927473,
+          0.34717823408330295
+        ]
+      },
+      "per_seed": {
+        "42": {
+          "ece": 0.7607921079799669,
+          "brier": 0.7360103349863423,
+          "brier_skill_score": -4.035205839011294,
+          "auroc": 0.5536655405405405,
+          "pr_auc": 0.1894574876418999,
+          "f1": 0.30963972736124634,
+          "precision": 0.18339100346020762,
+          "recall": 0.99375,
+          "predicted_positive_rate": 0.9633333333333334,
+          "recall_at_5pct_fpr": 0.03125
+        },
+        "123": {
+          "ece": 0.7752792724214462,
+          "brier": 0.7543598640461138,
+          "brier_skill_score": -4.160738934774933,
+          "auroc": 0.5403209459459459,
+          "pr_auc": 0.18447174628552082,
+          "f1": 0.3076923076923077,
+          "precision": 0.18181818181818182,
+          "recall": 1.0,
+          "predicted_positive_rate": 0.9777777777777777,
+          "recall_at_5pct_fpr": 0.04375
+        },
+        "456": {
+          "ece": 0.760343984109396,
+          "brier": 0.734787724482727,
+          "brier_skill_score": -4.026841696207844,
+          "auroc": 0.5791511824324325,
+          "pr_auc": 0.19903749558799405,
+          "f1": 0.31189083820662766,
+          "precision": 0.18475750577367206,
+          "recall": 1.0,
+          "predicted_positive_rate": 0.9622222222222222,
+          "recall_at_5pct_fpr": 0.04375
+        }
+      }
+    },
+    "target_platt_ragtruth_qa_test": {
+      "dataset": "ragtruth_qa_test",
+      "calibrator": "target_platt",
+      "pooled": {
+        "ece": 0.12509510415442457,
+        "brier": 0.16081910130918234,
+        "brier_skill_score": -0.10019824375369672,
+        "auroc": 0.5577125563063062,
+        "pr_auc": 0.1909889098384716,
+        "f1": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "predicted_positive_rate": 0.0,
+        "recall_at_5pct_fpr": 0.03958333333333333
+      },
+      "pooled_ci": {
+        "ece_ci": [
+          0.09893721831476066,
+          0.15115175809224043
+        ],
+        "brier_ci": [
+          0.1510359291486069,
+          0.1708242420618183
+        ],
+        "brier_skill_score_ci": [
+          -0.1765645879453243,
+          -0.04470485216040729
+        ],
+        "auroc_ci": [
+          0.5140911115164839,
+          0.6021350737682778
+        ],
+        "pr_auc_ci": [
+          0.16208573091126424,
+          0.23167524140495188
+        ],
+        "f1_ci": [
+          0.0,
+          0.0
+        ]
+      },
+      "per_seed": {
+        "42": {
+          "ece": 0.125431888788052,
+          "brier": 0.16098546977135955,
+          "brier_skill_score": -0.1013364063750104,
+          "auroc": 0.5536655405405405,
+          "pr_auc": 0.1894574876418999,
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "predicted_positive_rate": 0.0,
+          "recall_at_5pct_fpr": 0.03125
+        },
+        "123": {
+          "ece": 0.12611014250792543,
+          "brier": 0.16137536269971914,
+          "brier_skill_score": -0.10400374819909208,
+          "auroc": 0.5403209459459459,
+          "pr_auc": 0.18447174628552082,
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "predicted_positive_rate": 0.0,
+          "recall_at_5pct_fpr": 0.04375
+        },
+        "456": {
+          "ece": 0.12374328116729627,
+          "brier": 0.16009647145646833,
+          "brier_skill_score": -0.09525457668698767,
+          "auroc": 0.5791511824324325,
+          "pr_auc": 0.19903749558799405,
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "predicted_positive_rate": 0.0,
+          "recall_at_5pct_fpr": 0.04375
+        }
+      }
+    },
+    "target_isotonic_ragtruth_qa_test": {
+      "dataset": "ragtruth_qa_test",
+      "calibrator": "target_isotonic",
+      "pooled": {
+        "ece": 0.12450302489693833,
+        "brier": 0.1616891174771879,
+        "brier_skill_score": -0.10615021247062655,
+        "auroc": 0.5629222972972973,
+        "pr_auc": 0.19839716560562526,
+        "f1": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "predicted_positive_rate": 0.0,
+        "recall_at_5pct_fpr": 0.0020833333333333333
+      },
+      "pooled_ci": {
+        "ece_ci": [
+          0.10025865091887465,
+          0.14966812244012384
+        ],
+        "brier_ci": [
+          0.1515258820710753,
+          0.17113195376525808
+        ],
+        "brier_skill_score_ci": [
+          -0.1831955238924292,
+          -0.04960866606389577
+        ],
+        "auroc_ci": [
+          0.5203643956321131,
+          0.6077236521152758
+        ],
+        "pr_auc_ci": [
+          0.1684418697953558,
+          0.23477949278938426
+        ],
+        "f1_ci": [
+          0.0,
+          0.0
+        ]
+      },
+      "per_seed": {
+        "42": {
+          "ece": 0.12606693361746366,
+          "brier": 0.16172527351140548,
+          "brier_skill_score": -0.10639756371822995,
+          "auroc": 0.5583741554054055,
+          "pr_auc": 0.1934807462573482,
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "predicted_positive_rate": 0.0,
+          "recall_at_5pct_fpr": 0.0
+        },
+        "123": {
+          "ece": 0.1251425941944328,
+          "brier": 0.1621799958122364,
+          "brier_skill_score": -0.1095084172965497,
+          "auroc": 0.5564569256756756,
+          "pr_auc": 0.19897169849225466,
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "predicted_positive_rate": 0.0,
+          "recall_at_5pct_fpr": 0.00625
+        },
+        "456": {
+          "ece": 0.12229954687891859,
+          "brier": 0.1611620831079218,
+          "brier_skill_score": -0.10254465639709998,
+          "auroc": 0.5739358108108108,
+          "pr_auc": 0.2027390520672729,
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "predicted_positive_rate": 0.0,
+          "recall_at_5pct_fpr": 0.0
+        }
+      }
+    }
+  },
+  "prior_only": [
+    {
+      "model": "prior_only",
+      "variant": "constant",
+      "predictor": "calibration_prior",
+      "constant": 0.31068732618196265,
+      "eval_split": "ragtruth_qa_calibration",
+      "n": 5034,
+      "prevalence": 0.31068732618196265,
+      "ece": 0.0,
+      "brier": 0.2141607115318654,
+      "ece_zero_by_construction": true,
+      "note": "ECE is exactly zero by construction when the constant equals the evaluated prevalence; it is a base-rate check, not evidence of calibration skill. Brier remains the informative term."
+    },
+    {
+      "model": "prior_only",
+      "variant": "constant",
+      "predictor": "calibration_prior",
+      "constant": 0.31068732618196265,
+      "eval_split": "ragtruth_qa_test",
+      "n": 900,
+      "prevalence": 0.17777777777777778,
+      "ece": 0.1329095484041848,
+      "brier": 0.16383778756317724,
+      "ece_zero_by_construction": false,
+      "note": "ECE is exactly zero by construction when the constant equals the evaluated prevalence; it is a base-rate check, not evidence of calibration skill. Brier remains the informative term."
+    },
+    {
+      "model": "prior_only",
+      "variant": "constant",
+      "predictor": "test_prior",
+      "constant": 0.17777777777777778,
+      "eval_split": "ragtruth_qa_calibration",
+      "n": 5034,
+      "prevalence": 0.31068732618196265,
+      "ece": 0.13290954840418487,
+      "brier": 0.23182565958886975,
+      "ece_zero_by_construction": false,
+      "note": "ECE is exactly zero by construction when the constant equals the evaluated prevalence; it is a base-rate check, not evidence of calibration skill. Brier remains the informative term."
+    },
+    {
+      "model": "prior_only",
+      "variant": "constant",
+      "predictor": "test_prior",
+      "constant": 0.17777777777777778,
+      "eval_split": "ragtruth_qa_test",
+      "n": 900,
+      "prevalence": 0.17777777777777778,
+      "ece": 2.7755575615628914e-17,
+      "brier": 0.14617283950617285,
+      "ece_zero_by_construction": true,
+      "note": "ECE is exactly zero by construction when the constant equals the evaluated prevalence; it is a base-rate check, not evidence of calibration skill. Brier remains the informative term."
+    }
+  ],
+  "label_budget": {
+    "50": {
+      "pooled": {
+        "ece_mean": 0.13027666405323207,
+        "ece_sd": 0.059947286822390033,
+        "ece_q025": 0.019976610340918514,
+        "ece_q975": 0.22245108731560792,
+        "brier_mean": 0.1660446933112631,
+        "brier_sd": 0.016314036440742544,
+        "brier_q025": 0.14603136720430918,
+        "brier_q975": 0.19514125593504095
+      },
+      "per_seed": {
+        "42": {
+          "ece_mean": 0.13020262982213915,
+          "ece_sd": 0.05995676239629762,
+          "brier_mean": 0.16608548062503822,
+          "brier_sd": 0.01628188424915759
+        },
+        "123": {
+          "ece_mean": 0.13054308326438,
+          "ece_sd": 0.06018834599581315,
+          "brier_mean": 0.16636877734035913,
+          "brier_sd": 0.01646628647269012
+        },
+        "456": {
+          "ece_mean": 0.13008427907317704,
+          "ece_sd": 0.05970967403050382,
+          "brier_mean": 0.165679821968392,
+          "brier_sd": 0.016196870976415666
+        }
+      }
+    },
+    "100": {
+      "pooled": {
+        "ece_mean": 0.12821384995126534,
+        "ece_sd": 0.04445925595035772,
+        "ece_q025": 0.04180539257688306,
+        "ece_q975": 0.2018259378232424,
+        "brier_mean": 0.16344976486850205,
+        "brier_sd": 0.011002065510333366,
+        "brier_q025": 0.14736024801571904,
+        "brier_q975": 0.18580898891718206
+      },
+      "per_seed": {
+        "42": {
+          "ece_mean": 0.12815930263247347,
+          "ece_sd": 0.044557026448671,
+          "brier_mean": 0.16356080198290443,
+          "brier_sd": 0.011012922061122407
+        },
+        "123": {
+          "ece_mean": 0.12863676710982008,
+          "ece_sd": 0.04467777159904582,
+          "brier_mean": 0.16392404904904467,
+          "brier_sd": 0.011118209117936548
+        },
+        "456": {
+          "ece_mean": 0.12784548011150249,
+          "ece_sd": 0.044159622054670764,
+          "brier_mean": 0.16286444357355695,
+          "brier_sd": 0.010878963912142946
+        }
+      }
+    },
+    "252": {
+      "pooled": {
+        "ece_mean": 0.12427959340881613,
+        "ece_sd": 0.028895028083566216,
+        "ece_q025": 0.07470185020998223,
+        "ece_q975": 0.18749816378222298,
+        "brier_mean": 0.16081055137200895,
+        "brier_sd": 0.007588287948148361,
+        "brier_q025": 0.15025419702149037,
+        "brier_q975": 0.17973390181156562
+      },
+      "per_seed": {
+        "42": {
+          "ece_mean": 0.12423159302629533,
+          "ece_sd": 0.028925875466434315,
+          "brier_mean": 0.16097444631954094,
+          "brier_sd": 0.0076081038813719465
+        },
+        "123": {
+          "ece_mean": 0.1250868853251127,
+          "ece_sd": 0.028936811946096326,
+          "brier_mean": 0.1614394691653448,
+          "brier_sd": 0.007646583391296201
+        },
+        "456": {
+          "ece_mean": 0.12352030187504033,
+          "ece_sd": 0.028830256852775796,
+          "brier_mean": 0.1600177386311411,
+          "brier_sd": 0.007513234989748185
+        }
+      }
+    },
+    "500": {
+      "pooled": {
+        "ece_mean": 0.12650294159678568,
+        "ece_sd": 0.021571239481289802,
+        "ece_q025": 0.08307476034272314,
+        "ece_q975": 0.16940634893852735,
+        "brier_mean": 0.16089255094002708,
+        "brier_sd": 0.005485704528990181,
+        "brier_q025": 0.15124682971254014,
+        "brier_q975": 0.1730849369053988
+      },
+      "per_seed": {
+        "42": {
+          "ece_mean": 0.1265371936161656,
+          "ece_sd": 0.02167504665536159,
+          "brier_mean": 0.16112892664402742,
+          "brier_sd": 0.005510076358756374
+        },
+        "123": {
+          "ece_mean": 0.1274374087413797,
+          "ece_sd": 0.021611108596340117,
+          "brier_mean": 0.16154944306597133,
+          "brier_sd": 0.005525369036813479
+        },
+        "456": {
+          "ece_mean": 0.12553422243281182,
+          "ece_sd": 0.02143939845178122,
+          "brier_mean": 0.1599992831100825,
+          "brier_sd": 0.005425423068428062
+        }
+      }
+    },
+    "1000": {
+      "pooled": {
+        "ece_mean": 0.12621823190386958,
+        "ece_sd": 0.013292594285035198,
+        "ece_q025": 0.1008734524998556,
+        "ece_q975": 0.15315902626148437,
+        "brier_mean": 0.16065557011792234,
+        "brier_sd": 0.0034462078910854027,
+        "brier_q025": 0.1547357959269534,
+        "brier_q975": 0.168195571082385
+      },
+      "per_seed": {
+        "42": {
+          "ece_mean": 0.12638599193599775,
+          "ece_sd": 0.013354047861197182,
+          "brier_mean": 0.16092073111006788,
+          "brier_sd": 0.0034589581313055136
+        },
+        "123": {
+          "ece_mean": 0.12721822164826396,
+          "ece_sd": 0.013331280861273888,
+          "brier_mean": 0.1612715535151689,
+          "brier_sd": 0.003457612870178263
+        },
+        "456": {
+          "ece_mean": 0.12505048212734712,
+          "ece_sd": 0.0132044534585145,
+          "brier_mean": 0.15977442572853023,
+          "brier_sd": 0.003425028154100491
+        }
+      }
+    },
+    "5034": {
+      "pooled": {
+        "ece_mean": 0.12509510415442454,
+        "ece_sd": 4.2580484790794654e-17,
+        "ece_q025": 0.1250951041544245,
+        "ece_q975": 0.12509510415442462,
+        "brier_mean": 0.1608191013091823,
+        "brier_sd": 2.817297611437965e-17,
+        "brier_q025": 0.1608191013091823,
+        "brier_q975": 0.16081910130918237
+      },
+      "per_seed": {
+        "42": {
+          "ece_mean": 0.12543188878805206,
+          "ece_sd": 5.2112913562419665e-17,
+          "brier_mean": 0.16098546977135958,
+          "brier_sd": 3.427844518723734e-17
+        },
+        "123": {
+          "ece_mean": 0.1261101425079254,
+          "ece_sd": 5.96987695769979e-17,
+          "brier_mean": 0.16137536269971914,
+          "brier_sd": 2.214128977988299e-17
+        },
+        "456": {
+          "ece_mean": 0.12374328116729628,
+          "ece_sd": 6.130645534712005e-17,
+          "brier_mean": 0.1600964714564683,
+          "brier_sd": 1.6737241846796126e-17
+        }
+      }
+    }
+  },
+  "caveats": [
+    "Test rows are never used to fit or select a calibrator. The source calibrator uses the 3,000 HaluEval validation rows; the target calibrator uses the 5,034 RAGTruth QA calibration rows.",
+    "ECE uses 10 equal-width bins and is sensitive to binning. A prior-only constant has ECE zero by construction on the split whose prevalence defines it.",
+    "RAGTruth QA test discrimination is near chance in this rebuild; a calibrator can reduce ECE and Brier without adding ranking skill, and the Brier skill score can remain negative.",
+    "WP2 intervals resample rows i.i.d.; the paired HaluEval items and external source groups are handled by the WP3 two-level bootstrap.",
+    "Isotonic rows are fixed reference fits, not selected by test ECE. The reported headline and the protocol choice are Platt.",
+    "The RAGTruth QA calibration split and the 900-row test split are disjoint at the sample_id level."
+  ]
+}

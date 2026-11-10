@@ -1,0 +1,277 @@
+{
+  "schema": "rebuild-wp3-intervals-v1",
+  "generated_at_utc": "2026-11-10T20:15:15.137871+00:00",
+  "script": "src/models/rebuild_intervals.py",
+  "protocol": {
+    "n_boot": 2000,
+    "bootstrap": "two-level: resample groups with replacement within each seed, then resample the three seeds with replacement",
+    "within_seed_bootstrap": "group bootstrap, 2,000 draws per seed",
+    "pooled_bootstrap": "two-level, 2,000 draws",
+    "seed_resampling": "seeds 42, 123, 456 drawn with replacement (3 draws per replicate)",
+    "groups": {
+      "halueval_test": "item_idx (1,500 groups of 2 prompt variants)",
+      "ragtruth_qa_test": "source_group_id (150 groups of 6 rows)",
+      "ragtruth_all_test": "source_group_id (450 groups of 6 rows)"
+    },
+    "threshold": 0.5,
+    "ci": "percentile 95% interval",
+    "sources": {
+      "fixed_hp": "artifacts/results/rebuild/fixed_hp/fixed_hp_predictions.parquet",
+      "frozen_b6_tuned": "artifacts/results/b6/b6_predictions.parquet"
+    },
+    "headline_selection": [
+      "m3-m0 f1 on halueval_test",
+      "m3-m0 auroc on halueval_test",
+      "m2-m1 f1 on halueval_test",
+      "m3-m1 f1 on halueval_test",
+      "m3-m0 auroc on ragtruth_qa_test",
+      "m3-m0 f1 on ragtruth_all_test"
+    ]
+  },
+  "dataset_sizes": {
+    "halueval_test": {
+      "n_rows": 3000,
+      "n_groups": 1500
+    },
+    "ragtruth_qa_test": {
+      "n_rows": 900,
+      "n_groups": 150
+    },
+    "ragtruth_all_test": {
+      "n_rows": 2700,
+      "n_groups": 450
+    }
+  },
+  "headline": [
+    {
+      "comparison": "m3-m0",
+      "dataset": "halueval_test",
+      "metric": "f1",
+      "fixed_hp": {
+        "per_seed": {
+          "42": 0.0006523836011055328,
+          "123": 0.0003311647239541138,
+          "456": 0.0006720430107527431
+        },
+        "point": 0.0005518637786041299,
+        "ci": [
+          -0.0010302188298460162,
+          0.002129149802123845
+        ],
+        "sd_across_seeds": 0.0001913835876962215
+      },
+      "frozen_b6_tuned": {
+        "per_seed": {
+          "42": 0.0013242008668092886,
+          "123": 0.0010240009548300177,
+          "456": 0.0010335121225610866
+        },
+        "point": 0.001127237981400131,
+        "ci": [
+          -0.00022831361735762556,
+          0.002668784809484329
+        ]
+      },
+      "contrast_fixed_minus_tuned": {
+        "point": -0.000575374202796001,
+        "ci": [
+          -0.002049373407883702,
+          0.0007857294937416205
+        ]
+      }
+    },
+    {
+      "comparison": "m3-m0",
+      "dataset": "halueval_test",
+      "metric": "auroc",
+      "fixed_hp": {
+        "per_seed": {
+          "42": 0.000828888888888879,
+          "123": 0.0006439999999999779,
+          "456": 0.0005204444444444345
+        },
+        "point": 0.0006644444444444305,
+        "ci": [
+          0.00024604074074074017,
+          0.0011895000000000128
+        ],
+        "sd_across_seeds": 0.00015523522573385924
+      },
+      "frozen_b6_tuned": {
+        "per_seed": {
+          "42": 0.00033333333333340764,
+          "123": 0.0006204444444444235,
+          "456": 0.00022044444444446754
+        },
+        "point": 0.0003914074074074329,
+        "ci": [
+          6.1703703703517695e-06,
+          0.0008562333333333464
+        ]
+      },
+      "contrast_fixed_minus_tuned": {
+        "point": 0.0002730370370369976,
+        "ci": [
+          -0.00012268518518523212,
+          0.0007591444444443789
+        ]
+      }
+    },
+    {
+      "comparison": "m2-m1",
+      "dataset": "halueval_test",
+      "metric": "f1",
+      "fixed_hp": {
+        "per_seed": {
+          "42": -0.0003210294585107576,
+          "123": -0.0009818174526950996,
+          "456": 4.051159391182946e-05
+        },
+        "point": -0.0004207784390980092,
+        "ci": [
+          -0.0019677381456978736,
+          0.0011602380480111982
+        ],
+        "sd_across_seeds": 0.0005184125425085751
+      },
+      "frozen_b6_tuned": {
+        "per_seed": {
+          "42": -0.000671591672263272,
+          "123": 0.0010328009167802632,
+          "456": 0.001013147194361519
+        },
+        "point": 0.00045811881295950335,
+        "ci": [
+          -0.0012510622670314552,
+          0.0020502744866312435
+        ]
+      },
+      "contrast_fixed_minus_tuned": {
+        "point": -0.0008788972520575126,
+        "ci": [
+          -0.002794148258138795,
+          0.0010347119187266306
+        ]
+      }
+    },
+    {
+      "comparison": "m3-m1",
+      "dataset": "halueval_test",
+      "metric": "f1",
+      "fixed_hp": {
+        "per_seed": {
+          "42": -1.9433664598222933e-05,
+          "123": -9.710299974874381e-06,
+          "456": 0.0003309422417747676
+        },
+        "point": 0.0001005994257338901,
+        "ci": [
+          -0.0014538141392676739,
+          0.0017569866275590918
+        ],
+        "sd_across_seeds": 0.00019954196458672746
+      },
+      "frozen_b6_tuned": {
+        "per_seed": {
+          "42": -0.0003600797596998717,
+          "123": 0.00035127979774962625,
+          "456": 0.001013147194361519
+        },
+        "point": 0.0003347824108037578,
+        "ci": [
+          -0.0012297034535645069,
+          0.0020217619357800645
+        ]
+      },
+      "contrast_fixed_minus_tuned": {
+        "point": -0.00023418298506986773,
+        "ci": [
+          -0.0018117235578572043,
+          0.0012343297470929512
+        ]
+      }
+    },
+    {
+      "comparison": "m3-m0",
+      "dataset": "ragtruth_qa_test",
+      "metric": "auroc",
+      "fixed_hp": {
+        "per_seed": {
+          "42": -0.01242398648648646,
+          "123": -0.006385135135135167,
+          "456": 0.023910472972972996
+        },
+        "point": 0.0017004504504504563,
+        "ci": [
+          -0.026971294636441975,
+          0.02905795879061708
+        ],
+        "sd_across_seeds": 0.01946999632124126
+      },
+      "frozen_b6_tuned": {
+        "per_seed": {
+          "42": 0.03715793918918919,
+          "123": -0.06734797297297301,
+          "456": 0.03787162162162161
+        },
+        "point": 0.002560529279279263,
+        "ci": [
+          -0.05868049401597979,
+          0.05062210811355608
+        ]
+      },
+      "contrast_fixed_minus_tuned": {
+        "point": -0.0008600788288288068,
+        "ci": [
+          -0.0503272321158584,
+          0.0561070273728228
+        ]
+      }
+    },
+    {
+      "comparison": "m3-m0",
+      "dataset": "ragtruth_all_test",
+      "metric": "f1",
+      "fixed_hp": {
+        "per_seed": {
+          "42": 0.042369181137981715,
+          "123": 0.04472842979724423,
+          "456": 0.04830236017906697
+        },
+        "point": 0.045133323704764305,
+        "ci": [
+          0.034789787635720035,
+          0.0553589533864839
+        ],
+        "sd_across_seeds": 0.002987240815644681
+      },
+      "frozen_b6_tuned": {
+        "per_seed": {
+          "42": 0.04545529847037377,
+          "123": 0.03844305541553239,
+          "456": 0.04415120167144848
+        },
+        "point": 0.04268318518578488,
+        "ci": [
+          0.03216624757236824,
+          0.053316474096754544
+        ]
+      },
+      "contrast_fixed_minus_tuned": {
+        "point": 0.0024501385189794264,
+        "ci": [
+          -0.0028962777690622484,
+          0.008327335447762168
+        ]
+      }
+    }
+  ],
+  "caveats": [
+    "The frozen tuned-hp rows are read from b6_predictions.parquet; no tuned model is refit.",
+    "HaluEval groups are item_idx pairs, so the two prompt variants of one item always move together.",
+    "The QA and all-test datasets have only 150 and 450 groups, so their intervals are wide by construction.",
+    "Bootstrap CIs describe sampling and seed variability, not the choice of feature set or calibrator.",
+    "F1 uses a fixed 0.5 threshold; AUROC is threshold-free. Predicted-positive rates differ across variants, so F1 alone can reward flag-rate changes.",
+    "This script does not recompute ECE; WP2 owns calibration metrics."
+  ]
+}

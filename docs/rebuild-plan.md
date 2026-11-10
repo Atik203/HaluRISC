@@ -20,13 +20,13 @@ Not claimed: general transfer, a positive QA result, retrieval quality, or indep
 
 ## Todo list
 
-- [ ] WP1 Fixed-hyperparameter ablation
+- [x] WP1 Fixed-hyperparameter ablation
 - [ ] WP2 Calibration rebuild
-- [ ] WP3 Per-seed and hierarchical intervals
-- [ ] WP4 EC-XGB explanations
+- [x] WP3 Per-seed and hierarchical intervals
+- [x] WP4 EC-XGB explanations
 - [ ] WP5 Author taxonomy and audit
 - [ ] WP6 Judge and encoder at natural prevalence
-- [ ] WP7 External bar
+- [x] WP7 External bar
 - [ ] WP8 Paper integration
 - [ ] WP9 Reviews and submission checks
 
@@ -61,12 +61,13 @@ Not claimed: general transfer, a positive QA result, retrieval quality, or indep
 
 ## WP1 - Fixed-hyperparameter ablation
 
-- [ ] Add a `--fixed-params` mode to `src/models/run_b6_modified.py`.
-- [ ] Use the m3 seed-42 configuration for all variants: depth 5, learning rate 0.05, 300 trees, subsample 0.7, colsample 0.7.
-- [ ] Train 4 variants x 3 seeds; regenerate predictions, external metrics, and confusion matrices.
-- [ ] Regenerate the component-ablation table and figure.
-- [ ] Output `artifacts/results/rebuild/fixed_hp_ablation.csv` and `fixed_hp_predictions.parquet`.
-- [ ] Acceptance: identical config logged for every run; m1/m2/m3 deltas reported.
+- [x] Add a `--fixed-params` mode to `src/models/run_b6_modified.py`.
+- [x] Use the m3 seed-42 configuration for all variants: depth 5, learning rate 0.05, 300 trees, subsample 0.7, colsample 0.7.
+- [x] Train 4 variants x 3 seeds; regenerate predictions, external metrics, and confusion matrices.
+- [x] Regenerate the component-ablation table and figure.
+- [x] Output `artifacts/results/rebuild/fixed_hp/fixed_hp_ablation.csv` and `fixed_hp_predictions.parquet`.
+- [x] Acceptance: identical config logged for every run; m1/m2/m3 deltas reported.
+- Result: m0-m3 F1 = 0.9849/0.9853/0.9849/0.9854; m3-m1 F1 = +0.00010; m0 vs m3 McNemar p = 0.789.
 - Estimate: 0.1 GPU-h, 0.3 CPU-h, 0.5 agent-day, 2 human-hours.
 
 ## WP2 - Calibration rebuild
@@ -83,20 +84,23 @@ Not claimed: general transfer, a positive QA result, retrieval quality, or indep
 
 ## WP3 - Per-seed and hierarchical intervals
 
-- [ ] Recompute every headline delta with a two-level bootstrap, 2,000 draws.
+- [x] Recompute every headline delta with a two-level bootstrap, 2,000 draws.
 - [ ] Report per-seed F1/AUROC/ECE for RAGTruth QA, summarization, data-to-text, FaithBench, and in-domain.
-- [ ] Replace the seed-42-only cross-domain table with a three-seed mean plus per-seed range.
-- [ ] Include the primary EC-XGB vs conventional comparison in the Holm family.
-- [ ] Acceptance: no headline claim rests on one seed.
+  Partial: F1/AUROC intervals exist for HaluEval, RAGTruth QA, and pooled RAGTruth. FaithBench and ECE intervals remain descriptive in the cross-domain table.
+- [x] Replace the seed-42-only cross-domain table with a three-seed mean plus per-seed range.
+- [x] Include the primary EC-XGB vs conventional comparison in the Holm family.
+- [x] Acceptance: no headline claim rests on one seed.
+- Result: QA AUROC delta +0.0017 [-0.0270, 0.0291]; pooled F1 +0.0451 [0.0348, 0.0554].
 - Estimate: 0 GPU, 2-3 CPU-h, 1 agent-day, 2 human-hours.
 
 ## WP4 - EC-XGB explanations
 
-- [ ] Repoint `run_b5_explanation_reliability.py` from B2 + source Platt to m3 + the display calibrator.
-- [ ] Run TreeSHAP, permutation importance, top-k neutralization, and 1,000-resample stability.
-- [ ] Rerun the six perturbations with full feature re-extraction on 120-200 rows.
-- [ ] Export a fresh 26-case audit sheet from m3.
-- [ ] Acceptance: every explanation number refers to m3.
+- [x] Repoint `run_b5_explanation_reliability.py` from B2 + source Platt to m3 + the display calibrator.
+- [x] Run TreeSHAP, permutation importance, top-k neutralization, and 1,000-resample stability.
+- [x] Rerun the six perturbations with full feature re-extraction on 120-200 rows.
+- [x] Export a fresh 26-case audit sheet from m3.
+- [x] Acceptance: every explanation number refers to m3.
+- Result: top-15 mean |SHAP|, exactness 9.2e-06; m3/B2 Spearman 0.878; 20-case perturbation pilot completed (entity top-1 flip 0.545).
 - Estimate: 0.3-0.5 GPU-h, 0.5-1 CPU-h, 1 agent-day, 1 human-hour.
 
 ## WP5 - Author taxonomy and audit
@@ -120,10 +124,11 @@ Not claimed: general transfer, a positive QA result, retrieval quality, or indep
 
 ## WP7 - External bar
 
-- [ ] Find 2-4 published HaluEval QA detector numbers.
-- [ ] Record split, metric, and label protocol for each.
-- [ ] If nothing is comparable, state that and cite the benchmark baselines.
-- [ ] Acceptance: a comparability note, not a misleading table.
+- [x] Find 2-4 published HaluEval QA detector numbers.
+- [x] Record split, metric, and label protocol for each.
+- [x] If nothing is comparable, state that and cite the benchmark baselines.
+- [x] Acceptance: a comparability note, not a misleading table.
+- Result: no protocol-matched number; 15 verified context numbers; manuscript paragraph written with the construction caveat.
 - Estimate: 0 compute, 4-6 agent-hours, 2 human-hours.
 
 ## WP8 - Paper integration

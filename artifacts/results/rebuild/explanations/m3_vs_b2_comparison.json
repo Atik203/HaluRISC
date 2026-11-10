@@ -1,0 +1,97 @@
+{
+  "b2_reference": "artifacts\\results\\b5\\b5_feature_importance.json",
+  "b2_reference_rows": 3000,
+  "b2_reference_rows_note": "B5 computed SHAP on the full 3,000-row HaluEval test split",
+  "b2_reference_kind": "frozen B5 SHAP ranking (B2 seed 42)",
+  "n_common_features": 26,
+  "spearman": 0.8782075268199513,
+  "kendall_tau": 0.7295287079275199,
+  "top3_overlap_jaccard": 0.5,
+  "top10_overlap_jaccard": 0.6666666666666666,
+  "top10_shared": [
+    "overlap_answer_context",
+    "n_words",
+    "cosine_q_ans",
+    "n_chars",
+    "jaccard_ans_q",
+    "overlap_answer_question",
+    "nli_ctx_contradicts_ans",
+    "nli_ctx_neutral_ans"
+  ],
+  "m3_only_top10": [
+    "claim_mean_contradicts",
+    "jaccard_ans_ctx"
+  ],
+  "b2_only_top10": [
+    "cosine_ctx_ans",
+    "entity_overlap_ratio"
+  ],
+  "m3_top10": [
+    "overlap_answer_context",
+    "n_words",
+    "cosine_q_ans",
+    "n_chars",
+    "jaccard_ans_q",
+    "overlap_answer_question",
+    "nli_ctx_contradicts_ans",
+    "claim_mean_contradicts",
+    "nli_ctx_neutral_ans",
+    "jaccard_ans_ctx"
+  ],
+  "b2_top10": [
+    "overlap_answer_context",
+    "n_words",
+    "n_chars",
+    "nli_ctx_contradicts_ans",
+    "cosine_q_ans",
+    "nli_ctx_neutral_ans",
+    "cosine_ctx_ans",
+    "jaccard_ans_q",
+    "entity_overlap_ratio",
+    "overlap_answer_question"
+  ],
+  "m3_top3": [
+    "overlap_answer_context",
+    "n_words",
+    "cosine_q_ans"
+  ],
+  "b2_top3": [
+    "overlap_answer_context",
+    "n_words",
+    "n_chars"
+  ],
+  "top1_same": true,
+  "same_sample_control": {
+    "n_rows": 1000,
+    "n_common_features": 26,
+    "spearman": 0.8782075268199513,
+    "kendall_tau": 0.723346261250168,
+    "top10_overlap_jaccard": 0.5384615384615384,
+    "top3_overlap_jaccard": 0.5,
+    "m3_top10": [
+      "overlap_answer_context",
+      "n_words",
+      "cosine_q_ans",
+      "n_chars",
+      "jaccard_ans_q",
+      "overlap_answer_question",
+      "nli_ctx_contradicts_ans",
+      "claim_mean_contradicts",
+      "nli_ctx_neutral_ans",
+      "jaccard_ans_ctx"
+    ],
+    "b2_top10": [
+      "overlap_answer_context",
+      "n_chars",
+      "n_words",
+      "nli_ctx_contradicts_ans",
+      "cosine_q_ans",
+      "nli_ctx_neutral_ans",
+      "jaccard_ans_q",
+      "cosine_ctx_ans",
+      "entity_overlap_ratio",
+      "nli_ans_neutral_ctx"
+    ],
+    "margin_error_max": 5.576308467425406e-06
+  }
+}

@@ -1,0 +1,17 @@
+statistic,label,value
+n_rows,faithful,1500.0000
+mean_words,faithful,2.2787
+median_words,faithful,2.0000
+mean_chars,faithful,14.0073
+mean_overlap_answer_context,faithful,0.9487
+mean_jaccard_ans_ctx,faithful,0.0561
+n_rows,hallucinated,1500.0000
+mean_words,hallucinated,10.7860
+median_words,hallucinated,9.0000
+mean_chars,hallucinated,64.9540
+mean_overlap_answer_context,hallucinated,0.6574
+mean_jaccard_ans_ctx,hallucinated,0.1605
+auroc_risk,overlap_answer_context,0.0868
+auroc_risk,jaccard_ans_ctx,0.8545
+auroc_risk,n_words,0.9740
+auroc_risk,overlap_answer_context_flipped,0.9132

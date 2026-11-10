@@ -115,7 +115,7 @@ export default function AboutPage() {
               href: "/analyze",
               icon: BarChart2,
               title: "Analyze mode",
-              body: "Score one answer, or two side by side. The gauge shows the calibrated probability with its low, medium, and high cutoffs. The SHAP chart shows what pushed the raw score up or down.",
+              body: "Score one answer, or two side by side. The gauge shows the target-calibrated display score with its low, medium, and high cutoffs. The SHAP chart shows what pushed the raw score up or down.",
             },
             {
               href: "/dashboard/overview",

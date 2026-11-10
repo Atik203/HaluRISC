@@ -97,7 +97,7 @@ export function RiskGauge({ score, label, thresholds, latencyMs }: RiskGaugeProp
       {/* Score readout */}
       <div className="mt-1 flex items-baseline gap-1.5">
         <span className="text-4xl font-extrabold tracking-tight font-mono tnum">{percentage}%</span>
-        <span className="text-[11px] font-normal text-muted-foreground">calibrated probability</span>
+        <span className="text-[11px] font-normal text-muted-foreground">target-calibrated score</span>
       </div>
 
       {/* Status badge */}

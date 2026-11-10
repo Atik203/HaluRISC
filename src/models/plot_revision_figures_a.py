@@ -650,14 +650,32 @@ def figure_operating_point() -> None:
     metric_legend(ax, "lower right")
 
     # (b) label budget ------------------------------------------------------
-    budget = json.loads((RESULTS / "extras" / "review_extras.json").read_text(encoding="utf-8"))["x4_label_budget"]
-    rows = sorted(budget.values(), key=lambda r: r["n_labeled_rows"])
-    n_rows = [r["n_labeled_rows"] for r in rows]
-    ece = [r["ece"] for r in rows]
-    brier = [r["brier"] for r in rows]
+    fast_budget = RESULTS / "rebuild" / "calibration_fast" / "label_budget.csv"
+    full_budget = RESULTS / "rebuild" / "calibration" / "label_budget.csv"
+    if fast_budget.exists():
+        budget_df = pd.read_csv(fast_budget)
+        if "seed" in budget_df.columns:
+            budget_df = budget_df[budget_df["seed"].astype(str) == "pooled"]
+        budget_df = budget_df.sort_values("size")
+        n_rows = budget_df["size"].tolist()
+        ece = budget_df["ece_mean"].tolist()
+        ece_lo = budget_df["ece_q025"].tolist()
+        ece_hi = budget_df["ece_q975"].tolist()
+        brier = budget_df["brier_mean"].tolist()
+        print("  label budget: rebuild 100-draw means")
+    else:
+        budget = json.loads((RESULTS / "extras" / "review_extras.json").read_text(encoding="utf-8"))["x4_label_budget"]
+        rows = sorted(budget.values(), key=lambda r: r["n_labeled_rows"])
+        n_rows = [r["n_labeled_rows"] for r in rows]
+        ece = [r["ece"] for r in rows]
+        ece_lo = ece_hi = None
+        brier = [r["brier"] for r in rows]
+        print("  label budget: legacy single draw")
     print("  label budget:", list(zip(n_rows, np.round(ece, 4), np.round(brier, 4))))
 
     ax2.plot(n_rows, ece, color=OKABE["blue"], lw=1.9, marker="o", ms=4.5, label="ECE")
+    if ece_lo is not None:
+        ax2.fill_between(n_rows, ece_lo, ece_hi, color=OKABE["blue"], alpha=0.16, lw=0)
     ax2.plot(n_rows, brier, color=OKABE["vermillion"], lw=1.9, marker="s", ms=4.2, label="Brier")
     ax2.set_xscale("log")
     ax2.set_xticks(n_rows)
@@ -666,13 +684,13 @@ def figure_operating_point() -> None:
     )
     ax2.minorticks_off()
     ax2.set_xlim(42, 6000)
-    ax2.set_ylim(0.05, 0.19)
+    ax2.set_ylim(0.0, 0.28)
     ax2.set_xlabel("Labeled target rows")
     ax2.set_ylabel("Error")
-    ax2.set_yticks([0.05, 0.10, 0.15], ["0.05", "0.10", "0.15"])
+    ax2.set_yticks([0.0, 0.1, 0.2], ["0", "0.10", "0.20"])
     ax2.tick_params(direction="out")
     panel_label(ax2, "b", "target label budget")
-    curve_legend(ax2, "lower right", ncol=2)
+    curve_legend(ax2, "upper right", ncol=2)
 
     fig.tight_layout(w_pad=1.2)
     save(
@@ -682,7 +700,8 @@ def figure_operating_point() -> None:
         "model on its target-Platt display score (b4 raw scores mapped through "
         "calibrator_platt_target_ragtruth_qa_seed_42.joblib); vertical lines at the selected "
         "P2 threshold 0.312738 (labelled 0.313) and the fixed 0.5 threshold; the marked P2 "
-        "point is recall 5.0% / FPR 5.8%. (b) review_extras.json x4_label_budget; log x-axis.",
+        "point is recall 5.0% / FPR 5.8%. (b) 100-draw mean ECE and Brier for the fixed-hp m3 "
+        "target-Platt calibrator; the shaded band is the 2.5-97.5% range across draws.",
     )
 
 

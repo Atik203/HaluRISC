@@ -1,0 +1,25 @@
+{
+  "schema": "rebuild-m3-latency-v1",
+  "rows": 200,
+  "device": "?",
+  "model_load_s": 27.961463200001162,
+  "base": {
+    "n": 200,
+    "mean_ms": 92.78838100013672,
+    "p50_ms": 82.81740000165883,
+    "p95_ms": 143.72679500156653
+  },
+  "claim": {
+    "n": 200,
+    "mean_ms": 53.105276499991305,
+    "p50_ms": 43.75369999979739,
+    "p95_ms": 83.2094200028223
+  },
+  "total": {
+    "n": 200,
+    "mean_ms": 145.89365750012803,
+    "p50_ms": 127.5051499978872,
+    "p95_ms": 234.59345999654025
+  },
+  "note": "Per-row Python timing on unique rows, no HTTP or response serialization."
+}

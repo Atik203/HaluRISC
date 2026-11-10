@@ -191,7 +191,7 @@ export default function Home() {
             </article>
           )}
           <p className="text-[11px] text-muted-foreground text-center">
-            Real cases from the B5 reviewer export · scores are the evidence-calibrated risk
+            Real cases from the B5 reviewer export · scores are the evidence-adjusted risk
           </p>
         </div>
       </section>

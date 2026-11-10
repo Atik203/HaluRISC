@@ -1,0 +1,264 @@
+{
+  "meta": {
+    "work_package": "WP6",
+    "backend": "openai",
+    "model": "gpt-5.6-luna",
+    "dataset": "ragtruth_qa_test",
+    "out_tag": "full",
+    "n_rows": 900,
+    "n_predictions": 2700,
+    "seeds": [
+      42,
+      123,
+      456
+    ],
+    "prevalence": 0.17777777777777778,
+    "max_completion_tokens": 512,
+    "system_prompt_sha256": "5688460de11af09e053037b0eb1c4f8d4fcdabb6aa3cea10cf44d3c41244156e",
+    "system_prompt_tokens_o200k": 1150,
+    "prompt_doc": "docs/rebuild/judge_prompt.md",
+    "pilot": false,
+    "note": "Pilot numbers are not final; only --limit 0 produces the WP6 table."
+  },
+  "per_seed": {
+    "42": {
+      "n": 900,
+      "prevalence": 0.17777777777777778,
+      "accuracy": 0.7422222222222222,
+      "precision": 0.4032258064516129,
+      "recall": 0.9375,
+      "f1": 0.5639097744360902,
+      "auroc": 0.9105954391891892,
+      "predicted_positive_rate": 0.41333333333333333,
+      "confusion": {
+        "tp": 150,
+        "fp": 222,
+        "tn": 518,
+        "fn": 10
+      },
+      "ci95": {
+        "accuracy": [
+          0.7155555555555555,
+          0.7689166666666666
+        ],
+        "precision": [
+          0.3530957666085302,
+          0.4502793906358776
+        ],
+        "recall": [
+          0.8947275759822091,
+          0.9724203881665724
+        ],
+        "f1": [
+          0.510556621880998,
+          0.6104617863165501
+        ],
+        "predicted_positive_rate": [
+          0.38108333333333333,
+          0.4455833333333333
+        ],
+        "auroc": [
+          0.8894047384289316,
+          0.9297203744058844
+        ]
+      },
+      "parse_failures": 1
+    },
+    "123": {
+      "n": 900,
+      "prevalence": 0.17777777777777778,
+      "accuracy": 0.7433333333333333,
+      "precision": 0.4053333333333333,
+      "recall": 0.95,
+      "f1": 0.5682242990654206,
+      "auroc": 0.9080405405405406,
+      "predicted_positive_rate": 0.4166666666666667,
+      "confusion": {
+        "tp": 152,
+        "fp": 223,
+        "tn": 517,
+        "fn": 8
+      },
+      "ci95": {
+        "accuracy": [
+          0.7144444444444444,
+          0.7700277777777778
+        ],
+        "precision": [
+          0.3578910303928836,
+          0.4531478499303621
+        ],
+        "recall": [
+          0.9135802469135802,
+          0.981369335173683
+        ],
+        "f1": [
+          0.5190809221252152,
+          0.6151220509834099
+        ],
+        "predicted_positive_rate": [
+          0.38222222222222224,
+          0.4466944444444444
+        ],
+        "auroc": [
+          0.8839097161488091,
+          0.9283351043612056
+        ]
+      },
+      "parse_failures": 0
+    },
+    "456": {
+      "n": 900,
+      "prevalence": 0.17777777777777778,
+      "accuracy": 0.7422222222222222,
+      "precision": 0.4032258064516129,
+      "recall": 0.9375,
+      "f1": 0.5639097744360902,
+      "auroc": 0.9107179054054053,
+      "predicted_positive_rate": 0.41333333333333333,
+      "confusion": {
+        "tp": 150,
+        "fp": 222,
+        "tn": 518,
+        "fn": 10
+      },
+      "ci95": {
+        "accuracy": [
+          0.7144444444444444,
+          0.7711111111111111
+        ],
+        "precision": [
+          0.354391300116777,
+          0.4532651434232728
+        ],
+        "recall": [
+          0.8979554595560852,
+          0.9746875248785924
+        ],
+        "f1": [
+          0.5136059254725367,
+          0.6131531792669108
+        ],
+        "predicted_positive_rate": [
+          0.38108333333333333,
+          0.44222222222222224
+        ],
+        "auroc": [
+          0.8868213451571453,
+          0.9322399576727765
+        ]
+      },
+      "parse_failures": 0
+    }
+  },
+  "mean_across_seeds": {
+    "accuracy": {
+      "mean": 0.7425925925925926,
+      "sd": 0.0006415002990995562
+    },
+    "precision": {
+      "mean": 0.4039283154121864,
+      "sd": 0.0012167812124856715
+    },
+    "recall": {
+      "mean": 0.9416666666666668,
+      "sd": 0.007216878364870297
+    },
+    "f1": {
+      "mean": 0.5653479493125336,
+      "sd": 0.002490991956169149
+    },
+    "auroc": {
+      "mean": 0.9097846283783784,
+      "sd": 0.0015116650697488319
+    },
+    "predicted_positive_rate": {
+      "mean": 0.41444444444444445,
+      "sd": 0.0019245008972987648
+    }
+  },
+  "agreement": {
+    "n_common_rows": 900,
+    "pairwise": {
+      "42_vs_123": {
+        "n": 900,
+        "exact_match": 0.9411111111111111,
+        "cohen_kappa": 0.8787185354691076
+      },
+      "42_vs_456": {
+        "n": 900,
+        "exact_match": 0.9244444444444444,
+        "cohen_kappa": 0.844208211143695
+      },
+      "123_vs_456": {
+        "n": 900,
+        "exact_match": 0.9411111111111111,
+        "cohen_kappa": 0.8787185354691076
+      }
+    },
+    "mean_pairwise_cohen_kappa": 0.8672150940273035,
+    "three_way_exact_match": 0.9033333333333333,
+    "fleiss_kappa": 0.8672235477257582,
+    "majority_vote_vs_label": {
+      "n": 900,
+      "exact_match": 0.7466666666666667,
+      "cohen_kappa": 0.4296197464976651
+    },
+    "majority_vote": {
+      "predicted_positive_rate": 0.41333333333333333,
+      "n_unanimous": 813
+    },
+    "vs_ec_xgb_seed42": {
+      "42": {
+        "n": 900,
+        "exact_match": 0.44333333333333336,
+        "cohen_kappa": 0.04074442827602043
+      },
+      "123": {
+        "n": 900,
+        "exact_match": 0.44666666666666666,
+        "cohen_kappa": 0.04138594802694895
+      },
+      "456": {
+        "n": 900,
+        "exact_match": 0.44555555555555554,
+        "cohen_kappa": 0.044573791835796794
+      }
+    }
+  },
+  "tokens": {
+    "calls": 2700,
+    "prompt_tokens": 4375368,
+    "cached_prompt_tokens": 3952340,
+    "uncached_prompt_tokens": 423028,
+    "completion_tokens": 389191,
+    "reasoning_tokens": 247120,
+    "total_tokens": 4764559,
+    "mean_prompt_tokens": 1620.5066666666667,
+    "mean_completion_tokens": 144.14481481481482,
+    "cache_hit_rate": 0.9033160182183533
+  },
+  "cost": {
+    "usd": 0.6306816,
+    "usd_per_1000_calls": 0.23358577777777775,
+    "pricing": {
+      "currency": "USD",
+      "input_per_mtok": 0.2,
+      "cached_input_per_mtok": 0.02,
+      "output_per_mtok": 1.2,
+      "assumption": "GPT-5.6-Luna list prices assumed; override with HALU_JUDGE_*_USD_PER_MTOK."
+    }
+  },
+  "latency": {
+    "n": 2700,
+    "mean_ms": 2442.6372037037036,
+    "p50_ms": 2283.435,
+    "p95_ms": 3951.256499999999,
+    "min_ms": 1024.77,
+    "max_ms": 6807.68
+  },
+  "errors": {
+    "n_failed_calls": 0,
+    "first_errors": []
+  }
+}

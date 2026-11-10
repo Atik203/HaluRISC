@@ -1,0 +1,7 @@
+perturbation,n,mean_abs_score_delta,std_score_delta,max_abs_score_delta,large_delta_rate,top1_flip_rate,mean_top5_overlap,mean_spearman
+clause_shuffle,2,8.5e-05,0.00012,0.00017,0.0,0.0,1.0,0.99916
+date,2,0.482044,0.681646,0.96404,0.5,0.0,0.7,0.785714
+entity,11,0.339129,0.471502,0.98223,0.363636,0.545455,0.781818,0.847823
+irrelevant_insert,20,0.002739,0.004494,0.01274,0.0,0.0,0.92,0.922451
+numeric,3,0.331666,0.574079,0.994556,0.333333,0.0,0.733333,0.731372
+support_removal,10,0.464341,0.493853,0.983737,0.5,0.0,0.78,0.808431

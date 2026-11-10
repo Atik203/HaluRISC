@@ -1,0 +1,24 @@
+{
+  "requested_samples": 20,
+  "completed_samples": 20,
+  "completed": true,
+  "timed_out": false,
+  "budget_minutes": 15.0,
+  "elapsed_seconds": 36.16892766952515,
+  "model_load_seconds": 27.132348775863647,
+  "attempted_perturbations": 120,
+  "changed_perturbations": 48,
+  "unchanged_perturbations": 72,
+  "mean_seconds_per_changed_perturbation": 0.18826206028461456,
+  "device_requested": "auto",
+  "device_used": "cuda:0",
+  "perturbation_types": [
+    "numeric",
+    "date",
+    "entity",
+    "support_removal",
+    "irrelevant_insert",
+    "clause_shuffle"
+  ],
+  "note": "20-row pilot only. These rows are a deterministic label-stratified subsample, not a representative evaluation set."
+}
