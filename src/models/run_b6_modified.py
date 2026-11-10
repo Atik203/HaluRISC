@@ -72,6 +72,17 @@ LOG_LENGTH_COLUMNS = ("n_chars", "n_words")
 DEFAULT_VARIANTS = ("m0", "m1", "m2", "m3")
 DEFAULT_ALPHA = 0.05
 
+# Fixed configuration for the rebuild ablation: the m3 seed-42 tuned values from
+# artifacts/results/b6/b6_tuning.json. Held constant across every variant and
+# seed so that feature-group differences are not confounded with tuning.
+FIXED_HP_PARAMS = {
+    "max_depth": 5,
+    "learning_rate": 0.05,
+    "n_estimators": 300,
+    "subsample": 0.7,
+    "colsample_bytree": 0.7,
+}
+
 # Domain priors: risk must not fall when contradiction/novelty rises, and must
 # not climb when entailment/overlap rises.
 CONSTRAINTS = {
@@ -100,6 +111,7 @@ class B6Config:
     n_iter: int = 30
     tuning_grid: dict = field(default_factory=lambda: dict(TUNING_GRID))
     alpha: float = DEFAULT_ALPHA
+    fixed_params: dict | None = None
     smoke: bool = False
 
 
@@ -308,16 +320,28 @@ def run_b6(cfg: B6Config) -> dict:
         tuning_report[variant] = {}
         for seed in cfg.seeds:
             job += 1
-            logger.info(
-                f"[{job}/{total_jobs}] {variant} seed {seed}: tuning {cfg.n_iter} iters x 5 folds "
-                f"on {len(X_train)} rows x {len(names)} features..."
-            )
+            if cfg.fixed_params is None:
+                logger.info(
+                    f"[{job}/{total_jobs}] {variant} seed {seed}: tuning {cfg.n_iter} iters x 5 folds "
+                    f"on {len(X_train)} rows x {len(names)} features..."
+                )
+            else:
+                logger.info(
+                    f"[{job}/{total_jobs}] {variant} seed {seed}: fixed params on "
+                    f"{len(X_train)} rows x {len(names)} features: {cfg.fixed_params}"
+                )
             t_job = time.time()
-            params, cv_auc = tune_variant(X_train, y_train, groups, seed, constraints, cfg)
+            if cfg.fixed_params is None:
+                params, cv_auc = tune_variant(X_train, y_train, groups, seed, constraints, cfg)
+            else:
+                params, cv_auc = dict(cfg.fixed_params), None
             tuning_report[variant][str(seed)] = {"params": params, "cv_auc": cv_auc}
-            model = make_variant_xgb(params, seed, constraints, early_stopping=True)
-            model.fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=False)
-            logger.info(f"[{job}/{total_jobs}] {variant} seed {seed}: tuned+fit in {time.time() - t_job:.0f}s")
+            model = make_variant_xgb(params, seed, constraints, early_stopping=cfg.fixed_params is None)
+            if cfg.fixed_params is None:
+                model.fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=False)
+            else:
+                model.fit(X_train, y_train, verbose=False)
+            logger.info(f"[{job}/{total_jobs}] {variant} seed {seed}: fit in {time.time() - t_job:.0f}s")
             p_val = model.predict_proba(X_val)[:, 1]
             p_test = model.predict_proba(X_test)[:, 1]
 
@@ -454,6 +478,8 @@ def run_b6(cfg: B6Config) -> dict:
         "variants": list(cfg.variants),
         "seeds": cfg.seeds,
         "n_iter_tuning": cfg.n_iter,
+        "tuning_mode": "fixed" if cfg.fixed_params else "randomized",
+        "fixed_params": cfg.fixed_params,
         "alpha_strict": cfg.alpha,
         "device": xgb_device(),
         "base_features": BASE_COLUMNS,
@@ -548,6 +574,11 @@ def main() -> None:
     parser.add_argument("--alpha", type=float, default=DEFAULT_ALPHA)
     parser.add_argument("--results-dir", type=Path, default=None)
     parser.add_argument("--models-dir", type=Path, default=None)
+    parser.add_argument(
+        "--fixed-params",
+        action="store_true",
+        help="Skip randomized tuning and use FIXED_HP_PARAMS for every variant and seed.",
+    )
     parser.add_argument("--smoke-test", action="store_true")
     args = parser.parse_args()
 
@@ -561,6 +592,7 @@ def main() -> None:
         seeds=[int(s) for s in args.seeds.split(",") if s.strip()],
         n_iter=args.n_iter,
         alpha=args.alpha,
+        fixed_params=dict(FIXED_HP_PARAMS) if args.fixed_params else None,
     )
     if args.results_dir:
         cfg.results_dir = args.results_dir

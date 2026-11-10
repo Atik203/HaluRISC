@@ -1103,8 +1103,8 @@ def judge_answer(request: Request, req: JudgeRequest):
                 {"role": "system", "content": system},
                 {"role": "user", "content": user},
             ],
-            temperature=0,
-            max_tokens=250,
+            seed=42,
+            max_completion_tokens=250,
         )
         content = resp.choices[0].message.content.strip()
         data = json.loads(content[content.find("{") : content.rfind("}") + 1])

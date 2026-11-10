@@ -81,8 +81,8 @@ def openai_judge_call(api_key: str, model: str | None = None) -> callable:
         resp = client.chat.completions.create(
             model=model_name,
             messages=[{"role": "system", "content": JUDGE_SYSTEM}, {"role": "user", "content": user}],
-            temperature=0,
-            max_tokens=160,
+            seed=42,
+            max_completion_tokens=160,
         )
         content = resp.choices[0].message.content.strip()
         data = json.loads(content[content.find("{") : content.rfind("}") + 1])
