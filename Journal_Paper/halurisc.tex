@@ -10,7 +10,7 @@
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{booktabs}
-% Float placement: this paper carries 15 tables and 6 figures, so allow
+% Float placement: this paper carries 16 tables and 11 figures, so allow
 % pages to hold more than two floats and keep text pages from breaking early.
 \setcounter{topnumber}{3}
 \setcounter{bottomnumber}{2}
@@ -226,8 +226,8 @@
 
 \begin{document}
 \let\WriteBookmarks\relax
-\def\floatpagepagefraction{1}
-\def\textpagefraction{.001}
+\def\floatpagepagefraction{0.85}
+\def\textpagefraction{0.05}
 
 % Short title
 \shorttitle{Evidence-Consistent XGBoost}
@@ -270,7 +270,7 @@
 % Abstract
 \linenumbers
 \begin{abstract}
-  Large language models answer questions in fluent text, and some answers are wrong in ways the evidence does not support. Detectors for false information have many limitations. For example, they require a large judge model or a computer with graphics capability to run an encoder classifier. Feature-based detectors also provide little information regarding how well their estimates are calibrated or how well these detectors perform outside the domain of their training data. Therefore, this study was designed to see if a simple black-box model could accurately predict the likelihood of hallucinations from the candidate answer itself along with the question asked and the supporting evidence provided. The proposed method, Evidence Consistent eXtreme Gradient Boosting (EC-XGB), uses an ensemble of decision trees trained over 35 features derived from the input evidence. Eight of the 35 features represent the extent to which the claims are supported. Because the benchmark is nearly fully saturated, the useful gain comes from better reliability during out-of-domain shifts. A tree model using only explicit evidence features requires no model access and remains inexpensive to interpret. Results show that EC-XGB achieves an F1 of 0.9855 and an AUROC of 0.9984 on the HaluEval question answering task, competitive with a conventional XGBoost model. When evaluating results on task type categories (RAGTruth) included in the training set, the AUROC increases from 0.475 to 0.582, while the proportion of natural RAGTruth answers identified as at-risk decreases from 99.9\% to 61.3\%. Performance on a QA evaluation task not seen during training is consistent with random guessing (i.e., an F1 near 0.30). Finally, a model-specific display calibrator fit to labeled target rows reduces the average target calibration error from 0.726 to 0.126.
+  Large language models answer questions fluently, and some answers are not supported by the evidence. Detectors usually rely on a large judge model, an encoder classifier, or access to model internals. These options are costly, hard to interpret, and rarely report how their risk scores behave under distribution shift. Feature-based detectors are cheaper, but their calibration, length sensitivity, and cross-domain behaviour are seldom measured together, and on HaluEval answer length is almost a label proxy. This study tests whether a simple black-box model over explicit evidence features can estimate hallucination risk and how its calibration and ranking change under task and corpus shift. The proposed model, evidence-consistent XGBoost (EC-XGB), combines 26 base features, eight claim-level NLI aggregates, and a source indicator. It is trained on HaluEval QA and RAGTruth summarization and data-to-text rows with grouped splits and three seeds, and evaluated with Platt and isotonic calibration, SHAP attributions, a length-only baseline, and length controls. The design needs no LLM judge calls and no access to model internals, but it still runs small NLI, embedding, and NER models. This keeps inference cheap and the features inspectable while allowing a direct test of the length shortcut. EC-XGB reaches an F1 of 0.9855 and an AUROC of 0.9984 on HaluEval QA, matching conventional XGBoost on a saturated benchmark. On the RAGTruth tasks used in training, the pooled flag rate falls from 99.9\% to 61.3\%, while held-out QA is still flagged at 97.4\% and its AUROC is 0.549. Target calibration lowers ECE from 0.726 to 0.126, but a prevalence-only predictor at the calibration prevalence matches its Brier score, the deployed 0.5 threshold recalls no QA rows, and a 5\% false-positive budget recalls 5.0\%. EC-XGB is therefore a domain-specific risk score and adaptation check, not a general-purpose detector.
 \end{abstract}
 
 % Keywords
@@ -287,23 +287,23 @@
 
 \section{Introduction}\label{sec:intro}
 
-A number of researchers have examined how to apply machine learning techniques to assess the likelihood of a response being a hallucination. One such technique is SelfCheckGPT, which uses several generated answers and assesses their similarity to determine if there has been a hallucination \cite{selfcheck}. Another technique is Luna, where a smaller evaluation model is used instead of a larger judge model \cite{luna}. A third technique is semantic entropy, which identifies meaning-based groupings of similar responses \cite{farquhar2024semantic}. A hybrid framework combines frozen encoder features with lightweight classifiers and reports strong benchmark scores \cite{ieeeTai}. Judges carry high computational costs and encoder models are hard to interpret. Two recent reviews have grouped approaches to detecting hallucinations into three categories including feature-based detectors, encoder-based detectors, and combinations of the above \cite{ji2023survey,huang2025survey}. Both reviews identify evaluation and reliability as two major areas that require additional research, and a third review determines that reliability is an area of concern as well \cite{alansari2026survey}.
+A number of researchers have examined how to apply machine learning techniques to assess the likelihood of a response being a hallucination. One such technique is SelfCheckGPT, which uses several generated answers and assesses their similarity to determine if there has been a hallucination \cite{selfcheck}. Another technique is Luna, where a smaller evaluation model is used instead of a larger judge model \cite{luna}. A third technique is semantic entropy, which identifies meaning-based groupings of similar responses \cite{farquhar2024semantic}. A hybrid framework combines frozen encoder features with lightweight classifiers and reports strong benchmark scores \cite{ieeeTai}. Judges carry high computational costs and encoder models are hard to interpret. Two recent reviews have grouped approaches to detecting hallucinations into three categories including feature-based detectors, encoder-based detectors, and combinations of the above \cite{ji2023survey,huang2025survey}. Both reviews identify evaluation and reliability as two major areas that require additional research, and a third review determines that reliability is an area of concern as well \cite{alansari2026survey}. A fourth survey frames the problem as factuality evaluation and reaches the same conclusion \cite{wang2024factuality}.
 
 Six recent studies address the same topic of assessing hallucinations. HaluAgent demonstrated that small language models can select appropriate tools and detect multiple forms of hallucinations, but it required multiple tool calls for each answer \cite{haluagent}. Valentin et al. proposed a calibrated multi-score detector with a detailed cost analysis, but the detector relies heavily on large language model (LLM) scoring for its primary source of information \cite{costeff}. Sundaragiri et al. proposed a system that uses retrieval, natural language inference (NLI) verification, and an XGBoost classifier, and they report only classification metrics \cite{ijert}. Haq et al. assigned SHAP-LIME attributions to each word, but did not test whether those values remained consistent across words \cite{multimedia}. Deng et al. found that detectors degrade once they leave the domain in which they were trained, and their method focuses on multi-turn dialogue signals \cite{spikescore}. FaithBench shows that modern LLMs still produce hard summarization hallucinations, and it does not assess calibration risks \cite{faithbench}.
 
-The existing literature leaves four issues unaddressed. Calibration is infrequently reported for lightweight detectors, explanation quality is rarely measured, cross-domain behavior is rarely tested, and error patterns are rarely analyzed case by case. This paper addresses all four issues by developing a black-box model that takes a query $q$, a reference context $c$, and a candidate answer $a$, and outputs $P(\text{hallucinated}\mid q,c,a)$. The model, evidence-consistent XGBoost (EC-XGB), consists of 26 evidence-consistency features in seven groups, eight claim-level NLI aggregates, and a source indicator, classified by a tuned XGBoost model. Platt and isotonic calibration yield the probability, SHAP explanations reveal feature contributions, artifact-control baselines and group-aware splits prevent shortcut solutions, and validation-only calibration solves the reliability problem. Transfer limits are established on RAGTruth and FaithBench.
+The existing literature leaves four issues unaddressed. Calibration is infrequently reported for lightweight detectors, explanation quality is rarely measured, cross-domain behavior is rarely tested, and error patterns are rarely analyzed case by case. The conventional feature-based baseline is also saturated on HaluEval, depends on answer length, and loses calibration under shift. This paper addresses all four issues by developing a black-box model that takes a query $q$, a reference context $c$, and a candidate answer $a$, and outputs $P(\text{hallucinated}\mid q,c,a)$. The model, evidence-consistent XGBoost (EC-XGB), consists of 26 evidence-consistency features in seven groups, eight claim-level NLI aggregates, and a source indicator, classified by a tuned XGBoost model. Platt and isotonic calibration yield the probability, SHAP explanations reveal feature contributions, artifact-control baselines and group-aware splits reduce shortcut solutions, and validation-only calibration quantifies the reliability problem. The claim-level aggregates support per-claim explanations, and the measured transfer gain comes from multi-source training rather than from those aggregates. Transfer limits are established on RAGTruth and FaithBench.
 
-HaluEval QA provides 10{,}000 paired correct and hallucinated answers for training and in-domain testing \cite{haluEval}. RAGTruth provides natural responses for transfer and recalibration \cite{ragtruth}. The scope is question answering with a reference context, and FaithBench serves only as an out-of-domain summarization stress test. EC-XGB reaches an F1 of 0.9855 on HaluEval QA. On natural RAGTruth answers, the flag rate falls from 99.9\% to 61.3\%, and the AUROC rises from 0.475 to 0.582. Target calibration on 5{,}034 labeled rows lowers the RAGTruth QA ECE from 0.726 to 0.126. On HaluEval, recall stays above 99\% at a five percent false-positive rate, and one analysis takes 61.8~ms at about \$0.001 per 1{,}000 predictions.
+HaluEval QA provides 10{,}000 paired correct and hallucinated answers for training and in-domain testing \cite{haluEval}. RAGTruth provides natural responses for adaptation and recalibration \cite{ragtruth}. The scope is question answering with a reference context, and FaithBench serves only as an out-of-domain summarization stress test. EC-XGB reaches an F1 of 0.9855 on HaluEval QA. On natural RAGTruth answers, the flag rate falls from 99.9\% to 61.3\%, and the AUROC rises from 0.475 to 0.582. Target calibration on 5{,}034 labeled rows lowers the RAGTruth QA ECE from 0.726 to 0.126, but it does not change the ranking. On HaluEval, recall stays above 99\% at a five percent false-positive rate, and one analysis takes 61.8~ms at about \$0.001 per 1{,}000 predictions.
 
 \section{Conventional Method}\label{sec:conventional}
 
 \subsection{Preliminaries}
 
-Fluent hallucinations are claims where the amount of support from the evidence is not enough. The detection can be assessed in terms of precision, recall, F1, or area under the receiver operating characteristic curve (AUROC) in an evaluation setting on labeled data. Typical datasets for testing detectors are HaluEval \cite{haluEval} and TruthfulQA \cite{truthqa}, and factual accuracy of long-form text generation can be verified by FActScore \cite{factscore}. In a deployment context, a detector faces tougher evaluation, because it has to contribute to a decision process and to be explainable. Calibration solves the first problem -- the predicted risk has to represent the true risk, and calibration is measured with the use of expected calibration error (ECE) via reliability diagrams \cite{guo}. The second one -- having the detector's warning, the person needs an explanation of it. For tabular models such information comes from SHapley Additive exPlanations (SHAP) attributions \cite{shap}. Both kinds of evaluation are conducted in the current work on the black box approach to the model.
+Fluent hallucinations are claims where the amount of support from the evidence is not enough. The detection can be assessed in terms of precision, recall, F1, or area under the receiver operating characteristic curve (AUROC) in an evaluation setting on labeled data. Typical datasets for testing detectors are HaluEval \cite{haluEval} and TruthfulQA \cite{truthqa}, and factual accuracy of long-form text generation can be verified by FActScore \cite{factscore}. In a deployment context, a detector faces tougher evaluation, because it has to contribute to a decision process and to be explainable. Calibration addresses the first problem -- the predicted risk has to represent the true risk, and calibration is measured with the use of expected calibration error (ECE) via reliability diagrams \cite{guo}. The second one -- having the detector's warning, the person needs an explanation of it. For tabular models such information comes from SHapley Additive exPlanations (SHAP) attributions \cite{shap}. Both kinds of evaluation are conducted in the current work on the black box approach to the model.
 
 \subsection{Baseline Method}
 
-The conventional method in this study is a tuned XGBoost classifier \cite{xgboost} over the 26 hand-crafted evidence-consistency features. XGBoost is selected as the baseline because it handles nonlinear interactions, it trains quickly on a tabular design matrix, and its tree structure supports exact SHAP values. XGBoost is a gradient-boosting ensemble, so the model adds decision trees one at a time and each new tree fits the error left by the trees already in the ensemble \cite{xgboost}. Each tree splits the feature space into leaves, and each leaf stores a weight that adds to the running score. The final score passes through a logistic link, so the output is a probability of the hallucinated class.
+The conventional method is a tuned XGBoost classifier \cite{xgboost} over the 26 hand-crafted features. XGBoost handles nonlinear interactions, trains quickly on tabular data, and supports exact SHAP values. Boosted trees remain competitive with tuned neural networks on tabular data \cite{holzmuller2024better}. The model adds trees one at a time, and each tree fits the error left by the previous ensemble. The final score passes through a logistic link, so the output is a probability.
 
 Let $x_i$ be the feature vector of row $i$ and $y_i \in \{0,1\}$ its label. The model sums $K$ trees, $z_i = \sum_{k=1}^{K} f_k(x_i)$. The training objective combines a differentiable loss with a regularizer over the trees,
 \begin{equation}
@@ -311,12 +311,25 @@ Let $x_i$ be the feature vector of row $i$ and $y_i \in \{0,1\}$ its label. The 
 \end{equation}
 where $\phi = \{f_k\}_{k=1}^{K}$ collects the trees, $f_k$ is the $k$-th tree with $T_k$ leaves of weight $w_k$, $\gamma$ is a leaf-count penalty, and $\lambda$ is an L2 weight penalty. The loss $l$ is the standard logistic loss and the probability comes from the sigmoid of the summed leaf score, $\hat{y}_i = \sigma(z_i) = 1/(1 + e^{-z_i})$.
 
-Tree depth, learning rate, tree count, subsample rate, and column subsample rate are tuned on the training split, and the selected values and the search protocol are reported in Section~\ref{sec:experiment}. This baseline is the reference for every later modification, and Algorithm~\ref{alg:baseline} summarizes its training and inference procedure.
+At boosting step $t$, a new tree with $T$ leaves is added, and the objective is approximated by a second-order expansion around the current prediction,
+\begin{equation}
+  \mathcal{L}^{(t)} \approx \sum_{i=1}^{n} \left[ g_i f_t(x_i) + \tfrac{1}{2} h_i f_t^2(x_i) \right] + \gamma T + \tfrac{1}{2}\lambda \sum_{j=1}^{T} w_j^2,
+\end{equation}
+where $g_i$ and $h_i$ are the first and second derivatives of the loss at the current prediction. For a fixed tree structure, the optimal weight of leaf $j$ is
+\begin{equation}
+  w_j^{*} = -\frac{G_j}{H_j + \lambda},
+\end{equation}
+where $G_j = \sum_{i \in I_j} g_i$ and $H_j = \sum_{i \in I_j} h_i$ are the sums over the rows $I_j$ that reach leaf $j$. The gain of a split is
+\begin{equation}
+  \mathrm{Gain} = \frac{1}{2}\left[ \frac{G_L^2}{H_L+\lambda} + \frac{G_R^2}{H_R+\lambda} - \frac{(G_L+G_R)^2}{H_L+H_R+\lambda} \right] - \gamma,
+\end{equation}
+with $G_L$ and $H_L$ for the left child and $G_R$ and $H_R$ for the right child. A split is kept only when the gain is positive. This is the criterion used to grow each tree.
+
+Tree depth, learning rate, tree count, and the two subsample rates are tuned on the training split; the selected values are in Section~\ref{sec:experiment}. Algorithm~\ref{alg:baseline} lists the eight-step procedure. The search draws 30 configurations and scores each with grouped five-fold cross-validation. The grouping keeps both answers to the same question in one fold. Each seed trains on 14,000 rows, fits Platt scaling on 3,000 validation rows, selects the threshold on validation, and tests once on 3,000 rows. The test rows are never used for tuning or calibration. Step 8 returns the mean over the three seeds, which is why every aggregate table reports a mean.
 
 \begin{algorithm}[H]
-  \caption{Baseline feature-based XGBoost (training and inference)}
+  \caption{Baseline feature-based XGBoost (training and evaluation)}
   \label{alg:baseline}
-  \footnotesize
   \begin{algorithmic}[1]
     \Require labeled rows $(q_i, c_i, a_i, y_i)$ and seeds $\mathcal{S} = \{42,123,456\}$
     \Ensure trained model, calibrator, and decision threshold
@@ -331,30 +344,27 @@ Tree depth, learning rate, tree count, subsample rate, and column subsample rate
   \end{algorithmic}
 \end{algorithm}
 
-\subsection{Limitations and Research Gap}
-
-This baseline shows good performance as a standalone model for its intended benchmark, but it has some limitations. In the case of HaluEval, the benchmark has become saturated, which means that there is no improvement in the model performance by adding more features. The performance of the baseline is highly sensitive to answer length and lexical similarity. As shown in Section~\ref{sec:results}, answer length is an optimal feature for this dataset. However, in the case of domain shift, the probability estimates become unreliable. In particular, the baseline model classifies almost all natural answers as positive, and its confidence does not correspond to the error rate anymore.
-
-The benchmark is a limiting factor because about 85\% of the whole HaluEval benchmark has been generated by ChatGPT via sampling and filtering~\cite{haluEval,bang-etal-2025-hallulens}. This means that the distinction between factual errors and hallucinations becomes unclear in many cases. Other limitations include the lack of the claim-level evidence signal, the training on one corpus only, and the generation of the probability without calibration to the domain or reliability of the explanation.
+This baseline has three limits. The benchmark is saturated, so extra features do not improve F1. The score is sensitive to answer length, and the probability scale breaks under shift \cite{ovadia2019}. The baseline also lacks claim-level evidence, trains on one corpus, and reports a source-calibrated probability that is not calibrated under target shift. These limits motivate the three changes in Section 3.
 
 \section{Proposed Method}\label{sec:proposed}
 
-\subsection{Working Principle and Task}
-
-An illustration of the full pipeline is shown in Figure~\ref{fig:pipeline}. It takes a question, reference context (evidence) if available, as well as a candidate answer that comes from a black-box LLM, and produces a risk probability as well as per-feature explanations for that answer.
+\subsection{Working Principle}
 
 \begin{figure}[pos=htbp]
   \centering
-  \includegraphics[width=0.76\linewidth]{architecture-flow.png}
-  \caption{End-to-end architecture of the proposed model. Inputs are processed to generate 35 features used as the input to the EC-XGB classifier. Platt calibration produces the deployed score. The model outputs include the risk score, per-claim verdicts, and SHAP feature explanations. The system is deployed as a Next.js + FastAPI app, and evaluation happens both in-domain on HaluEval and under distributional shift on RAGTruth and FaithBench datasets.}
+  \includegraphics[width=0.98\linewidth]{revision/architecture-flow-large.png}
+  \caption{End-to-end pipeline of EC-XGB.}
   \label{fig:pipeline}
 \end{figure}
 
-The task consists of estimating the probability $P(\text{hallucinated}\mid q,c,a)$ of a hallucination, conditioned on a question $q$, reference context $c$ (if available) and a candidate answer $a$ coming from a black-box LLM. It is not aimed at verifying truthfulness of the candidate answer, but at finding those cases in which the candidate answer does not match the provided evidence, i.e. it does not follow from or contradicts it.
+Figure~\ref{fig:pipeline} reads from left to right. It takes a question, reference context, and a candidate answer from a black-box LLM, and produces a risk probability and per-feature explanations. The first stage collects the three inputs: the question, the reference context, and the candidate answer. A missing context is allowed and is treated as a separate condition. The second stage extracts 35 features. The seven base groups cover length and style, lexical overlap, entity novelty, NLI, numeric overlap, hedging, and semantic similarity. Eight claim-level NLI aggregates are added to the 26 base features, and a binary source indicator marks whether the answer came from a natural response corpus. The third stage passes the 35 features to the EC-XGB classifier. The classifier returns a raw score, which is a probability over the hallucinated class. The fourth stage applies the Platt calibrator fitted on the RAGTruth QA calibration split. The calibrated score is the number shown to the user. The fifth stage produces the outputs: the risk score, the per-claim verdicts, and the SHAP feature contributions. The lower band shows the deployment path. A Next.js front end calls a FastAPI service, and the service loads the model, calibrator, explainer, and feature models at startup. The rightmost block lists the evaluation corpora. HaluEval measures in-domain performance, RAGTruth summarization and data-to-text measure adaptation to task types seen in training, and RAGTruth QA and FaithBench are held out. The training band records the monotone constraints, the grouped five-fold cross-validation, and the three seeds used for every reported mean.
+
+The task consists of estimating the probability $P(\text{hallucinated}\mid q,c,a)$ of a hallucination, conditioned on a question $q$, reference context $c$ (if available) and a candidate answer $a$ coming from a black-box LLM. It is not aimed at verifying truthfulness of the candidate answer, but at finding those cases in which the candidate answer does not match the provided evidence, i.e. it does not follow from or contradicts it. The output is a probability, not a binary label. A decision threshold turns the probability into a flag.
 
 \subsection{Features}
 
 The model uses 26 base features in seven groups (Table~\ref{tab:features}) and eight aggregate features computed at the claim level (Table~\ref{tab:claim}). For NLI, six signal probabilities come from a DeBERTa-v3 cross-encoder \cite{deberta} trained on SNLI \cite{snli} and MultiNLI \cite{mnli}. They indicate whether one statement follows logically from another. Semantic similarity uses MiniLM sentence embeddings \cite{sbert,minilm}, and entities come from spaCy named entity recognition \cite{spacy}.
+Length and style features count characters, words, sentences, and average word length. They are included because the benchmark labels longer answers as hallucinated more often, so length is a strong but fragile signal. Lexical overlap measures how much of the answer appears in the context and in the question. It captures direct copying and is the strongest feature in the SHAP ranking, but it cannot detect a fluent paraphrase that contradicts the evidence. Entity features count named entities and the share that do not appear in the context. A novel entity is a useful warning sign, although a correct answer can also introduce a new name. The NLI features give the probability that the context entails, contradicts, or is neutral to the answer, in both directions. They are the only group that represents logical support rather than surface overlap. Numeric features compare the numbers in the answer with the numbers in the context. A changed number is a common hallucination and is easy to detect. Hedging features count uncertainty words such as ``may'' or ``likely''. They are weak on their own, but they help separate a cautious correct answer from a confident wrong one. Semantic features use cosine similarity between the context and the answer and between the question and the answer. They catch paraphrase and topic drift that lexical overlap misses. The eight claim-level aggregates in Table~\ref{tab:claim} repeat the NLI and overlap signals at the level of atomic claims, which is the level a reviewer actually checks. Entailment-based claim metrics are also used by RAGChecker \cite{ru2024ragchecker}.
 
 \begin{table}[pos=htbp]
   \centering
@@ -377,7 +387,7 @@ The model uses 26 base features in seven groups (Table~\ref{tab:features}) and e
 
 \begin{table}[pos=htbp]
   \centering
-  \caption{Claim-level NLI aggregates (8 features). The answer is split into at most six atomic clauses, with conjunctions such as ``and'' or ``but'' broken into separate clauses, each clause is scored against its four best-matching context sentences, and the pair probabilities are aggregated.}
+  \caption{Claim-level NLI aggregates (8 features).}
   \label{tab:claim}
   \begin{tabular}{>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}p{7.0cm}>{\raggedright\arraybackslash}p{2.9cm}}
     \toprule
@@ -388,27 +398,27 @@ The model uses 26 base features in seven groups (Table~\ref{tab:features}) and e
     Decomposition   & number of claims                                                        & sentence splitter \\
     \bottomrule
   \end{tabular}
+  \par\smallskip
+  {\small Note. The answer is split into at most six atomic clauses. Conjunctions such as ``and'' or ``but'' are broken into separate clauses. Each clause is scored against its four best-matching context sentences, and the pair probabilities are aggregated.}
 \end{table}
 
 \subsection{Evidence-Consistent XGBoost}
 
-EC-XGB alters three key aspects of the conventional XGBoost learner. These changes allow each component of the learning process to be assessed individually. First, raw-length counts are replaced with log-scaled values, and monotonicity constraints ensure that risk cannot decrease as contradiction or novelty rises and cannot increase as entailment, overlap, or semantic similarity rises. Raw-count length is replaced with its log-scaled value, $\ell' = \log(1+\ell)$.
-
-Second, the eight claim-level aggregates in Table~\ref{tab:claim} are added to the evidence signals that the deployed verification layer reports, so the classifier sees the same signals. Consider an answer composed of $K$ claims, with $C(k)$ the contradiction and $E(k)$ the entailment of claim $k$, and let $v_k$ be the verdict of claim $k$. The aggregate vector is
+EC-XGB alters three key aspects of the conventional XGBoost learner. These changes allow each component of the learning process to be assessed individually. First, raw-length counts are replaced with log-scaled values, and monotonicity constraints ensure that risk cannot decrease as contradiction or novelty rises and cannot increase as entailment, overlap, or semantic similarity rises. Raw-count length is replaced with its log-scaled value, $\ell' = \log(1+\ell)$. Second, the eight claim-level aggregates in Table~\ref{tab:claim} are added to the evidence signals that the deployed verification layer reports, so the classifier sees the same signals. Consider an answer composed of $K$ claims, with $C(k)$ the contradiction and $E(k)$ the entailment of claim $k$, and let $v_k$ be the verdict of claim $k$. The aggregate vector is
 \begin{gather}
   \psi(x) = [\max_k C(k), \overline{C}, r_{\text{con}}, r_{\text{sup}}, r_{\text{unsup}}, \min_k E(k), \overline{E}, K], \\
   r_{\text{con}} = \frac{1}{K}\sum_{k=1}^{K} \mathbf{1}[v_k = \text{contradicted}], \quad
   r_{\text{sup}} = \frac{1}{K}\sum_{k=1}^{K} \mathbf{1}[v_k = \text{supported}], \\
   r_{\text{unsup}} = \frac{1}{K}\sum_{k=1}^{K} \mathbf{1}[v_k = \text{unsupported}].
 \end{gather}
-Here $\overline{C}$ and $\overline{E}$ are the means of $C(k)$ and $E(k)$ over the claims. Let $\phi'(x)$ be the complete model input and $\tilde{\phi}(x)$ the remaining 24 base features excluding the two log-scaled length columns. There are 35 input features in total (24 base + 2 log-scaled length + 8 claim + 1 source).
-
+Here $\overline{C}$ and $\overline{E}$ are the means of $C(k)$ and $E(k)$ over the claims. Let $\phi'(x)$ be the complete model input and $\tilde{\phi}(x)$ the remaining 24 base features excluding the two log-scaled length columns. There are 35 input features in total (24 base + 2 log-scaled length + 8 claim + 1 source). The claim count $K$ is kept as a feature because an answer with many claims is harder to verify.
 The third modification is the addition of a source indicator $s \in \{0,1\}$ as a training feature for RAGTruth summarization and data-to-text tasks. Since all RAGTruth QA samples are filtered out during the training phase, the QA task itself is still zero-shot. The deployed display score is fitted on the labeled target samples and is therefore not zero-shot. This combination of modifications is termed EC-XGB. The deployed checkpoint uses seed 42.
+
+Algorithm~\ref{alg:ecxgb} lists the training and deployment procedure. Steps 1 and 2 build the feature matrix. The length columns are log-scaled, and the monotone constraints are attached to the features they govern. Steps 3 to 9 repeat the fit for the three seeds. Each repetition builds the 35-feature input, trains on HaluEval plus the RAGTruth non-QA rows, fits the display calibrator on the 5{,}034 RAGTruth QA calibration rows, selects the source threshold on the HaluEval validation split, and selects the target threshold on the calibration rows at a 5\% false-positive budget. The QA rows are excluded from training in every repetition, which keeps the QA test zero-shot. The output is the model, the display calibrator, and the two thresholds.
 
 \begin{algorithm}[H]
   \caption{Evidence-consistent XGBoost (EC-XGB) training and deployment}
   \label{alg:ecxgb}
-  \footnotesize
   \begin{algorithmic}[1]
     \Require labeled HaluEval QA rows, RAGTruth non-QA rows, seeds $\mathcal{S}$
     \Ensure deployed model, display calibrator, source threshold, target threshold
@@ -425,66 +435,54 @@ The third modification is the addition of a source indicator $s \in \{0,1\}$ as 
   \end{algorithmic}
 \end{algorithm}
 
-The contribution is the combination. Each piece is standard on its own, and together they hold the in-domain score, cut the false-alarm rate under shift, and keep the output explainable at the feature level. The contribution is therefore a method and an evaluation protocol rather than a new learning algorithm. The deployed system adds claim-level verification with evidence retrieval and a display calibrator fitted on the target domain. Relative to the closest feature-based detector \cite{ijert}, the difference is the claim-level evidence features and the calibration protocol. Relative to the LLM-scored detector \cite{costeff} and the tool-based detector \cite{haluagent}, the difference is that inference needs no model calls. Their scores come from other corpora and other protocols, so the comparison is about the protocol and not about the numbers. None of the three reports the calibration error or the shifted flag rate that this study measures.
+The contribution is the multi-source training protocol and the evaluation, not a new learner. Each piece is standard on its own, and together they hold the in-domain score, cut the false-alarm rate on the task types seen in training, and produce feature-level attributions whose reliability is measured. The deployed system adds claim-level verification with evidence retrieval and a display calibrator fitted on the target domain. Relative to the closest feature-based detector \cite{ijert}, the claim-level features support per-claim explanations. The measured transfer gain comes from multi-source training and the calibration protocol. Relative to the LLM-scored detector \cite{costeff} and the tool-based detector \cite{haluagent}, the difference is that inference needs no LLM judge calls; the feature pipeline still runs three small pretrained models. Their scores come from other corpora and other protocols, so the comparison is about the protocol and not about the numbers. None of the three reports the calibration error or the shifted flag rate that this study measures.
 
 \subsection{Calibration and Explainability}
 
-Calibrators are fit on the validation split only. Platt scaling fits a sigmoid $p(x) = \sigma(A f(x) + B)$ to the raw score $f(x)$, where $A$ and $B$ are fit by maximum likelihood \cite{platt}. Isotonic regression fits a non-decreasing step function $g$ so that $p(x) = g(f(x))$ \cite{isotonic}. Both are compared against the raw model on the test split. The comparison uses expected calibration error over $M=10$ bins,
+Source calibrators are fit on the validation split only. Platt scaling fits a sigmoid $p(x) = \sigma(A f(x) + B)$ to the raw score $f(x)$, where $A$ and $B$ are fit by maximum likelihood \cite{platt}. Isotonic regression fits a non-decreasing step function $g$ so that $p(x) = g(f(x))$ \cite{isotonic}. Both are compared against the raw model on the test split. The comparison uses expected calibration error over $M=10$ bins,
 \begin{equation}
   \mathrm{ECE} = \sum_{m=1}^{M} \frac{|B_m|}{n} \left| \mathrm{acc}(B_m) - \mathrm{conf}(B_m) \right|,
 \end{equation}
-where $\mathrm{acc}(B_m)$ and $\mathrm{conf}(B_m)$ are the accuracy and mean confidence in bin $B_m$, together with the Brier score $\mathrm{BS} = \frac{1}{n}\sum_i (\hat{p}_i - y_i)^2$ and reliability diagrams \cite{guo}. A second step targets a new domain. The calibrator can be re-fit on a small labeled sample of the target corpus, and the effect is measured on a disjoint held-out part of the target corpus. The deployed EC-XGB display score follows the same rule: its calibrator is fitted on the 5{,}034-row RAGTruth QA calibration split, and the source indicator is set to one for natural responses. This target calibration needs labeled target rows and is not zero-shot. The source-only protocol uses the HaluEval validation split for both the calibrator and the threshold.
+where $\mathrm{acc}(B_m)$ and $\mathrm{conf}(B_m)$ are the accuracy and mean confidence in bin $B_m$, together with the Brier score $\mathrm{BS} = \frac{1}{n}\sum_i (\hat{p}_i - y_i)^2$ and reliability diagrams \cite{guo}. Post-hoc calibration is not robust when the target distribution moves \cite{gasparin2024distance}. A second step targets a new domain. The calibrator can be re-fit on a small labeled sample of the target corpus, and the effect is measured on a disjoint held-out part of the target corpus. The deployed EC-XGB display score follows the same rule: its calibrator is fitted on the 5{,}034-row RAGTruth QA calibration split, and the source indicator is set to one for natural responses. This target calibration needs labeled target rows and is not zero-shot. The source-only protocol uses the HaluEval validation split for both the calibrator and the threshold.
 
-The global SHAP \cite{shap} explanations from a TreeExplainer applied to the raw XGBoost model were used to create the Mean Absolute Importance and Beeswarm Summaries. Local explanations highlighting the contributions of features involved in a particular prediction are given. Since the feature-attribution techniques might be highly unreliable, the reliability of the explanations has been evaluated directly \cite{adebayo2018}. The test responses have been perturbed in six different ways (by replacing entity names, numbers, and dates, eliminating support context, inserting additional context, and shuffling clauses). This study quantifies the reliability by calculating four different measures (the mean absolute score change, the fraction of large score changes, the top-1 flip rate, and the Spearman rank correlation between the original and perturbed scores).
+The global SHAP \cite{shap} explanations from a TreeExplainer applied to the raw XGBoost model were used to create the Mean Absolute Importance and Beeswarm Summaries. Local explanations highlighting the contributions of features involved in a particular prediction are given. Post-hoc attribution methods can be unstable even when the model is fixed \cite{kelodjou2024shap}. Since the feature-attribution techniques might be highly unreliable, the reliability of the explanations has been evaluated directly \cite{adebayo2018}. The test responses have been perturbed in six different ways (by replacing entity names, numbers, and dates, eliminating support context, inserting additional context, and shuffling clauses). This study quantifies the reliability by calculating four different measures (the mean absolute score change, the fraction of large score changes, the top-1 flip rate, and the Spearman rank correlation between the original and perturbed scores).
 
 \subsection{System and Reproducibility}
 
-These methods are used in a two-tiered web application. The system is a Next.js frontend and a FastAPI backend that loads the model, calibrator, explainer, and feature models at startup. Unless a baseline or ablation variant is named, the results in Section~\ref{sec:results} use the EC-XGB classifier and its calibrator.
-
-The claim verification layer displays a verdict for each claim and is demonstrated through the interface rather than quantified.
-
-Claims are broken down from the answer text and then checked with sentence-level NLI against one of three evidence sources: the provided context, an indexed document collection, or live web search. Verdicts are made first as support-based, so any supporting sentence provides evidence for a claim, while a contradiction counts only when no supporting sentence exists. A relevance gate is applied next to drop retrieved sentences that do not contain vocabulary related to the claim. The supported, contradicted, and unsupported verdicts are then displayed per claim. For each contradicting claim, the driving evidence sentence is also quoted.
-
-The verdict card sets the risk to high for any contradicted claim, to medium for an unsupported claim, and to low for a fully supported claim. The risk order is consistent with the style sensitivity found in Section~\ref{sec:results}, where an answer containing complete sentences may cause the calibrated score to reach saturation levels while every individual claim is still supported.
-
-The risk percentage shown on the card is determined by the EC-XGB display calibrator but is modified by the verdict assigned to each individual claim. The 35.4\% in the comparison panel of Figure~\ref{fig:screens} is the calibrated score before this adjustment. The claim card marks the contradicted number separately.
-
-Figure~\ref{fig:screens} presents the analyze page for the hallucinated-number case. The context states 5 days per decade and the answer states 10. The raw EC-XGB probability is 0.999. Without modification by a calibration method, the raw score itself does not represent a usable risk level. The deployed display calibrator indicates 35.4\% risk and classifies the answer as moderate risk.
+These methods are used in a two-tiered web application. The system is a Next.js frontend and a FastAPI backend that loads the model, calibrator, explainer, and feature models at startup. Three checkpoints appear in Section~\ref{sec:results}. B2 is the conventional 26-feature model trained on HaluEval only. It supplies the conventional row of the model-comparison table, the feature-group ablation, the conventional rows of the target-calibration table, and the SHAP analysis and audit. B6 m0 is a separate 26-feature tuning run under the EC-XGB protocol, reported as m0 in the component ablation and as the conventional rows of the cross-domain table. EC-XGB m3 is the 35-feature multi-source model that supplies the remaining EC-XGB rows and the deployed system. Claims are split from the answer and checked with sentence-level NLI against the provided context, an indexed collection, or live web search. A support-first rule treats any supporting sentence as evidence, and a contradiction counts only when no support exists. A relevance gate removes retrieved sentences with no claim vocabulary, and the verdicts are shown per claim.
 
 \begin{figure}[pos=htbp]
   \centering
-  \begin{subfigure}[t]{0.44\linewidth}
-    \centering
-    \includegraphics[width=\linewidth]{analyze-arctic-risk-card.png}
-    \caption{Risk card: display score 35\% (medium risk).}
-  \end{subfigure}\hfill
-  \begin{subfigure}[t]{0.44\linewidth}
-    \centering
-    \includegraphics[width=\linewidth]{analyze-arctic-model-comparison.png}
-    \caption{Model comparison: raw probabilities of the deployed model and the baselines.}
-  \end{subfigure}
-  \caption{Analysis page for the hallucinated number scenario where the context suggests 5 days per decade, but the answer mentions 10. Risk card contains the calibrated display score, and the comparison panel shows the raw probability for each of the models. Raw EC-XGB probability is equal to 0.999. The risk card rounds the calibrated score to 35\%, while the comparison panel shows 35.4\%, which makes risk actionable.}
+  \includegraphics[width=0.98\linewidth]{revision/system-architecture-large.png}
+  \caption{Deployment architecture of the HaluRISC system.}
+  \label{fig:system}
+\end{figure}
+
+Figure~\ref{fig:system} shows the deployment view. The browser calls the Next.js BFF, which streams chat tokens and forwards tool calls to the model. The analyze route calls FastAPI through the \texttt{/api/ml/*} rewrite. FastAPI loads EC-XGB, the Platt calibrator, SHAP, NLI, spaCy, and MiniLM at startup. The lower band lists the inference components. A tool call goes to the judge, and a prediction request goes to \texttt{/predict}, \texttt{/explain}, or \texttt{/verify}. Figure~\ref{fig:pipeline} shows how one answer is scored, and Figure~\ref{fig:system} shows where each component runs.
+
+The verdict card sets high risk for a contradicted claim, medium for an unsupported claim, and low for a fully supported claim. The card's percentage comes from the display calibrator but is adjusted by the per-claim verdict. Figure~\ref{fig:screens} shows the hallucinated-number case: the context says 5 days per decade, the answer says 10, the raw score is 0.999, and the calibrated score is 35.4\%. The number claim is marked unsupported rather than contradicted, so the card reports medium risk. This is a limitation of the support-first rule on numeric claims, not a contradicted-claim example; claim-verdict accuracy is not evaluated. The card shows the calibrated score and the risk band; the comparison panel in the application lists the raw score of EC-XGB beside the conventional model and the other baselines.
+The requirements file pins every dependency, split indices are stored with the artifacts, and the audit script checks 298 reported values. The audit runs after every build and fails on any mismatch.
+
+
+\begin{figure}[pos=htbp]
+  \centering
+  \includegraphics[width=0.70\linewidth]{paper-risk-card-large.png}
+  \caption{Risk card for the hallucinated-number case.}
   \label{fig:screens}
 \end{figure}
 
-\begin{sloppypar}
-  \hbadness=10000
-  \texttt{requirements.txt} pins every dependency to an exact version. Split indices are stored in \texttt{artifacts/split\_indices.json} and \texttt{.npy}, and \texttt{review\_number\_audit.py} checks 203 reported values against the frozen artifacts.
-\end{sloppypar}
+
 
 \section{Experiments}\label{sec:experiment}
 
-\subsection{Experimental Setup and Conditions}
+\subsection{Experimental Setup}
 
-All experiments were run on a Windows-based computer (laptop), with an NVIDIA RTX 3060 6\,GB GPU, CUDA 12.8, torch 2.11.0+cu128, and 32\,GB of RAM. The programming language used to run the code is Python. The Python version used in this experiment is 3.12. The code utilizes the following packages: scikit-learn 1.9.0, XGBoost 3.3.0, SHAP 0.52.0, spaCy 3.8.14, and sentence-transformers 5.6.1. Each run can be reproduced because of saved split indices and centralized seeds.
-
-A randomized search was performed over 30 hyperparameter configurations with grouped five-fold cross-validation. For the seed-42 conventional model, the configuration has a maximum tree depth of 4, a learning rate of 0.01, 500 trees, a subsampling ratio of 0.9, and a column sampling ratio of 0.7. Each seed and each EC-XGB variant was tuned separately. Seeds 42, 123, and 456 are repeated throughout.
+All experiments were run on a Windows-based computer (laptop), with an NVIDIA RTX 3060 6\,GB GPU, CUDA 12.8, torch 2.11.0+cu128, and 32\,GB of RAM. The programming language used to run the code is Python. The Python version used in this experiment is 3.12. The code utilizes the following packages: scikit-learn 1.9.0, XGBoost 3.3.0, SHAP 0.52.0, spaCy 3.8.14, and sentence-transformers 5.6.1. Each run can be reproduced because of saved split indices and centralized seeds. A randomized search was performed over 30 hyperparameter configurations with grouped five-fold cross-validation. For the seed-42 conventional model, the configuration has a maximum tree depth of 5, a learning rate of 0.05, 300 trees, a subsampling ratio of 0.7, and a column sampling ratio of 0.7. Each seed and each EC-XGB variant was tuned separately. Seeds 42, 123, and 456 are repeated where a seed applies; the single-seed tables are labeled.
 
 \subsection{Dataset}
 
-The QA subset of HaluEval \cite{haluEval} serves as the training data. This dataset has 10{,}000 questions. Each question has a knowledge passage that it is based upon, a correct answer, and a hallucinated version of that answer. Therefore, there are 20{,}000 rows of labeled data. The 20{,}000 rows are split 70/15/15 at the group level into 14{,}000 training, 3{,}000 validation, and 3{,}000 test rows. Since both versions of the answer to each question come from the same knowledge passage, the model can easily learn the relationship between the context and the answers, so the split is at the group level.
-
-Transfer was evaluated using two datasets. First, RAGTruth \cite{ragtruth}: a collection of responses produced through natural processes that have been annotated with word-level spans by humans. Second, FaithBench \cite{faithbench}: a hallucination-based summarization benchmark based on outputs from modern large language models. The RAGTruth QA task contributed 5{,}934 rows in 989 groups. Of these, 900 rows in 150 groups form the test set and 5{,}034 rows form the recalibration set. The groups do not overlap. The summary of the corpora is provided in Table~\ref{tab:datasets}.
+The QA subset of HaluEval \cite{haluEval} serves as the training data. This dataset has 10{,}000 questions. Each question has a knowledge passage that it is based upon, a correct answer, and a hallucinated version of that answer. Therefore, there are 20{,}000 rows of labeled data. The 20{,}000 rows are split 70/15/15 at the group level into 14{,}000 training, 3{,}000 validation, and 3{,}000 test rows. Since both versions of the answer to each question come from the same knowledge passage, the model can easily learn the relationship between the context and the answers, so the split is at the group level. About 85\% of HaluEval was generated by ChatGPT through sampling and filtering \cite{haluEval,bang-etal-2025-hallulens}. The boundary between a factual error and a hallucination is therefore not always clean.
+Transfer was evaluated using two datasets. First, RAGTruth \cite{ragtruth}: a collection of responses produced through natural processes that have been annotated with word-level spans by humans. Second, FaithBench \cite{faithbench}: a hallucination-based summarization benchmark based on outputs from modern large language models. RAGTruth ships official splits. Summarization has 4{,}758 training and 900 test rows, and data-to-text has 5{,}298 training and 900 test rows. The QA task contributed 5{,}934 rows in 989 groups, of which 900 rows in 150 groups form its test set and 5{,}034 rows form the calibration block. The groups do not overlap. The three 900-row test splits are held out from training, so the pooled RAGTruth test set has 2{,}700 rows. The positive rate is 50.0\% on HaluEval, 34.9\% on the pooled RAGTruth test split, 17.8\% on the RAGTruth QA test rows, 31.1\% on the RAGTruth QA calibration rows, and 68.1\% on FaithBench. The summary of the corpora is provided in Table~\ref{tab:datasets}.
 
 \begin{table}[pos=htbp]
   \centering
@@ -495,34 +493,29 @@ Transfer was evaluated using two datasets. First, RAGTruth \cite{ragtruth}: a co
     \textbf{Corpus} & \textbf{Rows} & \textbf{Groups} & \textbf{Use}              \\
     \midrule
     HaluEval QA     & 20{,}000      & 10{,}000        & train / validation / test \\
-    RAGTruth QA     & 5{,}934       & 989             & held-out + recalibration  \\
-    RAGTruth full   & 17{,}790      & 2{,}965         & transfer (seen tasks)     \\
+    RAGTruth QA     & 5{,}934       & 989             & held-out test + calibration  \\
+    RAGTruth full   & 17{,}790      & 2{,}965         & train + pooled test (2{,}700)     \\
     FaithBench      & 750           & 750             & zero-shot                 \\
     \bottomrule
   \end{tabular}
+  \par\smallskip
+  {\small Note. RAGTruth QA is a subset of RAGTruth full: its 900 test rows and 5{,}034 calibration rows are already counted there, so the rows are not additive. The pooled RAGTruth test split holds the 900 summarization, 900 data-to-text, and 900 QA test rows. The remaining 15{,}090 rows form the official training split, and the 5{,}034 QA rows in it serve as the calibration block.}
 \end{table}
 
 Text is normalized for whitespace. Lexical features work on lowercased token collections. NER and NLI use the original case. Missing context is treated as a special condition. Lexical overlap is 0, and NLI has all probabilities equal to one third. All three of these datasets were developed using their original licensing agreements: HaluEval and RAGTruth (MIT) and FaithBench (CC BY-NC-SA 4.0). The raw data is not redistributed. However, the repository ships the download scripts, the source revisions, and the SHA-256 hashes, which allows regeneration of each of the splits based upon the original repositories.
 
-\subsection{Baselines and Comparative Models}
+\subsection{Baselines and Experimental Procedure}
 
-Nine methods are tested. The overlap heuristic sets risk to one minus the lexical overlap between the answer and the context. Two additional classifiers were used: a logistic regression on all standardized input features (Table~\ref{tab:features}) and a random forest with 300 decision trees. The conventional method is XGBoost \cite{xgboost}, which uses the 26 base features and is the reference for the proposed model in Section~\ref{sec:proposed}. Three control experiments isolate the feature design: an NLI-only logistic regression fit solely on the six NLI probability outputs, an answer-only TF-IDF linear model fit on the vectorized answers, and a TF-IDF linear model fit on the entire input. A majority classifier that always predicts the negative class scores zero on the balanced test set. A RoBERTa-base classifier fine-tuned on the labeled source data provides the source-only neural evaluation \cite{liu2019roberta}. The two LLM judges are evaluated in Section~\ref{sec:results}.
+Ten baselines and EC-XGB are tested. The heuristic sets risk to one minus lexical overlap. Logistic regression and a 300-tree random forest are the classical comparators; the conventional XGBoost model \cite{xgboost} uses the 26 base features. Three controls isolate the feature design: NLI-only, answer-only TF-IDF, and full-input TF-IDF. A majority classifier and a fine-tuned RoBERTa-base \cite{liu2019roberta} complete the set; the two judges are in Section~\ref{sec:results}.
 
-\subsection{Experimental Procedure}
 
-Internal-state detectors need model access and fall outside the black-box setting \cite{inside2024}. The classifier receives the answer, question, and context as a single input sequence of up to 256 tokens. The model is trained with binary cross-entropy loss for three epochs. Platt scaling is fitted on the validation split.
 
-Evaluation uses precision, recall, F1, the area under the receiver operating characteristic curve (AUROC), the area under the precision-recall curve (PR-AUC), and the Matthews correlation coefficient (MCC). Calibration is measured with expected calibration error over 10 bins, the Brier score, and negative log-likelihood. Classification and calibration metrics are reported to four decimal places, negative log-likelihood to two, predicted-positive and flag rates as percentages to one decimal place, and latency to two decimal places in tables. Significance is assessed with McNemar's test on the paired seed-42 predictions, bootstrap 95\% confidence intervals from 1{,}000 resamples over question or source groups, and a Wilcoxon signed-rank test across seeds. Rows that represent the same question never occur in both the training and evaluation splits.
-
-\subsection{Additional Protocols}
-
-Calibration methods were evaluated through a comparison of the three probability sets (raw, Platt, and isotonic) on the test split. The same comparison was performed during the target-domain evaluation, where distribution shift affects calibration \cite{ovadia2019}. Table~\ref{tab:protocols} defines the three protocols (P0, P1, and P2) and the row split for each protocol.
+Internal-state detectors are outside the black-box setting \cite{inside2024}. The RoBERTa baseline receives up to 256 tokens and trains for three epochs. EC-XGB's display calibrator is fitted on the RAGTruth QA split; the in-domain Platt calibrator is fitted on validation. Metrics are reported to four decimals, NLL to two, and rates to one. Significance uses McNemar on seed-42 predictions, 1,000 group bootstrap resamples, and Wilcoxon across seeds. No question appears in both training and evaluation. Calibration is compared on raw, Platt, and isotonic scores; Table~\ref{tab:protocols} defines P0, P1, and P2, and every protocol uses the same test rows.
 
 \begin{table}[pos=htbp]
   \centering
-  \caption{The three evaluation protocols. Only P0 is zero-shot on the target corpus, because P1 and P2 both read labels from the target calibration split. The 900-row test split is disjoint from that calibration split in every row.}
+  \caption{The three evaluation protocols.}
   \label{tab:protocols}
-  \footnotesize
   \begin{tabular}{lllc}
     \toprule
     \textbf{Protocol}     & \textbf{Calibrator fit}           & \textbf{Threshold fit} & \textbf{Zero-shot} \\
@@ -532,41 +525,53 @@ Calibration methods were evaluated through a comparison of the three probability
     P2 target-thresholded & RAGTruth QA calibration (5{,}034) & same rows at 5\% FPR   & no                 \\
     \bottomrule
   \end{tabular}
+  \par\smallskip
+  {\small Note. Only P0 is zero-shot on the target corpus. P1 and P2 read labels from the target calibration split. The 900-row test split is disjoint from that calibration split in every row.}
 \end{table}
 
-Both P1 and P2 metrics utilized the 900 rows of the test set. No calibration row used to fit either model overlaps this subset.
+P0 is source-only; P1 fits the calibrator on the target split and uses 0.5; P2 also selects the threshold on the target split at 5\% FPR. The test rows are unseen at calibration time, and the deployed system uses P1; P2 is the thresholded alternative. SHAP \cite{shap} TreeExplainers give global and local explanations. Three checks test reliability: Kendall tau against permutation importance, Jaccard of the top-five set after 1,000 bootstrap resamples, and two perturbation studies. Content edits should change the score; structural edits should not. A neutralization study resets the $k$ largest SHAP values to their medians and reports the mean score change for $k = 1, 3, 5, 10$. Latency is measured on 200 test rows on the reference laptop. The same rows are timed with GPT 5.6 Luna under the LLM-as-a-judge protocol \cite{zheng2023judge}, and costs are computed from the recorded token counts.
 
-SHAP \cite{shap} TreeExplainers provide global explanations for the raw XGBoost model. There are three ways to determine whether these explanations can be trusted. First, the mean absolute SHAP ranking is compared with permutation importance via Kendall's tau correlation. Secondly, the top five feature set is re-estimated based upon 1{,}000 bootstrap resamples of the data, then the Jaccard index is computed between these two feature sets. Finally, two perturbation studies are performed on the test responses.
+\subsection{Evaluation Metrics}
 
-In content edits, entities, numbers, or dates are changed, supporting context is removed or an unrelated sentence is added to the content. Each edit should affect the calibrated score if it alters the evidence. In structural edits, clause order is modified. The calibrated score should remain constant under such modifications. Four different metrics are computed for each type of operator.
+Two families of metrics are reported. Threshold-dependent metrics measure the decision at a fixed cut-off. Threshold-free metrics measure how well a model ranks answers. Both are needed because a model can rank well and still make poor decisions when the threshold is fixed. The confusion matrix supplies the four counts used below, TP, FP, FN, and TN. Precision is the share of flagged answers that are truly hallucinated, and a high value means a reviewer can trust an alert. Recall is the share of hallucinated answers that the detector catches, and a high value means few bad answers pass. F1 is the harmonic mean of the two, and it punishes a model that is strong on one metric and weak on the other. The false-positive rate is the share of correct answers that are flagged. It is the operating constraint under distribution shift, where most natural answers are correct. The flag rate is the share of answers above the decision threshold, and it measures the review workload. A flag rate near 100\% means the detector sends every answer to a human.
+\begin{gather}
+  P = \frac{\mathrm{TP}}{\mathrm{TP} + \mathrm{FP}}, \qquad
+  R = \frac{\mathrm{TP}}{\mathrm{TP} + \mathrm{FN}}, \qquad
+  F_1 = \frac{2PR}{P+R}, \\
+  \mathrm{FPR} = \frac{\mathrm{FP}}{\mathrm{FP} + \mathrm{TN}}, \qquad
+  \mathrm{Flag} = \frac{1}{n}\sum_{i=1}^{n}\mathbf{1}[\hat{p}_i \ge \tau].
+\end{gather}
 
-Four metrics are computed for each operator: mean absolute score change, large-change rate, top-1 SHAP flip rate, and Spearman correlation.
-
-A neutralization study determines how much the score assigned to each sample by a model will change once its $k$ largest SHAP feature values have been reset to their respective medians. Mean changes are reported over samples for $k = 1, 3, 5, 10$.
-
-Latency was determined on 200 test samples on a reference laptop equipped with an NVIDIA GeForce RTX 3060 6\,GB GPU. Latency was also measured on the same 200 samples using GPT 5.6 Luna with the LLM-as-a-judge protocol of Zheng et al. \cite{zheng2023judge}, a commercial judge baseline, with a fixed prompt, and costs were calculated from the recorded token counts.
+The second group measures ranking, calibration and paired error patterns. AUROC is the probability that a randomly chosen hallucinated answer receives a higher score than a randomly chosen correct answer. It measures ranking and does not depend on a threshold, and a value of 0.5 is chance. PR-AUC is the area under the precision-recall curve, and it is more sensitive than AUROC when the positive class is rare. RAGTruth QA has a positive rate of 17.8\%, so PR-AUC is reported beside AUROC. MCC uses all four cells of the confusion matrix and ranges from $-1$ to $1$, with zero at chance. Accuracy is misleading on an imbalanced test set, so MCC is the safer single-number summary. Negative log-likelihood rewards confident correct probabilities and penalizes confident wrong ones, and lower is better. The Wilson interval gives a 95\% range for a proportion and is used for the P2 recall and false-positive rate, where the counts are small.
+\begin{gather}
+  \mathrm{AUROC} = \int_{0}^{1} \mathrm{TPR}(u)\, d\,\mathrm{FPR}(u) = P(s^{+} > s^{-}), \\
+  \mathrm{PR\text{-}AUC} = \int_{0}^{1} P(r)\, dr, \qquad
+  \mathrm{MCC} = \frac{\mathrm{TP}\cdot\mathrm{TN} - \mathrm{FP}\cdot\mathrm{FN}}{\sqrt{(\mathrm{TP}+\mathrm{FP})(\mathrm{TP}+\mathrm{FN})(\mathrm{TN}+\mathrm{FP})(\mathrm{TN}+\mathrm{FN})}}, \\
+  \mathrm{NLL} = -\frac{1}{n}\sum_{i=1}^{n}\left[y_i \log \hat{p}_i + (1-y_i)\log(1-\hat{p}_i)\right], \\
+  \mathrm{CI}_{95\%} = \frac{\hat{p} + \frac{z^2}{2n} \pm z\sqrt{\frac{\hat{p}(1-\hat{p})}{n} + \frac{z^2}{4n^2}}}{1 + \frac{z^2}{n}}.
+\end{gather}
 
 \section{Results}\label{sec:results}
 
-\subsection{Model comparison}
+\subsection{Model Comparison}
 
-The baselines are averaged over the three runs. For example, the F1 score of 0.9846 and AUROC of 0.9979 were both obtained when using the XGBoost method. These values are slightly greater than those achieved through the use of the random forest (by 0.0004) and greater than those obtained using logistic regression (by 0.0186). The heuristic (which finds its own threshold without any need for further training) yielded an F1 value of 0.9352, and the majority baseline (wherein the classifier always predicts the most common label) produced an F1 value of 0.0000. The NLI-only baseline scored very poorly at 0.6714. This shows that the other baselines captured some information about the lexical, length, and semantic properties of the input texts that was not available via the NLI cross-encoder alone. The answer-only TF-IDF model scored 0.9224, between the NLI-only and XGBoost results, while the full-input model scored 0.5999, below both.
+Table~\ref{tab:models} reports the HaluEval test results for ten baselines and EC-XGB, averaged over the three seeds where a seed applies. The F1 ranking is tight. Logistic regression is 0.019 behind the conventional model, the random forest is 0.0004 behind, and EC-XGB is 0.0009 ahead. The 0.0009 lead is much smaller than the width of the seed-42 bootstrap interval for the conventional F1, [0.9812, 0.9895], so the ordering is not resolved by the data. The precision and recall columns show why. The random forest gains recall but loses precision, and EC-XGB improves both slightly. These differences are small because the benchmark is saturated. The conventional row in Table~\ref{tab:models} is the B2 checkpoint. The m0 row in the component ablation is a separate tuning run under the EC-XGB protocol, so the two differ by 0.0002 in F1 and 0.0021 in ECE.
 
-Although the XGBoost margin over random forest is relatively small (only 0.0004 in F1), it was nominally significant in an uncorrected McNemar test comparing the paired seed-42 test predictions ($p=0.044$). However, there were no such statistical differences when comparing XGBoost to logistic regression ($p = 0.43$) or the heuristic ($p = 0.35$).
+The ranking columns tell the same story. AUROC and PR-AUC place EC-XGB first among the feature-based models, at 0.9984 and 0.9987, with the conventional model and the random forest within 0.0006. RoBERTa is higher at 0.9990 and 0.9993. Logistic regression is lower, at 0.9932 AUROC. MCC is 0.9697 for the conventional model and 0.9715 for EC-XGB. The calibration columns are separate from discrimination. The conventional model has the lowest ECE at 0.0045, but its Brier score is higher than EC-XGB and RoBERTa. The two summaries therefore disagree on which model is better. ECE depends on the bin edges, while the Brier score uses every row. The neural baseline is the strongest model in-domain, at 0.9912 F1 and 0.9990 AUROC. The heuristic reaches 0.9352 F1, the length-only control 0.9457, the NLI-only control 0.6714, the answer-only TF-IDF model 0.9224, and the full-input TF-IDF model 0.5999. The majority baseline scores zero. The NLI-only result shows that the six probabilities carry some signal, but not enough. The gap between the two TF-IDF models shows that adding the question and context to a bag-of-words model hurts.
 
-A neural baseline trained solely on the source material outperforms EC-XGB in-domain (F1 0.9912 vs 0.9855), but fails completely to generalize across domains (RAGTruth AUROC = 0.337 vs EC-XGB AUROC = 0.582). Training an adapted encoder on exactly the same multi-source rows used to train EC-XGB reduces this domain-shift loss and raises the adapted encoder to 0.694, against EC-XGB's 0.582. This adaptation does not enable transfer learning, since neither the adapted encoder nor the original EC-XGB generalizes to the unseen QA task (adapted encoder = 0.490 vs original = 0.549), and even less so to FaithBench (adapted encoder = 0.434 vs original = 0.594). Adaptation improves any model's performance on seen tasks, whereas the feature model retains its relative ordering on unseen tasks.
+The XGBoost margin over the random forest is small, at 0.0004 in F1, and the paired McNemar test on the same seed-42 rows gives $p=0.502$. The difference is not significant. The margin over logistic regression is larger, at 0.0187 in F1, and the same test gives $p=1.86\times10^{-10}$. The margin over the heuristic is 0.0495 in F1, with $p=2.28\times10^{-30}$. The random forest is therefore the only classical baseline that matches XGBoost on this benchmark. A neural baseline trained solely on the source material outperforms EC-XGB in-domain (F1 0.9912 vs 0.9855), but it is near chance on each RAGTruth task seen in training (AUROC 0.455 for summarization and 0.477 for data-to-text), against 0.582 for EC-XGB. The pooled 0.315 is lower because the two tasks have different positive rates. Training an adapted encoder on exactly the same multi-source rows raises it to 0.694 on those tasks, above EC-XGB's 0.582, so the gain on seen tasks is not specific to the feature model. This adaptation does not enable transfer learning, since neither the adapted encoder nor EC-XGB generalizes to the unseen QA task (adapted encoder = 0.490 vs EC-XGB = 0.549), and FaithBench is worse for both (adapted encoder = 0.434 vs original EC-XGB = 0.594). Adaptation improves any model's performance on seen tasks, whereas the feature model retains its relative ordering on unseen tasks.
 
 
 \begin{table}[pos=htbp]
   \centering
-  \caption{Test-set performance on HaluEval QA, mean over seeds 42/123/456 (n = 3{,}000). The ECE and Brier columns show the reliability of each model's risk score. The neural baseline is a fine-tuned RoBERTa-base with 256-token inputs. The majority baseline predicts the negative class for every row. Probability-based metrics cannot be calculated when the score is constant. The EC-XGB row is the m3 configuration. The conventional row in this table and the m0 row in Table 6 come from separate tuning runs.}
+  \caption{Test-set performance on HaluEval QA, mean over seeds 42/123/456 (n = 3{,}000).}
   \label{tab:models}
-  \footnotesize
   \begin{tabular}{lrrrrrrrr}
     \toprule
     \textbf{Model}          & \textbf{P} & \textbf{R} & \textbf{F1} & \textbf{AUROC} & \textbf{PR-AUC} & \textbf{MCC} & \textbf{ECE} & \textbf{Brier} \\
     \midrule
     Heuristic (1$-$overlap) & 0.9473     & 0.9233     & 0.9352      & 0.9132         & 0.8196          & 0.8723       & 0.3541       & 0.2672         \\
+    Length-only (2 feats)   & 0.9454     & 0.9460     & 0.9457      & 0.9759         & 0.9722          & 0.8913       & ---          & ---            \\
     Logistic regression     & 0.9768     & 0.9553     & 0.9660      & 0.9932         & 0.9901          & 0.9329       & 0.0099       & 0.0253         \\
     Random forest           & 0.9897     & 0.9789     & 0.9842      & 0.9980         & 0.9983          & 0.9687       & 0.0143       & 0.0127         \\
     NLI-only                & 0.6479     & 0.6967     & 0.6714      & 0.7177         & 0.7531          & 0.3189       & 0.0678       & 0.2182         \\
@@ -578,22 +583,29 @@ A neural baseline trained solely on the source material outperforms EC-XGB in-do
     Majority (negative)     & 0.0000     & 0.0000     & 0.0000      & ---            & ---             & 0.0000       & ---          & ---            \\
     \bottomrule
   \end{tabular}
+  \par\smallskip
+  {\small Note. ECE and Brier are computed on the raw score and measure the reliability of each risk score. The neural baseline is a fine-tuned RoBERTa-base with 256-token inputs. The majority baseline predicts the negative class for every row, so probability metrics are undefined. EC-XGB is the m3 configuration. The conventional row and the m0 row in Table~\ref{tab:ec} come from separate tuning runs. The length-only row is a single deterministic logistic regression on log-scaled character and word counts, evaluated on the same test split at the 0.5 threshold, and its ECE and Brier were not computed.}
 \end{table}
 
 
-\subsection{Evidence-consistent XGBoost}
 
-Table~\ref{tab:ec} shows the results of the component ablation for EC-XGB on the HaluEval test set. The values are averages over the three seeds. The conventional XGBoost model (m0) reached an F1 of 0.9844, while the length-debias model with monotone constraints (m1) reached an F1 of 0.9852. The claim-level aggregates (m2) achieved an F1 of 0.9857 (+0.0005 above m1, within seed variability), and the full EC-XGB (m3) achieved an F1 of 0.9855 and an MCC of 0.9715. The last two columns show the shift behavior: in-domain F1 is flat across the variants, while the RAGTruth columns separate m3 from m0--m2.
+\begin{figure}[pos=htbp]
+  \centering
+  \includegraphics[width=\linewidth]{revision/roc_pr_curves.png}
+  \caption{ROC and precision-recall curves on HaluEval and RAGTruth (seed 42).}
+  \label{fig:rocpr}
+\end{figure}
 
-There was no significant difference in the McNemar test (test of m0 vs.\ m3) comparing the paired predictions made by each model ($p = 0.45$). The Wilcoxon signed-rank test across the three seeds was underpowered ($p = 0.25$, the smallest attainable two-sided value with three pairs). Because the benchmark is saturated, removing some components serves mainly as a validation check that the components have been preserved.
+Figure~\ref{fig:rocpr} shows the curves behind Table~\ref{tab:models} and the external results. The top row is ROC, and the bottom row is precision-recall. The left column is HaluEval, and the right column is RAGTruth. In the HaluEval panels, the NLI-only and full-input TF-IDF curves are the lowest. The heuristic sits in the middle. The conventional model, EC-XGB, the random forest and logistic regression sit near the top-left corner, and their curves overlap because the benchmark is saturated. In the RAGTruth panels, EC-XGB is above the conventional model on summarization and data-to-text. The two models are close to the diagonal on QA. The curves use seed 42, and the table values are three-seed means.
 
-When the monotone constraints were removed, there was no effect on the F1 score. However, the ECE increased by 0.0009, while the AUROC for RAGTruth-all decreased by 0.0043. When the source indicator was removed, the in-domain F1 score fell by less than 0.001 (the value went from 0.9855 to 0.9850). The removal changed the RAGTruth-all flag rate by only 0.2 percentage points, so the improvement due to multi-source training is not dependent upon the source indicator.
+\subsection{EC-XGB and Ablation}
+
+Table~\ref{tab:ec} shows the results of the component ablation for EC-XGB on the HaluEval test set. The values are averages over the three seeds. The conventional XGBoost model (m0) reached an F1 of 0.9844, while the length-debias model with monotone constraints (m1) reached an F1 of 0.9852. The claim-level aggregates (m2) achieved an F1 of 0.9857 (+0.0005 above m1, within seed variability), and the full EC-XGB (m3) achieved an F1 of 0.9855 and an MCC of 0.9715. The claim aggregates add 0.0005 F1 over m1 but do not improve the RAGTruth AUROC (0.543 to 0.502). Their value is in the per-claim explanation, not the aggregate score. The last two columns show the shift behavior: in-domain F1 is flat across the variants, while the RAGTruth columns separate m3 from m0--m2. There was no significant difference in the McNemar test (test of m0 vs.\ m3) comparing the paired predictions made by each model ($p = 0.45$). The Wilcoxon signed-rank test across the three seeds was underpowered ($p = 0.25$, the smallest attainable two-sided value with three pairs). Because the benchmark is saturated, removing some components serves mainly as a validation check that the components have been preserved. Each variant was tuned separately, so the ablation measures the full configuration, not an isolated feature effect. In a separate m3-minus-monotone run, not shown in Table~\ref{tab:ec}, removing the constraints leaves F1 unchanged, raises the ECE by 0.0009, and lowers the RAGTruth-all AUROC by 0.0043. When the source indicator was removed, the in-domain F1 score fell by less than 0.001 (the value went from 0.9855 to 0.9850). The removal changed the RAGTruth-all flag rate by only 0.2 percentage points, so the improvement due to multi-source training is not dependent upon the source indicator.
 
 \begin{table}[pos=htbp]
   \centering
-  \caption{EC-XGB component ablation on the HaluEval test set, mean over seeds 42/123/456 (n = 3{,}000). m0 is the conventional XGBoost reference under the same protocol, m1 replaces the raw length counts with log-scaled values and adds monotone constraints (26 features), m2 adds the eight claim-level aggregates (34 features), and m3 adds the RAGTruth non-QA training rows and a binary source indicator (35 features) and is the EC-XGB configuration. The last two columns report the pooled RAGTruth test split (2{,}700 rows).}
+  \caption{EC-XGB component ablation on the HaluEval test set, mean over three seeds (n = 3{,}000).}
   \label{tab:ec}
-  \footnotesize
   \begin{tabular}{lccccccc}
     \toprule
     \textbf{Variant} & \textbf{Features} & \textbf{F1} & \textbf{AUROC} & \textbf{MCC} & \textbf{ECE} & \textbf{RAGTruth AUROC} & \textbf{RAGTruth ECE} \\
@@ -604,44 +616,66 @@ When the monotone constraints were removed, there was no effect on the F1 score.
     EC-XGB (m3)      & 35                & 0.9855      & 0.9984         & 0.9715       & 0.0074       & 0.5815                  & 0.2782                \\
     \bottomrule
   \end{tabular}
-\end{table}
-
-\subsection{Calibration}
-
-The raw, Platt-scaled, and isotonic models are compared in Table~\ref{tab:calib}: all three have a very low ECE (raw 0.0045, Platt 0.0091, isotonic 0.0070), but calibration does not improve on the raw model, and the HaluEval reliability plot confirms this.
-
-\begin{table}[pos=htbp]
-  \centering
-  \caption{Calibration on the HaluEval test set (mean over seeds).}
-  \label{tab:calib}
-  \begin{tabular}{lrrrr}
-    \toprule
-    \textbf{Method} & \textbf{F1} & \textbf{ECE} & \textbf{Brier} & \textbf{NLL} \\
-    \midrule
-    Raw XGBoost     & 0.9846      & 0.0045       & 0.0117         & 0.0449       \\
-    Platt (sigmoid) & 0.9848      & 0.0091       & 0.0129         & 0.0579       \\
-    Isotonic        & 0.9844      & 0.0070       & 0.0124         & 0.0727       \\
-    \bottomrule
-  \end{tabular}
+  \par\smallskip
+  {\small Note. ECE and Brier are computed on the raw score. m0 is the conventional reference under the same protocol. m1 replaces raw length counts with log-scaled values and adds monotone constraints (26 features). m2 adds the eight claim aggregates (34 features). m3 adds the RAGTruth non-QA training rows and a source indicator (35 features). The last two columns use the pooled RAGTruth test split (2{,}700 rows).}
 \end{table}
 
 \begin{figure}[pos=htbp]
   \centering
-  \includegraphics[width=0.95\linewidth]{b4/reliability_diagrams.png}
-  \caption{Reliability diagrams of the raw, Platt-calibrated, and isotonic models on the HaluEval test set (left), RAGTruth QA (middle), and FaithBench (right).}
-  \label{fig:reliability}
+  \includegraphics[width=\linewidth]{revision/per_seed_stability.png}
+  \caption{Per-seed F1, AUROC and ECE for B6 m0 and the three EC-XGB variants.}
+  \label{fig:perseed}
 \end{figure}
 
-Figure~\ref{fig:calibshift} illustrates the distributions of raw scores and those calibrated to the target distribution used for the conventional model row entries. Practical constraint is the label budget: 252 labeled target rows produce the same test ECE as 5{,}034 rows of the whole dataset.
+Figure~\ref{fig:perseed} shows the seed-level spread behind Table~\ref{tab:ec}. Each point is one seed, and the black bar is the mean. The F1 panel spans 0.9842 to 0.9859 across the four variants. The three seeds within a variant differ by less than 0.0007. The AUROC panel is tighter, with a within-variant spread below 0.0006. The ECE panel is the noisiest. The m0 variant has one seed at 0.0119 and the other two at 0.0046 and 0.0033, which gives a standard deviation of 0.0047. The m3 variant is more stable, with a standard deviation of 0.0007. The figure supports two claims. The in-domain ranking of the variants is stable across seeds. The calibration gap between m0 and m3 is smaller than the seed noise in m0.
+
+Table~\ref{tab:ablation} shows a separate feature-group ablation on the conventional B2 model. The model is retrained with one group removed at a time, so each row measures the contribution of that group under the same protocol. Lexical overlap is the largest contributor, at $-$0.0247 F1 and $-$0.0056 AUROC. Length is the second largest, at $-$0.0045 F1. NLI is third, at $-$0.0023 F1. Entity, numeric and hedging each change F1 by less than 0.0003, which means the model does not need them once the other groups are present. Semantic similarity is the one group whose removal improves F1, by $+$0.0014. The likely explanation is that cosine similarity duplicates the NLI and lexical signals and adds noise on the saturated benchmark. This does not mean the semantic group is useless on other corpora, and the deployed model keeps it. The ablation is a diagnostic of the in-domain model, not a feature-selection step for deployment. The lexical delta is the only one above 0.005, and the semantic delta is positive. Once lexical overlap and length are present, the remaining groups add little on this benchmark.
 
 \begin{table}[pos=htbp]
   \centering
-  \caption{Calibration on the same 900-row RAGTruth QA test set (17.8\% positive). EC-XGB (mean) cells are means over seeds 42/123/456, while conventional rows use the Table 5 checkpoint. The deployed EC-XGB display calibrator is the seed-42 target Platt row (ECE 0.126). AUROC is unchanged by calibration: 0.540 for the conventional model and 0.549 for EC-XGB. The last two rows are the same m3 configuration at the seed-42 checkpoint used by the deployed system, behind the 0.726 and 0.126 values in the text.}
+  \caption{Feature-group ablation of the conventional B2 model on the HaluEval test set, mean over seeds 42/123/456 (full-model F1 = 0.9846, AUROC = 0.9979).}
+  \label{tab:ablation}
+  \begin{tabular}{lrrr}
+    \toprule
+    \textbf{Removed group} & \textbf{F1} & \textbf{$\Delta$F1} & \textbf{AUROC} \\
+    \midrule
+    length                 & 0.9801      & $-$0.0045           & 0.9963         \\
+    lexical                & 0.9600      & $-$0.0247           & 0.9923         \\
+    entity                 & 0.9847      & $+$0.0001           & 0.9982         \\
+    nli                    & 0.9823      & $-$0.0023           & 0.9973         \\
+    numeric                & 0.9844      & $-$0.0002           & 0.9982         \\
+    hedging                & 0.9848      & $+$0.0001           & 0.9981         \\
+    semantic               & 0.9860      & $+$0.0014           & 0.9982         \\
+    \bottomrule
+  \end{tabular}
+  \par\smallskip
+  {\small Note. Deltas are computed from unrounded F1 values; the displayed F1 values are rounded.}
+\end{table}
+
+\subsection{Calibration and Cross-Domain Transfer}
+
+The raw, Platt-scaled, and isotonic versions of the conventional model give ECE 0.0045, 0.0091, and 0.0070 on HaluEval, so calibration does not improve on the raw model. Figure~\ref{fig:reliability} shows why. Most HaluEval rows sit in the first and last bins, where confidence and accuracy agree to three decimals. The middle bins hold few rows, so their accuracy is noisy. The Platt and isotonic curves overlap the raw curve at both ends.
+
+The RAGTruth QA panel is the opposite case. For the conventional model, almost every RAGTruth QA row falls in the last bin, at a mean confidence of 0.998 against an accuracy of 0.178. Source Platt still leaves the mean confidence near 0.99, far above the observed accuracy. Source calibration cannot repair a shift that changes the base rate. The FaithBench panel shows the same pattern, at a mean confidence of 0.987 against an accuracy of 0.689. Target fitting on RAGTruth QA is therefore a separate step, and its reliability is reported in Table~\ref{tab:target} and Figure~\ref{fig:calibshift}. That figure shows the raw scores on the 900-row test set, the same rows after target isotonic calibration, and ECE and Brier for the four variants. The raw scores pile near 1.0, which is why the fixed 0.5 threshold flags 99.9\% of the corpus. The calibrated scores move below 0.5, which is why the same threshold flags none. Target calibration lowers the conventional ECE from 0.8185 to 0.1335 with Platt and 0.1316 with isotonic. The EC-XGB display calibrator is a separate fit, and its ECE falls from 0.726 to 0.126. The label budget is the practical constraint: 252 labeled target rows produce the same test ECE as all 5{,}034 rows.
+
+\begin{figure}[pos=htbp]
+  \centering
+  \includegraphics[width=\linewidth]{b4/reliability_diagrams.png}
+  \caption{Reliability diagrams for the B2 conventional model with raw scores and source-fitted Platt and isotonic calibrators on HaluEval (left), RAGTruth QA (middle), and FaithBench (right).}
+  \label{fig:reliability}
+\end{figure}
+
+
+
+\begin{table}[pos=htbp]
+  \centering
+  \caption{Calibration of the B2 conventional and EC-XGB m3 models on the RAGTruth QA test set (n = 900, 17.8\% positive).}
   \label{tab:target}
-  \footnotesize
   \begin{tabular}{llrrrr}
     \toprule
     \textbf{Model}    & \textbf{Calibrator}     & \textbf{ECE} & \textbf{Brier} & \textbf{NLL} & \textbf{Pred. pos. (\%)} \\
+    \midrule
+    Prevalence-only   & ---                     & 0.000        & 0.146          & 0.47         & 0.0                      \\
     \midrule
     Conventional      & Raw                     & 0.8185       & 0.8164         & 5.20         & 99.9                     \\
     Conventional      & Source Platt (HaluEval) & 0.8089       & 0.8011         & 3.62         & 99.9                     \\
@@ -657,93 +691,121 @@ Figure~\ref{fig:calibshift} illustrates the distributions of raw scores and thos
     EC-XGB (deployed) & Target Platt (seed 42)  & 0.1255       & 0.1610         & 0.50         & 0.0                      \\
     \bottomrule
   \end{tabular}
+  \par\smallskip
+  {\small Note. EC-XGB (mean) cells average seeds 42/123/456. B2 conventional rows use the Table~\ref{tab:models} checkpoint. AUROC is unchanged by Platt calibration: 0.540 at the seed-42 conventional checkpoint, 0.5465 as the three-seed mean in Table~\ref{tab:shift}, and 0.549 for EC-XGB. Target isotonic gives 0.540 and 0.559. The prevalence-only row is a constant predictor set to the test prevalence, 0.1778, so it predicts no positives at the 0.5 threshold and its test Brier score is 0.146; its ECE is zero by construction. Set to the calibration prevalence, 0.3107, the same predictor gives ECE 0.133 and Brier 0.164, as the text reports. The deployed rows are the same m3 configuration at the seed-42 checkpoint behind the 0.726 and 0.126 values in the text.}
 \end{table}
 
 \begin{figure}[pos=htbp]
   \centering
-  \includegraphics[width=0.95\linewidth]{b4/calibration_shift.png}
-  \caption{Target-domain recalibration of the conventional XGBoost model on RAGTruth QA. Left and middle: raw and target-calibrated score distributions on the 900-row test set, with the 0.5 threshold marked. Right: ECE and Brier before and after recalibration.}
+  \includegraphics[width=\linewidth]{b4/calibration_shift.png}
+  \caption{Target-domain recalibration of the B2 conventional model on RAGTruth QA.}
   \label{fig:calibshift}
 \end{figure}
 
-The source-only operating point (P0) is used to calculate the threshold on the HaluEval validation split, which maximizes recall under a 5\% false-positive rate budget. The recall range is 99.0--99.5\%, and the test false-positive rate stays near 5\%. Table~\ref{tab:target} presents both models on the same 900-row RAGTruth QA test set. Source calibration has little effect on the ECE, but Platt target calibration brings the ECE down to 0.1335 for the conventional model and 0.1263 for EC-XGB, while isotonic calibration produces almost identical results. The target-calibrated display score (P1) was computed using the target Platt fit for seed 42 and improved the raw ECE from 0.726 to 0.126.
+The source-only operating point (P0) selects the threshold on the HaluEval validation split at a 5\% false-positive budget. On the HaluEval test split, recall there is 99.0--99.5\% and the false-positive rate stays near 5\%. On RAGTruth QA the same source threshold flags 97.4\%, so P0 is not a usable target operating point. Table~\ref{tab:target} reports both models on the same 900-row RAGTruth QA test set, whose prevalence is 17.8\%. The calibration split has 31.1\% positives. A prevalence-only predictor set to the test prevalence, 0.1778, shows what a constant score can achieve. On the test rows it reaches ECE 0.000, Brier 0.146, and NLL 0.47, and it predicts no positives at the 0.5 threshold. At the calibration prevalence of 0.3107 the same predictor gives ECE 0.133, Brier 0.164, and NLL 0.514, which matches the conventional target-Platt row. The calibrator therefore sets the level to the calibration prevalence, and the residual ECE is the prevalence gap. At the test prevalence of 0.1778 a constant predictor has Brier 0.146, lower than every calibrated row (0.161--0.166). Calibration fixes the scale, not the ranking. The target-thresholded mode (P2) selects a threshold at a 5\% false-positive budget (0.313) on the calibration split and reaches a test recall of 5.0\% at a false-positive rate of 5.8\% (precision 15.7\%, F1 0.076, Wilson 95\% intervals: recall [2.6, 9.6], FPR [4.3, 7.7]). The test rate exceeds the 5\% target because the threshold is fixed on calibration. At 17.8\% prevalence, random flagging at a 5.8\% false-positive rate yields 5.8\% recall, so the P2 result is chance-level. All calibration metrics in this section refer to the pre-verdict display score. The card value is adjusted by claim verdicts and is not covered by these ECEs; the displayed percentage is a design aid, not a validated probability.
 
-Every target-calibrated test score is below 0.5, so the fixed threshold predicts zero positives. The target-thresholded mode (P2) selects a threshold at a 5\% false-positive budget (0.313) on the target calibration split. P2 achieves a test recall of 5.0\% at a false-positive rate of 5.8\% (precision 15.7\%, F1 = 0.076, Wilson 95\% intervals: recall [2.6, 9.6], FPR [4.3, 7.7]). The test rate exceeds the 5\% target because the threshold is fixed on calibration. Target recalibration fixes the probability scale, not the ranking. Already 252 labeled target rows give a test ECE of 0.133.
-
-\subsection{Cross-domain transfer}
-
-The conventional model is trained only on the HaluEval dataset, whereas EC-XGB is exposed to RAGTruth summarization and data-to-text examples as well, so the performance of EC-XGB on these two tasks indicates its adaptation (Table~\ref{tab:shift}). On the combined RAGTruth split, the flag rate is reduced from 99.9\% to 61.3\% and AUROC increases from 0.475 to 0.582. The task-specific split reveals the source of improvement. On summarization, AUROC increases from 0.634 to 0.736 and ECE decreases from 0.750 to 0.052, while the flag rate falls from 99.8\% to 11.6\%. The summarization F1 score drops from 0.370 to 0.343 because the fixed threshold flags far fewer answers. Data-to-text AUROC goes up from 0.567 to 0.771 and ECE drops from 0.339 to 0.053. Held-out QA remains near chance (AUROC 0.547 to 0.549). FaithBench AUROC increases from 0.509 to 0.594, but F1 drops from 0.813 to 0.120, and ECE increases from 0.292 to 0.450 because the target calibrator is fitted on RAGTruth QA.
-
-\begin{table}[pos=htbp]
-  \centering
-  \caption{Cross-domain behavior by dataset and task, mean over seeds. The conventional model is trained on HaluEval only, so its external results are zero-shot. EC-XGB adds the RAGTruth summarization and data-to-text training rows, so those two rows measure adaptation. RAGTruth QA is held out. F1 uses the fixed 0.5 threshold, and flagged is the share of rows above it. RAGTruth pooled uses the 2{,}700-row test split, each RAGTruth task uses 900 rows, and FaithBench uses 750. FaithBench is a summarization corpus from a different source.}
-  \label{tab:shift}
-  \footnotesize
-  \begin{tabular}{llcccc}
-    \toprule
-    \textbf{Dataset / task} & \textbf{Model} & \textbf{F1} & \textbf{AUROC} & \textbf{Flagged} & \textbf{ECE} \\
-    \midrule
-    RAGTruth pooled         & Conventional   & 0.5181      & 0.4753         & 99.9\%           & 0.6346       \\
-    RAGTruth pooled         & EC-XGB         & 0.5608      & 0.5815         & 61.3\%           & 0.2782       \\
-    \addlinespace
-    RAGTruth QA             & Conventional   & 0.3022      & 0.5465         & 99.9\%           & 0.8149       \\
-    RAGTruth QA             & EC-XGB         & 0.3081      & 0.5491         & 97.4\%           & 0.7433       \\
-    \addlinespace
-    RAGTruth summarization  & Conventional   & 0.3702      & 0.6343         & 99.8\%           & 0.7499       \\
-    RAGTruth summarization  & EC-XGB         & 0.3434      & 0.7358         & 11.6\%           & 0.0519       \\
-    \addlinespace
-    RAGTruth data-to-text   & Conventional   & 0.7830      & 0.5665         & 100.0\%          & 0.3390       \\
-    RAGTruth data-to-text   & EC-XGB         & 0.8234      & 0.7705         & 74.9\%           & 0.0527       \\
-    \addlinespace
-    FaithBench              & Conventional   & 0.8130      & 0.5089         & 99.5\%           & 0.2917       \\
-    FaithBench              & EC-XGB         & 0.1201      & 0.5941         & 7.3\%            & 0.4500       \\
-    \bottomrule
-  \end{tabular}
-\end{table}
 
 \begin{figure}[pos=htbp]
   \centering
-  \includegraphics[width=0.95\linewidth]{b3/transfer_score_distributions.png}
-  \caption{Raw model score distributions on the HaluEval test set and the external corpora, with the 0.5 threshold marked. The source panel separates the classes, while every external panel piles both labels at 1.0.}
+  \includegraphics[width=\linewidth]{revision/operating_point_label_budget.png}
+  \caption{Operating point and label budget on RAGTruth QA.}
+  \label{fig:operating}
+\end{figure}
+
+Figure~\ref{fig:operating} shows the operating point and the label budget. Panel (a) sweeps the threshold for the conventional target-Platt model on RAGTruth QA, and the vertical line marks the selected threshold at 0.313, which is the P2 row in Table~\ref{tab:target}. A lower threshold raises recall and raises the false-positive rate. Panel (b) plots ECE and Brier against the number of labeled target rows. The ECE is 0.083 with 50 rows and 0.133 with 252 rows, and it changes by 0.001 from 252 to 5{,}034 rows. The 50-row value is a single-draw artifact, so the budget should be read as saturating near 252 rows. A small labeled target sample is enough to set the probability scale.
+
+The conventional reference m0 is trained only on HaluEval, whereas EC-XGB is exposed to RAGTruth summarization and data-to-text examples as well, so the performance of EC-XGB on these two tasks measures adaptation to task types seen in training, not general robustness to distribution shift (Table~\ref{tab:shift}). On the pooled RAGTruth test split, the flag rate falls from 99.9\% to 61.3\% and AUROC rises from 0.475 to 0.582. The task-specific split reveals the source of improvement. On summarization, AUROC rises from 0.634 to 0.736 and the flag rate falls from 99.8\% to 11.6\%, so F1 drops from 0.370 to 0.343 as the fixed threshold stops flagging nearly every row. Data-to-text AUROC rises from 0.567 to 0.771. Held-out QA remains near chance (AUROC 0.547 to 0.549; PR-AUC 0.191 for m0 and 0.188 for m3, so the two metrics disagree on the sign of the small difference). FaithBench AUROC rises from 0.509 to 0.594, but F1 falls from 0.813 to 0.120 and raw ECE rises from 0.292 to 0.450, so the raw scores transfer poorly to that corpus. The conventional F1 in Table~\ref{tab:shift} matches the all-positive baseline to within 0.003 on QA (0.302), pooled (0.518), and FaithBench (0.810) because it flags almost every row.
+
+\begin{table}[pos=htbp]
+  \centering
+  \caption{Cross-domain performance of B6 m0 and EC-XGB m3 by dataset and task on the held-out RAGTruth test rows and FaithBench, mean over three seeds.}
+  \label{tab:shift}
+  \begin{tabular}{llccccc}
+    \toprule
+    \textbf{Dataset / task} & \textbf{Model} & \textbf{F1} & \textbf{AUROC} & \textbf{PR-AUC} & \textbf{Flagged} & \textbf{ECE} \\
+    \midrule
+    RAGTruth pooled         & Conventional (m0) & 0.5181      & 0.4753         & 0.3139          & 99.9\%           & 0.6346       \\
+    RAGTruth pooled         & EC-XGB (m3)       & 0.5608      & 0.5815         & 0.3588          & 61.3\%           & 0.2782       \\
+    \addlinespace
+    RAGTruth QA             & Conventional (m0) & 0.3022      & 0.5465         & 0.1911          & 99.9\%           & 0.8149       \\
+    RAGTruth QA             & EC-XGB (m3)       & 0.3081      & 0.5491         & 0.1884          & 97.4\%           & 0.7433       \\
+    \addlinespace
+    RAGTruth summarization  & Conventional (m0) & 0.3702      & 0.6343         & 0.3536          & 99.8\%           & 0.7499       \\
+    RAGTruth summarization  & EC-XGB (m3)       & 0.3434      & 0.7358         & 0.4449          & 11.6\%           & 0.0519       \\
+    \addlinespace
+    RAGTruth data-to-text   & Conventional (m0) & 0.7830      & 0.5665         & 0.6831          & 100.0\%          & 0.3390       \\
+    RAGTruth data-to-text   & EC-XGB (m3)       & 0.8234      & 0.7705         & 0.8374          & 74.9\%           & 0.0527       \\
+    \addlinespace
+    FaithBench              & Conventional (m0) & 0.8130      & 0.5089         & 0.6735          & 99.5\%           & 0.2917       \\
+    FaithBench              & EC-XGB (m3)       & 0.1201      & 0.5941         & 0.7109          & 7.3\%            & 0.4500       \\
+    \bottomrule
+  \end{tabular}
+  \par\smallskip
+  {\small Note. ECE is computed on raw scores, not on the target-calibrated display score. The conventional rows are B6 m0, a separate 26-feature tuning run under the EC-XGB protocol, and the EC-XGB rows are m3. Every row is a three-seed mean. m0 is trained on HaluEval only, so its external rows are zero-shot. EC-XGB adds the RAGTruth summarization and data-to-text training rows, so those two pairs measure adaptation, and RAGTruth QA is held out. F1 uses the fixed 0.5 threshold, and Flagged is the share of rows above it. RAGTruth pooled uses the 2{,}700 held-out test rows, each RAGTruth task uses 900, and FaithBench uses 750. The m0 F1 matches the all-positive baseline to within 0.003 on QA (0.302), pooled (0.518), and FaithBench (0.810) because it flags almost every row.}
+\end{table}
+
+Figure~\ref{fig:transferscore} shows the raw score distributions of the conventional model on HaluEval and on the external test rows. The first panel is the HaluEval test set, where the two classes separate into two clusters at the ends of the range. The remaining panels are the held-out RAGTruth test rows (900 per task, 2{,}700 pooled) and FaithBench. In each external panel, both classes pile against 1.0, so the raw score no longer separates hallucinated from correct answers. The 0.5 threshold therefore flags almost every row. This is the visual form of the 99.9\% flag rate in Table~\ref{tab:shift}.
+
+\begin{figure}[pos=htbp]
+  \centering
+  \includegraphics[width=\linewidth]{b3/transfer_score_distributions.png}
+  \caption{Raw score distributions of the conventional B2 model on HaluEval and the held-out external test rows (RAGTruth QA, pooled RAGTruth, FaithBench).}
   \label{fig:transferscore}
 \end{figure}
 
 
 
-\subsection{Ablation}
-
-The ablation study in Table~\ref{tab:ablation} demonstrates how much each feature group contributes to the conventional XGBoost model by training a new version of the model with one group removed at a time. Most of the loss is due to lexical features ($-$0.0247 F1), while the contributions of the other feature groups (length and NLI) are somewhat smaller. There is little difference when excluding each of the entity, numeric, and hedging features, as all three remain within 0.0002 of the full model's F1 value. Removing the semantic feature group slightly improves F1.
-
-\begin{table}[pos=htbp]
-  \centering
-  \caption{Feature-group ablation, mean over seeds (full model F1 = 0.9846, AUROC = 0.9979).}
-  \label{tab:ablation}
-  \begin{tabular}{lrrr}
-    \toprule
-    \textbf{Removed group} & \textbf{F1} & \textbf{$\Delta$F1} & \textbf{AUROC} \\
-    \midrule
-    length                 & 0.9801      & $-$0.0045           & 0.9963         \\
-    lexical                & 0.9600      & $-$0.0247           & 0.9923         \\
-    entity                 & 0.9847      & $+$0.0001           & 0.9982         \\
-    nli                    & 0.9823      & $-$0.0023           & 0.9973         \\
-    numeric                & 0.9844      & $-$0.0002           & 0.9982         \\
-    hedging                & 0.9848      & $+$0.0001           & 0.9981         \\
-    semantic               & 0.9860      & $+$0.0014           & 0.9982         \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
 \subsection{Statistical Analysis}
 
-Statistical tests use the paired seed-42 predictions and 1{,}000 group-level bootstrap resamples. On HaluEval QA, the McNemar test compares EC-XGB with the conventional model and gives $p=0.45$, so the difference is not significant. For the random forest, the McNemar test gives $p=0.044$ before correction and $p=0.176$ after Holm correction across four comparisons, so the difference is not significant. The Wilcoxon signed-rank test across three seeds gives a minimum attainable value of $p = 0.25$, so significance cannot be claimed.
+Statistical tests use the paired seed-42 predictions and 1{,}000 group-level bootstrap resamples. McNemar's test compares the discordant counts $b$ and $c$, where $b$ is the number of rows where the first model is right and the second is wrong, and $c$ is the reverse. The test statistic is
+\begin{equation}
+  \chi^2 = \frac{(|b-c|-1)^2}{b+c},
+\end{equation}
+with a continuity correction. Holm's method orders the $m$ p-values and adjusts the $i$-th value as
+\begin{equation}
+  p_{(i)}^{\text{Holm}} = \min_{j \ge i} \left\{ \min\left(1, (m-j+1)p_{(j)}\right) \right\},
+\end{equation}
+which controls the family-wise error rate across the four baseline comparisons. The paired bootstrap delta is
+\begin{equation}
+  \Delta_b = \theta_{\text{EC}}(\mathcal{D}_b) - \theta_{\text{conv}}(\mathcal{D}_b),
+\end{equation}
+where $\mathcal{D}_b$ is a resample of groups and $\theta$ is the metric. The 95\% interval is the 2.5th and 97.5th percentiles of the $\Delta_b$,
+\begin{equation}
+  \mathrm{CI}_{95\%} = \left[\Delta_{(\alpha/2)}, \Delta_{(1-\alpha/2)}\right].
+\end{equation}
+The Wilcoxon signed-rank statistic is
+\begin{equation}
+  W = \sum_{s=1}^{S} \operatorname{rank}(|d_s|) \mathbf{1}[d_s > 0],
+\end{equation}
+where $d_s$ is the difference between the two models on seed $s$ and $S=3$.
 
-External deltas with 95\% confidence intervals are presented in Table~\ref{tab:stats}. The AUROC interval does not contain zero on any task. The ECE interval does not contain zero for RAGTruth QA, summarization, and data-to-text. The FaithBench ECE interval is positive because the target calibrator is fitted on RAGTruth QA. The summarization F1 interval includes zero, while the FaithBench interval is below zero.
+Table~\ref{tab:mcnemar} gives the McNemar counts. EC-XGB and the conventional model are not significantly different ($p=0.45$). That is the primary comparison, and it is not part of the Holm family, which covers the four baseline comparisons against the conventional model. At $p=0.45$ it would not survive correction. The random forest matches the conventional model ($p=0.502$). Logistic regression and the heuristic are significantly worse ($p=1.86\times10^{-10}$ and $p=2.28\times10^{-30}$), and both survive Holm correction. The Wilcoxon test across three seeds cannot reach significance (minimum $p=0.25$). Table~\ref{tab:stats} gives the external bootstrap deltas, which are seed 42. The QA AUROC delta is $+$0.0367 with interval [0.0056, 0.0681]. The per-seed deltas are $+$0.0372, $-$0.0673, and $+$0.0379, with a mean of $+$0.0026. The seed-42 interval describes one draw. The three-seed mean is 0.0026, so the QA gain is within seed noise. The AUROC interval excludes zero on every task. The ECE interval excludes zero on RAGTruth QA, summarization, and data-to-text, and is positive on FaithBench. The summarization F1 interval includes zero, and the FaithBench F1 interval is below zero.
 
 \begin{table}[pos=htbp]
   \centering
-  \caption{Paired group-bootstrap deltas for EC-XGB minus the conventional model (seed 42, 1{,}000 resamples). Intervals are 95\%.}
+  \caption{McNemar tests on the paired seed-42 HaluEval predictions.}
+  \label{tab:mcnemar}
+  \begin{tabular}{lrrrr}
+    \toprule
+    \textbf{Comparison} & \textbf{$b$} & \textbf{$c$} & \textbf{$p$} & \textbf{Holm $p$} \\
+    \midrule
+    EC-XGB vs conventional          & 10   & 6  & 0.453            & ---              \\
+    Conventional vs random forest   & 12   & 8  & 0.502            & 0.502            \\
+    Conventional vs logistic regression & 69 & 11 & $1.86\times10^{-10}$ & $3.7\times10^{-10}$ \\
+    Conventional vs heuristic       & 158  & 9  & $2.28\times10^{-30}$ & $6.8\times10^{-30}$ \\
+    Conventional vs NLI-only        & 1006 & 26 & $5.6\times10^{-204}$ & $2.2\times10^{-203}$ \\
+    \bottomrule
+  \end{tabular}
+  \par\smallskip
+  {\small Note. $b$ is the number of rows where the first model is right and the second is wrong. $c$ is the reverse. The $p$ values use the chi-square form with continuity correction. Holm values cover the four baseline comparisons against the conventional model.}
+\end{table}
+
+
+
+\begin{table}[pos=htbp]
+  \centering
+  \caption{Paired group-bootstrap deltas for EC-XGB (m3) minus the B6 m0 conventional model (seed 42, 1{,}000 resamples). Intervals are 95\%.}
   \label{tab:stats}
-  \footnotesize
   \setlength{\tabcolsep}{4pt}
   \begin{tabular}{lccc}
     \toprule
@@ -755,17 +817,19 @@ External deltas with 95\% confidence intervals are presented in Table~\ref{tab:s
     FaithBench             & $-$0.7029 [$-$0.7430, $-$0.6609] & $+$0.1242 [0.0758, 0.1736]       & $+$0.1777 [0.1172, 0.2406]       \\
     \bottomrule
   \end{tabular}
+  \par\smallskip
+  {\small Note. All deltas are seed 42. Table~\ref{tab:shift} reports the corresponding three-seed means.}
 \end{table}
 
-\subsection{Explanation reliability}
+\subsection{Explanation, Efficiency, and Judges}
 
-Figure~\ref{fig:shapimp} presents the mean absolute SHAP values of the top-12 features. The overlap in contexts has the greatest effect, followed by the lengths of answers, then the contradictions between contexts and answers (in terms of probability), and lastly the cosine similarity between questions and answers. Three tests check whether the provided explanations are consistent. The SHAP rankings agree with the permutation importances at a Kendall tau of 0.66. The same five top features appear consistently after bootstrapping 1{,}000 times, yielding a Jaccard of 1.0. Reducing the predicted mean score monotonically from $-$0.079 at $k=1$ to $-$0.412 at $k=10$ when neutralizing the top-$k$ features also indicates that these top features drive the predictions.
+The explanation results use the conventional B2 model with the source Platt calibrator; the study predates the EC-XGB checkpoint, but the deployed system applies the same TreeSHAP procedure. Figure~\ref{fig:shapimp} ranks the top-12 features by mean absolute SHAP. Context overlap dominates at 3.04, answer length follows at 1.19 and 1.17, contradiction is 0.41, and question-answer cosine is 0.34. The remaining features contribute less than 0.29. Panel (a) shows the mean; panel (b) shows the beeswarm, where each point is one test row and the colour is the feature value. Three checks support the ranking: Kendall tau 0.66 against permutation importance, Jaccard 1.0 for the top-five set after 1{,}000 bootstrap resamples, and a monotone drop from $-$0.079 to $-$0.412 when the top-$k$ features are neutralized. The ranking explains why the error analysis focuses on length and overlap.
 
-Table~\ref{tab:perturb} provides the results of a perturbation test. Changes in content cause score changes according to how much each edit affects the semantics of the original input. On average, replacing an entity caused a 0.360 change in score, numbers caused a 0.345 change, dates caused a 0.279 change, and removing supporting context caused a 0.272 change. Irrelevant inserts as well as clause shuffles had almost no effect on the score, changing it by 0.006 and 0.001, respectively. Not once did the top-1 SHAP feature flip under any operator used in this test. Spearman correlations stayed in the range of 0.84 to 0.95 throughout all tests conducted. Date and clause-shuffle edits had only 13 and 14 samples, respectively.
+Table~\ref{tab:perturb} shows the perturbation results. Content edits change the score: entity replacement 0.360, number replacement 0.345, date replacement 0.279, and support removal 0.272. Structural edits barely move it: irrelevant insert 0.006 and clause shuffle 0.001. The top-1 SHAP feature never flips, and Spearman correlation stays between 0.84 and 0.95. The score reacts to evidence changes and stays still under reordering.
 
 \begin{table}[pos=htbp]
   \centering
-  \caption{Perturbation stability of the calibrated score and SHAP ranking.}
+  \caption{Perturbation stability of the calibrated score and SHAP ranking for the conventional B2 model on HaluEval (seed 42).}
   \label{tab:perturb}
   \begin{tabular}{lcrrrr}
     \toprule
@@ -784,20 +848,18 @@ Table~\ref{tab:perturb} provides the results of a perturbation test. Changes in 
 
 \begin{figure}[pos=htbp]
   \centering
-  \includegraphics[width=0.70\linewidth]{fig_shap_importance_b5.png}
-  \caption{Mean absolute SHAP values for the top-12 features (B-run, seed 42).}
+  \includegraphics[width=\linewidth]{revision/shap_summary.png}
+  \caption{SHAP summary for the conventional B2 model, top-12 features (seed 42).}
   \label{fig:shapimp}
 \end{figure}
 
-A structured AI-assisted audit assessed the 26 exported explanations. The B5 export produced 26 error-enriched cases. These included 9 false positives, 10 false negatives, and 7 borderline cases in the 0.35 to 0.65 interval. Two review passes used an AI assistant. In both passes the AI assistant evaluated each explanation against the answer-context evidence, not the dataset label. The two passes agreed on 23 of the 26 explanations (88\%). Each pass marked 15 explanations as implausible. False positives inherit the length confound. Many false negatives occur when a wrong answer reuses entities from its context, which keeps overlap high. There are two audited examples (item numbers 2251 and 2436) that have a hallucinated label for their correct answer although the context directly supports the answer. Therefore, these appear to be errors due to label noise in the benchmark rather than errors produced by the model. As the audit sample was intentionally populated with erroneous examples, the above percentages reflect the results of the audit process rather than those found in the test set.
+A structured AI-assisted audit assessed 26 error-enriched explanations. The authors performed two review passes with an AI assistant; each pass checked the explanation against the answer-context evidence, not the dataset label. The sample contains 9 false positives, 10 false negatives, 4 true negatives, and 3 true positives. The two passes agreed on 23 of 26 cases. The audit is a stress test on error-enriched cases: 15 of 26 explanations were judged implausible by each pass, and 14 by both passes. The explanations are diagnostic aids, not faithful attributions. False positives inherit the length confound, and false negatives often reuse entities from the context. Two cases (2251 and 2436) appear to be label noise. Because the sample is error-enriched, the percentages describe the audit, not the test set.
 
-\subsection{Efficiency and the LLM judge}
-
-Table~\ref{tab:latency} displays the total average and distribution of the latency over the 200 test samples. The NLI cross-encoder and the spaCy entity pass were the slowest components in terms of latency with medians of 27.1\,ms and 21.1\,ms, respectively. The latency for XGBoost was much lower than that for either method, at 1.3\,ms. SHAP had a somewhat greater latency to compute (1.9\,ms), but the overall per-sample latency at the median was approximately 61.8\,ms. The size of the deployed artifact was approximately 0.68\,MB. The marginal cost is about \$0.001 per 1{,}000 predictions. The cost calculations were made on the basis of the reference laptop, taking into account amortized costs of hardware and electricity, hence order-of-magnitude estimates, expressed in USD per 1{,}000 predictions. The cost calculation of GPT-related expenses is based on token usage counting by \$0.20 per million input tokens and \$1.20 per million output tokens.
+Table~\ref{tab:latency} gives the component latency. NLI (27.1\,ms) and NER (21.1\,ms) dominate the median. XGBoost is 1.26\,ms and SHAP 1.9\,ms. The 1.26\,ms entry is the legacy B2 model. EC-XGB model-only inference is 0.008\,ms (Table~\ref{tab:cost}), and the 61.8\,ms figure is the full feature pipeline, with a p95 tail of 68.6\,ms for NLI and 47.2\,ms for NER. The artifact is 0.68\,MB, and the marginal cost is about \$0.001 per 1{,}000 predictions. Feature extraction, not the model, is the cost. Table~\ref{tab:cost} compares cost and latency: classical heads run in under a millisecond, the feature pipeline is 61.8\,ms, and both judges are 23 to 42 times slower. The heuristic needs no model and costs almost nothing. Encoder inference was not timed, so this comparison covers the feature pipeline and the API judges.
 
 \begin{table}[pos=htbp]
   \centering
-  \caption{Per-component latency in ms (n = 200). Components are timed in separate instrumented passes over the same samples, so the component means need not sum to the end-to-end median. Retrieval and judge calls are excluded.}
+  \caption{Per-component latency in milliseconds (n = 200).}
   \label{tab:latency}
   \begin{tabular}{lrrr}
     \toprule
@@ -812,15 +874,14 @@ Table~\ref{tab:latency} displays the total average and distribution of the laten
     Total per sample   & 61.77        &              &               \\
     \bottomrule
   \end{tabular}
+  \par\smallskip
+  {\small Note. Components are timed in separate instrumented passes over the same samples, so the component means need not sum to the end-to-end median. Retrieval and judge calls are excluded.}
 \end{table}
-
-Table~\ref{tab:cost} shows all baselines on an equal footing. The model-only p50 metric is calculated per row on 200 test rows on the reference laptop, while classical models run on the CPU and NLI with embeddings runs on the GPU in the shared feature pipeline. The classical heads run in under a millisecond against 61.8\,ms for the feature pipeline, and both judges are roughly 20 to 40 times slower. The heuristic approach needs no model and takes just 0.009\,ms per row.
 
 \begin{table}[pos=htbp]
   \centering
-  \caption{Per-baseline cost and latency. Size is the seed-42 artifact on disk. Feature models share the 61.8\,ms pipeline end to end. The NLI-only head was not persisted, so its cost is the 27.1\,ms NLI feature step plus a linear head of the same order as the timed logistic regression. $^\ast$ marks vectorizer-transform-only timings. RoBERTa inference was not timed because the weights were not kept, and its training cost is about 15 minutes per seed. Costs are USD per 1{,}000 predictions.}
+  \caption{Per-baseline cost and latency.}
   \label{tab:cost}
-  \footnotesize
   \begin{tabular}{llrrr}
     \toprule
     \textbf{Baseline}      & \textbf{Inputs} & \textbf{Size} & \textbf{Model p50 (ms)} & \textbf{Cost/1K} \\
@@ -837,15 +898,16 @@ Table~\ref{tab:cost} shows all baselines on an equal footing. The model-only p50
     Qwen 3.5 4B judge      & 4-bit local     & 4B params     & 2622.56                 & \$0              \\
     \bottomrule
   \end{tabular}
+  \par\smallskip
+  {\small Note. Size is the seed-42 artifact on disk. Feature models share the 61.8\,ms pipeline end to end. The NLI-only head was not persisted, so its cost is the 27.1\,ms NLI step plus a linear head of the same order as logistic regression. $^\ast$ marks vectorizer-transform-only timings. RoBERTa inference was not timed because the weights were not kept, and its training cost is about 15 minutes per seed. Costs are USD per 1{,}000 predictions.}
 \end{table}
 
-Table~\ref{tab:judge} illustrates EC-XGB versus two judges based on the same 200 balanced HaluEval rows, which are a subset of the 3{,}000-row headline test set, including 100 rows per class at 50\% prevalence. GPT 5.6 Luna got an F1 score of 0.846 [0.781, 0.898], Qwen 3.5 4B got 0.756 [0.667, 0.824], and EC-XGB got 0.990. GPT concordance with EC-XGB is approximately 85.5\%. The McNemar p-value of GPT against EC-XGB equals $8.3 \times 10^{-6}$, with 27 rows where EC-XGB was right and GPT wrong, and 2 rows where GPT was right and EC-XGB was wrong. AI assistance on all 40 rows where Qwen was wrong led to identifying 20 answers supported under the strict label, 6 rows being ambiguous, 12 rows missed by Qwen but caught by GPT, and 2 false positives. The length-only baseline has obtained an F1 score of 0.905 on those rows, showing that GPT gives no additional advantages over the length clue. The cost of GPT is approximately \$0.106 per 1{,}000 predictions and takes a median time of 1.44\,s. The cost of EC-XGB is about \$0.001 per 1{,}000 predictions and takes approximately 61.8\,ms. The presented metrics apply only to this dataset and its prompts.
+LLM judges are not fair evaluators, and their preferences can shift with answer order \cite{wang2024fair}. Table~\ref{tab:judge} compares EC-XGB with two judges on 200 balanced rows. EC-XGB reaches F1 0.990, GPT 0.846 [0.781, 0.898], and Qwen 0.756 [0.667, 0.824]. The McNemar test against GPT gives $p=8.3\times10^{-6}$, with 27 rows where EC-XGB was right and 2 where GPT was. A manual check of the 40 Qwen errors found 20 supported, 6 ambiguous, 12 genuine misses, and 2 false positives, so the Qwen F1 is not directly comparable: 20 of its 40 errors were supported under the strict label. GPT reaches F1 0.846, below the length-only baseline at 0.905 on the same rows, so the judge adds little over the length cue. GPT costs \$0.106 per 1{,}000 predictions and takes 1.44\,s; EC-XGB costs \$0.001 and takes 61.8\,ms. Under matched multi-source training, the adapted encoder reaches 0.694 on RAGTruth, above EC-XGB's 0.582, so the encoder is the stronger model on the tasks both have seen. The feature model is less degraded on unseen tasks, but both are near chance.
 
 \begin{table}[pos=htbp]
   \centering
-  \caption{Two judges vs.\ EC-XGB on 200 balanced HaluEval rows (seed 42). GPT uses default decoding and Qwen is local 4-bit. Cost/1K is USD.}
+  \caption{Two judges vs.\ EC-XGB on 200 balanced HaluEval rows (seed 42).}
   \label{tab:judge}
-  \footnotesize
   \begin{tabular}{lrrrrrr}
     \toprule
     \textbf{Model}     & \textbf{Acc} & \textbf{P} & \textbf{R} & \textbf{F1} & \textbf{p50 (ms)} & \textbf{Cost/1K} \\
@@ -855,19 +917,21 @@ Table~\ref{tab:judge} illustrates EC-XGB versus two judges based on the same 200
     EC-XGB (m3)        & 0.9900       & 0.9900     & 0.9900     & 0.9900      & 61.77             & $\approx$\$0.001 \\
     \bottomrule
   \end{tabular}
+  \par\smallskip
+  {\small Note. GPT uses default decoding and Qwen is local 4-bit. Cost/1K is USD.}
 \end{table}
 
-\subsection{Error analysis}
+\subsection{Error Analysis and Discussion}
 
-There were 48 errors in the 3{,}000-sample test set for the conventional calibrated XGBoost: 12 false positives and 36 false negatives, for an error rate of 1.6\%. A heuristic analysis of 20 errors sampled evenly across the two directions (10 false positives and 10 false negatives) was grouped into two categories. These categories are (i) short-answer ambiguity, when answers are too short or ambiguous in terms of lexical or natural language inference (NLI) evidence, and (ii) label ambiguity, when answers are semantically possible under both labels. Seven false positives and four false negatives were classified as label ambiguity. Similarly, three false positives and six false negatives were classified as short-answer ambiguity. The sample is balanced across the two error directions, so these counts describe the reviewed cases, not the full population.
+On the seed-42 run, the conventional calibrated XGBoost made 48 errors: 12 false positives and 36 false negatives, an error rate of 1.6\%. A heuristic auto-tagging of 20 errors sampled evenly across the two directions grouped them into short-answer ambiguity and label ambiguity. The categories are rule-based. The sample was not independently re-annotated. Seven false positives and four false negatives were label ambiguity. Three false positives and six false negatives were short-answer ambiguity. The sample is balanced, so these counts describe the reviewed cases, not the full population. The counts here are seed 42, and the rates in Table~\ref{tab:length} are three-seed means, so its totals differ slightly. Table~\ref{tab:length} shows why length matters. The hallucination rate rises from 2.1\% for one-word answers to 12.7\% at three to four words and 90.2\% at five to eight words, then to 99.2\% at 17+ words. False positives concentrate in the five to eight bin, and false negatives in the short bins. Answer length is therefore a near-perfect label indicator on HaluEval. The mean score follows the same curve, from 0.024 to 0.993.
 
-The key aspect of the data is how the answer length of incorrect answers is distributed. Table~\ref{tab:length} shows the false-positive and false-negative rates by answer length. The amount of hallucinations per answer length grows very quickly. For instance, 2.1\% of one-word answers were hallucinations compared to 99.2\% of answers longer than 17 words. Because of this relationship, answer length acts as a nearly perfect indicator of whether an answer will be labeled as a hallucination in HaluEval. The average score increased from 0.024 to 0.993 across the groupings. False positives occur mostly at the lower end: about 66.7\% are in the five to eight word grouping. False negatives were most frequent by rate in the one to four word groups (about 18\%), but the five to eight word group had the largest count (18 of 36). This mechanism explains the zero-shot transfer result. Natural language generation outputs are usually complete sentences, so the conventional model reads their length as evidence of hallucination. This is why recall was 100\% while AUROC remained around 50\%.
+Four controls test the length explanation. A logistic regression on the two length variables reaches F1 0.9457 and AUROC 0.9759. A reweighting control equalizes six length bins with 247 examples each. On that set, EC-XGB reaches F1 0.9867 and AUROC 0.9987, against 0.9475 and 0.9758 for a length-only baseline. The gain is +0.039 F1 and +0.023 AUROC, so the length cue is not the whole story. The control does not prove the shortcut is gone.
 
-Several tests and controls support the claim that answer length drives performance. First, a logistic regression on the two answer length variables achieved F1 = 0.9457 and AUROC = 0.9759. Second, a reweighting control selected 247 examples from each of six answer length groups, for 1{,}482 examples. On this reweighted dataset, EC-XGB achieved F1 = 0.9867 and AUROC = 0.9987, while a length-only baseline achieved F1 = 0.9475 and AUROC = 0.9758. The difference is +0.039 F1 [0.029, 0.051] and +0.023 AUROC [0.016, 0.031], so EC-XGB still outperforms the length-only baseline after bin counts are equalized. This control does not prove that the shortcut is gone. Third, a length-matching control paired one positive example with one negative example at each answer length. This gave 163 pairs (326 examples) on the full test set, repeated 200 times at different sampling seeds. EC-XGB maintained AUROC = 0.9608 $\pm$ 0.0022, while the length-only baseline dropped to 0.5257 $\pm$ 0.0034, and the difference was 0.4351 [0.429, 0.442]. Finally, a length-conditional test removed the cue without subsampling. Within each exact-length stratum that contains both classes, length is constant, so the length-only model is at AUROC 0.5 by construction. Across the 12 such strata, EC-XGB reached a pair-weighted AUROC of 0.9773 $\pm$ 0.0009 over seeds.
+A length-matching control pairs one positive and one negative at each length, giving 163 pairs (326 examples) over 200 resamples. EC-XGB holds AUROC 0.9608 $\pm$ 0.0022 while the length-only baseline falls to 0.5257 $\pm$ 0.0034, a gap of 0.4351 [0.429, 0.442]. A length-conditional test removes the cue without subsampling: within each exact-length stratum, length is constant, so the length-only model is at 0.5 by construction. Across 12 strata, EC-XGB reaches 0.9773 $\pm$ 0.0009. The length cue explains the zero-shot failure but not the in-domain ranking.
 
 \begin{table}[pos=htbp]
   \centering
-  \caption{Test-set errors by answer length, mean over seeds (17+ contains only two negative rows). The 5--8 word bin contains 66.7\% of the false positives and 18 of the 36 false negatives.}
+  \caption{HaluEval test errors of the conventional B2 model by answer length (counts seed 42, rates three-seed means).}
   \label{tab:length}
   \begin{tabular}{lrrrrr}
     \toprule
@@ -881,19 +945,25 @@ Several tests and controls support the claim that answer length drives performan
     17+            & 247           & 0.992                 & 0.333            & 0.000            & 0.993               \\
     \bottomrule
   \end{tabular}
+  \par\smallskip
+  {\small Note. Counts are seed 42. Rates and mean scores are three-seed means. The 17+ bin contains only two negative rows. The 5--8 word bin contains 66.7\% of the false positives and 18 of the 36 false negatives.}
 \end{table}
 
-\subsection{Discussion}
+\begin{figure}[pos=htbp]
+  \centering
+  \includegraphics[width=\linewidth]{revision/length_analysis.png}
+  \caption{Hallucination rate, mean score, and error rates by answer length for the B2 conventional model.}
+  \label{fig:length}
+\end{figure}
 
-The informative results are outside the benchmark, where EC-XGB provides a better rank ordering of answers on RAGTruth than the conventional model: the conventional model identifies nearly all of them as unacceptable, and the display calibrator provides readable target scores. The gain coincides with multi-source training rather than a different type of learning system. A fine-tuned encoder still wins in-domain, so there is a trade-off between cost, transparency, and accuracy when choosing a feature-based model over other models.
+Figure~\ref{fig:length} shows the same pattern: the rate jumps from 12.7\% at three to four words to 90.2\% at five to eight words, and false negatives are most frequent by rate in the short bins; by count, 18 of 36 are in the five to eight bin. The shape explains the zero-shot result: complete sentences are long, so the conventional model reads them as hallucinations. The informative results are outside the benchmark. EC-XGB ranks the RAGTruth task types seen in training better than the conventional model, and the display calibrator gives readable target scores. The gain comes from multi-source training, not a different learning system. HaluEval labels length: 2.1\% of one-word answers are hallucinations, and 99.2\% at 17+ words. The ablation leaves lexical and length as the only groups that matter, so the in-domain model is a length and overlap detector. That is why natural long answers are flagged at 99.9\%, calibration cannot repair the ranking, and held-out QA stays at 0.549. The contribution is the protocol that exposes this chain, not a general detector. A fine-tuned encoder still wins in-domain, so the choice is a cost-transparency-accuracy trade-off. Four limits bound these claims. Deployment uses gold context, so retrieval quality and end-to-end verdict accuracy are not evaluated. The judge comparison uses 200 balanced HaluEval rows. The audit is error-enriched. The HaluEval benchmark is saturated, so its in-domain differences are not resolvable.
+
+
+
 
 \section{Conclusion}\label{sec:conclusion}
 
-A useful hallucination detector must be fast, inexpensive, and explainable. This research has created EC-XGB, an evidence-consistent XGBoost risk predictor. EC-XGB uses 26 evidence-consistency features, including log-scaled answer lengths under monotone constraints, 8 claim-level NLI aggregates, and a source indicator, with multi-source training, calibrated probabilities, and SHAP explanations. Using HaluEval QA data, this system achieves an F1 score of 0.9855 and an AUROC of 0.9984, comparable to conventional XGBoost performance on a saturated benchmark. The improvement appears on the RAGTruth task types used during training but not on unseen tasks. Conventional models flag 99.9\% of all natural RAGTruth answers as being at-risk. EC-XGB flags 61.3\% of all natural RAGTruth answers as being at-risk. The AUROC increases from 0.475 to 0.582 while the ECE decreases from 0.635 to 0.278. Display calibrators reduce the RAGTruth QA ECE from 0.726 to 0.126 and require a labeled target sample (5{,}034 rows). Each analysis takes 61.8 ms and costs approximately \$0.001 per 1{,}000 predictions, which is approximately 100 times less expensive than the GPT 5.6 Luna judge.
-
-An encoder trained solely on source material outperforms all other models on the benchmark (F1 = 0.9912). However, the encoder performs poorly on unseen tasks (RAGTruth AUROC = 0.337 vs. 0.582). The raw model needs no calibration on HaluEval, and the entity and hedging features add no measurable value. The held-out RAGTruth QA task continues to have an F1 score close to 0.30. Therefore, this research views the supervised model as a domain-specific risk assessment tool and adaptation check, rather than a general-purpose detector, and the current deployment includes claim-level verification along with evidence retrieval. Future research will focus on multicalibration under stronger shifts, conformal prediction, transfer of thresholds across domains, and controlled evaluations on unseen tasks to detect shortcuts.
-
-%%% SECTION-INSERT-POINT %%%
+A useful hallucination detector must be fast, inexpensive, and explainable. This research has created EC-XGB, an evidence-consistent XGBoost risk predictor. EC-XGB uses 26 evidence-consistency features, 8 claim-level NLI aggregates, and a source indicator, with log-scaled lengths under monotone constraints, multi-source training, calibrated probabilities, and SHAP explanations. On HaluEval QA it reaches an F1 of 0.9855 and an AUROC of 0.9984, which matches conventional XGBoost on a saturated benchmark. On the RAGTruth tasks used in training, the pooled flag rate falls from 99.9\% to 61.3\%, while held-out QA remains at 97.4\% and AUROC 0.549. Target calibration lowers ECE from 0.726 to 0.126, but a prevalence-only predictor at the calibration prevalence matches its Brier score, and recall at a 5\% false-positive budget is 5.0\%. Under matched multi-source training, the adapted encoder reaches 0.694 on the seen RAGTruth tasks, above EC-XGB's 0.582, while the source-only encoder wins in-domain (0.9912 F1) but is near chance on each seen task (0.455 and 0.477). On unseen QA both are near chance (AUROC 0.490 vs 0.549), and EC-XGB's F1 stays near 0.30, so EC-XGB is less degraded than the adapted encoder but not a usable QA detector. One analysis takes 61.8 ms and costs about \$0.001 per 1{,}000 predictions. The GPT 5.6 Luna judge costs about 106 times more per 1{,}000 predictions and runs about 23 times slower. EC-XGB is therefore a domain-specific risk assessment tool and adaptation check, not a general-purpose detector. Future work will cover multicalibration under stronger shifts, conformal prediction, threshold transfer, and controlled tests for shortcuts.
 
 \printcredits
 

@@ -181,8 +181,10 @@ Headline / target prevalence,0.178,artifacts\results\review\calibration_protocol
 Headline / calibration rows,5034.0,artifacts\results\review\calibration_protocol.json,meta.n_calibration,5034.0,0.0,match
 Headline / test rows,900.0,artifacts\results\review\calibration_protocol.json,meta.n_test,900.0,0.0,match
 Headline / 252-row ECE,0.133,artifacts\results\extras\review_extras.json,x4_label_budget.0.05.ece,0.13297560629882976,2.439370117024442e-05,match
-Headline / McNemar XGB vs RF,0.044,artifacts\results\b2\b2_statistical_tests.json,mcnemar_pairs.rf_full,0.04417134490844271,0.00017134490844271377,match
-Headline / McNemar m0 vs m3,0.45,artifacts\results\b6\b6_statistical_tests.json,mcnemar.m0_vs_m3,0.4532547047537363,0.0032547047537362928,match
+Headline / McNemar XGB vs RF,0.502,artifacts\results\review\mcnemar_corrected.json,comparisons.rf_full.chi2,0.502334954360502,0.00033495436050201555,match
+Headline / McNemar XGB vs LR,1.86e-10,artifacts\results\review\mcnemar_corrected.json,comparisons.lr_full.chi2,1.8561545149280316e-10,3.845485071968477e-13,match
+Headline / McNemar XGB vs heuristic,2.28e-30,artifacts\results\review\mcnemar_corrected.json,comparisons.heuristic_overlap.chi2,2.282391281891091e-30,2.391281891090878e-33,match
+Headline / McNemar m0 vs m3,0.45,artifacts\results\review\mcnemar_corrected.json,b6_m0_vs_m3.chi2,0.4532547047537363,0.0032547047537362928,match
 Headline / Wilcoxon m0 vs m3,0.25,artifacts\results\b6\b6_statistical_tests.json,wilcoxon.m0_vs_m3,0.25,0.0,match
 Headline / judge p-value,8.32e-06,artifacts\results\review\llm_judge_gpt_ec_xgb.json,mcnemar_p,8.323556199256734e-06,3.5561992567342994e-09,match
 Headline / judge discordant 27,27.0,artifacts\results\review\llm_judge_gpt_ec_xgb.json,discordant_pairs.gpt_wrong_ec_right,27.0,0.0,match

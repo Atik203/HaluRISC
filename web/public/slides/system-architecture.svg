@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 800" width="1600" height="800" font-family="Inter, 'Segoe UI', Arial, sans-serif">
   <style>
-    .h1 { font-size: 30px; font-weight: 800; fill: #101828; }
-    .h2 { font-size: 27px; font-weight: 800; fill: #101828; }
-    .sub { font-size: 19px; font-weight: 600; fill: #475569; }
-    .chipt { font-size: 18px; font-weight: 700; fill: #101828; }
+    .h1 { font-size: 42px; font-weight: 800; fill: #101828; }
+    .h2 { font-size: 38px; font-weight: 800; fill: #101828; }
+    .sub { font-size: 30px; font-weight: 600; fill: #475569; }
+    .chipt { font-size: 28px; font-weight: 700; fill: #101828; }
     .flow { stroke: #1e40af; stroke-width: 4; fill: none; }
     .flowhead { fill: #1e40af; }
     .dash { stroke: #64748b; stroke-width: 3; fill: none; stroke-dasharray: 10 8; }
@@ -69,7 +69,7 @@
   <!-- chip 3 -->
   <rect x="446" y="608" width="165" height="112" rx="14" fill="#f0fdfa" stroke="#0f766e" stroke-width="2.5"/>
   <text class="chipt" x="528" y="654" text-anchor="middle">NLI</text>
-  <text class="chipt" x="528" y="688" text-anchor="middle">(DeBERTa-v3)</text>
+  <text class="chipt" x="528" y="688" text-anchor="middle">(DeBERTa)</text>
 
   <!-- chip 4 -->
   <rect x="627" y="608" width="165" height="112" rx="14" fill="#dcfce7" stroke="#15803d" stroke-width="2.5"/>
@@ -83,7 +83,8 @@
 
   <!-- chip 6 -->
   <rect x="989" y="608" width="165" height="112" rx="14" fill="#fee2e2" stroke="#b91c1c" stroke-width="2.5"/>
-  <text class="chipt" x="1071" y="672" text-anchor="middle">BM25 + FAISS</text>
+  <text class="chipt" x="1071" y="654" text-anchor="middle">BM25</text>
+  <text class="chipt" x="1071" y="688" text-anchor="middle">FAISS</text>
 
   <!-- chip 7 -->
   <rect x="1170" y="608" width="165" height="112" rx="14" fill="#ccfbf1" stroke="#0f766e" stroke-width="2.5"/>

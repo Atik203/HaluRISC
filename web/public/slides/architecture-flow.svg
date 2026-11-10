@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" font-family="Inter, 'Segoe UI', Arial, sans-serif">
   <style>
-    .h1 { font-size: 29px; font-weight: 800; fill: #101828; }
-    .h2 { font-size: 28px; font-weight: 800; fill: #101828; }
-    .wt { font-size: 29px; font-weight: 800; fill: #ffffff; }
-    .ws { font-size: 21px; font-weight: 600; fill: #cbd5e1; }
-    .lbl { font-size: 23px; font-weight: 700; fill: #475569; }
-    .sub { font-size: 22px; font-weight: 600; fill: #475569; }
-    .chipt { font-size: 22px; font-weight: 700; fill: #101828; }
+    .h1 { font-size: 38px; font-weight: 800; fill: #101828; }
+    .h2 { font-size: 34px; font-weight: 800; fill: #101828; }
+    .wt { font-size: 38px; font-weight: 800; fill: #ffffff; }
+    .ws { font-size: 28px; font-weight: 600; fill: #cbd5e1; }
+    .lbl { font-size: 32px; font-weight: 700; fill: #475569; }
+    .sub { font-size: 28px; font-weight: 600; fill: #475569; }
+    .chipt { font-size: 30px; font-weight: 700; fill: #101828; }
     .flow { stroke: #1e40af; stroke-width: 4; fill: none; }
     .flowhead { fill: #1e40af; }
   </style>
@@ -31,7 +31,7 @@
   <!-- Row 2: feature extraction -->
   <rect x="60" y="156" width="1480" height="166" rx="20" fill="#f0fdfa" stroke="#0f766e" stroke-width="3"/>
   <text class="h1" x="800" y="190" text-anchor="middle">Feature extraction &#8212; 35 features</text>
-  <text class="sub" x="800" y="216" text-anchor="middle">26 base features in 7 groups, plus 8 claim-level NLI aggregates and 1 source indicator</text>
+  <text class="sub" x="800" y="216" text-anchor="middle">26 base features in 7 groups, plus 8 claim aggregates and 1 source indicator</text>
 
   <rect x="145" y="230" width="170" height="44" rx="12" fill="#ffffff" stroke="#1e40af" stroke-width="2.5"/>
   <text class="chipt" x="230" y="258" text-anchor="middle">Length</text>
@@ -49,7 +49,7 @@
   <text class="chipt" x="1370" y="258" text-anchor="middle">Semantic</text>
 
   <rect x="380" y="284" width="400" height="32" rx="10" fill="#fffbeb" stroke="#b45309" stroke-width="2.5"/>
-  <text class="chipt" x="580" y="306" text-anchor="middle">+ 8 claim-level NLI aggregates</text>
+  <text class="chipt" x="580" y="306" text-anchor="middle">+ 8 claim aggregates</text>
   <rect x="820" y="284" width="400" height="32" rx="10" fill="#fffbeb" stroke="#b45309" stroke-width="2.5"/>
   <text class="chipt" x="1020" y="306" text-anchor="middle">+ 1 source indicator</text>
 
@@ -61,7 +61,7 @@
   <!-- Row 3: model -->
   <rect x="430" y="386" width="740" height="84" rx="20" fill="#101828" stroke="#101828" stroke-width="3"/>
   <text class="wt" x="800" y="424" text-anchor="middle">EC-XGB Classifier</text>
-  <text class="ws" x="800" y="452" text-anchor="middle">monotone constraints &#183; grouped 5-fold CV &#183; seeds 42 / 123 / 456</text>
+  <text class="ws" x="800" y="452" text-anchor="middle">monotone &#183; 5-fold CV &#183; seeds 42/123/456</text>
 
   <!-- arrow to calibration -->
   <path class="flow" d="M800 470 L800 510"/>
@@ -71,7 +71,7 @@
   <!-- Row 4: calibration -->
   <rect x="480" y="530" width="640" height="76" rx="20" fill="#fffbeb" stroke="#b45309" stroke-width="3"/>
   <text class="h2" x="800" y="562" text-anchor="middle">Platt Calibration &#8212; RAGTruth QA</text>
-  <text class="sub" x="800" y="590" text-anchor="middle">strict mode: 5% false-positive budget</text>
+  <text class="sub" x="800" y="590" text-anchor="middle">5% false-positive budget</text>
 
   <!-- arrow to outputs -->
   <path class="flow" d="M800 606 L800 646"/>
@@ -84,7 +84,7 @@
 
   <rect x="570" y="666" width="460" height="70" rx="16" fill="#eef2ff" stroke="#1e40af" stroke-width="3"/>
   <text class="h2" x="800" y="696" text-anchor="middle">Per-claim verdicts</text>
-  <text class="sub" x="800" y="721" text-anchor="middle">supported &#183; contradicted &#183; unsupported</text>
+  <text class="sub" x="800" y="721" text-anchor="middle">three verdicts per claim</text>
 
   <rect x="1080" y="666" width="460" height="70" rx="16" fill="#f0fdfa" stroke="#0f766e" stroke-width="3"/>
   <text class="h2" x="1310" y="708" text-anchor="middle">SHAP explanation</text>
@@ -92,11 +92,11 @@
   <!-- Row 6: deployed system and evaluation -->
   <rect x="60" y="768" width="710" height="100" rx="18" fill="#eef2ff" stroke="#1e40af" stroke-width="3"/>
   <text class="h2" x="415" y="806" text-anchor="middle">Deployment</text>
-  <text class="sub" x="415" y="836" text-anchor="middle">Next.js BFF &#8594; FastAPI &#183; chat, analyze, dashboard</text>
+  <text class="sub" x="415" y="836" text-anchor="middle">Next.js BFF &#8594; FastAPI</text>
 
   <rect x="830" y="768" width="710" height="100" rx="18" fill="#f8fafc" stroke="#475569" stroke-width="3"/>
   <text class="h2" x="1185" y="806" text-anchor="middle">Evaluation</text>
-  <text class="sub" x="1185" y="836" text-anchor="middle">HaluEval in-domain &#183; RAGTruth / FaithBench zero-shot</text>
+  <text class="sub" x="1185" y="836" text-anchor="middle">HaluEval &#183; RAGTruth &#183; FaithBench</text>
 
   <path class="flow" d="M800 736 L800 752 L415 752 L415 768"/>
   <path class="flowhead" d="M415 786 L405 764 L425 764 Z"/>

@@ -39,12 +39,12 @@ DPI = 600
 
 plt.rcParams.update(
     {
-        "font.size": 9,
-        "axes.titlesize": 9.5,
-        "axes.labelsize": 9,
-        "xtick.labelsize": 8.5,
-        "ytick.labelsize": 8.5,
-        "legend.fontsize": 7.5,
+        "font.size": 11,
+        "axes.titlesize": 11.5,
+        "axes.labelsize": 11,
+        "xtick.labelsize": 10,
+        "ytick.labelsize": 10,
+        "legend.fontsize": 9,
         "figure.dpi": 120,
     }
 )
@@ -58,7 +58,9 @@ def _save(fig, out: Path) -> None:
 
 
 def _legend_hist(ax) -> None:
-    leg = ax.legend(loc="upper right", fontsize=7, framealpha=0.9)
+    # Scores pile against 0 and 1, so the centre of the axes stays empty and
+    # the legend can sit there without covering the tall end bins.
+    leg = ax.legend(loc="upper center", fontsize=8, framealpha=0.9)
     leg.get_frame().set_linewidth(0.5)
 
 
@@ -80,7 +82,7 @@ def calibration_shift() -> None:
         ("Target Platt", metrics["platt"]),
         ("Target isotonic", metrics["isotonic"]),
     ]
-    fig, axes = plt.subplots(1, 3, figsize=(6.5, 2.3))
+    fig, axes = plt.subplots(1, 3, figsize=(6.5, 3.0))
     for ax, scores, title in (
         (axes[0], raw, "Raw scores"),
         (axes[1], target, "Target-isotonic scores"),
@@ -101,10 +103,10 @@ def calibration_shift() -> None:
     axes[2].bar(x - width / 2, ece, width, label="ECE", color="#4C72B0")
     axes[2].bar(x + width / 2, brier, width, label="Brier", color="#DD8452")
     axes[2].set_xticks(x)
-    axes[2].set_xticklabels([r[0] for r in rows], fontsize=7.5, rotation=22, ha="right")
+    axes[2].set_xticklabels([r[0] for r in rows], fontsize=9, rotation=22, ha="right")
     axes[2].set_ylim(0, 1.0)
     axes[2].set_title("Error before and after")
-    axes[2].legend(loc="upper right", fontsize=7, framealpha=0.9).get_frame().set_linewidth(0.5)
+    axes[2].legend(loc="upper right", fontsize=9, framealpha=0.9).get_frame().set_linewidth(0.5)
     fig.tight_layout()
     _save(fig, FIG_PAPER / "b4" / "calibration_shift.png")
 
@@ -114,19 +116,22 @@ def transfer_scores() -> None:
     b3 = pd.read_parquet(ROOT / "artifacts" / "results" / "b3" / "b3_predictions.parquet")
     hal = b2[(b2["model"] == "xgboost") & (b2["seed"] == SEED) & (b2["split"] == "test")]
     b3s = b3[b3["model"] == f"xgboost_seed_{SEED}"]
-    rt = b3s[b3s["source_dataset"] == "ragtruth"]
-    qa = rt[(rt["task"] == "qa") & (rt["official_split"] == "test")]
+    # Only the official test rows: the figure must describe the same pooled
+    # 2,700-row RAGTruth test split that the shift table reports, not the full
+    # 17,790-row corpus that includes the rows used for training.
+    rt = b3s[(b3s["source_dataset"] == "ragtruth") & (b3s["official_split"] == "test")]
+    qa = rt[rt["task"] == "qa"]
     fb = b3s[b3s["source_dataset"] == "faithbench"]
     panels = [
-        ("HaluEval test (source)", hal),
-        ("RAGTruth QA test", qa),
-        ("RAGTruth all", rt),
+        ("HaluEval", hal),
+        ("RAGTruth QA", qa),
+        ("RAGTruth pooled", rt),
         ("FaithBench", fb),
     ]
     for name, d in panels:
         print(f"{name}: n={len(d)}")
-    assert len(hal) == 3000 and len(qa) == 900 and len(rt) == 17790 and len(fb) == 750
-    fig, axes = plt.subplots(1, 4, figsize=(6.5, 2.15))
+    assert len(hal) == 3000 and len(qa) == 900 and len(rt) == 2700 and len(fb) == 750
+    fig, axes = plt.subplots(1, 4, figsize=(6.5, 3.2))
     for i, (ax, (name, d)) in enumerate(zip(axes, panels)):
         y = d["label"].to_numpy()
         s = d["score"].to_numpy()
@@ -152,7 +157,7 @@ def reliability_diagrams() -> None:
         ("ragtruth_qa_test", "RAGTruth QA test"),
         ("faithbench", "FaithBench"),
     ]
-    fig, axes = plt.subplots(1, 3, figsize=(6.5, 2.3), squeeze=False)
+    fig, axes = plt.subplots(1, 3, figsize=(6.5, 3.0), squeeze=False)
     for i, (ax, (name, title)) in enumerate(zip(axes[0], panels)):
         if name not in reliability:
             continue
@@ -168,7 +173,7 @@ def reliability_diagrams() -> None:
         ax.set_xlabel("confidence")
         if i == 0:
             ax.set_ylabel("accuracy")
-        ax.legend(loc="upper left", fontsize=7, framealpha=0.9).get_frame().set_linewidth(0.5)
+        ax.legend(loc="upper left", fontsize=9, framealpha=0.9).get_frame().set_linewidth(0.5)
     fig.tight_layout()
     _save(fig, FIG_PAPER / "b4" / "reliability_diagrams.png")
 
@@ -180,7 +185,7 @@ def shap_importance() -> None:
     items = sorted(data["mean_abs_shap"].items(), key=lambda kv: kv[1], reverse=True)[:12]
     names = [k for k, _ in items]
     values = [v for k, v in items]
-    fig, ax = plt.subplots(figsize=(5.2, 3.3))
+    fig, ax = plt.subplots(figsize=(6.2, 3.8))
     ax.barh(range(len(values)), values, color="#4f46e5")
     ax.set_yticks(range(len(names)))
     ax.set_yticklabels(names)

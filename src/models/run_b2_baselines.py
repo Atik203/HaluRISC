@@ -431,19 +431,21 @@ def run_experiment(cfg: B2Config, data: dict) -> dict:
     logger.info(f"Best predeclared non-XGB baseline (val F1 rule): {best_baseline} (val_f1={val_f1s[best_baseline]:.4f})")
 
     # ---- 6. Statistics ----
-    def mcnemar_p(pred_a, pred_b):
-        b = int(((pred_a == 0) & (pred_b == 1)).sum())
-        c = int(((pred_a == 1) & (pred_b == 0)).sum())
+    def mcnemar_p(pred_a, pred_b, y_true):
+        a_ok = np.asarray(pred_a) == np.asarray(y_true)
+        b_ok = np.asarray(pred_b) == np.asarray(y_true)
+        b = int((a_ok & ~b_ok).sum())
+        c = int((~a_ok & b_ok).sum())
         return float(mcnemar([[0, b], [c, 0]], exact=False, correction=True).pvalue)
 
     xgb_pred_42 = (xgb_probs[cfg.seeds[0]] >= MODEL_THRESHOLD).astype(int)
-    stats = {"mcnemar_vs_best_baseline": mcnemar_p(xgb_pred_42, (model_probs[best_baseline][cfg.seeds[0]] >= MODEL_THRESHOLD).astype(int)),
+    stats = {"mcnemar_vs_best_baseline": mcnemar_p(xgb_pred_42, (model_probs[best_baseline][cfg.seeds[0]] >= MODEL_THRESHOLD).astype(int), y_test),
              "best_baseline": best_baseline,
              "best_baseline_rule": "max mean validation F1 over non-XGB model baselines (seed 42)",
              "mcnemar_pairs": {}}
     for name in ("lr_full", "rf_full", "nli_only", "tfidf_all", "tfidf_answer", "tfidf_context", "heuristic_overlap", "majority"):
         preds = (model_probs[name][cfg.seeds[0]] >= MODEL_THRESHOLD).astype(int) if name in model_probs else (h_pred if name == "heuristic_overlap" else majority_preds)
-        stats["mcnemar_pairs"][name] = mcnemar_p(xgb_pred_42, preds)
+        stats["mcnemar_pairs"][name] = mcnemar_p(xgb_pred_42, preds, y_test)
 
     xgb_row_42 = next(r for r in results_rows if r["model"] == "xgboost" and r["seed"] == cfg.seeds[0])
     boot = bootstrap_ci(y_test, xgb_pred_42, xgb_probs[cfg.seeds[0]])

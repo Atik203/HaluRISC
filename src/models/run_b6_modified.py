@@ -404,8 +404,11 @@ def run_b6(cfg: B6Config) -> dict:
                 continue
             pv = predictions_by_variant_seed[key]["p_test"]
             predv = (pv >= 0.5).astype(int)
-            b = int(((pred0 == 0) & (predv == 1)).sum())
-            c = int(((pred0 == 1) & (predv == 0)).sum())
+            y_true = predictions_by_variant_seed[key]["y_test"]
+            a_ok = pred0 == y_true
+            b_ok = predv == y_true
+            b = int((a_ok & ~b_ok).sum())
+            c = int((~a_ok & b_ok).sum())
             stats["mcnemar"][f"{base_variant}_vs_{variant}"] = float(
                 mcnemar([[0, b], [c, 0]], exact=False, correction=True).pvalue
             )
