@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex out/halurisc"] 1794414948.7876 "out/halurisc.aux" "out/halurisc.bbl" "out/halurisc" 1794414959.81122 0
+["bibtex out/halurisc"] 1794415443.4164 "out/halurisc.aux" "out/halurisc.bbl" "out/halurisc" 1794415454.92386 0
   "./ref.bib" 1794404756 15663 28802deb757b9d79b8ea5f108c36dcab ""
   "c:/texlive/2026/texmf-dist/bibtex/bst/elsarticle/elsarticle-num.bst" 1793971264 29462 dde4ec39bf78fded04ea32048bba0a74 ""
-  "out/halurisc.aux" 1794414958 18333 884e40f7d777e4b8e98241b0155bec72 "pdflatex"
+  "out/halurisc.aux" 1794415453 18198 088c38ff9b8bb8a7e10b30fffbc7251c "pdflatex"
   (generated)
   "out/halurisc.bbl"
   "out/halurisc.blg"
   (rewritten before read)
-["pdflatex"] 1794414949.22006 "halurisc.tex" "out/halurisc.pdf" "halurisc" 1794414959.8126 0
+["pdflatex"] 1794415443.89385 "halurisc.tex" "out/halurisc.pdf" "halurisc" 1794415454.92506 0
   "c:/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1793971095 2971 def0b6c1f0b107b3b936def894055589 ""
   "c:/texlive/2026/texmf-dist/fonts/enc/dvips/stix/stix-t1.enc" 1793972328 7013 c55cc8669071ac14036c4a0c96c16202 ""
   "c:/texlive/2026/texmf-dist/fonts/enc/dvips/stix/stix-ts1.enc" 1793972328 2836 154e6b0061f9b8cb549144b55b268339 ""
@@ -242,11 +242,11 @@
   "figures/revision/per_seed_stability.png" 1794404756 241300 6b1151825ab16ef9779f15c37c9e715c ""
   "figures/revision/roc_pr_curves.png" 1794404756 844218 fc4c5a666685f065511cd9fd7c4d9c6e ""
   "figures/revision/system-architecture-large.png" 1794321395 448893 cf2327ed055154d12a59fde7da226b5f ""
-  "halurisc.tex" 1794414939 104118 41eb5b85b9e5890a1b081dc54599baa0 ""
-  "out/halurisc.abs" 1794414950 1780 b19200d9507c80cb16ef406f764db540 "pdflatex"
-  "out/halurisc.aux" 1794414958 18333 884e40f7d777e4b8e98241b0155bec72 "pdflatex"
-  "out/halurisc.bbl" 1794414949 12229 2017c066c0fc54683b6d3f0608d416f7 "bibtex out/halurisc"
-  "out/halurisc.out" 1794414950 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "halurisc.tex" 1794415419 103623 205d95224cbfcbd2d04151b24a324da9 ""
+  "out/halurisc.abs" 1794415445 1780 b19200d9507c80cb16ef406f764db540 "pdflatex"
+  "out/halurisc.aux" 1794415453 18198 088c38ff9b8bb8a7e10b30fffbc7251c "pdflatex"
+  "out/halurisc.bbl" 1794415443 12229 1751eb072b4d4646e31deca3ece2d5db "bibtex out/halurisc"
+  "out/halurisc.out" 1794415445 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
   "screenshots/paper-risk-card-large.png" 1794404756 1642846 3963b6aa94c79bd0142a6629a62cb4d5 ""
   (generated)
   "out/halurisc.abs"
