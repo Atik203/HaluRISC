@@ -353,7 +353,7 @@ def curve_legend(ax, loc: str, ncol: int = 1, title: str | None = None) -> None:
         leg.get_title().set_fontsize(9)
 
 
-def task_legend(ax, rag_stats, loc: str) -> None:
+def task_legend(ax, rag_stats, loc: str, metric: str = "AUROC") -> None:
     handles = [
         Line2D([], [], color=colour, lw=1.9, label=f"{short}  {rag_stats[(task, 'm3')]:.3f} / {rag_stats[(task, 'm0')]:.3f}")
         for task, _, short, colour in TASKS
@@ -361,15 +361,16 @@ def task_legend(ax, rag_stats, loc: str) -> None:
     leg = ax.legend(
         handles=handles,
         loc=loc,
-        fontsize=9,
-        title="AUROC, EC-XGB / conv.\n(solid / dashed)",
+        fontsize=8.4,
+        title=f"{metric}, EC-XGB / conv.\n(solid / dashed)",
+        title_fontsize=8.4,
         frameon=True,
         framealpha=0.94,
         edgecolor="0.85",
-        borderpad=0.35,
-        labelspacing=0.28,
-        handlelength=1.9,
-        handletextpad=0.5,
+        borderpad=0.28,
+        labelspacing=0.22,
+        handlelength=1.7,
+        handletextpad=0.45,
     )
     leg.get_frame().set_linewidth(0.6)
     leg.get_title().set_fontsize(9)
@@ -423,7 +424,7 @@ def figure_roc_pr(hal, rag, hal_seed, rag_seed) -> None:
     ax_a.set_ylabel("True positive rate")
     tidy(ax_a)
     panel_label(ax_a, "a", "HaluEval")
-    curve_legend(ax_a, "lower right")
+    curve_legend(ax_a, "lower right", title="AUROC")
 
     # (b) ROC RAGTruth per task ---------------------------------------------
     for task, _label, short, colour in TASKS:
@@ -448,7 +449,7 @@ def figure_roc_pr(hal, rag, hal_seed, rag_seed) -> None:
     ax_c.set_ylabel("Precision")
     tidy(ax_c)
     panel_label(ax_c, "c", "HaluEval")
-    curve_legend(ax_c, "lower left")
+    curve_legend(ax_c, "lower left", title="AP")
 
     # (d) PR RAGTruth per task ----------------------------------------------
     for task, _label, short, colour in TASKS:
@@ -462,7 +463,7 @@ def figure_roc_pr(hal, rag, hal_seed, rag_seed) -> None:
     ax_d.set_ylabel("Precision")
     tidy(ax_d)
     panel_label(ax_d, "d", "RAGTruth")
-    task_legend(ax_d, rag_seed, "lower right")
+    task_legend(ax_d, rag_seed, "lower right", metric="AP")
 
     fig.tight_layout(h_pad=1.5, w_pad=1.1)
     save(
@@ -614,7 +615,9 @@ def figure_operating_point() -> None:
     )
 
     thresholds = np.linspace(0.0, 1.0, 1001)
-    fig, (ax, ax2) = plt.subplots(1, 2, figsize=(6.2, 2.85))
+    fig, (ax, ax2) = plt.subplots(
+        1, 2, figsize=(6.6, 3.0), gridspec_kw={"width_ratios": [1.12, 0.88]}
+    )
 
     rec, fpr, prec = _sweep(y, conv_display, thresholds)
     ax.plot(thresholds, rec, color=OKABE["blue"], lw=1.9)
@@ -623,16 +626,16 @@ def figure_operating_point() -> None:
 
     ax.axvline(P2_THRESHOLD_EXACT, color="black", lw=1.1, ls=(0, (5, 2, 1, 2)), zorder=1)
     ax.axvline(THRESHOLD, color="black", lw=1.1, ls=(0, (1, 1.6)), zorder=1)
-    ax.text(P2_THRESHOLD_EXACT - 0.018, 0.38, f"{P2_THRESHOLD:.3f}", ha="right", va="center", fontsize=11)
-    ax.text(THRESHOLD + 0.018, 0.38, "0.5", ha="left", va="center", fontsize=11)
+    ax.text(P2_THRESHOLD_EXACT - 0.018, 1.02, "P2 0.313", ha="right", va="bottom", fontsize=9.2)
+    ax.text(THRESHOLD + 0.018, 1.02, "0.5", ha="left", va="bottom", fontsize=9.2)
 
     ax.plot([P2_THRESHOLD_EXACT], [rec_p2], marker="o", ms=4.5, color=OKABE["blue"], zorder=6)
     ax.plot([P2_THRESHOLD_EXACT], [fpr_p2], marker="o", ms=4.5, color=OKABE["vermillion"], zorder=6)
     ax.text(
         0.56,
-        0.72,
-        f"P2 at {P2_THRESHOLD:.3f}\nrecall {100 * rec_p2:.1f}%\nFPR {100 * fpr_p2:.1f}%",
-        fontsize=11,
+        0.62,
+        f"recall {100 * rec_p2:.1f}%\nFPR {100 * fpr_p2:.1f}%",
+        fontsize=9.5,
         ha="left",
         va="center",
         bbox={"boxstyle": "round,pad=0.28", "fc": "white", "ec": "0.85", "lw": 0.6},
@@ -640,7 +643,7 @@ def figure_operating_point() -> None:
     )
 
     ax.set_xlim(0, 1)
-    ax.set_ylim(-0.02, 1.03)
+    ax.set_ylim(-0.02, 1.08)
     ax.set_xticks([0.0, 0.25, 0.5, 0.75, 1.0], ["0", "0.25", "0.5", "0.75", "1"])
     ax.set_yticks([0.0, 0.5, 1.0], ["0", "0.5", "1"])
     ax.tick_params(direction="out")
@@ -652,8 +655,9 @@ def figure_operating_point() -> None:
     # (b) label budget ------------------------------------------------------
     fast_budget = RESULTS / "rebuild" / "calibration_fast" / "label_budget.csv"
     full_budget = RESULTS / "rebuild" / "calibration" / "label_budget.csv"
-    if fast_budget.exists():
-        budget_df = pd.read_csv(fast_budget)
+    budget_path = full_budget if full_budget.exists() else fast_budget
+    if budget_path.exists():
+        budget_df = pd.read_csv(budget_path)
         if "seed" in budget_df.columns:
             budget_df = budget_df[budget_df["seed"].astype(str) == "pooled"]
         budget_df = budget_df.sort_values("size")
@@ -662,7 +666,7 @@ def figure_operating_point() -> None:
         ece_lo = budget_df["ece_q025"].tolist()
         ece_hi = budget_df["ece_q975"].tolist()
         brier = budget_df["brier_mean"].tolist()
-        print("  label budget: rebuild 100-draw means")
+        print(f"  label budget: {budget_path.name} 100-draw means")
     else:
         budget = json.loads((RESULTS / "extras" / "review_extras.json").read_text(encoding="utf-8"))["x4_label_budget"]
         rows = sorted(budget.values(), key=lambda r: r["n_labeled_rows"])
@@ -680,7 +684,7 @@ def figure_operating_point() -> None:
     ax2.set_xscale("log")
     ax2.set_xticks(n_rows)
     ax2.set_xticklabels(
-        [f"{n}" for n in n_rows], rotation=45, ha="right", rotation_mode="anchor"
+        [f"{n}" for n in n_rows], rotation=30, ha="right", rotation_mode="anchor", fontsize=8.4
     )
     ax2.minorticks_off()
     ax2.set_xlim(42, 6000)

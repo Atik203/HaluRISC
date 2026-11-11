@@ -143,7 +143,7 @@ check("WP5 explanation plausible", 10, (exp["explanation_plausible"] == "plausib
 # WP6 judge and latency
 judge = json.loads((RES / "judge" / "metrics_openai_full.json").read_text())
 mean = judge["mean_across_seeds"]
-check("Table 15 GPT accuracy", 0.743, mean["accuracy"]["mean"])
+check("Text GPT accuracy", 0.743, mean["accuracy"]["mean"])
 check("Table 15 GPT precision", 0.404, mean["precision"]["mean"])
 check("Table 15 GPT recall", 0.942, mean["recall"]["mean"])
 check("Table 15 GPT F1", 0.565, mean["f1"]["mean"])
@@ -154,7 +154,7 @@ check("Table 15 GPT cost/1K", 0.234, judge["cost"]["usd_per_1000_calls"], tol=0.
 
 qwen = json.loads((RES / "judge" / "metrics_qwen_full.json").read_text())
 qmean = qwen["mean_across_seeds"]
-check("Table 15 Qwen accuracy", 0.850, qmean["accuracy"]["mean"])
+check("Text Qwen accuracy", 0.850, qmean["accuracy"]["mean"])
 check("Table 15 Qwen precision", 0.570, qmean["precision"]["mean"])
 check("Table 15 Qwen recall", 0.638, qmean["recall"]["mean"])
 check("Table 15 Qwen F1", 0.602, qmean["f1"]["mean"])

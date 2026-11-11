@@ -32,7 +32,6 @@ import numpy as np
 import pandas as pd
 from matplotlib.colors import LinearSegmentedColormap, Normalize
 from matplotlib.ticker import FixedFormatter, FixedLocator, FormatStrFormatter
-from matplotlib.transforms import blended_transform_factory
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -206,11 +205,11 @@ def per_seed_stability() -> None:
         print(f"  {v}: F1 {f1m:.4f} +/- {f1s:.4f} | AUROC {aum:.4f} +/- {aus:.4f} | ECE {em:.4f} +/- {es:.4f}")
 
     specs = [
-        ("f1", "F1", (0.9835, 0.9865), "%.4f"),
+        ("f1", "F1", (0.9837, 0.9862), "%.4f"),
         ("auroc", "AUROC", (0.9972, 0.9989), "%.4f"),
-        ("ece", "ECE", (0.0025, 0.0105), "%.4f"),
+        ("ece", "ECE", (0.0026, 0.0104), "%.4f"),
     ]
-    fig, axes = plt.subplots(1, 3, figsize=(6.35, 3.35))
+    fig, axes = plt.subplots(1, 3, figsize=(6.5, 3.25))
     offsets = {42: -0.075, 123: 0.0, 456: 0.075}
     seed_colors = {42: BLUE, 123: ORANGE, 456: GREEN}
     rng = np.random.default_rng(42)
@@ -231,14 +230,9 @@ def per_seed_stability() -> None:
                 )
             m, s = stats[v][key]
             ax.hlines(m, i - 0.26, i + 0.26, color=BLACK, lw=2.0, zorder=4)
-            tr = blended_transform_factory(ax.transData, ax.transAxes)
-            # Alternate label heights so six-character numbers never collide.
-            top = 0.90 if i % 2 == 0 else 0.78
-            ax.text(i, top, fmt % m, transform=tr, ha="center", va="top", fontsize=8.5)
-            ax.text(i, top - 0.060, "\u00b1" + fmt % s, transform=tr, ha="center", va="top", fontsize=8.5)
         ax.set_xticks(range(len(variants)))
         ax.set_xticklabels(variants, fontsize=9.5)
-        ax.set_xlim(-0.70, len(variants) - 0.60)
+        ax.set_xlim(-0.65, len(variants) - 0.35)
         ax.set_ylim(*ylim)
         ax.yaxis.set_major_formatter(FormatStrFormatter(fmt))
         ax.yaxis.grid(True)
@@ -259,7 +253,7 @@ def per_seed_stability() -> None:
         columnspacing=1.8,
         bbox_to_anchor=(0.5, 0.004),
     )
-    _save(fig, "per_seed_stability.png", rect=(0.0, 0.10, 1.0, 1.0))
+    _save(fig, "per_seed_stability.png", rect=(0.0, 0.15, 1.0, 1.0))
     print("  source:", src.relative_to(ROOT))
 
 

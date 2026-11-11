@@ -466,7 +466,7 @@ The requirements file pins every dependency, split indices are stored with the a
 
 \begin{figure}[pos=htbp]
   \centering
-  \includegraphics[width=0.70\linewidth]{paper-risk-card-large.png}
+  \includegraphics[width=0.82\linewidth]{paper-risk-card-large.png}
   \caption{Risk card for the hallucinated-number case, showing the target-calibrated display score.}
   \label{fig:screens}
 \end{figure}
@@ -654,7 +654,7 @@ Table~\ref{tab:ablation} shows a separate feature-group ablation on the conventi
 
 \subsection{Calibration and Cross-Domain Transfer}
 
-The raw, Platt-scaled, and isotonic versions of the conventional model give ECE 0.0045, 0.0091, and 0.0070 on HaluEval, so calibration does not improve on the raw model. Figure~\ref{fig:reliability} shows why. Most HaluEval rows sit in the first and last bins, where confidence and accuracy agree to three decimals. The middle bins hold few rows, so their accuracy is noisy. The Platt and isotonic curves overlap the raw curve at both ends. The m3 raw score is also well calibrated in-domain, with ECE 0.0078, so there is little room for calibration to improve on HaluEval.
+The raw, Platt-scaled, and isotonic versions of the conventional model give ECE 0.0045, 0.0091, and 0.0070 on HaluEval, so calibration does not improve on the raw model. Figure~\ref{fig:reliability} shows why. On HaluEval, the points at the two ends sit on the diagonal; the middle of the score range holds few distinct values, so the curve has only a few stable bins. The Platt and isotonic curves overlap the raw curve at both ends. The m3 raw score is also well calibrated in-domain, with ECE 0.0078, so there is little room for calibration to improve on HaluEval.
 
 Platt scaling fits a two-parameter logistic map from the raw score $s$ to a probability,
 \begin{equation}
@@ -668,12 +668,12 @@ where $a$ is the calibration slope and $b$ is the intercept. A slope below one m
 \end{equation}
 A positive BSS means the score beats the prior, and a non-positive BSS means it does not.
 
-The RAGTruth QA panel is the opposite case. The fixed-hp m3 raw score is severely overconfident: ECE 0.731, Brier 0.689, and a Cox slope of 0.18 (per-seed point estimates 0.16 to 0.23) on the 5{,}034 calibration rows. A slope of one would be calibrated, so the raw score moves about five to six times too far from 0.5. Source Platt, fitted on HaluEval validation, cannot repair a base-rate shift; its ECE is 0.765 and its Brier is 0.742. Target Platt, fitted on the calibration rows, lowers ECE to 0.125 and Brier to 0.161, but the Brier skill score against the test prior is $-$0.10. A constant predictor at the test prevalence has Brier 0.146, lower than every calibrated row, and it flags no rows at 0.5. Calibration fixes the scale, not the ranking; AUROC stays at 0.558 before and after. The conventional target-Platt row behaves the same way, at ECE 0.134 and Brier 0.164. The label budget is the practical constraint, and it is a distribution rather than a point.
+For the conventional model, the RAGTruth QA histogram in Figure~\ref{fig:reliability} shows almost every row above 0.99, at a mean confidence of 0.998 against an accuracy of 0.178. Source Platt leaves the confidence near 0.99. The m3 score behaves the same way. The fixed-hp m3 raw score is severely overconfident: ECE 0.731, Brier 0.689, and a Cox slope of 0.18 (per-seed point estimates 0.16 to 0.23) on the 5{,}034 calibration rows. A slope of one would be calibrated, so the raw score moves about five to six times too far from 0.5. Source Platt, fitted on HaluEval validation, cannot repair a base-rate shift; its ECE is 0.765 and its Brier is 0.742. Target Platt, fitted on the calibration rows, lowers ECE to 0.125 and Brier to 0.161, but the Brier skill score against the test prior is $-$0.10. A constant predictor at the test prevalence has Brier 0.146, lower than every calibrated row, and it flags no rows at 0.5. Calibration fixes the scale, not the ranking; AUROC stays at 0.558 before and after. The conventional target-Platt row behaves the same way, at ECE 0.134 and Brier 0.164. The label budget is the practical constraint, and it is a distribution rather than a point.
 
 \begin{figure}[pos=htbp]
   \centering
   \includegraphics[width=\linewidth]{b4/reliability_diagrams.png}
-  \caption{Reliability diagrams for the B2 conventional model with raw scores and source-fitted Platt and isotonic calibrators on HaluEval (left), RAGTruth QA (middle), and FaithBench (right).}
+  \caption{Calibration of the B2 conventional model. Left and right: quantile-bin reliability diagrams for HaluEval and FaithBench (FaithBench is aggregated because its scores concentrate near 1.0). Middle: RAGTruth QA raw-score distribution on a logit scale; both classes pile near 1.0.}
   \label{fig:reliability}
 \end{figure}
 
@@ -703,7 +703,7 @@ The RAGTruth QA panel is the opposite case. The fixed-hp m3 raw score is severel
 \begin{figure}[pos=htbp]
   \centering
   \includegraphics[width=\linewidth]{b4/calibration_shift.png}
-  \caption{Target-domain recalibration of the conventional model on RAGTruth QA, the reference behind the P2 analysis.}
+  \caption{Target-domain recalibration of the conventional model on RAGTruth QA. Left and middle: raw and target-isotonic score distributions on a logit scale. Right: ECE and Brier for raw, source Platt, target Platt, and target isotonic.}
   \label{fig:calibshift}
 \end{figure}
 
@@ -754,7 +754,7 @@ Figure~\ref{fig:transferscore} shows the raw score distributions of the conventi
 \begin{figure}[pos=htbp]
   \centering
   \includegraphics[width=\linewidth]{b3/transfer_score_distributions.png}
-  \caption{Raw score distributions of the conventional B2 model on HaluEval and the held-out external test rows (RAGTruth QA, pooled RAGTruth, FaithBench).}
+  \caption{Raw score distributions of the conventional B2 model on HaluEval and the held-out external test rows (RAGTruth QA, pooled RAGTruth, FaithBench), on a logit scale. Both classes pile near 1.0 outside HaluEval.}
   \label{fig:transferscore}
 \end{figure}
 
@@ -860,10 +860,10 @@ Table~\ref{tab:perturb} shows the m3 pilot. Content edits move the score: entity
   {\small Note. $n$ counts perturbations that changed the feature vector. The pilot covers 20 cases and 120 attempts, of which 48 changed. Per-operator $n$ is small, so the deltas are descriptive. $\Delta$score is the mean absolute change in the m3 raw score.}
 \end{table}
 
-\begin{figure}[pos=htbp]
+\begin{figure}[pos=ht]
   \centering
   \includegraphics[width=\linewidth]{revision/m3_shap_summary.png}
-  \caption{Mean absolute TreeSHAP for the fixed-hyperparameter EC-XGB m3 model, top-15 features (seed 42, 1{,}000 test rows).}
+  \caption{Mean absolute TreeSHAP for the fixed-hyperparameter EC-XGB m3 model, top-15 features (seed 42, 1{,}000 test rows). Hatching marks a feature that is constant on the sample; its attribution arises through interactions.}
   \label{fig:shapimp}
 \end{figure}
 
@@ -924,16 +924,16 @@ LLM judges are not fair evaluators, and their preferences can shift with answer 
   \centering
   \caption{Two judges vs.\ EC-XGB on the 900 RAGTruth QA test rows at natural prevalence (17.8\%).}
   \label{tab:judge}
-  \setlength{\tabcolsep}{3pt}
-  \begin{tabular}{lrrrrrrrr}
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{lrrrrrrr}
     \toprule
-    \textbf{Model}     & \textbf{Acc} & \textbf{P} & \textbf{R} & \textbf{F1} & \textbf{AUROC} & \textbf{Flagged} & \textbf{p50 (ms)} & \textbf{Cost/1K} \\
+    \textbf{Model}     & \textbf{P} & \textbf{R} & \textbf{F1} & \textbf{AUROC} & \textbf{Flagged} & \textbf{p50 (ms)} & \textbf{Cost/1K} \\
     \midrule
-    GPT 5.6 Luna judge & 0.743        & 0.404      & 0.942      & 0.565       & 0.910          & 41.4\%           & 2283              & \$0.234          \\
-    Qwen 3.5 4B judge  & 0.850        & 0.570      & 0.638      & 0.602       & 0.778          & 19.9\%           & 3050              & \$0              \\
-    EC-XGB (m3)        & 0.209        & 0.183      & 0.998      & 0.310       & 0.558          & 96.8\%           & 127.5             & $\approx$\$0.001 \\
-    Length-only        & 0.959        & 0.439      & 0.181      & 0.257       & 0.712          & 7.3\%            & ---               & $\approx$\$0 \\
-    All-positive       & 0.178        & 0.178      & 1.000      & 0.302       & ---            & 100.0\%          & ---               & $\approx$\$0     \\
+    GPT 5.6 Luna judge & 0.404      & 0.942      & 0.565       & 0.910          & 41.4\%           & 2283              & \$0.234          \\
+    Qwen 3.5 4B judge  & 0.570      & 0.638      & 0.602       & 0.778          & 19.9\%           & 3050              & \$0              \\
+    EC-XGB (m3)        & 0.183      & 0.998      & 0.310       & 0.558          & 96.8\%           & 127.5             & $\approx$\$0.001 \\
+    Length-only        & 0.439      & 0.181      & 0.257       & 0.712          & 7.3\%            & ---               & $\approx$\$0 \\
+    All-positive       & 0.178      & 1.000      & 0.302       & ---            & 100.0\%          & ---               & $\approx$\$0     \\
     \bottomrule
   \end{tabular}
   \par\smallskip

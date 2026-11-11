@@ -82,33 +82,68 @@ def calibration_shift() -> None:
         ("Target Platt", metrics["platt"]),
         ("Target isotonic", metrics["isotonic"]),
     ]
-    fig, axes = plt.subplots(1, 3, figsize=(6.5, 3.0))
-    for ax, scores, title in (
-        (axes[0], raw, "Raw scores"),
-        (axes[1], target, "Target-isotonic scores"),
+
+    fig, axes = plt.subplots(1, 3, figsize=(6.6, 3.15), gridspec_kw={"width_ratios": [1.0, 1.0, 1.15]})
+    bins = np.linspace(-8, 8, 65)
+    for ax, scores, title, note in (
+        (axes[0], raw, "Raw scores", "99.9% > 0.5"),
+        (axes[1], target, "Target-isotonic scores", "0.0% > 0.5"),
     ):
-        ax.hist(scores[y == 0], bins=np.linspace(0, 1, 41), alpha=0.65, label="label 0", color="#4C72B0")
-        ax.hist(scores[y == 1], bins=np.linspace(0, 1, 41), alpha=0.65, label="label 1", color="#DD8452")
-        ax.axvline(THRESHOLD, color="crimson", linestyle="--", linewidth=1.2)
-        ax.set_title(title)
-        ax.set_xlabel("score")
-        ax.set_xlim(0, 1)
-    axes[0].set_ylabel("count")
-    _legend_hist(axes[0])
-    _legend_hist(axes[1])
-    x = np.arange(len(rows))
-    width = 0.38
+        z = _logit_scores(scores)
+        ax.hist(z[y == 0], bins=bins, density=True, alpha=0.55, color="#4C72B0")
+        ax.hist(z[y == 1], bins=bins, density=True, alpha=0.55, color="#DD8452")
+        ax.axvline(0, color="0.45", lw=1.0, ls=(0, (3, 3)))
+        tick_p = [0.01, 0.5, 0.99]
+        ax.set_xticks(_logit_scores(tick_p), ["0.01", "0.5", "0.99"])
+        ax.set_xlim(-8, 8)
+        ax.set_yticks([])
+        ax.grid(axis="x", color="0.92", lw=0.6)
+        ax.set_axisbelow(True)
+        ax.set_title(title, fontsize=10.8)
+        ax.set_xlabel("score (logit scale)")
+        ax.text(
+            0.04,
+            0.94,
+            note,
+            transform=ax.transAxes,
+            ha="left",
+            va="top",
+            fontsize=8.8,
+            bbox={"boxstyle": "round,pad=0.24", "fc": "white", "ec": "0.8", "lw": 0.5},
+        )
+
+    ax = axes[2]
+    names = [r[0] for r in rows]
     ece = [r[1]["ece_mean"] for r in rows]
     brier = [r[1]["brier_mean"] for r in rows]
-    axes[2].bar(x - width / 2, ece, width, label="ECE", color="#4C72B0")
-    axes[2].bar(x + width / 2, brier, width, label="Brier", color="#DD8452")
-    axes[2].set_xticks(x)
-    axes[2].set_xticklabels([r[0] for r in rows], fontsize=9, rotation=22, ha="right")
-    axes[2].set_ylim(0, 1.0)
-    axes[2].set_title("Error before and after")
-    axes[2].legend(loc="upper right", fontsize=9, framealpha=0.9).get_frame().set_linewidth(0.5)
-    fig.tight_layout()
+    ypos = np.arange(len(rows))
+    height = 0.34
+    ax.barh(ypos - height / 2, ece, height, color="#0072B2", label="ECE")
+    ax.barh(ypos + height / 2, brier, height, color="#D55E00", label="Brier")
+    for i, (e, b) in enumerate(zip(ece, brier)):
+        ax.text(e + 0.012, i - height / 2, f"{e:.2f}", va="center", fontsize=7.8)
+        ax.text(b + 0.012, i + height / 2, f"{b:.2f}", va="center", fontsize=7.8)
+    ax.set_yticks(ypos, names, fontsize=8.8)
+    ax.invert_yaxis()
+    ax.set_xlim(0, 0.92)
+    ax.set_xlabel("error")
+    ax.grid(axis="x", color="0.92", lw=0.6)
+    ax.set_axisbelow(True)
+    ax.set_title("Error before and after", fontsize=10.8)
+    ax.legend(loc="lower right", fontsize=8.4, frameon=False)
+
+    handles = [
+        plt.Rectangle((0, 0), 1, 1, fc="#4C72B0", alpha=0.55, ec="none"),
+        plt.Rectangle((0, 0), 1, 1, fc="#DD8452", alpha=0.55, ec="none"),
+    ]
+    fig.legend(handles, ["grounded", "hallucinated"], loc="lower center", ncol=2, frameon=False, fontsize=9)
+    fig.tight_layout(rect=(0.0, 0.06, 1.0, 1.0))
     _save(fig, FIG_PAPER / "b4" / "calibration_shift.png")
+
+
+def _logit_scores(values) -> np.ndarray:
+    p = np.clip(np.asarray(values, dtype=float), 1e-4, 1 - 1e-4)
+    return np.log(p / (1 - p))
 
 
 def transfer_scores() -> None:
@@ -116,9 +151,6 @@ def transfer_scores() -> None:
     b3 = pd.read_parquet(ROOT / "artifacts" / "results" / "b3" / "b3_predictions.parquet")
     hal = b2[(b2["model"] == "xgboost") & (b2["seed"] == SEED) & (b2["split"] == "test")]
     b3s = b3[b3["model"] == f"xgboost_seed_{SEED}"]
-    # Only the official test rows: the figure must describe the same pooled
-    # 2,700-row RAGTruth test split that the shift table reports, not the full
-    # 17,790-row corpus that includes the rows used for training.
     rt = b3s[(b3s["source_dataset"] == "ragtruth") & (b3s["official_split"] == "test")]
     qa = rt[rt["task"] == "qa"]
     fb = b3s[b3s["source_dataset"] == "faithbench"]
@@ -131,50 +163,154 @@ def transfer_scores() -> None:
     for name, d in panels:
         print(f"{name}: n={len(d)}")
     assert len(hal) == 3000 and len(qa) == 900 and len(rt) == 2700 and len(fb) == 750
-    fig, axes = plt.subplots(1, 4, figsize=(6.5, 3.2))
+
+    fig, axes = plt.subplots(2, 2, figsize=(6.6, 4.7), sharex=True)
+    axes = axes.ravel()
+    bins = np.linspace(-8, 8, 65)
     for i, (ax, (name, d)) in enumerate(zip(axes, panels)):
         y = d["label"].to_numpy()
-        s = d["score"].to_numpy()
-        ax.hist(s[y == 0], bins=np.linspace(0, 1, 41), alpha=0.65, label="label 0", color="#4C72B0")
-        ax.hist(s[y == 1], bins=np.linspace(0, 1, 41), alpha=0.65, label="label 1", color="#DD8452")
-        ax.axvline(THRESHOLD, color="crimson", linestyle="--", linewidth=1.2)
-        ax.set_title(f"{name}\n(n = {len(d):,})")
-        ax.set_xlabel("raw model score")
-        ax.set_xlim(0, 1)
-        if i == 0:
-            ax.set_ylabel("count")
-        _legend_hist(ax)
-    fig.tight_layout()
+        z = _logit_scores(d["score"].to_numpy())
+        ax.hist(z[y == 0], bins=bins, density=True, alpha=0.55, color="#4C72B0", label="grounded")
+        ax.hist(z[y == 1], bins=bins, density=True, alpha=0.55, color="#DD8452", label="hallucinated")
+        ax.axvline(0, color="0.45", lw=1.0, ls=(0, (3, 3)))
+        tick_p = [0.01, 0.5, 0.99, 0.999]
+        tick_z = _logit_scores(tick_p)
+        ax.set_xticks(tick_z, ["0.01", "0.5", "0.99", "0.999"])
+        ax.set_xlim(-8, 8)
+        ax.set_yticks([])
+        ax.grid(axis="x", color="0.92", lw=0.6)
+        ax.set_axisbelow(True)
+        prev = 100 * float(np.mean(y))
+        ax.set_title(f"{name}  (n = {len(d):,}, {prev:.1f}% pos)", fontsize=10.3)
+        if i >= 2:
+            ax.set_xlabel("raw score (logit scale)")
+        if i % 2 == 0:
+            ax.set_ylabel("density")
+    handles = [
+        plt.Rectangle((0, 0), 1, 1, fc="#4C72B0", alpha=0.55, ec="none"),
+        plt.Rectangle((0, 0), 1, 1, fc="#DD8452", alpha=0.55, ec="none"),
+    ]
+    fig.legend(handles, ["grounded", "hallucinated"], loc="lower center", ncol=2, frameon=False, fontsize=9)
+    fig.tight_layout(rect=(0.0, 0.06, 1.0, 1.0))
     _save(fig, FIG_PAPER / "b3" / "transfer_score_distributions.png")
 
 
 def reliability_diagrams() -> None:
-    reliability = json.loads(
-        (ROOT / "artifacts" / "results" / "b4" / "b4_reliability_data.json").read_text(encoding="utf-8")
+    b4 = pd.read_parquet(ROOT / "artifacts" / "results" / "b4" / "b4_predictions.parquet")
+    colors = {"raw": "0.35", "platt": "#0072B2", "isotonic": "#D55E00"}
+    labels = {"raw": "raw", "platt": "Platt", "isotonic": "isotonic"}
+    fig, axes = plt.subplots(
+        1, 3, figsize=(6.6, 3.15), gridspec_kw={"width_ratios": [1.0, 1.05, 1.0]}
     )
-    panels = [
-        ("halueval_test", "HaluEval test"),
-        ("ragtruth_qa_test", "RAGTruth QA test"),
-        ("faithbench", "FaithBench"),
-    ]
-    fig, axes = plt.subplots(1, 3, figsize=(6.5, 3.0), squeeze=False)
-    for i, (ax, (name, title)) in enumerate(zip(axes[0], panels)):
-        if name not in reliability:
+
+    # (a) HaluEval: quantile-bin reliability curves.
+    ax = axes[0]
+    d = b4[b4["subset"] == "halueval_test"]
+    for method in ("raw", "platt", "isotonic"):
+        sub = d[d["method"] == method].copy()
+        if sub.empty:
             continue
-        for method, color in (("raw", "gray"), ("platt", "tab:blue"), ("isotonic", "tab:orange")):
-            curve = reliability[name][method]
-            conf = [c["confidence"] for c in curve if c["confidence"] is not None]
-            acc = [c["accuracy"] for c in curve if c["accuracy"] is not None]
-            ax.plot(conf, acc, marker="o", ms=2.5, label=method, color=color)
-        ax.plot([0, 1], [0, 1], "k--", lw=0.8)
-        ax.set_xlim(0, 1)
-        ax.set_ylim(0, 1)
-        ax.set_title(title)
-        ax.set_xlabel("confidence")
-        if i == 0:
-            ax.set_ylabel("accuracy")
-        ax.legend(loc="upper left", fontsize=9, framealpha=0.9).get_frame().set_linewidth(0.5)
-    fig.tight_layout()
+        try:
+            sub["bin"] = pd.qcut(sub["score"], 10, duplicates="drop")
+        except ValueError:
+            continue
+        points = []
+        for _, g in sub.groupby("bin", observed=True):
+            if len(g) < 20:
+                continue
+            points.append((float(g["score"].mean()), float(g["label"].mean())))
+        if not points:
+            continue
+        points.sort()
+        ax.plot(
+            [p[0] for p in points],
+            [p[1] for p in points],
+            color=colors[method],
+            marker="o",
+            ms=4.2,
+            lw=1.6,
+            label=labels[method],
+            zorder=3,
+        )
+    ax.plot([0, 1], [0, 1], ls=(0, (4, 3)), color="0.55", lw=1.0, zorder=1)
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.set_xticks([0, 0.25, 0.5, 0.75, 1.0], ["0", "0.25", "0.5", "0.75", "1"])
+    ax.set_yticks([0, 0.5, 1.0], ["0", "0.5", "1"])
+    ax.grid(color="0.92", lw=0.6)
+    ax.set_axisbelow(True)
+    ax.set_xlabel("confidence")
+    ax.set_ylabel("accuracy")
+    ax.set_title("HaluEval test", fontsize=11.5)
+
+    # (b) RAGTruth QA: score distribution on a logit scale.
+    ax = axes[1]
+    qa = b4[(b4["subset"] == "ragtruth_qa_test") & (b4["method"] == "raw")]
+    y = qa["label"].to_numpy()
+    p = np.clip(qa["score"].to_numpy(), 1e-4, 1 - 1e-4)
+    z = np.log(p / (1 - p))
+    bins = np.linspace(-9, 9, 72)
+    ax.hist(z[y == 0], bins=bins, density=True, alpha=0.55, color="#4C72B0", label="grounded")
+    ax.hist(z[y == 1], bins=bins, density=True, alpha=0.55, color="#DD8452", label="hallucinated")
+    ax.axvline(0, color="0.45", lw=1.0, ls=(0, (3, 3)))
+    tick_p = [0.1, 0.5, 0.9, 0.99]
+    tick_z = np.log(np.array(tick_p) / (1 - np.array(tick_p)))
+    ax.set_xticks(tick_z, ["0.1", "0.5", "0.9", "0.99"])
+    ax.set_xlim(-3.2, 8.2)
+    ax.set_yticks([])
+    ax.grid(axis="x", color="0.92", lw=0.6)
+    ax.set_axisbelow(True)
+    ax.set_xlabel("raw score (logit scale)")
+    ax.set_title("RAGTruth QA test", fontsize=11.5)
+    ax.text(
+        0.04,
+        0.94,
+        "mean 0.998\naccuracy 0.178",
+        transform=ax.transAxes,
+        ha="left",
+        va="top",
+        fontsize=8.8,
+        bbox={"boxstyle": "round,pad=0.25", "fc": "white", "ec": "0.8", "lw": 0.5},
+    )
+    ax.legend(loc="upper left", bbox_to_anchor=(0.03, 0.70), fontsize=8.2, frameon=False)
+
+    # (c) FaithBench: aggregate points, because the scores concentrate near 1.0.
+    ax = axes[2]
+    fb = b4[b4["subset"] == "faithbench"]
+    for method in ("raw", "platt", "isotonic"):
+        sub = fb[fb["method"] == method]
+        if sub.empty:
+            continue
+        ax.scatter(
+            float(sub["score"].mean()),
+            float(sub["label"].mean()),
+            s=55,
+            color=colors[method],
+            edgecolor="white",
+            linewidth=0.6,
+            zorder=3,
+            label=labels[method],
+        )
+    ax.plot([0.9, 1.0], [0.9, 1.0], ls=(0, (4, 3)), color="0.55", lw=1.0, zorder=1)
+    ax.set_xlim(0.9, 1.0)
+    ax.set_ylim(0, 1)
+    ax.set_xticks([0.9, 0.95, 1.0], ["0.9", "0.95", "1"])
+    ax.set_yticks([0, 0.5, 1.0], ["0", "0.5", "1"])
+    ax.grid(color="0.92", lw=0.6)
+    ax.set_axisbelow(True)
+    ax.set_xlabel("confidence")
+    ax.set_title("FaithBench", fontsize=11.5)
+    ax.text(
+        0.92,
+        0.55,
+        "mean 0.987\naccuracy 0.689",
+        fontsize=8.8,
+        bbox={"boxstyle": "round,pad=0.25", "fc": "white", "ec": "0.8", "lw": 0.5},
+    )
+
+    handles, names = axes[0].get_legend_handles_labels()
+    fig.legend(handles, names, loc="lower center", ncol=3, frameon=False, fontsize=9.2)
+    fig.tight_layout(rect=(0.0, 0.06, 1.0, 1.0))
     _save(fig, FIG_PAPER / "b4" / "reliability_diagrams.png")
 
 

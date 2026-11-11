@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex out/halurisc"] 1794344221.25631 "out/halurisc.aux" "out/halurisc.bbl" "out/halurisc" 1794344395.27434 0
+["bibtex out/halurisc"] 1794357628.03798 "out/halurisc.aux" "out/halurisc.bbl" "out/halurisc" 1794357853.73082 0
   "./ref.bib" 1794324666 16490 e59d66d7f20744f0cc13da4d3b6e9f04 ""
   "c:/texlive/2026/texmf-dist/bibtex/bst/elsarticle/elsarticle-num.bst" 1793971264 29462 dde4ec39bf78fded04ea32048bba0a74 ""
-  "out/halurisc.aux" 1794344393 17944 d6951e5913fe3fce1521dc31c5dc6131 "pdflatex"
+  "out/halurisc.aux" 1794357852 18704 41cb4061b7204438822a2af171534768 "pdflatex"
   (generated)
   "out/halurisc.bbl"
   "out/halurisc.blg"
   (rewritten before read)
-["pdflatex"] 1794344383.89656 "halurisc.tex" "out/halurisc.pdf" "halurisc" 1794344395.27602 0
+["pdflatex"] 1794357843.99719 "halurisc.tex" "out/halurisc.pdf" "halurisc" 1794357853.73217 0
   "c:/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1793971095 2971 def0b6c1f0b107b3b936def894055589 ""
   "c:/texlive/2026/texmf-dist/fonts/enc/dvips/stix/stix-t1.enc" 1793972328 7013 c55cc8669071ac14036c4a0c96c16202 ""
   "c:/texlive/2026/texmf-dist/fonts/enc/dvips/stix/stix-ts1.enc" 1793972328 2836 154e6b0061f9b8cb549144b55b268339 ""
@@ -229,21 +229,21 @@
   "c:/texlive/2026/texmf.cnf" 1793972753 767 8f3559e081361b2680871a9ef262a874 ""
   "cas-common.sty" 1789655824 79301 edd5b8a98de28a359bf90630ef49c969 ""
   "cas-sc.cls" 1789655824 4597 f271eb20a758fc9ea5551304eb312def ""
-  "figures/b3/transfer_score_distributions.png" 1794332599 189136 dc0b261e97151cc9e8cf45d9c35d9ba3 ""
-  "figures/b4/calibration_shift.png" 1794332598 225957 86e2cceea4e8b894e2a14094f3653959 ""
-  "figures/b4/reliability_diagrams.png" 1794332599 397670 b1069dd5b2aed778eee3327a78a47aa1 ""
+  "figures/b3/transfer_score_distributions.png" 1794355942 231373 d624fffce959dcb8d6d0e9fcbdbc78cd ""
+  "figures/b4/calibration_shift.png" 1794356845 219154 232d6da9841084ef33449c779ddefbe6 ""
+  "figures/b4/reliability_diagrams.png" 1794356843 281865 2df454ba2a973e3ca9385abc316e1149 ""
   "figures/revision/architecture-flow-large.png" 1794321355 577667 ed5611dc95b59086c103b7f8141043bf ""
   "figures/revision/length_analysis.png" 1794324590 269668 4c7117dd9666cd96d10a68ebfc775072 ""
-  "figures/revision/m3_shap_summary.png" 1794340198 516755 8424f3bfbfc74191bd60ef1ffbe69ba1 ""
-  "figures/revision/operating_point_label_budget.png" 1794342775 273150 cc2cd315a4ddf147b9a7e33d8159e6c2 ""
-  "figures/revision/per_seed_stability.png" 1794339843 290241 ba29c8d6b4eb0693b7e0e3bc38ffba9d ""
-  "figures/revision/roc_pr_curves.png" 1794322521 758787 8c37a070bd63ee16a58bc5148f838b6e ""
+  "figures/revision/m3_shap_summary.png" 1794356577 323059 5f0b51e93e8dc697b077cb99d8aa11bd ""
+  "figures/revision/operating_point_label_budget.png" 1794356846 262867 cb295b722092c1979bc9c7dc1409cccc ""
+  "figures/revision/per_seed_stability.png" 1794355294 196226 2b6405e2753ab45e96442140614e795e ""
+  "figures/revision/roc_pr_curves.png" 1794357332 772579 0aa459d817caaf22719eeaec7565b0c6 ""
   "figures/revision/system-architecture-large.png" 1794321395 448893 cf2327ed055154d12a59fde7da226b5f ""
-  "halurisc.tex" 1794344352 104250 cc6dca98f4dc28987552c2d42fec2c11 ""
-  "out/halurisc.abs" 1794344385 1907 c63818554976f0a81a49695f441d3e28 "pdflatex"
-  "out/halurisc.aux" 1794344393 17944 d6951e5913fe3fce1521dc31c5dc6131 "pdflatex"
-  "out/halurisc.bbl" 1794344221 12937 8918aac436f0cfdfdd9abe2c1bd653f8 "bibtex out/halurisc"
-  "out/halurisc.out" 1794344385 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "halurisc.tex" 1794357817 104749 fc7ac95f3c5d40651b0494491155ac62 ""
+  "out/halurisc.abs" 1794357845 1907 c63818554976f0a81a49695f441d3e28 "pdflatex"
+  "out/halurisc.aux" 1794357852 18704 41cb4061b7204438822a2af171534768 "pdflatex"
+  "out/halurisc.bbl" 1794357628 12937 8918aac436f0cfdfdd9abe2c1bd653f8 "bibtex out/halurisc"
+  "out/halurisc.out" 1794357845 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
   "screenshots/paper-risk-card-large.png" 1794344009 547635 808f3b2e32adfd57ae17376986d3c7e3 ""
   (generated)
   "out/halurisc.abs"
