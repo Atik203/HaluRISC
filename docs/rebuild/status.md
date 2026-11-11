@@ -3,6 +3,7 @@
 Branch: `rebuild`, cut from `main` at `7106d72`.
 Paper: 25 pages, 11 figures, 16 tables, 40 references, 0 overfull/underfull, 0 undefined references, all 27 floats within two pages.
 Audits: original 298/298 and rebuild 116/116.
+Next: `docs/rebuild/STRENGTHENING_PLAN.md` (P0/P1/P2, proposed; not started).
 
 ## Completed
 

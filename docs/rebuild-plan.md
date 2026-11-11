@@ -21,14 +21,22 @@ Not claimed: general transfer, a positive QA result, retrieval quality, or indep
 ## Todo list
 
 - [x] WP1 Fixed-hyperparameter ablation
-- [ ] WP2 Calibration rebuild
+- [x] WP2 Calibration rebuild
 - [x] WP3 Per-seed and hierarchical intervals
 - [x] WP4 EC-XGB explanations
-- [ ] WP5 Author taxonomy and audit
-- [ ] WP6 Judge and encoder at natural prevalence
+- [ ] WP5 Author taxonomy and audit (AI draft complete; P0 human verification pending)
+- [x] WP6 Judge and encoder at natural prevalence
 - [x] WP7 External bar
-- [ ] WP8 Paper integration
-- [ ] WP9 Reviews and submission checks
+- [x] WP8 Paper integration and figure restyling
+- [ ] WP9 Reviews and submission checks (internal review done; submission checks pending)
+
+### Post-rebuild strengthening (proposed, not started)
+
+Full plan: `docs/rebuild/STRENGTHENING_PLAN.md`
+
+- [ ] P0 Close audit and protocol gaps (4 days; target 90/100)
+- [ ] P1 External validity and retrieval (5 days; target 92-94/100)
+- [ ] P2 Benchmark/resource paper (3-6 weeks; separate paper)
 
 ## Artifact and branch policy
 
