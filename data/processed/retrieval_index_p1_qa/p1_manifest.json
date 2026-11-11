@@ -1,0 +1,14 @@
+{
+  "manifest": {
+    "n_sources": 989,
+    "n_chunks": 1386,
+    "passages_sha256": "4db376824dccb88f4cef546ec1f61ad32b94cebbbc68ecd9cb04ccc4876b11e5",
+    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "normalize_embeddings": true,
+    "chunk_size": 1500,
+    "overlap": 200,
+    "fusion": "RRF(k=60) over BM25 + FAISS inner product"
+  },
+  "build_seconds": 149.34203109999999,
+  "built_at_utc": "2026-11-11T06:50:01.573263+00:00"
+}

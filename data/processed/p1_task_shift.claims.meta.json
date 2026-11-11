@@ -1,0 +1,19 @@
+{
+  "schema": "p1-task-shift-cache-v1",
+  "stage": "claims",
+  "sample_ids_sha256": "050b3446be84b949a5c32456cba1ebe49e15efc8eb9887b7c326c2b6c71190af",
+  "n_rows": 4000,
+  "pairs_per_task": 1000,
+  "seed": 42,
+  "created_at_utc": "2026-11-11T07:09:05.284599+00:00",
+  "columns": [
+    "claim_max_contradicts",
+    "claim_mean_contradicts",
+    "claim_contradicted_ratio",
+    "claim_supported_ratio",
+    "claim_unsupported_ratio",
+    "claim_min_entails",
+    "claim_mean_entails",
+    "n_claims"
+  ]
+}

@@ -1,0 +1,72 @@
+2026-11-11 13:15:56,220 - INFO - NER model loaded in 3.6s
+2026-11-11 13:16:07,885 - INFO - Loading NLI CrossEncoder: cross-encoder/nli-deberta-v3-base (device=cpu) ...
+2026-11-11 13:16:08,565 - INFO - HTTP Request: HEAD https://huggingface.co/cross-encoder/nli-deberta-v3-base/resolve/main/modules.json "HTTP/1.1 404 Not Found"
+2026-11-11 13:16:08,566 - INFO - No modules.json found for cross-encoder/nli-deberta-v3-base, initializing a new CrossEncoder model.
+2026-11-11 13:16:08,826 - INFO - HTTP Request: GET https://huggingface.co/api/models/cross-encoder/nli-deberta-v3-base "HTTP/1.1 200 OK"
+2026-11-11 13:16:09,080 - INFO - HTTP Request: HEAD https://huggingface.co/cross-encoder/nli-deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-11-11 13:16:09,098 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/cross-encoder/nli-deberta-v3-base/6c749ce3425cd33b46d187e45b92bbf96ee12ec7/config.json "HTTP/1.1 200 OK"
+2026-11-11 13:16:09,369 - INFO - HTTP Request: HEAD https://huggingface.co/cross-encoder/nli-deberta-v3-base/resolve/main/adapter_config.json "HTTP/1.1 404 Not Found"
+2026-11-11 13:16:09,633 - INFO - HTTP Request: HEAD https://huggingface.co/cross-encoder/nli-deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-11-11 13:16:09,653 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/cross-encoder/nli-deberta-v3-base/6c749ce3425cd33b46d187e45b92bbf96ee12ec7/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/202 [00:00<?, ?it/s]Loading weights: 100%|##########| 202/202 [00:00<00:00, 2522.60it/s]
+2026-11-11 13:16:10,392 - INFO - HTTP Request: HEAD https://huggingface.co/cross-encoder/nli-deberta-v3-base/resolve/main/processor_config.json "HTTP/1.1 404 Not Found"
+2026-11-11 13:16:10,655 - INFO - HTTP Request: HEAD https://huggingface.co/cross-encoder/nli-deberta-v3-base/resolve/main/preprocessor_config.json "HTTP/1.1 404 Not Found"
+2026-11-11 13:16:10,916 - INFO - HTTP Request: HEAD https://huggingface.co/cross-encoder/nli-deberta-v3-base/resolve/main/video_preprocessor_config.json "HTTP/1.1 404 Not Found"
+2026-11-11 13:16:11,189 - INFO - HTTP Request: HEAD https://huggingface.co/cross-encoder/nli-deberta-v3-base/resolve/main/preprocessor_config.json "HTTP/1.1 404 Not Found"
+2026-11-11 13:16:11,473 - INFO - HTTP Request: HEAD https://huggingface.co/cross-encoder/nli-deberta-v3-base/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-11-11 13:16:11,494 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/cross-encoder/nli-deberta-v3-base/6c749ce3425cd33b46d187e45b92bbf96ee12ec7/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-11-11 13:16:11,759 - INFO - HTTP Request: HEAD https://huggingface.co/cross-encoder/nli-deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-11-11 13:16:11,775 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/cross-encoder/nli-deberta-v3-base/6c749ce3425cd33b46d187e45b92bbf96ee12ec7/config.json "HTTP/1.1 200 OK"
+2026-11-11 13:16:12,042 - INFO - HTTP Request: HEAD https://huggingface.co/cross-encoder/nli-deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-11-11 13:16:12,058 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/cross-encoder/nli-deberta-v3-base/6c749ce3425cd33b46d187e45b92bbf96ee12ec7/config.json "HTTP/1.1 200 OK"
+2026-11-11 13:16:12,309 - INFO - HTTP Request: HEAD https://huggingface.co/cross-encoder/nli-deberta-v3-base/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-11-11 13:16:12,329 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/cross-encoder/nli-deberta-v3-base/6c749ce3425cd33b46d187e45b92bbf96ee12ec7/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-11-11 13:16:12,589 - INFO - HTTP Request: GET https://huggingface.co/api/models/cross-encoder/nli-deberta-v3-base/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-11-11 13:16:12,848 - INFO - HTTP Request: GET https://huggingface.co/api/models/cross-encoder/nli-deberta-v3-base/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-11-11 13:16:14,212 - INFO - HTTP Request: GET https://huggingface.co/api/models/cross-encoder/nli-deberta-v3-base "HTTP/1.1 200 OK"
+2026-11-11 13:16:14,220 - INFO - NLI CrossEncoder loaded.
+2026-11-11 13:16:14,221 - INFO - NLI model (cross-encoder/nli-deberta-v3-base) loaded in 18.0s
+2026-11-11 13:16:14,474 - INFO - HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+2026-11-11 13:16:14,491 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/modules.json "HTTP/1.1 200 OK"
+2026-11-11 13:16:14,750 - INFO - HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-11-11 13:16:14,768 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-11-11 13:16:14,771 - INFO - Loading SentenceTransformer model from sentence-transformers/all-MiniLM-L6-v2.
+2026-11-11 13:16:15,025 - INFO - HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-11-11 13:16:15,044 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-11-11 13:16:15,323 - INFO - HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-11 13:16:15,343 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/README.md "HTTP/1.1 200 OK"
+2026-11-11 13:16:15,619 - INFO - HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+2026-11-11 13:16:15,638 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/modules.json "HTTP/1.1 200 OK"
+2026-11-11 13:16:15,912 - INFO - HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/sentence_bert_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-11-11 13:16:15,932 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/sentence_bert_config.json "HTTP/1.1 200 OK"
+2026-11-11 13:16:16,211 - INFO - HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/adapter_config.json "HTTP/1.1 404 Not Found"
+2026-11-11 13:16:16,470 - INFO - HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-11-11 13:16:16,489 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|##########| 103/103 [00:00<00:00, 3293.29it/s]
+2026-11-11 13:16:16,958 - INFO - HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/processor_config.json "HTTP/1.1 404 Not Found"
+2026-11-11 13:16:17,238 - INFO - HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/preprocessor_config.json "HTTP/1.1 404 Not Found"
+2026-11-11 13:16:17,511 - INFO - HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/video_preprocessor_config.json "HTTP/1.1 404 Not Found"
+2026-11-11 13:16:17,795 - INFO - HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/preprocessor_config.json "HTTP/1.1 404 Not Found"
+2026-11-11 13:16:18,057 - INFO - HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-11-11 13:16:18,075 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-11-11 13:16:18,353 - INFO - HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-11-11 13:16:18,370 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/config.json "HTTP/1.1 200 OK"
+2026-11-11 13:16:18,629 - INFO - HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-11-11 13:16:18,646 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/config.json "HTTP/1.1 200 OK"
+2026-11-11 13:16:18,922 - INFO - HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-11-11 13:16:18,938 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-11-11 13:16:19,220 - INFO - HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-MiniLM-L6-v2/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-11-11 13:16:19,500 - INFO - HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-MiniLM-L6-v2/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-11-11 13:16:19,878 - INFO - HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/1_Pooling/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-11-11 13:16:19,899 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/1_Pooling%2Fconfig.json "HTTP/1.1 200 OK"
+2026-11-11 13:16:20,172 - INFO - HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-MiniLM-L6-v2 "HTTP/1.1 200 OK"
+2026-11-11 13:16:20,178 - INFO - Embedding model loaded in 6.0s
+[shard 2] models loaded in 27.5s
+2026-11-11 13:16:20,179 - INFO - Extracting core features for 300 samples...
+2026-11-11 13:16:20,669 - INFO - Successfully extracted 14 core features.
+2026-11-11 13:16:20,670 - INFO - Extracting entity (NER) features for 300 samples...
+2026-11-11 13:16:20,704 - INFO - NER pipe: 600 docs, batch_size=64, n_process=1
+2026-11-11 13:18:00,923 - INFO - Entity features done: 300 rows in 100.2s
+2026-11-11 13:18:00,930 - INFO - Entity features done in 100.3s
+2026-11-11 13:18:00,931 - INFO - Extracting NLI features for 300 samples (2 directions each)...
+Batches:   0%|          | 0/8 [00:00<?, ?it/s]Batches:  12%|#2        | 1/8 [03:37<25:21, 217.36s/it]Batches:  25%|##5       | 2/8 [05:16<14:45, 147.55s/it]Batches:  38%|###7      | 3/8 [06:39<09:52, 118.42s/it]

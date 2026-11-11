@@ -1,0 +1,14 @@
+{
+  "reused": false,
+  "runtime_seconds": 521.6255624294281,
+  "rows": 900,
+  "base_cache": "data\\processed\\halubench_base.parquet",
+  "claim_cache": "data\\processed\\halubench_claim_features.parquet",
+  "core_entity_cache": "data\\processed\\halubench_base_core_entity.parquet",
+  "shards": 1,
+  "threads_per_shard": 4,
+  "device": "cuda",
+  "batch_size": 8,
+  "claim_batch_size": 8,
+  "finished_at_utc": "2026-11-11T07:42:30.063950+00:00"
+}

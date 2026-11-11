@@ -1,0 +1,14 @@
+{
+  "schema": "p1-features-v1",
+  "retrieval_rows_sha256": "4bde36c93887ab9fba2bd417468486e4ac32ec8fd3f114e1893249d480decc98",
+  "n_rows": 300,
+  "nli_model": "cross-encoder/nli-deberta-v3-base",
+  "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "claim_params": {
+    "max_context_sentences": 4,
+    "max_claims": 6,
+    "max_pair_chars": 400
+  },
+  "base_batch_size": 32,
+  "claim_batch_size": 32
+}

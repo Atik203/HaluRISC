@@ -1,0 +1,18 @@
+{
+  "schema": "p1-retrieval-v1",
+  "index_manifest": {
+    "n_sources": 989,
+    "n_chunks": 1386,
+    "passages_sha256": "4db376824dccb88f4cef546ec1f61ad32b94cebbbc68ecd9cb04ccc4876b11e5",
+    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "normalize_embeddings": true,
+    "chunk_size": 1500,
+    "overlap": 200,
+    "fusion": "RRF(k=60) over BM25 + FAISS inner product"
+  },
+  "top_k": 10,
+  "context_k": 5,
+  "limit_rows": 0,
+  "n_rows": 900,
+  "row_ids_sha256": "4c01be054fb8094a24289a64d098647534084f4dfc0b1b11aefd307f2d2e1344"
+}
