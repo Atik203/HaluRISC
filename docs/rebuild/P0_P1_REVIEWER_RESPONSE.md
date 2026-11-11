@@ -67,4 +67,6 @@ by the reviewer; all fixes below are in the working tree.
 - The paper is 29 pages after the 8.5pt reference font and the larger UI figure; page limit is not a constraint for this draft.
 - `\sloppy` and `\hbadness=10000` remain before the bibliography; the build reports 0 overfull/underfull, but the suppression is a style choice.
 - Keywords remain seven; trim to six only if the venue requires it.
-- The three-author human review is not complete. No human accuracy or kappa is reported. The package and the ingest gate are ready.
+- The three-author review is complete (2026-11-11). AI-author agreement and
+  blind kappa are reported; the main-sheet labels originated as AI
+  pre-annotations and were author-verified.

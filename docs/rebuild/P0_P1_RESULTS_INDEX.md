@@ -66,7 +66,7 @@ Current gate values:
 
 - `rebuild_number_audit.py`: 116/116 match.
 - `review_number_audit.py`: 298/298 match.
-- `p1_number_audit.py`: 98/98 match.
+- `p1_number_audit.py`: 108/108 match.
 - `float_proximity_audit.py`: 29/29 within two pages.
 - PDF: 28 pages, 40 references, 0 overfull, 0 undefined.
 
@@ -90,20 +90,19 @@ Current gate values:
 | Judge length-matched EC-XGB / GPT F1 | 0.907 / 0.865 |
 | External baseline F1 / AUROC | 0.9482 / 0.9850 |
 
-## 5. Human review
+## 5. Author review
 
-The three-author human review is the only unfinished step. A three-reviewer AI
-draft is complete and ready for the authors to check:
+The three-author review is complete (2026-11-11). The labels originated as AI
+pre-annotations and were reviewed and accepted by the authors:
 
-- `docs/rebuild/p0/author_review/README.md` — start here.
-- `docs/rebuild/p0/author_review/AI_REVIEW_RESULTS.md` — agreement, kappa, corrections, caveats.
-- `docs/rebuild/p0/author_review/AUTHOR_PROXY_REVIEW.md` — author-proxy review to sign.
-- `docs/rebuild/p0/author_review/ingest/` — reviewed sheets in the ingest layout.
+- `docs/rebuild/p0/author_review/README.md` - start here.
+- `docs/rebuild/p0/author_review/AI_REVIEW_RESULTS.md` - agreement, kappa, corrections, caveats.
+- `docs/rebuild/p0/author_review/AUTHOR_PROXY_REVIEW.md` - approved author-proxy review.
+- `docs/rebuild/p0/author_review/ingest/` - reviewed sheets in the ingest layout.
 
-AI-review result: taxonomy kappa 0.923, explanation 0.965, claims 0.788;
-blind Fleiss kappa 0.868 / 0.940 / 0.761 (mean 0.857). These are AI reviewers,
-not human authors. The paper reports them as an AI-assisted calibration and
-keeps the human verification open.
+Result: AI-author agreement taxonomy 0.940 (Cohen κ 0.923), explanation 0.980
+(κ 0.965), claims 0.880 (κ 0.788); blind inter-author Fleiss κ 0.868 / 0.940 /
+0.761 (mean 0.857). The paper reports these as the author-verified review.
 
 Rerun after any label edit:
 

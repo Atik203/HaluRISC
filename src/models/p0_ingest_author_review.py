@@ -24,9 +24,9 @@ file with 180 rows and an `annotator_id` column (author_a/author_b/author_c), or
 use three columns `author1_label`, `author2_label`, `author3_label` on 60 rows.
 Both layouts are accepted.
 
-Integrity rule: the AI pre-labels are not human labels. This script reports
-AI-human agreement and the three-author agreement separately. Do not describe
-the pre-labels as independent human annotation.
+Integrity rule: the labels originated as AI pre-annotations and were reviewed by
+the three authors. This script reports agreement between the pre-label and the
+authors' final label, and the inter-author agreement on the blind overlap.
 """
 
 from __future__ import annotations
@@ -346,12 +346,13 @@ def main() -> int:
         "",
         f"Complete: **{summary['complete']}**",
         "",
-        "The AI pre-labels are not human labels. Agreement below compares the AI",
-        "pre-label with the authors' final label; it is not inter-human agreement.",
+        "The labels originated as AI pre-annotations and were reviewed by the three",
+        "authors. Agreement below compares the pre-label with the authors' final",
+        "label; the blind overlap is the inter-author agreement.",
         "",
         "## Sheets",
         "",
-        "| Sheet | Rows | Verified | Blank final | AI-human agreement | Cohen kappa | Corrected |",
+        "| Sheet | Rows | Verified | Blank final | AI-author agreement | Cohen kappa | Corrected |",
         "|---|---:|---|---:|---:|---:|---:|",
     ]
     for name, sheet in summary["sheets"].items():
@@ -388,7 +389,7 @@ def main() -> int:
         "## Next step",
         "",
         "Copy the agreement and kappa values into the manuscript's audit paragraph.",
-        "Do not copy the AI pre-label distribution as a human result.",
+        "Do not copy the AI pre-label distribution as a human result; copy the authors' final distribution.",
     ]
     (args.out / "author_review_report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 

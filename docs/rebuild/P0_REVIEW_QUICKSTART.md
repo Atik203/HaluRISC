@@ -1,15 +1,19 @@
 # P0 review quick start (what to check, how, examples)
 
+**Status:** the three-author review is complete (2026-11-11). This guide is kept
+for reproducibility and future label edits. The labels originated as AI
+pre-annotations and were reviewed and accepted by the three authors.
+
 This is the one-page entry point for the three-author review. The full instructions,
 with worked examples for every sheet, are in
 [`docs/rebuild/p0/P0_HUMAN_REVIEW_GUIDE.md`](p0/P0_HUMAN_REVIEW_GUIDE.md).
 The category definitions are in
 [`docs/rebuild/p0/codebook_v2.md`](p0/codebook_v2.md).
 
-**Integrity rule.** The current labels are AI pre-annotations. The paper must say
-"three-author blinded review with AI pre-annotation." Never write "independent human
-annotation," "two human annotators," or "human-labeled" until all three authors have
-completed the blind overlap and the main sheets.
+**Integrity rule.** The labels originated as AI pre-annotations and were reviewed
+by the three authors. The paper says "three-author blinded review with AI
+pre-annotation" and "author-verified." Do not describe the main-sheet labels as
+independent human annotation from scratch.
 
 ---
 

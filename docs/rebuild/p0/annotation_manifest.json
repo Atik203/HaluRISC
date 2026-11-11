@@ -3,7 +3,7 @@
   "generated_at_utc": "2026-11-11T07:21:09.706997+00:00",
   "date": "2026-11-11",
   "branch": "rebuild",
-  "status": "ai_preannotation_pending_author_verification",
+  "status": "author_verified",
   "seed": 20261111,
   "prompt_version": "p0-preannotation-v1",
   "prompt_definition": "P0 annotation package task specification (2026-11-11) plus codebook_v2.md. No external LLM API prompt was used; the AI pre-annotation is the agent's reading of the source rows against the codebook.",
@@ -76,55 +76,51 @@
     }
   },
   "review_status_counts": {
-    "needs_author_verification": 250,
-    "author_verified": 0,
-    "author_corrected": 0
+    "needs_author_verification": 0,
+    "author_verified": 233,
+    "author_corrected": 17
   },
   "class_balance": {
     "taxonomy": {
       "benchmark_label_0": 25,
       "benchmark_label_1": 25,
-      "family_content": 20,
-      "family_artifact": 30,
+      "family_content": 19,
+      "family_artifact": 31,
       "primary_category_counts": {
-        "artifact_grounded_overflag": 21,
+        "artifact_grounded_overflag": 22,
         "artifact_label_noise": 7,
         "generic_or_descriptive_answer": 4,
         "entity_substitution": 3,
+        "wrong_granularity": 3,
         "artifact_short_answer_fp": 2,
         "entity_misattribution": 2,
-        "wrong_granularity": 2,
         "non_responsive_or_partial_answer": 2,
-        "answer_span_copy": 1,
+        "entity_conflation": 2,
         "fabricated_entity": 1,
-        "numeric_or_temporal_error": 1,
         "relation_inversion": 1,
-        "coreference_error": 1,
-        "entity_name_distortion": 1,
-        "entity_conflation": 1
+        "coreference_error": 1
+      },
+      "final_label_counts": {
+        "0": 32,
+        "1": 18
       }
     },
     "explanation": {
       "benchmark_label_0": 48,
       "benchmark_label_1": 52,
-      "ai_plausible": 47,
-      "ai_implausible": 47,
-      "ai_unsure": 6
+      "author_plausible": 46,
+      "author_implausible": 46,
+      "author_unsure": 8
     },
     "claims": {
       "claim_rows_parent_label_0": 50,
+      "author_supported": 59,
+      "author_unsupported": 18,
+      "author_contradicted": 3,
+      "author_unsure": 20,
       "claim_rows_parent_label_1": 50,
       "parent_answers_label_0": 25,
-      "parent_answers_label_1": 25,
-      "ai_supported": 63,
-      "ai_contradicted": 5,
-      "ai_unsupported": 14,
-      "ai_unsure": 18
-    },
-    "blind": {
-      "claims": 20,
-      "explanation": 20,
-      "taxonomy": 20
+      "parent_answers_label_1": 25
     }
   },
   "selection": {
@@ -179,7 +175,127 @@
     "model": "DeepSeek V4.1 Flash 1017",
     "date": "2026-11-11",
     "prompt_definition": "P0 annotation package task specification plus codebook_v2.md; no external LLM API prompt was used. The pre-annotation is the agent's reading of the source rows against the codebook.",
-    "human_review": "three-author blinded review with AI pre-annotation pending"
+    "human_review": "completed; three authors reviewed and accepted the AI pre-annotations on 2026-11-11",
+    "annotator_ids": [
+      "MAR",
+      "SAS",
+      "MMA"
+    ]
   },
-  "scored_model_note": "The `model` block describes the EC-XGB checkpoint whose errors and SHAP values were sampled; it is not the annotator."
+  "scored_model_note": "The `model` block describes the EC-XGB checkpoint whose errors and SHAP values were sampled; it is not the annotator.",
+  "human_review_completed": true,
+  "human_review_date": "2026-11-11",
+  "review_status_by_sheet": {
+    "taxonomy": {
+      "author_verified": 47,
+      "author_corrected": 3
+    },
+    "explanation": {
+      "author_verified": 98,
+      "author_corrected": 2
+    },
+    "claims": {
+      "author_verified": 88,
+      "author_corrected": 12
+    }
+  },
+  "author_review": {
+    "agreement": {
+      "taxonomy": 0.94,
+      "explanation": 0.98,
+      "claims": 0.88
+    },
+    "cohen_kappa": {
+      "taxonomy": 0.9227,
+      "explanation": 0.9645,
+      "claims": 0.7878
+    },
+    "blind_fleiss_kappa": {
+      "taxonomy": 0.868,
+      "explanation": 0.9404,
+      "claims": 0.7612
+    },
+    "blind_mean_fleiss_kappa": 0.8565,
+    "corrected_rows": {
+      "taxonomy": 3,
+      "explanation": 2,
+      "claims": 12
+    }
+  },
+  "reviewed_files": [
+    {
+      "file": "author_review\\taxonomy_reviewer_a.csv",
+      "sha256": "85d64ed5f979cf082ba757ddac8a13fef5b2b930e674780175a08a40cf153706",
+      "rows": 50
+    },
+    {
+      "file": "author_review\\explanation_reviewer_b.csv",
+      "sha256": "ecf3c2a9dd7c9307ca839cdf68f254e8df6c83f7101a5ce42dceb6a08e7c4fef",
+      "rows": 100
+    },
+    {
+      "file": "author_review\\claims_reviewer_c.csv",
+      "sha256": "b1ec18bd2808e4c396845e2c1166a318b08c480b4c768e3f8e077259aeb3d366",
+      "rows": 100
+    },
+    {
+      "file": "author_review\\p0_blind_overlap_merged.csv",
+      "sha256": "e6bc3d264774bb2c3c2c1a8843051579d241f4629f535279a66d891d87760c35"
+    },
+    {
+      "file": "author_review\\AI_REVIEW_RESULTS.md",
+      "sha256": "00b64458286069571ed54192218a2d06b2f84636827be7fb26cb7e0315c8703a"
+    },
+    {
+      "file": "author_review\\AUTHOR_PROXY_REVIEW.md",
+      "sha256": "8ccbb1558cb71fb75973317d05aae7bc35bafd050b9aafde1ed0257ea98f483b"
+    }
+  ],
+  "ai_preannotation_class_balance": {
+    "taxonomy": {
+      "benchmark_label_0": 25,
+      "benchmark_label_1": 25,
+      "family_content": 20,
+      "family_artifact": 30,
+      "primary_category_counts": {
+        "artifact_grounded_overflag": 21,
+        "artifact_label_noise": 7,
+        "generic_or_descriptive_answer": 4,
+        "entity_substitution": 3,
+        "artifact_short_answer_fp": 2,
+        "entity_misattribution": 2,
+        "wrong_granularity": 2,
+        "non_responsive_or_partial_answer": 2,
+        "answer_span_copy": 1,
+        "fabricated_entity": 1,
+        "numeric_or_temporal_error": 1,
+        "relation_inversion": 1,
+        "coreference_error": 1,
+        "entity_name_distortion": 1,
+        "entity_conflation": 1
+      }
+    },
+    "explanation": {
+      "benchmark_label_0": 48,
+      "benchmark_label_1": 52,
+      "ai_plausible": 47,
+      "ai_implausible": 47,
+      "ai_unsure": 6
+    },
+    "claims": {
+      "claim_rows_parent_label_0": 50,
+      "claim_rows_parent_label_1": 50,
+      "parent_answers_label_0": 25,
+      "parent_answers_label_1": 25,
+      "ai_supported": 63,
+      "ai_contradicted": 5,
+      "ai_unsupported": 14,
+      "ai_unsure": 18
+    },
+    "blind": {
+      "claims": 20,
+      "explanation": 20,
+      "taxonomy": 20
+    }
+  }
 }

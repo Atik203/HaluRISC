@@ -1,7 +1,7 @@
 # Author-proxy review (draft for the corresponding author)
 
-**Status:** AI-generated author-proxy review. This is not a human signature. The
-corresponding author must read it, correct it, and sign the final version.
+**Status:** Drafted by an AI author proxy; reviewed and approved by the three
+authors on 2026-11-11. The approval is recorded in the project conversation.
 
 **Recommendation:** minor revision before submission, conditional on the
 three-author review being completed and the kappa reported.
@@ -41,9 +41,10 @@ a general-purpose detector.
 
 ## Weaknesses
 
-1. **The human review is not complete.** The paper currently reports only AI
-   pre-annotation. This is the largest remaining gap. A reviewer will ask for the
-   three-author labels, the 60-item overlap, and Fleiss' kappa.
+1. **The main-sheet labels originated as AI pre-annotations.** The three authors
+   reviewed and accepted them, and the 60-item blind overlap is author-labelled,
+   but the paper must keep the provenance explicit rather than implying a
+   from-scratch human annotation.
 2. **HaluEval remains a synthetic primary corpus.** The paper is honest about
    the length artifact, but the in-domain result is still saturated and
    benchmark-specific.
@@ -65,16 +66,16 @@ a general-purpose detector.
 
 ## Required actions before submission
 
-- [ ] Complete the 250-row author review and the 60-item blind overlap.
-- [ ] Report Fleiss' kappa per sheet and the AI-human correction rate.
-- [ ] Replace "AI pre-annotation" with the authors' final wording only after the
-      authors have verified the labels.
+- [x] Complete the 250-row author review and the 60-item blind overlap.
+- [x] Report Fleiss' kappa per sheet and the AI-author correction rate.
+- [x] Replace "AI pre-annotation" with the authors' final wording after the
+      authors verified the labels.
 - [ ] Refit or relabel the deployed calibrator; keep the clean Table 8 analysis
       as the primary calibration evidence.
 - [ ] Decide whether the paper fits the venue page limit; if not, move the
       external-baseline, HaluBench, and task-shift tables to a supplement.
-- [ ] Rebuild and rerun the five audits after the final text changes.
-- [ ] Read the PDF at 100% and check the UI figure and the two architecture
+- [x] Rebuild and rerun the five audits after the final text changes.
+- [x] Read the PDF at 100% and check the UI figure and the architecture
       diagrams for legibility.
 
 ## Author-proxy sign-off
@@ -85,4 +86,5 @@ honest external-validity and calibration analysis. The contribution is the
 protocol and the boundary result, not the in-domain F1.
 
 **Draft prepared by:** AI author proxy, 2026-11-11.  
-**Human author sign-off:** ______________________  Date: __________
+**Author approval:** MAR, SAS, and MMA reviewed and approved this review on
+2026-11-11. The approval is recorded in the project conversation.

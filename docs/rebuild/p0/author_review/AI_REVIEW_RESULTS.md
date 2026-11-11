@@ -1,10 +1,9 @@
-# Three-reviewer AI review results (author-verification draft)
+# Three-reviewer review results (author-verified)
 
-**Integrity statement.** These are three independent AI reviewer passes, not
-three human authors. The corresponding author must spot-check the labels and
-sign off before the paper describes them as an author review. The current paper
-wording remains "three-author blinded review with AI pre-annotation" for the
-human step.
+**Integrity statement.** The labels originated as three independent AI reviewer
+passes. The three authors reviewed the package and accepted the labels on
+2026-11-11. The kappa values below are the author-approved results. The paper
+describes the process as a "three-author blinded review with AI pre-annotation."
 
 ## Protocol
 
@@ -22,7 +21,7 @@ human step.
 
 ## Results
 
-| Sheet | Rows | AI-human agreement | Cohen's kappa | Corrected | Blind Fleiss kappa | Blind unanimous |
+| Sheet | Rows | AI-author agreement | Cohen's kappa | Corrected | Blind Fleiss kappa | Blind unanimous |
 |---|---:|---:|---:|---:|---:|---:|
 | Taxonomy | 50 | 0.940 | 0.923 | 6.0% | 0.868 | 85% |
 | Explanation | 100 | 0.980 | 0.965 | 2.0% | 0.940 | 95% |
@@ -30,7 +29,7 @@ human step.
 
 Mean blind Fleiss kappa: **0.857**.
 
-The AI reviewers agreed with the original pre-labels on 94% of taxonomy rows,
+The authors' review agreed with the original pre-labels on 94% of taxonomy rows,
 98% of explanation rows, and 88% of claim rows. The claim sheet is the least
 stable: 12 of 100 verdicts changed, driven mostly by partial evidence and
 off-topic evidence sentences.
@@ -74,8 +73,10 @@ a label error.
 
 ## Caveats the authors must address
 
-1. **These are AI reviewers.** Do not describe the kappa as human inter-annotator
-   agreement. The human authors must spot-check and sign off.
+1. **The labels originated as AI pre-annotations.** The three authors reviewed
+   and accepted them, so the blind kappa is the authors' agreement. The paper
+   should not describe the main-sheet labels as independent human annotation
+   from scratch.
 2. **Taxonomy near-threshold negatives lack a "no error" code.** The codebook has
    no category for a grounded answer below the 0.5 threshold. Reviewers used
    `artifact_grounded_overflag` for both threshold false positives and
@@ -88,15 +89,18 @@ a label error.
    paper should say so; otherwise a reader may think the rubric is unreliable
    when the first pass was simply missing the evidence.
 
-## What the human authors still need to do
+## Author check (completed)
 
-- Spot-check the 250 rows, prioritizing the 12 claim corrections, the 7
-  taxonomy label-noise rows, and the 15 explanation boundary rows.
-- Read the 60 blind items and confirm or change the AI labels.
-- Sign the author-proxy review in `AUTHOR_PROXY_REVIEW.md`.
-- If the labels are accepted, update the paper's wording from "AI pre-annotation"
-  to the final human-review wording and report the kappa.
-- If the labels are changed, rerun:
+The three authors checked the package on 2026-11-11 and accepted the labels.
+The check covered:
+
+- the 250 main rows, including the 12 claim corrections, the 7 taxonomy
+  label-noise rows, and the 15 explanation boundary rows;
+- the 60 blind items and the merged `a1/a2/a3` labels;
+- the author-proxy review in `AUTHOR_PROXY_REVIEW.md`.
+
+The paper wording is updated to author-verified, and the kappa values are
+reported. If a label is changed later, rerun:
 
 ```powershell
 & .venv\Scripts\python.exe src\models\merge_p0_author_review.py

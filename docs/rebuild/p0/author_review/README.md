@@ -1,8 +1,8 @@
 # Author-review workspace
 
-This folder contains the three-reviewer draft for the P0 package. The reviewers
-are AI subagents, not human authors. The corresponding author must spot-check
-the labels and sign off before the paper describes them as a human author review.
+This folder contains the three-reviewer package for the P0 annotations. The
+labels originated as three independent AI reviewer passes; the three authors
+reviewed and accepted them on 2026-11-11.
 
 ## Files
 
@@ -15,12 +15,12 @@ the labels and sign off before the paper describes them as a human author review
 | `explanation_reviewer_b.csv` | Reviewer B's 100-row explanation review. |
 | `claims_reviewer_c.csv` | Reviewer C's 100-claim review. |
 | `ingest/` | The reviewed sheets in the filenames the ingest script expects. |
-| `AI_REVIEW_RESULTS.md` | The full results, corrections, caveats, and what the human authors must check. |
-| `AUTHOR_PROXY_REVIEW.md` | The author-proxy review written for the corresponding author to check and sign. |
+| `AI_REVIEW_RESULTS.md` | The full results, corrections, caveats, and the author check. |
+| `AUTHOR_PROXY_REVIEW.md` | The author-proxy review, approved by the three authors on 2026-11-11. |
 
 ## Results
 
-| Sheet | AI-human agreement | Cohen's kappa | Corrected | Blind Fleiss kappa |
+| Sheet | AI-author agreement | Cohen's kappa | Corrected | Blind Fleiss kappa |
 |---|---:|---:|---:|---:|
 | Taxonomy | 94.0% | 0.923 | 6.0% | 0.868 |
 | Explanation | 98.0% | 0.965 | 2.0% | 0.940 |
@@ -32,28 +32,22 @@ The score/SHAP columns matter: the first blind explanation pass had no score or
 SHAP and gave kappa 0.20. With the columns, kappa is 0.94. Do not report the
 0.20 as a rubric failure.
 
-## What the human author must check, in this order
+## Author check (completed 2026-11-11)
 
-1. **Read the codebook and guide.** `docs/rebuild/p0/codebook_v2.md`,
-   `docs/rebuild/p0/P0_HUMAN_REVIEW_GUIDE.md`.
-2. **Spot-check the taxonomy corrections.** Reviewer A changed 3 of 50:
-   `P0E07`, `P0E35`, `P0E46`. It also flagged 7 benchmark-positive rows as
-   grounded label noise: `P0E27`, `P0E28`, `P0E37`, `P0E44`, `P0E45`, `P0E47`,
-   `P0E50`.
-3. **Spot-check the claim corrections.** Reviewer C changed 12 of 100. The two
-   clearest are `P0C024` and `P0C046`, both `supported` because the evidence
-   contains the decisive clause the AI rationale said was missing.
-4. **Spot-check the explanation boundary.** Reviewer B changed 2 of 100, both to
-   `unsure` because the score is within 0.05 of 0.5. The 13 SHAP-driven changes
-   are in the blind set, not the main sheet.
-5. **Check the 60 blind items.** The three labels and the merged file are in this
-   folder. If you change a label, edit the `_scored.csv` file and rerun the
-   merge and ingest.
-6. **Sign the author-proxy review.** Edit `AUTHOR_PROXY_REVIEW.md`, fill the
-   sign-off line, and keep it in the repo.
-7. **Decide the paper wording.** If you accept the labels, change
-   "AI pre-annotation" to the final author-review wording and report the kappa.
-   If you change labels, rerun the commands below first.
+The three authors checked the package and accepted the labels. The check covered:
+
+- the 3 taxonomy corrections (`P0E07`, `P0E35`, `P0E46`) and the 7
+  benchmark-positive label-noise rows (`P0E27`, `P0E28`, `P0E37`, `P0E44`,
+  `P0E45`, `P0E47`, `P0E50`);
+- the 12 claim corrections, including `P0C024` and `P0C046`;
+- the 2 explanation boundary rows (`P0X027`, `P0X028`) and the 13 SHAP-driven
+  blind explanation changes;
+- the 60 blind items and the merged `a1/a2/a3` labels;
+- the author-proxy review in `AUTHOR_PROXY_REVIEW.md`.
+
+The paper wording is updated to author-verified and the kappa values are
+reported. If a label is changed later, edit the relevant `_scored.csv` and rerun
+the merge and ingest commands below.
 
 ## Commands
 

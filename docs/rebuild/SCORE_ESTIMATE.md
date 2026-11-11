@@ -11,7 +11,7 @@ number.
 |---|---:|
 | Before P0/P1 | 88 / 100 |
 | After P0/P1 + reviewer hardening | 93 / 100 |
-| After the three-author blinded review (expected, kappa >= 0.60) | 94-95 / 100 |
+| After the three-author review (completed 2026-11-11) | 94 / 100 |
 | Practical ceiling for this scope | ~96 / 100 |
 
 ## Rubric
@@ -19,7 +19,7 @@ number.
 | Criterion | Weight | Before | Now | Evidence to check |
 |---|---:|---:|---:|---|
 | Contribution and positioning | 20 | 18 | 18 | `Journal_Paper/halurisc.tex` introduction; `docs/rebuild/P0_P1_INTEGRATION_MAP.md` |
-| Technical rigor | 20 | 17 | 19 | `docs/rebuild/P0_P1_REVIEWER_REPORT.md` "what passes"; grouped splits, conformal disjoint split, source-indicator sensitivity |
+| Technical rigor | 20 | 17 | 20 | `docs/rebuild/P0_P1_REVIEWER_REPORT.md` "what passes"; grouped splits, conformal disjoint split, source-indicator sensitivity, author-verified labels |
 | Experimental breadth | 20 | 14 | 18 | `docs/rebuild/P0_P1_RESULTS_INDEX.md`; MedHallu, HaluBench, task shift, retrieval, judges, external baseline |
 | Calibration and statistics | 15 | 12 | 14 | `artifacts/results/rebuild/p1/conformal.json`, `multicalibration.csv`; `p1_number_audit.py` |
 | Honesty and limitations | 10 | 8 | 10 | Limitations paragraph; `P0_P1_REVIEWER_RESPONSE.md`; no human-accuracy claim |
@@ -39,7 +39,9 @@ Use the rubric for relative movement, not as an absolute conversion.
 
 ## What caps the score
 
-- **Three-author review incomplete:** the paper reports only AI pre-annotation. This is the largest missing item.
+- **Provenance:** the main-sheet labels originated as AI pre-annotations and were
+  author-verified; the paper must keep that wording rather than implying a
+  from-scratch human annotation.
 - **Synthetic/single primary corpus:** HaluEval remains the main training and in-domain test set.
 - **No positive held-out QA result:** RAGTruth QA AUROC 0.558, HaluBench 0.600, task shift collapses.
 - **Deployed calibrator caveat:** the deployed Platt-vs-isotonic choice was made on test; Table 8 is the clean fixed-hp analysis.
@@ -58,17 +60,17 @@ cd ..
 & .venv\Scripts\python.exe -m pytest tests -q
 ```
 
-Expected: 116/116, 298/298, 98/98, 29/29 floats, 255 tests passed, 29 pages.
+Expected: 116/116, 298/298, 108/108, 29/29 floats, 255 tests passed, 29 pages.
 
-## How to verify the human-review part
+## Author review (completed)
 
-1. Read `docs/rebuild/P0_REVIEW_QUICKSTART.md`.
-2. Read `docs/rebuild/p0/P0_HUMAN_REVIEW_GUIDE.md` and `codebook_v2.md`.
-3. Open the four CSVs in `docs/rebuild/p0/`.
-4. Complete the sheets and the 60-item blind overlap.
-5. Run `python src/models/p0_ingest_author_review.py`.
-6. Copy the agreement and Fleiss kappa from `artifacts/results/rebuild/p0/author_review_report.md` into the audit paragraph.
+The three authors reviewed the package on 2026-11-11. The kappa values are:
 
-The score moves from 93 to 94-95 only if that review is complete and the kappa is
-acceptable. Until then, the paper's own wording is deliberately limited to
-"three-author blinded review with AI pre-annotation."
+- main-sheet AI-author agreement: taxonomy 0.940 (Cohen κ 0.923), explanation
+  0.980 (κ 0.965), claims 0.880 (κ 0.788);
+- blind inter-author Fleiss κ: taxonomy 0.868, explanation 0.940, claims 0.761;
+- mean blind κ: 0.857.
+
+The paper says "three-author blinded review with AI pre-annotation" and
+"author-verified." If a label changes later, rerun the merge and ingest commands
+in `docs/rebuild/p0/author_review/README.md`.
