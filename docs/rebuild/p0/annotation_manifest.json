@@ -1,0 +1,185 @@
+{
+  "schema": "p0-annotation-manifest-v1",
+  "generated_at_utc": "2026-11-11T07:21:09.706997+00:00",
+  "date": "2026-11-11",
+  "branch": "rebuild",
+  "status": "ai_preannotation_pending_author_verification",
+  "seed": 20261111,
+  "prompt_version": "p0-preannotation-v1",
+  "prompt_definition": "P0 annotation package task specification (2026-11-11) plus codebook_v2.md. No external LLM API prompt was used; the AI pre-annotation is the agent's reading of the source rows against the codebook.",
+  "model": {
+    "name": "EC-XGB",
+    "variant": "m3",
+    "seed": 42,
+    "artifact": "artifacts/models/rebuild/fixed_hp/xgboost_m3_seed_42.joblib",
+    "n_features": 35,
+    "feature_names_source": "artifacts/results/rebuild/fixed_hp/b6_feature_names.json",
+    "score": "raw positive-class probability",
+    "decision_threshold": 0.5,
+    "tuned_strict_threshold": 0.095,
+    "shap": "exact TreeSHAP via pred_contribs=True, raw margin (log-odds), top five by absolute value",
+    "predictions_source": "artifacts/results/rebuild/fixed_hp/fixed_hp_predictions.parquet"
+  },
+  "codebook": {
+    "file": "codebook_v2.md",
+    "version": "v2",
+    "sha256": "3249e72a8847d7b006cf31d98646672514013f46eb2cce2490cf721f2f378658",
+    "categories": 20,
+    "content_categories": 15,
+    "artifact_categories": 5
+  },
+  "files": [
+    {
+      "file": "codebook_v2.md",
+      "sha256": "3249e72a8847d7b006cf31d98646672514013f46eb2cce2490cf721f2f378658"
+    },
+    {
+      "file": "p0_error_taxonomy.csv",
+      "sha256": "cd4e11145928e3f620b4287d633d343c0a6b26740ac1a4b93886e0e3d92f0a31",
+      "rows": 50,
+      "columns": 17
+    },
+    {
+      "file": "p0_explanation_audit.csv",
+      "sha256": "6339af4b403df1f533e2f59a7a2074739ebad614e4324801c7e2bd80c1106628",
+      "rows": 100,
+      "columns": 16
+    },
+    {
+      "file": "p0_claim_verdicts.csv",
+      "sha256": "1b545f3ee422992aff313b2bca5252024ee86bd74dabab0075012187a9c46635",
+      "rows": 100,
+      "columns": 13
+    },
+    {
+      "file": "p0_blind_overlap.csv",
+      "sha256": "f864d90c8eb5dd3ffe4486106c75d2372460b9e6bf03daee1747b2e42db4d4a5",
+      "rows": 60,
+      "columns": 9
+    },
+    {
+      "file": "P0_HUMAN_REVIEW_GUIDE.md",
+      "sha256": "c9f8b80aba9807276431da72fb9270c48902ddc4d5f8c526a01ac7b97663486a"
+    }
+  ],
+  "counts": {
+    "annotation_rows": 250,
+    "taxonomy_rows": 50,
+    "explanation_rows": 100,
+    "claim_rows": 100,
+    "claim_answers": 50,
+    "blind_rows": 60,
+    "blind_per_sheet": {
+      "claims": 20,
+      "explanation": 20,
+      "taxonomy": 20
+    }
+  },
+  "review_status_counts": {
+    "needs_author_verification": 250,
+    "author_verified": 0,
+    "author_corrected": 0
+  },
+  "class_balance": {
+    "taxonomy": {
+      "benchmark_label_0": 25,
+      "benchmark_label_1": 25,
+      "family_content": 20,
+      "family_artifact": 30,
+      "primary_category_counts": {
+        "artifact_grounded_overflag": 21,
+        "artifact_label_noise": 7,
+        "generic_or_descriptive_answer": 4,
+        "entity_substitution": 3,
+        "artifact_short_answer_fp": 2,
+        "entity_misattribution": 2,
+        "wrong_granularity": 2,
+        "non_responsive_or_partial_answer": 2,
+        "answer_span_copy": 1,
+        "fabricated_entity": 1,
+        "numeric_or_temporal_error": 1,
+        "relation_inversion": 1,
+        "coreference_error": 1,
+        "entity_name_distortion": 1,
+        "entity_conflation": 1
+      }
+    },
+    "explanation": {
+      "benchmark_label_0": 48,
+      "benchmark_label_1": 52,
+      "ai_plausible": 47,
+      "ai_implausible": 47,
+      "ai_unsure": 6
+    },
+    "claims": {
+      "claim_rows_parent_label_0": 50,
+      "claim_rows_parent_label_1": 50,
+      "parent_answers_label_0": 25,
+      "parent_answers_label_1": 25,
+      "ai_supported": 63,
+      "ai_contradicted": 5,
+      "ai_unsupported": 14,
+      "ai_unsure": 18
+    },
+    "blind": {
+      "claims": 20,
+      "explanation": 20,
+      "taxonomy": 20
+    }
+  },
+  "selection": {
+    "taxonomy": {
+      "rule": "25 highest-scoring benchmark-negative rows and 25 lowest-scoring benchmark-positive rows from m3 seed-42 HaluEval test scores",
+      "negative_at_threshold_0_5": 8,
+      "negative_near_threshold": 17,
+      "negative_min_selected_score": 0.27246755361557007,
+      "positive_max_selected_score": 0.3121454119682312,
+      "note": "The requested 25 threshold false positives do not exist at 0.5. Only 8 label=0 rows cross 0.5; the remaining 17 are near-threshold high-risk grounded cases. Each rationale states the group."
+    },
+    "explanation": {
+      "error_enriched": 50,
+      "b5_reaudit": 26,
+      "additional_m3_errors": 24,
+      "random_length_stratified": 50,
+      "stratification": "10 equal-count answer-character deciles of the 3,000-row HaluEval test split, 5 rows per decile",
+      "note": "The B5 audit set contains 26 cases, so 24 additional m3 error-enriched cases were added to reach 50. All 100 rows are re-scored under m3 and use exact TreeSHAP."
+    },
+    "claims": {
+      "source": "RAGTruth QA test",
+      "answers": 50,
+      "parent_answers_label_0": 25,
+      "parent_answers_label_1": 25,
+      "claims_per_answer": 2,
+      "splitter": "src.claims.decompose.split_claims after abbreviation normalisation",
+      "evidence_extractor": "src.claims.verify.verify_claims with cross-encoder/nli-deberta-v3-base",
+      "note": "HaluEval gold answers are mostly single short spans; the deterministic splitter yields two usable claims for only 5 of the 3,000 HaluEval test answers. RAGTruth QA test answers are long enough to support 100 claims from 50 answers and give a balanced parent-label set."
+    }
+  },
+  "integrity": {
+    "all_ai_preannotated": true,
+    "benchmark_label_treated_as_cross_check": true,
+    "author_fields_blank": true,
+    "banned_wording_absent": true,
+    "agreement_statistic_computed": false,
+    "agreement_status": "pending three-author blind labelling"
+  },
+  "caveats": [
+    "All 250 annotation rows are AI pre-annotations and remain needs_author_verification.",
+    "The taxonomy sample is error-enriched and rank-defined; it is not a threshold confusion matrix and does not estimate prevalence.",
+    "Only 8 of the 25 taxonomy benchmark-negative rows cross the 0.5 decision threshold; 17 are near-threshold cases.",
+    "The explanation sample combines 50 error-enriched cases (26 from the B5 set plus 24 additional m3 errors) with 50 length-stratified random cases.",
+    "The 26 B5 cases were selected under the earlier B2 model and are re-scored under m3; that selection is not an m3 prevalence sample.",
+    "The claim sheet uses RAGTruth QA test answers because HaluEval test answers rarely yield two atomic claims.",
+    "No kappa is computed in this package. The blind sheet must be completed by all three authors first.",
+    "The benchmark label is a cross-check, not ground truth; label-noise findings are expected."
+  ],
+  "annotator": {
+    "type": "AI agent pre-annotation",
+    "name": "OpenCode general subagent",
+    "model": "DeepSeek V4.1 Flash 1017",
+    "date": "2026-11-11",
+    "prompt_definition": "P0 annotation package task specification plus codebook_v2.md; no external LLM API prompt was used. The pre-annotation is the agent's reading of the source rows against the codebook.",
+    "human_review": "three-author blinded review with AI pre-annotation pending"
+  },
+  "scored_model_note": "The `model` block describes the EC-XGB checkpoint whose errors and SHAP values were sampled; it is not the annotator."
+}

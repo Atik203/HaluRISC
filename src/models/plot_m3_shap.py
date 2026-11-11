@@ -24,7 +24,7 @@ from matplotlib.patches import Patch
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "artifacts" / "results" / "rebuild" / "explanations" / "m3_global_shap_importance.csv"
 OUT = ROOT / "Journal_Paper" / "figures" / "revision" / "m3_shap_summary.png"
-DPI = 600
+DPI = 650
 
 GROUP_COLORS = {
     "lexical": "#6C5CE7",
@@ -99,3 +99,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

@@ -220,7 +220,7 @@ Goal: answer “one benchmark, no retrieval, no external baseline.”
 
 ### P1.1 Second in-domain corpus
 
-**Option A — existing labeled corpus.** Select a public QA hallucination corpus with gold context and binary labels; verify license, label definition, and split. No new annotation if comparable.
+**Option A - existing labeled corpus.** Selected: **MedHallu** `pqa_labeled` (MIT, 1,000 human-annotated medical QA pairs with gold knowledge and paired hallucinated answers). Secondary breadth check: **HaluBench** non-overlap subset (DROP, FinanceBench, covidQA; exclude HaluEval, RAGTruth, and pubmedQA to avoid double-counting; CC BY-NC 2.0).
 
 **Option B — 300–500 new labels.** Sample natural QA answers, 3 authors label grounded/hallucinated with evidence; 50-row overlap for kappa.
 
@@ -372,7 +372,7 @@ API is not the main cost. Human review is.
 
 1. **After P0 annotation:** if kappa < 0.4, stop and fix the codebook before any paper edits.
 2. **After P0 experiments:** if length-matched judges collapse, make that a headline finding, not a footnote.
-3. **After P1.1:** if no comparable second corpus exists, use P1.3 and state the limitation.
+3. **After P1.1:** if MedHallu and HaluBench disagree, report per-corpus results; do not pool them into a single headline.
 4. **Before P2:** require a written go/no-go from all authors and a 3-week minimum commitment.
 5. **Before submission:** two reviewer passes, audit 100%, build clean, floats in range.
 

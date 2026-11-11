@@ -383,9 +383,16 @@ def _is_max_tokens_error(exc: BaseException) -> bool:
     )
 
 
-def openai_call(client, model: str, row: pd.Series, seed: int, max_completion_tokens: int) -> dict[str, Any]:
+def openai_call(
+    client,
+    model: str,
+    row: pd.Series,
+    seed: int,
+    max_completion_tokens: int,
+    system_prompt: str = SYSTEM_PROMPT,
+) -> dict[str, Any]:
     messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "system", "content": system_prompt},
         {"role": "user", "content": build_user_prompt(row)},
     ]
 
@@ -466,11 +473,18 @@ def check_ollama(url: str, model: str) -> list[str]:
     return names
 
 
-def qwen_call(url: str, model: str, row: pd.Series, seed: int, max_predict: int) -> dict[str, Any]:
+def qwen_call(
+    url: str,
+    model: str,
+    row: pd.Series,
+    seed: int,
+    max_predict: int,
+    system_prompt: str = SYSTEM_PROMPT,
+) -> dict[str, Any]:
     payload = {
         "model": model,
         "messages": [
-            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "system", "content": system_prompt},
             {"role": "user", "content": build_user_prompt(row)},
         ],
         "stream": False,

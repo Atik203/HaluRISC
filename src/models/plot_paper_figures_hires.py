@@ -35,7 +35,7 @@ ROOT = Path(__file__).resolve().parents[2]
 FIG_PAPER = ROOT / "Journal_Paper" / "figures"
 THRESHOLD = 0.5
 SEED = 42
-DPI = 600
+DPI = 650
 
 plt.rcParams.update(
     {

@@ -38,7 +38,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 ROOT = Path(__file__).resolve().parents[2]
 RESULTS = ROOT / "artifacts" / "results"
 OUT = ROOT / "Journal_Paper" / "figures" / "revision"
-DPI = 600
+DPI = 650
 SEEDS = (42, 123, 456)
 
 # Okabe-Ito colour-blind-safe palette.
@@ -502,3 +502,4 @@ if __name__ == "__main__":
     print("== ablation_delta ==")
     ablation_delta()
     print("done: revision figures written to", OUT.relative_to(ROOT))
+

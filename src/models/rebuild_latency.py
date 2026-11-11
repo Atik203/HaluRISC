@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import sys
 import time
 from pathlib import Path
@@ -27,6 +28,7 @@ from src.features.claim_features import compute_claim_features
 from src.features.extract_features import extract_all_features_single
 
 OUT = Path("artifacts/results/rebuild/latency")
+DEFAULT_OUT = OUT / "m3_latency.json"
 logger = logging.getLogger("rebuild_latency")
 
 
@@ -40,14 +42,49 @@ def summarize(values):
     }
 
 
+def resolve_out(path: str | None) -> Path:
+    """Accept a JSON file path or a directory; default keeps the old artifact path."""
+    if path is None:
+        return DEFAULT_OUT
+    candidate = Path(path)
+    return candidate if candidate.suffix.lower() == ".json" else candidate / "m3_latency.json"
+
+
+def device_report() -> dict:
+    """Requested and effective inference device for feature extraction."""
+    requested = os.environ.get("HALU_API_DEVICE", "cpu")
+    try:
+        import torch
+
+        cuda_available = bool(torch.cuda.is_available())
+        torch_version = torch.__version__
+    except Exception:
+        cuda_available = None
+        torch_version = None
+    effective = "cuda" if requested == "cuda" and cuda_available else "cpu"
+    return {
+        "device": effective,
+        "device_requested": requested,
+        "torch_cuda_available": cuda_available,
+        "torch_version": torch_version,
+        "xgboost_device_env": os.environ.get("HALU_XGB_DEVICE", "auto"),
+    }
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--limit", type=int, default=200)
     parser.add_argument("--input", default="data/processed/qa_clean.parquet")
+    parser.add_argument(
+        "--out",
+        default=None,
+        help="JSON file or directory. Default: artifacts/results/rebuild/latency/m3_latency.json",
+    )
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-    OUT.mkdir(parents=True, exist_ok=True)
+    out_path = resolve_out(args.out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
 
     frame = pd.read_parquet(args.input).head(args.limit)
     logger.info("rows: %d", len(frame))
@@ -55,7 +92,7 @@ def main():
     t0 = time.perf_counter()
     models = load_feature_models()
     load_s = time.perf_counter() - t0
-    logger.info("feature models loaded in %.2fs on %s", load_s, models.get("device", "?"))
+    logger.info("feature models loaded in %.2fs on %s", load_s, device_report()["device"])
 
     # Warm up the NLI path so the first call does not dominate the tail.
     for _ in range(2):
@@ -76,17 +113,19 @@ def main():
         total.append(end - t)
         assert len(claim_feats) == 8
 
+    device = device_report()
     result = {
         "schema": "rebuild-m3-latency-v1",
         "rows": len(frame),
-        "device": models.get("device", "?"),
+        **device,
+        "input": args.input,
         "model_load_s": load_s,
         "base": summarize(base),
         "claim": summarize(claims),
         "total": summarize(total),
         "note": "Per-row Python timing on unique rows, no HTTP or response serialization.",
     }
-    (OUT / "m3_latency.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
+    out_path.write_text(json.dumps(result, indent=2), encoding="utf-8")
     print(json.dumps(result, indent=2))
 
 

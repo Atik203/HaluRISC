@@ -91,7 +91,7 @@ RESULTS = ROOT / "artifacts" / "results"
 MODELS = ROOT / "artifacts" / "models"
 PROCESSED = ROOT / "data" / "processed"
 
-DPI = 600
+DPI = 650
 SEEDS = (42, 123, 456)
 SEED = 42
 THRESHOLD = 0.5
@@ -724,3 +724,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
