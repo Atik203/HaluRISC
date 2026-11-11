@@ -36,7 +36,7 @@ Full plan: `docs/rebuild/STRENGTHENING_PLAN.md`
 
 - [ ] P0 Close audit and protocol gaps (4 days; target 90/100)
 - [ ] P1 External validity and retrieval (5 days; target 92-94/100)
-- [ ] P2 Benchmark/resource paper (3-6 weeks; separate paper)
+- [ ] P2 Benchmark/resource paper (deferred; separate paper, 3-6 weeks)
 
 ## Artifact and branch policy
 

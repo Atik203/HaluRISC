@@ -1,6 +1,6 @@
 # Strengthening Plan P0 / P1 / P2
 
-Status: **proposed**. Nothing in this plan has been executed. Start only after the author confirms.
+Status: **proposed**. Nothing in this plan has been executed. Recommended path: **P0 + P1**. P2 is deferred as a separate benchmark/resource paper; it is not part of the current submission. Start only after the author confirms.
 
 Target: take the `rebuild` paper from ~88/100 to ~90 (P0), ~92–94 (P1), or a separate benchmark paper (~94+) for P2.
 
@@ -304,7 +304,9 @@ Goal: answer “one benchmark, no retrieval, no external baseline.”
 
 ---
 
-## 5. P2 — benchmark/resource paper
+## 5. P2 - deferred benchmark/resource paper
+
+**Decision: deferred.** P2 is a different contribution, not a revision. It should not delay the mid Q1 submission. Start it only after P0+P1 is submitted or accepted, and only if the authors want a benchmark/resource paper.
 
 Goal: a separate paper, not a revision.
 
@@ -334,7 +336,7 @@ Goal: a separate paper, not a revision.
 
 **P2 effort:** 200–400 human hours; API **$3–6**; compute 20–50 GPU-h.
 
-**P2 go/no-go:** only if P1 shows a clear benchmark gap and two authors can commit 3–6 weeks. Do not start P2 for a mid Q1 transaction.
+**P2 go/no-go:** deferred. Revisit only after P0+P1 is submitted or accepted, and only if two authors can commit 3-6 weeks. Do not start P2 for a mid Q1 transaction.
 
 ---
 
@@ -408,7 +410,7 @@ API is not the main cost. Human review is.
 - [ ] Paper integration and build
 - [ ] P1 reviewer pass
 
-### P2
+### P2 (deferred)
 
 - [ ] HaluEval-LC split and 500-row human verification
 - [ ] RAGTruth-Claim 1,000 responses, 2 annotators, kappa
@@ -417,15 +419,19 @@ API is not the main cost. Human review is.
 - [ ] Dataset card, license, leaderboard, code
 - [ ] P2 go/no-go review
 
+Do not start these before P0+P1 is submitted or accepted.
+
 ---
 
 ## 10. Start condition
 
 Do not start until the author confirms:
 
-- which package: **P0**, **P0+P1**, or **P0+P1+P2**;
+- the package, recommended **P0 + P1**;
 - the three author roles;
 - the annotation budget (author time or paid annotators);
 - whether a second corpus is available.
+
+P2 is deferred. It is not part of the current submission.
 
 On confirmation, begin with **P0 day 0**: freeze the codebook and generate the sheets.
