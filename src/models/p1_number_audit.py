@@ -234,6 +234,20 @@ check("Multical QA one-claim ECE", 0.3463, qa_claim1["ece"])
 check("Multical FaithBench target ECE", 0.6291, fb_overall["ece"])
 
 # ---------------------------------------------------------------------------
+# P0 three-reviewer AI calibration
+# ---------------------------------------------------------------------------
+review = json.loads((P0 / "author_review_summary.json").read_text(encoding="utf-8"))
+for sheet, agreement, kappa, blind_kappa in (
+    ("taxonomy", 0.940, 0.923, 0.868),
+    ("explanation", 0.980, 0.965, 0.940),
+    ("claims", 0.880, 0.788, 0.761),
+):
+    check(f"AI review {sheet} agreement", agreement, review["sheets"][sheet]["agreement"]["agreement"], tol=0.001)
+    check(f"AI review {sheet} Cohen kappa", kappa, review["sheets"][sheet]["agreement"]["kappa"], tol=0.001)
+    check(f"AI review {sheet} blind Fleiss", blind_kappa, review["blind"][sheet]["fleiss_kappa"], tol=0.001)
+check("AI review mean blind Fleiss", 0.857, review["blind_overall"]["mean_fleiss_kappa"], tol=0.001)
+
+# ---------------------------------------------------------------------------
 out = pd.DataFrame(rows)
 out.to_csv(OUT / "p1_number_audit.csv", index=False)
 summary = {

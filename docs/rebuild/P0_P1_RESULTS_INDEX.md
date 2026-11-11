@@ -92,12 +92,24 @@ Current gate values:
 
 ## 5. Human review
 
-The three-author review is the only unfinished step. Start at
-`docs/rebuild/P0_REVIEW_QUICKSTART.md`; the full guide is
-`docs/rebuild/p0/P0_HUMAN_REVIEW_GUIDE.md`. After the sheets are complete:
+The three-author human review is the only unfinished step. A three-reviewer AI
+draft is complete and ready for the authors to check:
+
+- `docs/rebuild/p0/author_review/README.md` — start here.
+- `docs/rebuild/p0/author_review/AI_REVIEW_RESULTS.md` — agreement, kappa, corrections, caveats.
+- `docs/rebuild/p0/author_review/AUTHOR_PROXY_REVIEW.md` — author-proxy review to sign.
+- `docs/rebuild/p0/author_review/ingest/` — reviewed sheets in the ingest layout.
+
+AI-review result: taxonomy kappa 0.923, explanation 0.965, claims 0.788;
+blind Fleiss kappa 0.868 / 0.940 / 0.761 (mean 0.857). These are AI reviewers,
+not human authors. The paper reports them as an AI-assisted calibration and
+keeps the human verification open.
+
+Rerun after any label edit:
 
 ```powershell
-& .venv\Scripts\python.exe src\models\p0_ingest_author_review.py
+& .venv\Scripts\python.exe src\models\merge_p0_author_review.py
+& .venv\Scripts\python.exe src\models\p0_ingest_author_review.py --docs-dir docs/rebuild/p0/author_review/ingest
 ```
 
 Then copy the agreement and kappa values from
