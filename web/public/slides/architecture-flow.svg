@@ -71,7 +71,7 @@
   <!-- Row 4: calibration -->
   <rect x="480" y="530" width="640" height="76" rx="20" fill="#fffbeb" stroke="#b45309" stroke-width="3"/>
   <text class="h2" x="800" y="562" text-anchor="middle">Platt Calibration &#8212; RAGTruth QA</text>
-  <text class="sub" x="800" y="590" text-anchor="middle">5% false-positive budget</text>
+  <text class="sub" x="800" y="590" text-anchor="middle">fit on 5,034 QA calibration rows</text>
 
   <!-- arrow to outputs -->
   <path class="flow" d="M800 606 L800 646"/>
@@ -84,7 +84,7 @@
 
   <rect x="570" y="666" width="460" height="70" rx="16" fill="#eef2ff" stroke="#1e40af" stroke-width="3"/>
   <text class="h2" x="800" y="696" text-anchor="middle">Per-claim verdicts</text>
-  <text class="sub" x="800" y="721" text-anchor="middle">three verdicts per claim</text>
+  <text class="sub" x="800" y="721" text-anchor="middle">one verdict per claim</text>
 
   <rect x="1080" y="666" width="460" height="70" rx="16" fill="#f0fdfa" stroke="#0f766e" stroke-width="3"/>
   <text class="h2" x="1310" y="708" text-anchor="middle">SHAP explanation</text>

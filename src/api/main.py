@@ -61,9 +61,9 @@ MODEL_VERSION = "b2-xgboost-v1.0"
 FEATURE_VERSION = "course-v1.0"
 
 THRESHOLDS = {"low": 0.35, "medium": 0.60, "high": 1.0}
-WARNING = ("Calibrated on natural RAGTruth responses. The model itself is trained on "
-           "HaluEval synthetic data, so the score is style-sensitive; per-claim "
-           "verdicts lead when present.")
+WARNING = ("Calibrated on natural RAGTruth QA responses. The classifier is trained on "
+           "HaluEval plus RAGTruth non-QA rows, so the score is length- and style-sensitive; "
+           "per-claim verdicts lead when present.")
 
 # B-run deployable (B4.2 predeclared rule): B2 xgboost_seed_42 + B4 Platt
 # source calibrator. Falls back to the Version A bundle when B-run artifacts

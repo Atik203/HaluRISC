@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex out/halurisc"] 1794396188.93221 "out/halurisc.aux" "out/halurisc.bbl" "out/halurisc" 1794396200.4404 0
-  "./ref.bib" 1794385115 16419 01ddd1a6869ff6ffd2fdf168fa4f939d ""
+["bibtex out/halurisc"] 1794398720.76367 "out/halurisc.aux" "out/halurisc.bbl" "out/halurisc" 1794398731.94742 0
+  "./ref.bib" 1794398138 15645 28802deb757b9d79b8ea5f108c36dcab ""
   "c:/texlive/2026/texmf-dist/bibtex/bst/elsarticle/elsarticle-num.bst" 1793971264 29462 dde4ec39bf78fded04ea32048bba0a74 ""
-  "out/halurisc.aux" 1794396198 21027 49150e174d0ad1700876cde834c60c2e "pdflatex"
+  "out/halurisc.aux" 1794398730 20947 77894fc870f67318a77fcf5666b1d725 "pdflatex"
   (generated)
   "out/halurisc.bbl"
   "out/halurisc.blg"
   (rewritten before read)
-["pdflatex"] 1794396189.3886 "halurisc.tex" "out/halurisc.pdf" "halurisc" 1794396200.44171 0
+["pdflatex"] 1794398721.24204 "halurisc.tex" "out/halurisc.pdf" "halurisc" 1794398731.94872 0
   "c:/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1793971095 2971 def0b6c1f0b107b3b936def894055589 ""
   "c:/texlive/2026/texmf-dist/fonts/enc/dvips/stix/stix-t1.enc" 1793972328 7013 c55cc8669071ac14036c4a0c96c16202 ""
   "c:/texlive/2026/texmf-dist/fonts/enc/dvips/stix/stix-ts1.enc" 1793972328 2836 154e6b0061f9b8cb549144b55b268339 ""
@@ -51,6 +51,7 @@
   "c:/texlive/2026/texmf-dist/fonts/type1/public/stix/STIXGeneral-Bold.pfb" 1793972328 250376 bf3a400e1273354c5c26332493ec1650 ""
   "c:/texlive/2026/texmf-dist/fonts/type1/public/stix/STIXGeneral-Italic.pfb" 1793972328 221139 9f909fb310c9861a9dcd561488bde33b ""
   "c:/texlive/2026/texmf-dist/fonts/type1/public/stix/STIXGeneral-Regular.pfb" 1793972328 547522 236ff2bb503aa0bb9279bcfcb1c68020 ""
+  "c:/texlive/2026/texmf-dist/fonts/type1/public/stix/stix-mathbb.pfb" 1793972328 34312 93d172bb03d56a69a32b53ff723ce40b ""
   "c:/texlive/2026/texmf-dist/fonts/type1/public/stix/stix-mathcal.pfb" 1793972328 63697 54c53ee8b8c43f52d0718f669ed6fb5e ""
   "c:/texlive/2026/texmf-dist/fonts/type1/public/stix/stix-mathex.pfb" 1793972328 26156 d6751631159a7cd0a5d264b2d10a82fe ""
   "c:/texlive/2026/texmf-dist/fonts/type1/public/stix/stix-mathit.pfb" 1793972328 41474 772656494141d29334d3e80c9a859c10 ""
@@ -234,19 +235,19 @@
   "figures/b3/transfer_score_distributions.png" 1794388916 262165 91bfaae7ddf972adce42843596a45263 ""
   "figures/b4/calibration_shift.png" 1794388915 246400 5776a4446c197a49c4a55b66586b6432 ""
   "figures/b4/reliability_diagrams.png" 1794388917 312821 7bdfc071209b793abd2c6c41c1183ce3 ""
-  "figures/revision/architecture-flow-large.png" 1794321355 577667 ed5611dc95b59086c103b7f8141043bf ""
+  "figures/revision/architecture-flow-large.png" 1794398159 577740 89a80553a1f32782752d141a4b79a917 ""
   "figures/revision/length_analysis.png" 1794389415 296631 780acd30776de78221693502f3f73f01 ""
   "figures/revision/m3_shap_summary.png" 1794389486 362466 f4be1d124d90b8138671c353f618d1af ""
   "figures/revision/operating_point_label_budget.png" 1794389413 293862 4a23b193044e56384101ebfc9e5b55e3 ""
   "figures/revision/per_seed_stability.png" 1794389416 241300 6b1151825ab16ef9779f15c37c9e715c ""
   "figures/revision/roc_pr_curves.png" 1794389411 844218 fc4c5a666685f065511cd9fd7c4d9c6e ""
   "figures/revision/system-architecture-large.png" 1794321395 448893 cf2327ed055154d12a59fde7da226b5f ""
-  "halurisc.tex" 1794396177 114915 58959ef38af5713ea20f29d80ac88703 ""
-  "out/halurisc.abs" 1794396191 1848 63c4f85d2e58b9a004df75383d354dbe "pdflatex"
-  "out/halurisc.aux" 1794396198 21027 49150e174d0ad1700876cde834c60c2e "pdflatex"
-  "out/halurisc.bbl" 1794396189 12877 d844eeaace0f9f104b303758414d5c0a "bibtex out/halurisc"
-  "out/halurisc.out" 1794396191 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "screenshots/paper-risk-card-large.png" 1794388816 1639432 1451a4ef772fcd1f33e15a8b9f2db7f4 ""
+  "halurisc.tex" 1794398130 113215 5a009b4dc61caf979fcd58dcc3dcad6f ""
+  "out/halurisc.abs" 1794398722 1932 719be5e268344875a63793f96918b7c7 "pdflatex"
+  "out/halurisc.aux" 1794398730 20947 77894fc870f67318a77fcf5666b1d725 "pdflatex"
+  "out/halurisc.bbl" 1794398721 12229 2017c066c0fc54683b6d3f0608d416f7 "bibtex out/halurisc"
+  "out/halurisc.out" 1794398722 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "screenshots/paper-risk-card-large.png" 1794398703 1642846 3963b6aa94c79bd0142a6629a62cb4d5 ""
   (generated)
   "out/halurisc.abs"
   "out/halurisc.aux"

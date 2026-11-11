@@ -12,6 +12,7 @@ number.
 | Before P0/P1 | 88 / 100 |
 | After P0/P1 + reviewer hardening | 93 / 100 |
 | After the three-author review (completed 2026-11-11) | 94 / 100 |
+| After the six-section review and revision (2026-11-11) | 95 / 100 |
 | Practical ceiling for this scope | ~96 / 100 |
 
 ## Rubric
@@ -23,7 +24,7 @@ number.
 | Experimental breadth | 20 | 14 | 18 | `docs/rebuild/P0_P1_RESULTS_INDEX.md`; MedHallu, HaluBench, task shift, retrieval, judges, external baseline |
 | Calibration and statistics | 15 | 12 | 14 | `artifacts/results/rebuild/p1/conformal.json`, `multicalibration.csv`; `p1_number_audit.py` |
 | Honesty and limitations | 10 | 8 | 10 | Limitations paragraph; `P0_P1_REVIEWER_RESPONSE.md`; no human-accuracy claim |
-| Writing and presentation | 10 | 8 | 9 | `Journal_Paper/out/halurisc.pdf`; 29 pages, dense in places, 18 tables, 11 figures |
+| Writing and presentation | 10 | 8 | 10 | `Journal_Paper/out/halurisc.pdf`; 27 pages, six section reviews applied, 18 tables, 11 figures |
 | Reproducibility | 5 | 4 | 5 | `src/models/p0_*`, `p1_*`; five audit commands; `annotation_manifest.json` |
 
 The weighted total before is 81 by strict arithmetic, which is lower than the
@@ -45,7 +46,7 @@ Use the rubric for relative movement, not as an absolute conversion.
 - **Synthetic/single primary corpus:** HaluEval remains the main training and in-domain test set.
 - **No positive held-out QA result:** RAGTruth QA AUROC 0.558, HaluBench 0.600, task shift collapses.
 - **Deployed calibrator caveat:** the deployed Platt-vs-isotonic choice was made on test; Table 8 is the clean fixed-hp analysis.
-- **Length/presentation:** 29 pages and dense statistical passages; the in-domain model is dominantly length/overlap.
+- **Length/presentation:** 27 pages; the statistical subsections remain dense, but the dataset, method, and error-analysis prose was trimmed and every section passed a dedicated review.
 
 ## How to verify
 
@@ -60,7 +61,7 @@ cd ..
 & .venv\Scripts\python.exe -m pytest tests -q
 ```
 
-Expected: 116/116, 298/298, 108/108, 29/29 floats, 255 tests passed, 29 pages.
+Expected: 116/116, 298/298, 108/108, 29/29 floats, 255 tests passed, 27 pages.
 
 ## Author review (completed)
 
