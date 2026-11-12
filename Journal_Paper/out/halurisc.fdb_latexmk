@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex out/halurisc"] 1794496320.67881 "out/halurisc.aux" "out/halurisc.bbl" "out/halurisc" 1794496331.9655 0
+["bibtex out/halurisc"] 1794496529.1731 "out/halurisc.aux" "out/halurisc.bbl" "out/halurisc" 1794496540.9069 0
   "./ref.bib" 1794481479 15765 469c099d4562db9e7b6168f16c5d8037 ""
   "c:/texlive/2026/texmf-dist/bibtex/bst/elsarticle/elsarticle-num.bst" 1793971264 29462 dde4ec39bf78fded04ea32048bba0a74 ""
-  "out/halurisc.aux" 1794496330 18920 75d82b4231833efeec661713e8eca69d "pdflatex"
+  "out/halurisc.aux" 1794496539 18920 4f1044222d7c69e62188036a4a7d29f2 "pdflatex"
   (generated)
   "out/halurisc.bbl"
   "out/halurisc.blg"
   (rewritten before read)
-["pdflatex"] 1794496321.14284 "halurisc.tex" "out/halurisc.pdf" "halurisc" 1794496331.96708 0
+["pdflatex"] 1794496529.63175 "halurisc.tex" "out/halurisc.pdf" "halurisc" 1794496540.90821 0
   "c:/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1793971095 2971 def0b6c1f0b107b3b936def894055589 ""
   "c:/texlive/2026/texmf-dist/fonts/enc/dvips/stix/stix-t1.enc" 1793972328 7013 c55cc8669071ac14036c4a0c96c16202 ""
   "c:/texlive/2026/texmf-dist/fonts/enc/dvips/stix/stix-ts1.enc" 1793972328 2836 154e6b0061f9b8cb549144b55b268339 ""
@@ -243,11 +243,11 @@
   "figures/revision/per_seed_stability.png" 1794404756 241300 6b1151825ab16ef9779f15c37c9e715c ""
   "figures/revision/roc_pr_curves.png" 1794404756 844218 fc4c5a666685f065511cd9fd7c4d9c6e ""
   "figures/revision/system-architecture-large.png" 1794321395 448893 cf2327ed055154d12a59fde7da226b5f ""
-  "halurisc.tex" 1794496307 98632 601fc013862a1fa5c685665a2f226587 ""
-  "out/halurisc.abs" 1794496322 1898 0d5b05368f7e01618d6f171ccee9b3b7 "pdflatex"
-  "out/halurisc.aux" 1794496330 18920 75d82b4231833efeec661713e8eca69d "pdflatex"
-  "out/halurisc.bbl" 1794496321 12229 a53f8e82c73f4c99036552405b398bb3 "bibtex out/halurisc"
-  "out/halurisc.out" 1794496322 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "halurisc.tex" 1794496515 98802 4790016f5c3e6aaba2ac85eb4a844deb ""
+  "out/halurisc.abs" 1794496531 1898 0d5b05368f7e01618d6f171ccee9b3b7 "pdflatex"
+  "out/halurisc.aux" 1794496539 18920 4f1044222d7c69e62188036a4a7d29f2 "pdflatex"
+  "out/halurisc.bbl" 1794496529 12229 a53f8e82c73f4c99036552405b398bb3 "bibtex out/halurisc"
+  "out/halurisc.out" 1794496531 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
   (generated)
   "out/halurisc.abs"
   "out/halurisc.aux"
