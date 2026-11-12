@@ -465,16 +465,9 @@ The method is deployed in a web application with a Next.js front end and a FastA
 
 Figure~\ref{fig:system} shows the deployment view. The browser calls the Next.js backend-for-frontend (BFF), which streams chat tokens and forwards tool calls to the model. The analyze route calls FastAPI through the \texttt{/api/ml/*} rewrite. FastAPI loads EC-XGB, the Platt calibrator, SHAP, NLI, spaCy, and MiniLM at startup. The lower band lists the inference components. A tool call goes to the judge, and a prediction request goes to \texttt{/predict}, \texttt{/explain}, or \texttt{/verify}. Figure~\ref{fig:pipeline} shows how one answer is scored, and Figure~\ref{fig:system} shows where each component runs. The card's headline follows the claim verdicts when they are present. A contradicted claim sets high risk, an unsupported claim sets medium risk, and a fully supported answer sets low risk. The percentage is the display score: the chat card adjusts it by the claim mix, and the analyze card reports the unadjusted Platt score.
 
-Figure~\ref{fig:screens} shows the hallucinated-number case. The context says 5 days per decade and the answer says 10. The raw score is 0.999 and the target-calibrated score is 35.4\%, which the card rounds to 35\% and places in the medium band (0.35--0.60). The claim view marks the number claim unsupported, so the chat card also reports medium risk. The two labels agree here, but they come from different rules. The claim-verdict audit is reported in Section~\ref{sec:results}.
+In the hallucinated-number case, the context says 5 days per decade and the answer says 10. The raw score is 0.999 and the target-calibrated score is 35.4\%, which the card rounds to 35\% and places in the medium band (0.35--0.60). The claim view marks the number claim unsupported, so the chat card also reports medium risk. The two labels agree here, but they come from different rules. The claim-verdict audit is reported in Section~\ref{sec:results}.
 The requirements file pins every dependency, split indices are stored with the artifacts, and the audit scripts check the rebuilt and unchanged reported values against the frozen artifacts. The audits run after every build and fail on any mismatch.
 
-
-\begin{figure}[pos=htbp]
-  \centering
-  \includegraphics[width=0.82\linewidth]{revision/paper-risk-card-large.png}
-  \caption{Risk card for the hallucinated-number case, showing the target-calibrated display score.}
-  \label{fig:screens}
-\end{figure}
 
 The contribution is the training and evaluation protocol, not a new learner. EC-XGB combines three standard changes: log-scaled length counts with monotone constraints, claim-level NLI aggregates for explanation, and multi-source training with a source indicator. Section~\ref{sec:results} measures what each change contributes. The claim aggregates are kept for per-claim explanation and do not add an aggregate F1 gain. The seen-task gain comes from the m3 stack that adds the RAGTruth rows and the source indicator, and the two are not separated. The risk score needs no LLM judge calls. The optional claim judge is a separate verification step, and the reported EC-XGB results do not use it.
 

@@ -92,7 +92,7 @@ Paper consequence: the component ablation can no longer say that per-variant tun
 - Fig. 9 (`fig:operating`): regenerate panel (b) with the 100-draw label-budget mean and 95% band.
 - Fig. 10 (`fig:shapimp`): replace the B2 SHAP summary with the m3 summary from WP4.
 - Fig. 11 (`fig:length`): unchanged unless m3 length diagnostics are added.
-- UI screenshot (`fig:screens`): regenerate after the UI wording change; the gauge now says "target-calibrated score", not "calibrated probability".
+- UI screenshot: removed from the manuscript; keep any refreshed screenshot in the repository or supplementary material.
 
 ## 4. Equation additions
 
@@ -175,7 +175,7 @@ Do not add equations that the implementation does not use.
 - `web/app/(site)/analyze/page.tsx`: explain that the score is fitted on RAGTruth QA and needs target recalibration (done).
 - `web/components/assistant-ui/auto-risk-card.tsx`: "Evidence-calibrated risk probability" -> "Evidence-adjusted risk score" (done).
 - `web/app/(site)/about/page.tsx` and `web/app/(site)/page.tsx`: matching wording (done).
-- Regenerate `Journal_Paper/figures/revision/paper-risk-card-large.png` at light theme, device scale 4, case=hallucinated, run=1.
+- The UI screenshot is no longer part of the manuscript; it is kept in the repository or supplementary material.
 - Update the Figure 5 caption to "Risk card with the target-calibrated display score."
 
 ## 7. Build and audit gates

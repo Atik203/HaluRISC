@@ -68,7 +68,7 @@ Current gate values:
 - `review_number_audit.py`: 298/298 match.
 - `p1_number_audit.py`: 108/108 match.
 - `float_proximity_audit.py`: 29/29 within two pages.
-- PDF: 25 pages, 38 references, 0 overfull, 0 undefined.
+- PDF: 24 pages, 38 references, 0 overfull, 0 undefined.
 
 ## 4. Key results in one block
 

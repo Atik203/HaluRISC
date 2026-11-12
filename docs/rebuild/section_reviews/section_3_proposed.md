@@ -5,7 +5,7 @@
 - **Guides read:** `docs/prompt.md`, `docs/writing-guideline.md`
 - **Code cross-checked:** `src/models/run_b6_modified.py`, `src/features/claim_features.py`, `src/features/nli_features.py`, `src/features/semantic_features.py`, `src/features/entity_features.py`, `src/models/fit_ec_xgb_calibrator.py`, `src/api/main.py`, `src/claims/verify.py`, `web/components/assistant-ui/auto-risk-card.tsx`, `web/app/(site)/analyze/page.tsx`
 - **Artifacts cross-checked:** `artifacts/results/rebuild/fixed_hp/b6_feature_names.json`, `artifacts/results/b6/b6_calibration.json`, `artifacts/models/b6/ec_xgb_display_calibrator.joblib`, `artifacts/results/b5/b5_perturbation_aggregates.csv`, `docs/rebuild/p0/author_review/ingest/p0_claim_verdicts.csv`, `docs/rebuild/p0/author_review/AI_REVIEW_RESULTS.md`
-- **Figures checked:** `Journal_Paper/figures/revision/architecture-flow-large.png`, `Journal_Paper/figures/revision/system-architecture-large.png`, `Journal_Paper/figures/revision/paper-risk-card-large.png`
+- **Figures checked:** `Journal_Paper/figures/revision/architecture-flow-large.png`, `Journal_Paper/figures/revision/system-architecture-large.png`, the UI screenshot (removed from the manuscript)
 - **Constraints respected:** no edits to the manuscript, artifacts, or any existing file. Only this report was written.
 
 ## Verdict

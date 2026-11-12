@@ -219,7 +219,7 @@ The manuscript is written; everything left is manual review and final pre-submis
 
 1. The B5.5 sheet is filled (17.1). Claim-eval and feedback labels remain optional inputs if those numbers should appear in the paper.
 2. Click through every DOI/URL at submission time in `Journal_Paper/ref.bib` (30 entries, verified 2026-09-17 and 2026-09-23); the `ieeeTai` DOI must be re-checked on ieeexplore, which blocks scraping.
-3. If desired, update the System figure (`Journal_Paper/figures/revision/paper-risk-card-large.png`) to the latest chat auto-risk card, then rebuild: `latexmk -pdf -outdir=out halurisc.tex` (from `Journal_Paper/`).
+3. If desired, refresh the UI screenshot in the repository or supplementary material, then rebuild: `latexmk -pdf -outdir=out halurisc.tex` (from `Journal_Paper/`).
 4. Prepare the 5-minute demo script: problem → grounded example → unsupported example → explanation → calibration/shift result → failure case → efficiency. The offline `/demo` page already contains the material.
 5. Pick the journal venue and recheck scope, quartile, APC, and author guidelines at submission time. The CAS single-column manuscript in `Journal_Paper/` is the submission draft.
 
