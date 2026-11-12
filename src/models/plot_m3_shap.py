@@ -26,6 +26,24 @@ SRC = ROOT / "artifacts" / "results" / "rebuild" / "explanations" / "m3_global_s
 OUT = ROOT / "Journal_Paper" / "figures" / "revision" / "m3_shap_summary.png"
 DPI = 650
 
+FEATURE_LABELS = {
+    "overlap_answer_context": "context overlap",
+    "n_words": "word count",
+    "cosine_q_ans": "question-answer cosine",
+    "n_chars": "character count",
+    "jaccard_ans_q": "question-answer Jaccard",
+    "overlap_answer_question": "question overlap",
+    "nli_ctx_contradicts_ans": "context contradiction",
+    "claim_mean_contradicts": "claim contradiction mean",
+    "nli_ctx_neutral_ans": "context neutral",
+    "jaccard_ans_ctx": "context Jaccard",
+    "source_ragtruth": "source indicator",
+    "nli_ctx_entails_ans": "context entailment",
+    "nli_ans_contradicts_ctx": "answer contradiction",
+    "entity_overlap_ratio": "entity overlap ratio",
+    "avg_word_len": "average word length",
+}
+
 GROUP_COLORS = {
     "lexical": "#6C5CE7",
     "length": "#0984E3",
@@ -52,10 +70,11 @@ plt.rcParams.update(
 
 def main() -> None:
     data = pd.read_csv(SRC).head(15).iloc[::-1]
+    labels = [FEATURE_LABELS.get(f, f) for f in data["feature"]]
     colors = [GROUP_COLORS.get(g, "#636E72") for g in data["feature_group"]]
     fig, ax = plt.subplots(figsize=(6.4, 3.55), constrained_layout=True)
     bars = ax.barh(
-        data["feature"],
+        labels,
         data["mean_abs_shap"],
         color=colors,
         edgecolor="white",
