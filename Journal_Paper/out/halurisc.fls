@@ -554,11 +554,11 @@ INPUT ./figures/revision/architecture-flow-large.png
 INPUT ./figures/revision/architecture-flow-large.png
 INPUT ./figures/revision/architecture-flow-large.png
 INPUT c:/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/ecsx0900.tfm
-INPUT ./figures/revision/system-architecture-large.png
-INPUT ./figures/revision/system-architecture-large.png
-INPUT ./figures/revision/system-architecture-large.png
-INPUT ./figures/revision/system-architecture-large.png
 INPUT c:/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/ectt1000.tfm
+INPUT ./figures/revision/system-architecture-large.png
+INPUT ./figures/revision/system-architecture-large.png
+INPUT ./figures/revision/system-architecture-large.png
+INPUT ./figures/revision/system-architecture-large.png
 INPUT ./figures/revision/roc_pr_curves.png
 INPUT ./figures/revision/roc_pr_curves.png
 INPUT ./figures/revision/roc_pr_curves.png
@@ -600,6 +600,7 @@ INPUT c:/texlive/2026/texmf-dist/tex/latex/stix/ts1stix.fd
 INPUT c:/texlive/2026/texmf-dist/tex/latex/stix/ts1stix.fd
 INPUT c:/texlive/2026/texmf-dist/tex/latex/stix/ts1stix.fd
 INPUT c:/texlive/2026/texmf-dist/fonts/tfm/public/stix/ts1-stixgeneral.tfm
+INPUT c:/texlive/2026/texmf-dist/fonts/enc/dvips/stix/stix-ts1.enc
 INPUT out/halurisc.bbl
 INPUT out/halurisc.bbl
 INPUT out/halurisc.bbl
@@ -646,7 +647,6 @@ INPUT c:/texlive/2026/texmf-dist/fonts/tfm/public/stix/stix-mathsfit.tfm
 INPUT c:/texlive/2026/texmf-dist/fonts/tfm/public/stix/stix-mathtt.tfm
 INPUT c:/texlive/2026/texmf-dist/fonts/tfm/public/stix/stix-mathtt.tfm
 INPUT c:/texlive/2026/texmf-dist/fonts/tfm/public/stix/stix-mathtt.tfm
-INPUT c:/texlive/2026/texmf-dist/fonts/enc/dvips/stix/stix-ts1.enc
 INPUT out/halurisc.aux
 INPUT out/halurisc.out
 INPUT out/halurisc.out
