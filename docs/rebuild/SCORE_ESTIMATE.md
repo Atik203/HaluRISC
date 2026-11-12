@@ -61,7 +61,7 @@ cd ..
 & .venv\Scripts\python.exe -m pytest tests -q
 ```
 
-Expected: 116/116, 298/298, 108/108, 29/29 floats, 255 tests passed, 25 pages.
+Expected: 116/116, 298/298, 108/108, 30/30 floats, 258 tests passed, 25 pages.
 
 ## Author review (completed)
 

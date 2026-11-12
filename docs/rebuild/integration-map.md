@@ -175,7 +175,7 @@ Do not add equations that the implementation does not use.
 - `web/app/(site)/analyze/page.tsx`: explain that the score is fitted on RAGTruth QA and needs target recalibration (done).
 - `web/components/assistant-ui/auto-risk-card.tsx`: "Evidence-calibrated risk probability" -> "Evidence-adjusted risk score" (done).
 - `web/app/(site)/about/page.tsx` and `web/app/(site)/page.tsx`: matching wording (done).
-- Regenerate `Journal_Paper/screenshots/paper-risk-card-large.png` at light theme, device scale 4, case=hallucinated, run=1.
+- Regenerate `Journal_Paper/figures/revision/paper-risk-card-large.png` at light theme, device scale 4, case=hallucinated, run=1.
 - Update the Figure 5 caption to "Risk card with the target-calibrated display score."
 
 ## 7. Build and audit gates

@@ -442,6 +442,28 @@ def _ec_feature_names() -> list:
     return base + list(CLAIM_COLUMNS) + ["source_ragtruth"]
 
 
+# EC-XGB (m3) is trained and calibrated on log1p(n_chars) and log1p(n_words)
+# (src/models/run_b6_modified.py: LOG_LENGTH_COLUMNS, feature_matrix). Serving
+# must apply the same transform; the B2 baselines stay on the raw counts.
+EC_LOG_LENGTH_COLUMNS = ("n_chars", "n_words")
+
+
+def _ec_feature_matrix(feats: Dict[str, float], feature_cols: list) -> np.ndarray:
+    """Build the EC-XGB input matrix in ``feature_cols`` order.
+
+    Mirrors ``run_b6_modified.feature_matrix(..., log_lengths=True)`` so the
+    serving matrix cannot drift from the trained checkpoint. Only n_chars and
+    n_words are log1p-transformed; every other feature (including the source
+    indicator) is passed through unchanged.
+    """
+    X = np.array([[feats[c] for c in feature_cols]], dtype=np.float64)
+    for column in EC_LOG_LENGTH_COLUMNS:
+        if column in feature_cols:
+            idx = feature_cols.index(column)
+            X[0, idx] = np.log1p(np.clip(X[0, idx], 0.0, None))
+    return X
+
+
 def _load_ec_model():
     """EC-XGB m3 + its display calibrator. None when the artifacts are absent."""
     if not (B6_EC_MODEL.exists() and B6_EC_DISPLAY.exists()):
@@ -738,7 +760,7 @@ def predict_risk(req: AnalysisRequest):
 
     if STATE.get("ec_model") is not None:
         ec = STATE["ec_model"]
-        X = np.array([[feats[c] for c in ec["feature_cols"]]], dtype=np.float64)
+        X = _ec_feature_matrix(feats, ec["feature_cols"])
         p_raw = float(ec["raw"].predict_proba(X)[0, 1])
         p_disp = float(ec["predict_proba_display"](X)[0, 1])
     else:
@@ -770,7 +792,13 @@ def explain_risk(req: AnalysisRequest):
 
     feats = _feature_vector(req)
     cols = _active_prediction_cols()
-    X = np.array([[feats[c] for c in cols]], dtype=np.float64)
+    if STATE.get("ec_model") is not None:
+        # The active explainer is built from the EC-XGB booster, which consumes
+        # log1p length counts. Report raw counts below so the card matches
+        # /predict.features; the SHAP impact is computed on the model input.
+        X = _ec_feature_matrix(feats, cols)
+    else:
+        X = np.array([[feats[c] for c in cols]], dtype=np.float64)
 
     shap_values = STATE["explainer"].shap_values(X)[0]
     base_value = float(STATE["explainer"].expected_value)
@@ -779,7 +807,7 @@ def explain_risk(req: AnalysisRequest):
     top_features = [
         FeatureImpact(
             feature=cols[i],
-            value=round(float(X[0, i]), 6),
+            value=round(float(feats[cols[i]]), 6),
             impact=round(float(shap_values[i]), 6),
         )
         for i in order
@@ -823,7 +851,7 @@ def predict_compare(req: AnalysisRequest):
     models: Dict[str, CompareModelScore] = {}
     if STATE.get("ec_model") is not None:
         ec = STATE["ec_model"]
-        X_ec = np.array([[feats[c] for c in ec["feature_cols"]]], dtype=np.float64)
+        X_ec = _ec_feature_matrix(feats, ec["feature_cols"])
         p_ec = float(ec["raw"].predict_proba(X_ec)[0, 1])
         p_ec = min(0.999, max(0.001, p_ec))
         models["ec_xgb"] = CompareModelScore(score=round(p_ec, 4), label=_risk_label(p_ec),

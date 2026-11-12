@@ -1,0 +1,5 @@
+sheet,rows,reviewer,agreement,cohen_kappa,corrected,blind_fleiss,decision,verified_on
+taxonomy,50,MAR,0.94,0.923,3/50 (6.0%),0.868,accept,2026-11-12
+explanation,100,SAS,0.98,0.965,2/100 (2.0%),0.94,accept,2026-11-12
+claims,100,MMA,0.88,0.788,12/100 (12.0%),0.761,accept,2026-11-12
+blind_overlap,60,MAR/SAS/MMA,,,,0.857,accept,2026-11-12

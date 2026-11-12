@@ -135,9 +135,11 @@ class FakeRaw:
 
     def __init__(self, p: float):
         self._p = p
+        self.last_X = None
 
     def predict_proba(self, X):
-        return np.tile([[1 - self._p, self._p]], (len(X), 1))
+        self.last_X = np.asarray(X, dtype=np.float64)
+        return np.tile([[1 - self._p, self._p]], (len(self.last_X), 1))
 
 
 def _fake_model(p: float) -> dict:
@@ -268,6 +270,113 @@ def test_predict_uses_ec_xgb_when_loaded(client, monkeypatch):
     assert body["legacy_score"] == 0.9
     assert body["model_version"] == "b6-ec-xgb-v1.0"
     assert body["label"] == "low_risk"
+
+
+def test_ec_matrix_applies_log1p_but_b2_stays_raw(client, monkeypatch):
+    """Regression: EC-XGB consumes log1p lengths; B2 consumes raw counts.
+
+    Every serving path previously built both matrices from raw n_chars/n_words,
+    scoring EC-XGB on a different scale than its trained checkpoint.
+    """
+    ec_raw = FakeRaw(0.31)
+    b2_raw = FakeRaw(0.9)
+    monkeypatch.setattr(api, "STATE", {
+        "model": {
+            "raw": b2_raw,
+            "predict_proba": b2_raw.predict_proba,
+            "predict_proba_display": b2_raw.predict_proba,
+        },
+        "explainer": None,
+        "feature_models": object(),
+        "feature_cols": ["n_chars", "n_words", "overlap_answer_context"],
+        "params": {},
+        "model_version": "b6-ec-xgb-v1.0",
+        "ec_model": {
+            "raw": ec_raw,
+            "predict_proba_display": lambda X: np.tile([[0.9, 0.1]], (len(X), 1)),
+            # Deliberately shuffled so the test also pins ec["feature_cols"] order.
+            "feature_cols": ["n_chars", "source_ragtruth", "n_words", "overlap_answer_context"],
+        },
+    })
+    monkeypatch.setattr(api, "_feature_vector", lambda req: {
+        "n_chars": 100.0, "n_words": 20.0,
+        "source_ragtruth": 1.0, "overlap_answer_context": 0.9,
+    })
+
+    expected_ec = [[np.log1p(100.0), 1.0, np.log1p(20.0), 0.9]]
+    expected_b2 = [[100.0, 20.0, 0.9]]
+
+    r = client.post("/predict", json={"question": "q", "context": "c", "answer": "a"})
+    assert r.status_code == 200
+    np.testing.assert_allclose(ec_raw.last_X, expected_ec, rtol=0, atol=1e-12)
+    np.testing.assert_allclose(b2_raw.last_X, expected_b2, rtol=0, atol=1e-12)
+
+    # /predict/compare re-scores EC-XGB and the B2 baselines with the same matrices.
+    r = client.post("/predict/compare", json={"question": "q", "context": "c", "answer": "a"})
+    assert r.status_code == 200
+    np.testing.assert_allclose(ec_raw.last_X, expected_ec, rtol=0, atol=1e-12)
+    np.testing.assert_allclose(b2_raw.last_X, expected_b2, rtol=0, atol=1e-12)
+
+
+def test_ec_feature_matrix_matches_training_transform():
+    """Serving helper must match run_b6_modified.feature_matrix(log_lengths=True)."""
+    import pandas as pd
+
+    from src.models import run_b6_modified as b6
+
+    cols = ["n_chars", "source_ragtruth", "n_words", "overlap_answer_context"]
+    feats = {"n_chars": 100.0, "n_words": 20.0,
+             "source_ragtruth": 1.0, "overlap_answer_context": 0.9}
+    np.testing.assert_allclose(
+        api._ec_feature_matrix(feats, cols),
+        b6.feature_matrix(pd.DataFrame([feats]), cols, log_lengths=True),
+        rtol=0, atol=1e-12,
+    )
+
+
+def test_explain_uses_ec_log1p_matrix(client, monkeypatch):
+    """/explain feeds SHAP the same log-scaled EC matrix as /predict."""
+
+    class RecordingExplainer:
+        expected_value = 0.5
+
+        def __init__(self):
+            self.last_X = None
+
+        def shap_values(self, X):
+            self.last_X = np.asarray(X, dtype=np.float64)
+            return np.ones_like(self.last_X)
+
+    explainer = RecordingExplainer()
+    monkeypatch.setattr(api, "STATE", {
+        "model": _fake_model(0.62),
+        "explainer": explainer,
+        "feature_models": object(),
+        "feature_cols": ["n_chars", "n_words", "overlap_answer_context"],
+        "params": {},
+        "model_version": "b6-ec-xgb-v1.0",
+        "ec_model": {
+            "raw": FakeRaw(0.31),
+            "predict_proba_display": lambda X: np.tile([[0.7, 0.3]], (len(X), 1)),
+            "feature_cols": ["n_words", "n_chars", "source_ragtruth", "overlap_answer_context"],
+        },
+    })
+    monkeypatch.setattr(api, "_feature_vector", lambda req: {
+        "n_chars": 100.0, "n_words": 20.0,
+        "source_ragtruth": 1.0, "overlap_answer_context": 0.9,
+    })
+
+    r = client.post("/explain", json={"question": "q", "context": "c", "answer": "a"})
+    assert r.status_code == 200
+    np.testing.assert_allclose(
+        explainer.last_X,
+        [[np.log1p(20.0), np.log1p(100.0), 1.0, 0.9]],
+        rtol=0, atol=1e-12,
+    )
+    # Displayed values stay raw so the card matches /predict.features.
+    values = {f["feature"]: f["value"] for f in r.json()["top_features"]}
+    assert values["n_chars"] == 100.0
+    assert values["n_words"] == 20.0
 
 
 def test_verify_claims_endpoint(client, monkeypatch):

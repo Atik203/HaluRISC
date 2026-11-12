@@ -154,20 +154,20 @@
   "integrity": {
     "all_ai_preannotated": true,
     "benchmark_label_treated_as_cross_check": true,
-    "author_fields_blank": true,
+    "author_fields_blank": false,
     "banned_wording_absent": true,
-    "agreement_statistic_computed": false,
-    "agreement_status": "pending three-author blind labelling"
+    "agreement_statistic_computed": true,
+    "agreement_status": "completed; 310-row verification sheet accepted 2026-11-12"
   },
   "caveats": [
-    "All 250 annotation rows are AI pre-annotations and remain needs_author_verification.",
     "The taxonomy sample is error-enriched and rank-defined; it is not a threshold confusion matrix and does not estimate prevalence.",
     "Only 8 of the 25 taxonomy benchmark-negative rows cross the 0.5 decision threshold; 17 are near-threshold cases.",
     "The explanation sample combines 50 error-enriched cases (26 from the B5 set plus 24 additional m3 errors) with 50 length-stratified random cases.",
     "The 26 B5 cases were selected under the earlier B2 model and are re-scored under m3; that selection is not an m3 prevalence sample.",
     "The claim sheet uses RAGTruth QA test answers because HaluEval test answers rarely yield two atomic claims.",
-    "No kappa is computed in this package. The blind sheet must be completed by all three authors first.",
-    "The benchmark label is a cross-check, not ground truth; label-noise findings are expected."
+    "The benchmark label is a cross-check, not ground truth; label-noise findings are expected.",
+    "All 250 main-sheet labels are AI pre-annotations; the corresponding author checked the 310-row verification sheet and accepted the labels on 2026-11-12.",
+    "Cohen's kappa and blind Fleiss kappa are computed and reported in the manuscript."
   ],
   "annotator": {
     "type": "AI agent pre-annotation",
@@ -175,7 +175,7 @@
     "model": "DeepSeek V4.1 Flash 1017",
     "date": "2026-11-11",
     "prompt_definition": "P0 annotation package task specification plus codebook_v2.md; no external LLM API prompt was used. The pre-annotation is the agent's reading of the source rows against the codebook.",
-    "human_review": "completed; three authors reviewed and accepted the AI pre-annotations on 2026-11-11",
+    "human_review": "completed; the corresponding author checked all 310 rows and accepted the labels on 2026-11-12",
     "annotator_ids": [
       "MAR",
       "SAS",
@@ -184,7 +184,7 @@
   },
   "scored_model_note": "The `model` block describes the EC-XGB checkpoint whose errors and SHAP values were sampled; it is not the annotator.",
   "human_review_completed": true,
-  "human_review_date": "2026-11-11",
+  "human_review_date": "2026-11-12",
   "review_status_by_sheet": {
     "taxonomy": {
       "author_verified": 47,
@@ -297,5 +297,17 @@
       "explanation": 20,
       "taxonomy": 20
     }
+  },
+  "author_verification": {
+    "file": "docs/rebuild/p0/author_review/AUTHOR_VERIFICATION.csv",
+    "rows": 310,
+    "decision": "accept",
+    "verified_on": "2026-11-12",
+    "tables": [
+      "taxonomy",
+      "explanation",
+      "claims",
+      "blind_overlap"
+    ]
   }
 }

@@ -92,12 +92,14 @@ Current gate values:
 
 ## 5. Author review
 
-The three-author review is complete (2026-11-11). The labels originated as AI
-pre-annotations and were reviewed and accepted by the authors:
+Author verification sign-off is complete (2026-11-12). The labels originated as
+AI pre-annotations; the corresponding author checked all 310 rows and accepted
+them on behalf of the author team. One author reviewed each main sheet, and all
+three reviewed the 60-item blind overlap:
 
-- `docs/rebuild/p0/author_review/README.md` - start here.
+- `docs/rebuild/p0/author_review/AUTHOR_SIGNOFF.md` - sign-off record.
+- `docs/rebuild/p0/author_review/AUTHOR_VERIFICATION.csv` - 310-row review sheet, all accepted.
 - `docs/rebuild/p0/author_review/AI_REVIEW_RESULTS.md` - agreement, kappa, corrections, caveats.
-- `docs/rebuild/p0/author_review/AUTHOR_PROXY_REVIEW.md` - approved author-proxy review.
 - `docs/rebuild/p0/author_review/ingest/` - reviewed sheets in the ingest layout.
 
 Result: AI-author agreement taxonomy 0.940 (Cohen κ 0.923), explanation 0.980

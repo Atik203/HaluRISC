@@ -65,7 +65,7 @@ HaluRISC/
 ├── blueprint.md            # research blueprint (source of truth)
 ├── proposal.md             # supervisor proposal (Markdown copy)
 ├── roadmap.md              # this file
-├── Journal_Paper/          # journal manuscript (halurisc.tex, CAS single column) + ref.bib + class files + figures/screenshots
+├── Journal_Paper/          # journal manuscript (halurisc.tex, CAS single column) + ref.bib + class files + figures
 ├── docs/                   # phase guides: b5 (manual review), b6 (reproducibility), b7 (UI), frozen manifest
 ├── configs/                # version_b.yaml (run_all protocol)
 ├── data/
@@ -219,7 +219,7 @@ The manuscript is written; everything left is manual review and final pre-submis
 
 1. The B5.5 sheet is filled (17.1). Claim-eval and feedback labels remain optional inputs if those numbers should appear in the paper.
 2. Click through every DOI/URL at submission time in `Journal_Paper/ref.bib` (30 entries, verified 2026-09-17 and 2026-09-23); the `ieeeTai` DOI must be re-checked on ieeexplore, which blocks scraping.
-3. If desired, update the System screenshots (`Journal_Paper/screenshots/*.png`) to the latest chat auto-risk card, then rebuild: `latexmk -pdf -outdir=out halurisc.tex` (from `Journal_Paper/`).
+3. If desired, update the System figure (`Journal_Paper/figures/revision/paper-risk-card-large.png`) to the latest chat auto-risk card, then rebuild: `latexmk -pdf -outdir=out halurisc.tex` (from `Journal_Paper/`).
 4. Prepare the 5-minute demo script: problem → grounded example → unsupported example → explanation → calibration/shift result → failure case → efficiency. The offline `/demo` page already contains the material.
 5. Pick the journal venue and recheck scope, quartile, APC, and author guidelines at submission time. The CAS single-column manuscript in `Journal_Paper/` is the submission draft.
 

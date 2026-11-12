@@ -522,7 +522,7 @@ and 1,310 ms median, versus 0.985 at 61.8 ms for HaluRISC (McNemar
 | --- | --- | --- |
 | Journal (Elsevier CAS single column, 15 pages) | `Journal_Paper/halurisc.tex` | `latexmk -pdf -outdir=out halurisc.tex` from `Journal_Paper/` |
 
-- Figures resolve from `Journal_Paper/figures/` and `Journal_Paper/screenshots/`;
+- Figures resolve from `Journal_Paper/figures/`;
   `src/models/plot_paper_figures.py` refreshes the shift and transfer figures.
 - The retired course-format manuscript, its proposal, and its reference database
   remain in git history only.
