@@ -4,17 +4,11 @@ import path from "path";
 
 export const runtime = "nodejs";
 
-const ROOT_ARTIFACTS = path.resolve(process.cwd(), "..", "artifacts");
-const LOCAL_ARTIFACTS = path.resolve(process.cwd(), "artifacts");
-const FIGURES_DIR = path.join(fs.existsSync(ROOT_ARTIFACTS) ? ROOT_ARTIFACTS : LOCAL_ARTIFACTS, "figures");
+const LOCAL_ARTIFACTS = path.join(process.cwd(), "artifacts");
+const FIGURES_DIR = path.join(LOCAL_ARTIFACTS, "figures");
 const PAPER_FIGURES_DIR = path.resolve(process.cwd(), "..", "Journal_Paper", "figures");
 const PAPER_SCREENSHOTS_DIR = path.resolve(process.cwd(), "..", "Journal_Paper", "screenshots");
 const ALLOWED_DIRS = new Set(["b3", "b4"]);
-// Extra read-only roots for the presentation deck (/slide).
-const EXTRA_ROOTS: Record<string, string> = {
-  paper: PAPER_FIGURES_DIR,
-  screens: PAPER_SCREENSHOTS_DIR,
-};
 
 // GET /api/figures/[...path] — serves generated figures:
 //   /api/figures/fig_reliability.png        (top-level)
@@ -39,8 +33,12 @@ export async function GET(
     filePath = path.join(FIGURES_DIR, safe);
   } else {
     const dir = segments[0];
-    if (EXTRA_ROOTS[dir]) {
-      filePath = path.join(EXTRA_ROOTS[dir], safe);
+    // Static branches (not a dynamic EXTRA_ROOTS[dir] lookup) so the
+    // bundler traces only these folders instead of the whole project.
+    if (dir === "paper") {
+      filePath = path.join(PAPER_FIGURES_DIR, safe);
+    } else if (dir === "screens") {
+      filePath = path.join(PAPER_SCREENSHOTS_DIR, safe);
     } else if (ALLOWED_DIRS.has(dir)) {
       filePath = path.join(FIGURES_DIR, dir, safe);
     } else {

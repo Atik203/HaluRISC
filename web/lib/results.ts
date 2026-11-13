@@ -6,9 +6,9 @@ import path from "path";
  * Missing files return null (never throw). CSV readers handle quoted fields.
  */
 
-const ROOT_ARTIFACTS = path.resolve(process.cwd(), "..", "artifacts");
-const LOCAL_ARTIFACTS = path.resolve(process.cwd(), "artifacts");
-const ARTIFACTS_DIR = fs.existsSync(ROOT_ARTIFACTS) ? ROOT_ARTIFACTS : LOCAL_ARTIFACTS;
+// Self-contained copy of the artifacts snapshot; identical set to the repo-root
+// artifacts for every file this app reads (figures, dashboard results, models).
+const ARTIFACTS_DIR = path.join(process.cwd(), "artifacts");
 const RESULTS_DIR = path.join(ARTIFACTS_DIR, "results");
 const MODELS_DIR = path.join(ARTIFACTS_DIR, "models");
 

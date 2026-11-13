@@ -84,6 +84,14 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
+    // Frontend-only deploys may not set a chat key: fail fast with a clear
+    // message instead of throwing mid-stream inside the AI SDK.
+    if (!process.env.OPENAI_API_KEY) {
+      return Response.json(
+        { error: "Chat is not configured on this deployment (missing OPENAI_API_KEY). Static pages and the dashboard still work." },
+        { status: 503 },
+      );
+    }
     const { messages } = await req.json();
 
     // AI SDK v7: the client sends UIMessages (parts-based); convert to model messages first.
