@@ -58,3 +58,33 @@ Record of approved hardware, driver, CUDA, or environment changes (required by `
   Ollama tools, and the model caches.
 - After cleanup: `/home` back to 12 GB used, GPU at 1 MiB, no tmux sessions, no project paths left.
 - Driver `580.178.04`, CUDA, MIG layout, and system packages were not touched at any point.
+
+## 2026-11-15 - Shared user-space ML tooling kept in home
+
+Rationale: the account is used for other projects, so the Python and model tooling should not live
+inside one clone.
+
+- `uv 0.13.8` at `~/.local/bin/uv` (37 MB).
+- `ollama 0.40.16` at `~/.local/bin/ollama` (43 MB) with runtime libraries in
+  `~/.local/lib/ollama` (2.4 GB), all from the official GitHub releases.
+- Empty caches created at `~/.cache/huggingface/hub` and `~/.ollama/models`.
+- Model weights and the pip cache were deleted: 2.9 GB of Hugging Face checkpoints and 159 MB of
+  pip cache removed. Nothing is pre-pulled; models are downloaded on demand.
+- A dangling `~/.local/bin/python3.12` symlink pointed into the deleted project venv and shadowed
+  the system interpreter on `PATH`. Removed; `python3.12` now resolves to `/usr/bin/python3.12`.
+- Usage notes live in `~/README-ml-env.md` on the node, and the installer is kept at
+  `~/.local/bin/setup-shared-ml-env.sh` so the same setup can be rebuilt.
+- Verified: `ollama serve` answers on `127.0.0.1:11434` with an empty model list, the GPU returns to
+  1 MiB when it stops, and `/home` sits at 11 GB used.
+- No sudo, no system packages, no change to the driver, CUDA, clocks, power limits, or MIG layout.
+
+## 2026-11-15 - Final manuscript verification
+
+- `src/models/final_paper_verification.py` added. Latest run: 26 pages, 21 tables, 12 figures, and
+  17 equations, each numbered consecutively; 33 floats, all labelled uniquely and all referenced;
+  38 citations, all present in `ref.bib` and all cited; 38 of 38 H200 values matched the artifacts;
+  no non-ASCII characters and no em dash in prose.
+- The curated audits stay green: 116/116, 298/298, 108/108, and 33/33 floats within two pages.
+- All 26 rendered pages were inspected as images. One defect was found and fixed: the same Qwen 3.5
+  4B judge shows 3049.96 ms in Tables 17 and 18 (RTX 3060) and 976 ms in Table 19 (MIG slice). The
+  judge paragraph now states which machine each latency came from.
