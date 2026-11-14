@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex out/halurisc"] 1794684568.92759 "out/halurisc.aux" "out/halurisc.bbl" "out/halurisc" 1794684584.50965 0
+["bibtex out/halurisc"] 1794684853.49996 "out/halurisc.aux" "out/halurisc.bbl" "out/halurisc" 1794684868.37968 0
   "./ref.bib" 1794481479 15765 469c099d4562db9e7b6168f16c5d8037 ""
   "c:/texlive/2026/texmf-dist/bibtex/bst/elsarticle/elsarticle-num.bst" 1793971264 29462 dde4ec39bf78fded04ea32048bba0a74 ""
-  "out/halurisc.aux" 1794684582 21355 2f29483b9736e63f92d2fead04467ebd "pdflatex"
+  "out/halurisc.aux" 1794684866 21390 a15b680160f965d7dc863dc02347c85f "pdflatex"
   (generated)
   "out/halurisc.bbl"
   "out/halurisc.blg"
   (rewritten before read)
-["pdflatex"] 1794684569.4581 "halurisc.tex" "out/halurisc.pdf" "halurisc" 1794684584.5111 0
+["pdflatex"] 1794684854.00021 "halurisc.tex" "out/halurisc.pdf" "halurisc" 1794684868.38093 0
   "c:/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1793971095 2971 def0b6c1f0b107b3b936def894055589 ""
   "c:/texlive/2026/texmf-dist/fonts/enc/dvips/stix/stix-t1.enc" 1793972328 7013 c55cc8669071ac14036c4a0c96c16202 ""
   "c:/texlive/2026/texmf-dist/fonts/enc/dvips/stix/stix-ts1.enc" 1793972328 2836 154e6b0061f9b8cb549144b55b268339 ""
@@ -244,11 +244,11 @@
   "figures/revision/per_seed_stability.png" 1794404756 241300 6b1151825ab16ef9779f15c37c9e715c ""
   "figures/revision/roc_pr_curves.png" 1794404756 844218 fc4c5a666685f065511cd9fd7c4d9c6e ""
   "figures/revision/system-architecture-large.png" 1794321395 448893 cf2327ed055154d12a59fde7da226b5f ""
-  "halurisc.tex" 1794684554 106301 203652e50e15b8672c2976f66f9c1b0f ""
-  "out/halurisc.abs" 1794684571 1898 0d5b05368f7e01618d6f171ccee9b3b7 "pdflatex"
-  "out/halurisc.aux" 1794684582 21355 2f29483b9736e63f92d2fead04467ebd "pdflatex"
-  "out/halurisc.bbl" 1794684569 12229 a53f8e82c73f4c99036552405b398bb3 "bibtex out/halurisc"
-  "out/halurisc.out" 1794684571 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "halurisc.tex" 1794684831 106454 fbc5201e42ef660750abf6d4f2023a9a ""
+  "out/halurisc.abs" 1794684855 1898 0d5b05368f7e01618d6f171ccee9b3b7 "pdflatex"
+  "out/halurisc.aux" 1794684866 21390 a15b680160f965d7dc863dc02347c85f "pdflatex"
+  "out/halurisc.bbl" 1794684853 12229 a53f8e82c73f4c99036552405b398bb3 "bibtex out/halurisc"
+  "out/halurisc.out" 1794684855 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
   (generated)
   "out/halurisc.abs"
   "out/halurisc.aux"

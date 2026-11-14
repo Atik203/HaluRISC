@@ -21,7 +21,7 @@ Numbers trace to `artifacts/results/h200/encoder_ablation.json`,
 
 ## Appendix A title
 
-Additional Controls and Checks
+Appendix A. Encoder, Length, and Judge Controls
 
 ## Subsection A.1 title
 
