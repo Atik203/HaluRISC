@@ -3,11 +3,17 @@
 Every sentence added to `Journal_Paper/halurisc.tex` in this pass, formatted as paragraphs so each
 block can be copied and rewritten whole.
 
-Scope: Appendix A only, placed after the Acknowledgements and before the References, with Elsevier
-A-numbering (Table A.1 to A.3, Figure A.1). Two subsections, five body paragraphs, three table
-captions, one figure caption. One preamble comment changed (`18 tables and 11 figures` to `20 tables and 12 figures`) and
-it does not print. Every existing sentence in Sections 1 to 6, and every existing table and figure,
-is unchanged.
+There is no appendix. The four H200 controls now sit in the body, each next to the result it
+supports, and the existing sections keep their wording. Floats were renumbered automatically by
+`\ref`, so a few numbers in your existing sentences changed without any text edit: the ablation table
+became Table 7, the confusion matrix became Figure 11, and the length figure became Figure 12.
+
+| Added block | Section | Anchor | New float |
+|---|---|---|---|
+| Encoder control | 5.1 Model Comparison | end of subsection, after Figure 3 | Table 6 |
+| Throughput and memory | 5.5 Explanation, Efficiency, and Judges | after Table 17, before the judge paragraph | Figure 10 |
+| Local judge scale | 5.5 Explanation, Efficiency, and Judges | after Table 18, before 5.6 | Table 19 |
+| Length-matched external control | 5.6 Error Analysis and Discussion | end of subsection, before the Conclusion | Table 21 |
 
 Authorship rung C: this is draft text built from verified artifacts, not finished prose. Rewrite it
 in your own voice and check that the numbers survive. If your institution requires an AI-assistance
@@ -15,73 +21,53 @@ disclosure, keep this file as part of that record.
 
 Numbers trace to `artifacts/results/h200/encoder_ablation.json`,
 `artifacts/results/h200/length_matched.json`, `artifacts/results/h200/efficiency.csv`, and
-`artifacts/results/rebuild/judge/metrics_qwen_qwen9b.json`.
+`artifacts/results/h200/judge_qwen9b_metrics.json`.
 
 ---
 
-## Appendix A title
+## Section 5.1, new closing paragraph (Table 6, 125 words)
 
-Appendix A. Encoder, Length, and Judge Controls
-
-## Subsection A.1 title
-
-Encoder and Length Controls
-
-## Subsection A.2 title
-
-Local Judge Scale
+The encoder choice is the last in-domain check. Table 6 replaces one encoder at a time and repeats the grouped split, the thirty-iteration search, and the five-fold cross-validation with the same three seeds. The base row reproduces the frozen m2 row within 0.0005 F1 and 0.0002 AUROC, which confirms that the pipeline is stable across machines. A larger NLI checkpoint adds 0.0022 F1 and loses 0.0008 AUROC, and the BGE embedding adds 0.0002 F1. McNemar tests return p = 0.63 and p = 0.77, so neither change separates from the deployed stack. AUROC already sits at 0.998, and a comparison at that level has little room to show a gain. The larger checkpoint is not worth the extra cost.
 
 ---
 
-## Appendix A, paragraph 1 (setup, 95 words)
+## Section 5.5, new paragraph after Table 17 (Figure 10, 124 words)
 
-The deployed model uses DeBERTa-v3-base for the NLI features and MiniLM for the cosine features. Both are small checkpoints. A reader may ask whether the reported results depend on that choice. Two controls answer the question. The first replaces one encoder at a time and repeats the full protocol on the new feature matrix. The second removes the length shortcut from the external corpora. The deployed model is not retrained in either control. All runs reuse the grouped split, the thirty-iteration search, and the five-fold cross-validation with seeds 42, 123, and 456, so only the encoder changes.
-
----
-
-## Appendix A, paragraph 2 (Table A.1, encoder comparison, 120 words)
-
-Table A.1 reports the in-domain comparison. The base row reproduces the frozen m2 row within 0.0005 F1 and 0.0002 AUROC, which confirms that a second machine follows the same pipeline. A larger NLI checkpoint adds 0.0022 F1 and loses 0.0008 AUROC. The BGE embedding adds 0.0002 F1. McNemar tests across the three seeds return p = 0.63 and p = 0.77, so neither change separates from the deployed stack. AUROC already sits at 0.998, and a comparison at that level has little room to show a gain. The larger checkpoint is not worth the extra cost.
+The throughput measurements come from a second machine, an H200 MIG slice with 15.9 GB of usable memory, so they describe the feature pipeline rather than the results above. Figure 10 reports the sweep. Batch 128 is the fastest point for the deployed stack at 361 rows per second and 3.2 GB of memory. Batch 256 gives 309 rows per second at 6.1 GB, so the configured value is already past the knee. The large NLI checkpoint runs at 122 rows per second and 10.3 GB, about 2.5 times the extraction time of the deployed stack. That cost buys the null result in Table 6, and it is the practical reason to keep the base encoder in the deployed system.
 
 ---
 
-## Appendix A, paragraph 3 (Table A.2, length-matched control, 129 words)
+## Section 5.5, new paragraph after Table 18 (Table 19, 131 words)
 
-Table A.2 repeats the two external comparisons after answer length is equalised. For HaluBench, each source keeps an equal number of PASS and FAIL answers inside each length bin. For MedHallu, the matched slice keeps the pairs whose two answers differ least in length. Matching costs 1.5 AUROC points on HaluBench and 4.7 on MedHallu. Pair accuracy falls from 0.8607 to 0.8290. The model stays well above the length-only baseline in both slices, at 0.588 against 0.475 on HaluBench and 0.771 against 0.401 on MedHallu. HaluBench is near chance in both slices, so its transfer value is weak with or without matching.
-
----
-
-## Appendix A, paragraph 4 (Figure A.1, throughput and memory, 112 words)
-
-Figure A.1 reports throughput and memory for the three encoder stacks on one H200 MIG slice with 15.9 GB of usable memory. The measurements come from a second machine, not the RTX 3060 used for the main experiments. Batch 128 is the fastest point for the deployed stack at 361 rows per second and 3.2 GB of memory. Batch 256 gives 309 rows per second at 6.1 GB, so the configured value is already past the knee. The large NLI checkpoint runs at 122 rows per second and 10.3 GB. The null result in Table A.1 therefore costs about 2.5 times the extraction time, which is the practical argument for keeping the deployed encoder.
+A local judge of the same family tests whether model size changes the picture. Table 19 adds Qwen3.5-9B on the same 900 rows. It reaches F1 0.5957 and AUROC 0.7838, against 0.6018 and 0.7783 for the 4B row, so the two sizes differ by 0.006 in each direction and neither closes the gap to the API judge at 0.910 AUROC. The larger model moves recall to 0.700 and precision to 0.519, and it flags 24.0% of the rows. Cost stays at zero and the median call takes 1.47 s on the slice. Exact agreement with EC-XGB is 0.274, so the judge and the feature model answer different questions and are not interchangeable. Latency is not comparable across the two judge rows because they ran on different GPUs.
 
 ---
 
-## Appendix A, paragraph 5 (Table A.3, local judge scale, 113 words)
+## Section 5.6, new closing paragraph (Table 21, 130 words)
 
-Table A.3 adds a larger local judge on the same 900-row QA split. Qwen3.5-9B reaches F1 0.5957 and AUROC 0.7838, and it flags 24.0% of the rows. The frozen 4B row sits at F1 0.6018 and AUROC 0.7783. The two sizes differ by 0.006 F1 and 0.006 AUROC in opposite directions, and the larger model does not recover the ranking that the API judge keeps at 0.910 AUROC. The 9B model moves recall up to 0.700 and precision down to 0.519, so it marks more rows as hallucinated. Cost stays at zero and the median call takes 1.47 s on the slice. Its exact agreement with EC-XGB is 0.274, which means the two tools answer different questions and should not be substituted for one another.
+The in-domain check leaves the external corpora open, because their answers have a different length distribution. Table 21 repeats the two external comparisons after answer length is equalised. For HaluBench, each source keeps an equal number of PASS and FAIL answers inside each length bin. For MedHallu, the matched slice keeps the pairs whose two answers differ least in length. Matching costs 1.5 AUROC points on HaluBench and 4.7 on MedHallu, and pair accuracy falls from 0.8607 to 0.8290. The model stays well above the length-only baseline in both slices, at 0.588 against 0.475 on HaluBench and 0.771 against 0.401 on MedHallu. HaluBench is near chance in both slices, so its transfer value is weak with or without matching.
 
 ---
 
-## Caption, Table A.1
+## Caption, Table 6
 
 In-domain encoder comparison on HaluEval QA (m2, 34 features, mean over seeds 42/123/456). Delta and McNemar p are against the deployed stack.
 
 ---
 
-## Caption, Table A.2
-
-External AUROC before and after answer-length matching, mean over seeds 42/123/456. Length-only is a logistic regression on log1p(n_words).
-
----
-
-## Caption, Table A.3
+## Caption, Table 19
 
 Local judges on the 900-row RAGTruth QA test split at natural prevalence, mean over three repeats. Dagger marks the frozen row from the RTX 3060, so its latency is not comparable.
 
 ---
 
-## Caption, Figure A.1
+## Caption, Table 21
+
+External AUROC before and after answer-length matching, mean over seeds 42/123/456. Length-only is a logistic regression on log1p(n_words).
+
+---
+
+## Caption, Figure 10
 
 NLI throughput and peak memory for three encoder stacks on the H200 MIG slice, with batch size varied for the deployed stack.
 

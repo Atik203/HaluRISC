@@ -587,6 +587,10 @@ INPUT ./figures/revision/m3_shap_summary.png
 INPUT ./figures/revision/m3_shap_summary.png
 INPUT ./figures/revision/m3_shap_summary.png
 INPUT ./figures/revision/m3_shap_summary.png
+INPUT ./figures/revision/h200_efficiency.png
+INPUT ./figures/revision/h200_efficiency.png
+INPUT ./figures/revision/h200_efficiency.png
+INPUT ./figures/revision/h200_efficiency.png
 INPUT c:/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/ecsi0900.tfm
 INPUT ./figures/revision/confusion_matrix.png
 INPUT ./figures/revision/confusion_matrix.png
@@ -601,10 +605,6 @@ INPUT c:/texlive/2026/texmf-dist/tex/latex/stix/ts1stix.fd
 INPUT c:/texlive/2026/texmf-dist/tex/latex/stix/ts1stix.fd
 INPUT c:/texlive/2026/texmf-dist/fonts/tfm/public/stix/ts1-stixgeneral.tfm
 INPUT c:/texlive/2026/texmf-dist/fonts/enc/dvips/stix/stix-ts1.enc
-INPUT ./figures/revision/h200_efficiency.png
-INPUT ./figures/revision/h200_efficiency.png
-INPUT ./figures/revision/h200_efficiency.png
-INPUT ./figures/revision/h200_efficiency.png
 INPUT out/halurisc.bbl
 INPUT out/halurisc.bbl
 INPUT out/halurisc.bbl

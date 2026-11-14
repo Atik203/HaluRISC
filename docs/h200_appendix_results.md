@@ -1,8 +1,10 @@
-# H200 Appendix — Verified Results
+# H200 Controls — Verified Results
 
 Numbers only, produced on `uiu-h200` (`H200 1g.18gb`, driver `580.178.04`).
-Prose for the manuscript is the author's to write; this file is the source of truth
-for the numbers. Every table below is reproducible from the script named with it.
+There is no appendix. The four controls sit in Sections 5.1, 5.5, and 5.6 of the
+manuscript (Table 6, Figure 10, Table 19, Table 21). Prose for the manuscript is the
+author's to write; this file is the source of truth for the numbers. Every table below is
+reproducible from the script named with it.
 
 Careful reading notes are at the end. Do not lift a number without the caveat that
 belongs to it.

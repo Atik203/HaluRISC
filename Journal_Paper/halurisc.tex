@@ -577,7 +577,22 @@ The XGBoost margin relative to the random forest is 0.0004 F1, McNemar $p = 0.50
   \label{fig:rocpr}
 \end{figure}
 
+The encoder choice is the last in-domain check. Table~\ref{tab:encoders} replaces one encoder at a time and repeats the grouped split, the thirty-iteration search, and the five-fold cross-validation with the same three seeds. The base row reproduces the frozen m2 row within 0.0005 F1 and 0.0002 AUROC, which confirms that the pipeline is stable across machines. A larger NLI checkpoint adds 0.0022 F1 and loses 0.0008 AUROC, and the BGE embedding adds 0.0002 F1. McNemar tests return $p = 0.63$ and $p = 0.77$, so neither change separates from the deployed stack. AUROC already sits at 0.998, and a comparison at that level has little room to show a gain. The larger checkpoint is not worth the extra cost.
 
+\begin{table}[pos=htbp]
+  \centering
+  \caption{In-domain encoder comparison on HaluEval QA (m2, 34 features, mean over seeds 42/123/456). Delta and McNemar $p$ are against the deployed stack.}
+  \label{tab:encoders}
+  \begin{tabular}{lrrrrr}
+    \toprule
+    \textbf{Encoder} & \textbf{F1} & \textbf{AUROC} & \textbf{$\Delta$F1} & \textbf{$\Delta$AUROC} & \textbf{$p$} \\
+    \midrule
+    DeBERTa-v3-base + MiniLM & 0.9852 $\pm$ 0.0013 & 0.9986 $\pm$ 0.0001 & --- & --- & --- \\
+    DeBERTa-v3-large + MiniLM & 0.9875 $\pm$ 0.0012 & 0.9978 $\pm$ 0.0001 & $+$0.0022 & $-$0.0008 & 0.63 \\
+    DeBERTa-v3-base + BGE-base & 0.9855 $\pm$ 0.0005 & 0.9984 $\pm$ 0.0000 & $+$0.0002 & $-$0.0002 & 0.77 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 \subsection{EC-XGB and Ablation}
 
@@ -916,6 +931,15 @@ Table~\ref{tab:latency} contains component latencies. Components are measured se
   \end{tabular}
 \end{table}
 
+The throughput measurements come from a second machine, an H200 MIG slice with 15.9~GB of usable memory, so they describe the feature pipeline rather than the results above. Figure~\ref{fig:efficiency} reports the sweep. Batch 128 is the fastest point for the deployed stack at 361 rows per second and 3.2~GB of memory. Batch 256 gives 309 rows per second at 6.1~GB, so the configured value is already past the knee. The large NLI checkpoint runs at 122 rows per second and 10.3~GB, about 2.5 times the extraction time of the deployed stack. That cost buys the null result in Table~\ref{tab:encoders}, and it is the practical reason to keep the base encoder in the deployed system.
+
+\begin{figure}[pos=htbp]
+  \centering
+  \includegraphics[width=\linewidth]{revision/h200_efficiency.png}
+  \caption{NLI throughput and peak memory for three encoder stacks on the H200 MIG slice, with batch size varied for the deployed stack.}
+  \label{fig:efficiency}
+\end{figure}
+
 LLM judges are not fair evaluators, and their preferences depend on the answer order \cite{wang2024fair}. Table~\ref{tab:judge} compares EC-XGB with two judges on the RAGTruth QA rows at natural prevalence. GPT-5.6 Luna reaches AUROC 0.910 compared to 0.558 for EC-XGB, and Qwen 3.5 4B also beats EC-XGB, meaning that both judges are superior QA detectors, while the feature model advantage is only in cost. The target-fitted length-only baseline also ranks the QA rows higher than the feature model. Under matched multi-source training, the adapted encoder achieves 0.694 on the pooled RAGTruth test set, outperforming EC-XGB at 0.582. The feature model has less degradation on new tasks, but both models approach random guessing. The length-matched panel changes the ranking: on the exact-length subset, EC-XGB performs similarly to the stronger judge in AUROC and better in F1, meaning that the natural-prevalence difference is due to the domain shift and not the length difference. The paired interval for GPT minus EC-XGB is $-$0.052 [$-0.127$, 0.024], and the AUROC interval is $+$0.008 [$-0.034$, 0.048]. Both include zero. Prompt choice moves GPT's F1 from 0.814 to 0.854 across three prompts, about the size of the model gap. GPT uses default decoding and three seeds, while Qwen is a single deterministic run, so the judge ranking is not stable.
 
 \begin{table}[pos=htbp]
@@ -938,6 +962,22 @@ LLM judges are not fair evaluators, and their preferences depend on the answer o
     Qwen 3.5 4B judge  & 1.000      & 0.696      & 0.821       & 0.863          & 34.8\%           & 3050              & \$0              \\
     EC-XGB (m3)        & 0.954      & 0.865      & 0.907       & 0.956          & 45.4\%           & 127.5             & $\approx$\$0.001 \\
     Length-only        & 0.515      & 0.443      & 0.476       & 0.521          & 43.0\%           & ---               & $\approx$\$0     \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+A local judge of the same family tests whether model size changes the picture. Table~\ref{tab:judge9b} adds Qwen3.5-9B on the same 900 rows. It reaches F1 0.5957 and AUROC 0.7838, against 0.6018 and 0.7783 for the 4B row, so the two sizes differ by 0.006 in each direction and neither closes the gap to the API judge at 0.910 AUROC. The larger model moves recall to 0.700 and precision to 0.519, and it flags 24.0\% of the rows. Cost stays at zero and the median call takes 1.47~s on the slice. Exact agreement with EC-XGB is 0.274, so the judge and the feature model answer different questions and are not interchangeable. Latency is not comparable across the two judge rows because they ran on different GPUs.
+
+\begin{table}[pos=htbp]
+  \centering
+  \caption{Local judges on the 900-row RAGTruth QA test split at natural prevalence, mean over three repeats. $^{\dagger}$Frozen row from the RTX 3060, so its latency is not comparable.}
+  \label{tab:judge9b}
+  \begin{tabular}{lrrrrrrr}
+    \toprule
+    \textbf{Judge} & \textbf{P} & \textbf{R} & \textbf{F1} & \textbf{AUROC} & \textbf{Flagged} & \textbf{p50 (ms)} & \textbf{\$/1K} \\
+    \midrule
+    Qwen3.5-9B & 0.519 & 0.700 & 0.5957 & 0.7838 & 24.0\% & 1466 & 0 \\
+    Qwen3.5-4B$^{\dagger}$ & 0.570 & 0.638 & 0.6018 & 0.7783 & 19.9\% & 3050 & 0 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -980,6 +1020,24 @@ Figure~\ref{fig:length} demonstrates the same pattern. The long complete sentenc
   \label{fig:length}
 \end{figure}
 
+The in-domain check leaves the external corpora open, because their answers have a different length distribution. Table~\ref{tab:lengthmatch} repeats the two external comparisons after answer length is equalised. For HaluBench, each source keeps an equal number of PASS and FAIL answers inside each length bin. For MedHallu, the matched slice keeps the pairs whose two answers differ least in length. Matching costs 1.5 AUROC points on HaluBench and 4.7 on MedHallu, and pair accuracy falls from 0.8607 to 0.8290. The model stays well above the length-only baseline in both slices, at 0.588 against 0.475 on HaluBench and 0.771 against 0.401 on MedHallu. HaluBench is near chance in both slices, so its transfer value is weak with or without matching.
+
+\begin{table}[pos=htbp]
+  \centering
+  \caption{External AUROC before and after answer-length matching, mean over seeds 42/123/456. Length-only is a logistic regression on log1p($n_{\mathrm{words}}$).}
+  \label{tab:lengthmatch}
+  \begin{tabular}{llrrr}
+    \toprule
+    \textbf{Corpus} & \textbf{Slice} & \textbf{EC-XGB} & \textbf{Length-only} & \textbf{$\Delta$} \\
+    \midrule
+    HaluBench & full & 0.6032 $\pm$ 0.0068 & 0.5099 & --- \\
+    HaluBench & length-matched & 0.5882 $\pm$ 0.0088 & 0.4753 & $-$0.0151 \\
+    MedHallu & full & 0.8177 $\pm$ 0.0018 & 0.2604 & --- \\
+    MedHallu & length-matched & 0.7707 $\pm$ 0.0034 & 0.4007 & $-$0.0470 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
 \section{Conclusion}\label{sec:conclusion}
 
 The current paper tests EC-XGB, an evidence-consistent, 35-feature model, as a hallucination risk score and how its calibration and ranking change under domain and task shifts. The model's ranking is still intact after the corpus has changed and allows the score to rank answers for review. Moreover, its per-claim verdicts provide a reviewer with the explanation of each flagged instance. On the other hand, its probability is not so resilient; the display score requires labeled target rows, and target prevalence dictates the score's value. As a result, EC-XGB operates as a domain-specific screening score, not a general-purpose detector. The upcoming assessment considers adaptation to an unseen question-answering domain under prevalence shift. The seen-task source ablation will separate RAGTruth rows from the source indicator.
@@ -1004,83 +1062,6 @@ The current paper tests EC-XGB, an evidence-consistent, 35-feature model, as a h
 
 \section*{Acknowledgements}
 The authors thank the curators of HaluEval, RAGTruth, FaithBench, MedHallu, and HaluBench for releasing their datasets publicly for research. FaithBench is released under CC BY-NC-SA 4.0 and HaluBench under CC BY-NC 2.0. Both permit non-commercial research use.
-
-\appendix
-\setcounter{table}{0}
-\setcounter{figure}{0}
-\renewcommand{\thetable}{A.\arabic{table}}
-\renewcommand{\thefigure}{A.\arabic{figure}}
-\refstepcounter{section}
-\section*{Appendix~\Alph{section}. Encoder, Length, and Judge Controls}
-\addcontentsline{toc}{section}{Appendix~\Alph{section}. Encoder, Length, and Judge Controls}
-\label{app:controls}
-
-\subsection{Encoder and Length Controls}\label{app:encoder}
-
-The deployed model uses DeBERTa-v3-base for the NLI features and MiniLM for the cosine features. Both are small checkpoints. A reader may ask whether the reported results depend on that choice. Two controls answer the question. The first replaces one encoder at a time and repeats the full protocol on the new feature matrix. The second removes the length shortcut from the external corpora. The deployed model is not retrained in either control. All runs reuse the grouped split, the thirty-iteration search, and the five-fold cross-validation with seeds 42, 123, and 456, so only the encoder changes.
-
-Table~\ref{tab:encoders} reports the in-domain comparison. The base row reproduces the frozen m2 row within 0.0005 F1 and 0.0002 AUROC, which confirms that a second machine follows the same pipeline. A larger NLI checkpoint adds 0.0022 F1 and loses 0.0008 AUROC. The BGE embedding adds 0.0002 F1. McNemar tests across the three seeds return $p = 0.63$ and $p = 0.77$, so neither change separates from the deployed stack. AUROC already sits at 0.998, and a comparison at that level has little room to show a gain. The larger checkpoint is not worth the extra cost.
-
-\begin{table}[pos=htbp]
-  \centering
-  \caption{In-domain encoder comparison on HaluEval QA (m2, 34 features, mean over seeds 42/123/456). Delta and McNemar $p$ are against the deployed stack.}
-  \label{tab:encoders}
-  \begin{tabular}{lrrrrr}
-    \toprule
-    \textbf{Encoder} & \textbf{F1} & \textbf{AUROC} & \textbf{$\Delta$F1} & \textbf{$\Delta$AUROC} & \textbf{$p$} \\
-    \midrule
-    DeBERTa-v3-base + MiniLM & 0.9852 $\pm$ 0.0013 & 0.9986 $\pm$ 0.0001 & --- & --- & --- \\
-    DeBERTa-v3-large + MiniLM & 0.9875 $\pm$ 0.0012 & 0.9978 $\pm$ 0.0001 & $+$0.0022 & $-$0.0008 & 0.63 \\
-    DeBERTa-v3-base + BGE-base & 0.9855 $\pm$ 0.0005 & 0.9984 $\pm$ 0.0000 & $+$0.0002 & $-$0.0002 & 0.77 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-Table~\ref{tab:lengthmatch} repeats the two external comparisons after answer length is equalised. For HaluBench, each source keeps an equal number of PASS and FAIL answers inside each length bin. For MedHallu, the matched slice keeps the pairs whose two answers differ least in length. Matching costs 1.5 AUROC points on HaluBench and 4.7 on MedHallu. Pair accuracy falls from 0.8607 to 0.8290. The model stays well above the length-only baseline in both slices, at 0.588 against 0.475 on HaluBench and 0.771 against 0.401 on MedHallu. HaluBench is near chance in both slices, so its transfer value is weak with or without matching.
-
-\begin{table}[pos=htbp]
-  \centering
-  \caption{External AUROC before and after answer-length matching, mean over seeds 42/123/456. Length-only is a logistic regression on log1p($n_{\mathrm{words}}$).}
-  \label{tab:lengthmatch}
-  \begin{tabular}{llrrr}
-    \toprule
-    \textbf{Corpus} & \textbf{Slice} & \textbf{EC-XGB} & \textbf{Length-only} & \textbf{$\Delta$} \\
-    \midrule
-    HaluBench & full & 0.6032 $\pm$ 0.0068 & 0.5099 & --- \\
-    HaluBench & length-matched & 0.5882 $\pm$ 0.0088 & 0.4753 & $-$0.0151 \\
-    MedHallu & full & 0.8177 $\pm$ 0.0018 & 0.2604 & --- \\
-    MedHallu & length-matched & 0.7707 $\pm$ 0.0034 & 0.4007 & $-$0.0470 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-Figure~\ref{fig:efficiency} reports throughput and memory for the three encoder stacks on one H200 MIG slice with 15.9~GB of usable memory. The measurements come from a second machine, not the RTX 3060 used for the main experiments. Batch 128 is the fastest point for the deployed stack at 361 rows per second and 3.2~GB of memory. Batch 256 gives 309 rows per second at 6.1~GB, so the configured value is already past the knee. The large NLI checkpoint runs at 122 rows per second and 10.3~GB. The null result in Table~\ref{tab:encoders} therefore costs about 2.5 times the extraction time, which is the practical argument for keeping the deployed encoder.
-
-\begin{figure}[pos=htbp]
-  \centering
-  \includegraphics[width=\linewidth]{revision/h200_efficiency.png}
-  \caption{NLI throughput and peak memory for three encoder stacks on the H200 MIG slice, with batch size varied for the deployed stack.}
-  \label{fig:efficiency}
-\end{figure}
-
-\subsection{Local Judge Scale}\label{app:judge}
-
-Table~\ref{tab:judge9b} adds a larger local judge on the same 900-row QA split. Qwen3.5-9B reaches F1 0.5957 and AUROC 0.7838, and it flags 24.0\% of the rows. The frozen 4B row sits at F1 0.6018 and AUROC 0.7783. The two sizes differ by 0.006 F1 and 0.006 AUROC in opposite directions, and the larger model does not recover the ranking that the API judge keeps at 0.910 AUROC. The 9B model moves recall up to 0.700 and precision down to 0.519, so it marks more rows as hallucinated. Cost stays at zero and the median call takes 1.47~s on the slice. Its exact agreement with EC-XGB is 0.274, which means the two tools answer different questions and should not be substituted for one another.
-
-\begin{table}[pos=htbp]
-  \centering
-  \caption{Local judges on the 900-row RAGTruth QA test split at natural prevalence, mean over three repeats. $^{\dagger}$Frozen row from the RTX 3060, so its latency is not comparable.}
-  \label{tab:judge9b}
-  \begin{tabular}{lrrrrrrr}
-    \toprule
-    \textbf{Judge} & \textbf{P} & \textbf{R} & \textbf{F1} & \textbf{AUROC} & \textbf{Flagged} & \textbf{p50 (ms)} & \textbf{\$/1K} \\
-    \midrule
-    Qwen3.5-9B & 0.519 & 0.700 & 0.5957 & 0.7838 & 24.0\% & 1466 & 0 \\
-    Qwen3.5-4B$^{\dagger}$ & 0.570 & 0.638 & 0.6018 & 0.7783 & 19.9\% & 3050 & 0 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
 
 \hbadness=10000
 \sloppy
