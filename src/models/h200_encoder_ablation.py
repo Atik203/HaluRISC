@@ -27,7 +27,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from scipy.stats import mcnemar
+from statsmodels.stats.contingency_tables import mcnemar
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("h200_encoder_ablation")

@@ -66,27 +66,8 @@ def run_config(tag: str, nli_name: str, emb_name: str, batch: int, rows: pd.Data
     a = rows["answer"].astype(str).tolist()
     pairs = [[ci, ai] for ci, ai in zip(c, a)] + [[ai, ci] for ci, ai in zip(c, a)]
 
-    t0 = time.perf_counter()
-    nli = CrossEncoder(nli_name, device="cuda")
-    load_nli = time.perf_counter() - t0
-
-    t0 = time.perf_counter()
-    nli.predict(pairs, batch_size=batch, apply_softmax=True)
-    nli_s = time.perf_counter() - t0
-    del nli
-    torch.cuda.empty_cache()
-
-    t0 = time.perf_counter()
-    emb = SentenceTransformer(emb_name, device="cuda")
-    load_emb = time.perf_counter() - t0
-
-    texts = a + q + c
-    t0 = time.perf_counter()
-    emb.encode(texts, batch_size=batch)
-    emb_s = time.perf_counter() - t0
-    del emb
-
-    peak_mb = torch.cuda.max_memory_allocated() / 1024**2
+    # fp16 matches the extraction pipeline (HALU_API_DEVICE=cuda path).
+    kw = {"torch_dtype": torch.float16}
     row = {
         "config": tag,
         "nli_model": nli_name,
@@ -94,17 +75,49 @@ def run_config(tag: str, nli_name: str, emb_name: str, batch: int, rows: pd.Data
         "batch_size": batch,
         "n_rows": int(len(rows)),
         "nli_pairs": int(len(pairs)),
-        "nli_seconds": nli_s,
-        "nli_pairs_per_s": len(pairs) / nli_s,
-        "nli_rows_per_s": len(rows) / nli_s,
-        "embed_texts": int(len(texts)),
-        "embed_seconds": emb_s,
-        "embed_texts_per_s": len(texts) / emb_s,
-        "load_seconds_nli": load_nli,
-        "load_seconds_embed": load_emb,
-        "peak_vram_mb": peak_mb,
+        "embed_texts": int(len(a + q + c)),
+        "status": "ok",
     }
-    logger.info("done %s batch=%d nli=%.1f rows/s peak=%.0f MB", tag, batch, row["nli_rows_per_s"], peak_mb)
+
+    try:
+        t0 = time.perf_counter()
+        nli = CrossEncoder(nli_name, device="cuda", model_kwargs=kw)
+        row["load_seconds_nli"] = time.perf_counter() - t0
+
+        # warmup so the first timed config is not penalised by kernel autotuning
+        nli.predict(pairs[:16], batch_size=16, apply_softmax=True)
+
+        t0 = time.perf_counter()
+        nli.predict(pairs, batch_size=batch, apply_softmax=True)
+        nli_s = time.perf_counter() - t0
+        row["nli_seconds"] = nli_s
+        row["nli_pairs_per_s"] = len(pairs) / nli_s
+        row["nli_rows_per_s"] = len(rows) / nli_s
+        del nli
+        torch.cuda.empty_cache()
+
+        t0 = time.perf_counter()
+        emb = SentenceTransformer(emb_name, device="cuda", model_kwargs=kw)
+        row["load_seconds_embed"] = time.perf_counter() - t0
+
+        texts = a + q + c
+        emb.encode(texts[:16], batch_size=16)
+
+        t0 = time.perf_counter()
+        emb.encode(texts, batch_size=batch)
+        emb_s = time.perf_counter() - t0
+        row["embed_seconds"] = emb_s
+        row["embed_texts_per_s"] = len(texts) / emb_s
+        del emb
+    except torch.OutOfMemoryError:
+        row["status"] = "oom"
+        row["error"] = "CUDA out of memory"
+        logger.warning("OOM at %s batch=%d", tag, batch)
+    finally:
+        torch.cuda.empty_cache()
+
+    row["peak_vram_mb"] = torch.cuda.max_memory_allocated() / 1024**2
+    logger.info("done %s batch=%d status=%s peak=%.0f MB", tag, batch, row["status"], row["peak_vram_mb"])
     return row
 
 
@@ -124,11 +137,15 @@ def main() -> None:
 
     base = df[df["config"] == "deployed"].iloc[0]
     for _, r in df.iterrows():
+        if r["status"] != "ok":
+            logger.warning("%s batch=%d: %s", r["config"], r["batch_size"], r["status"])
+            continue
         logger.info(
             "%s batch=%d: %.1fx NLI throughput, %.2fx VRAM",
             r["config"], r["batch_size"], r["nli_rows_per_s"] / base["nli_rows_per_s"], r["peak_vram_mb"] / base["peak_vram_mb"],
         )
-    print(df[["config", "batch_size", "nli_rows_per_s", "embed_texts_per_s", "peak_vram_mb"]].to_string(index=False))
+    cols = [c for c in ("config", "batch_size", "status", "nli_rows_per_s", "embed_texts_per_s", "peak_vram_mb") if c in df.columns]
+    print(df[cols].to_string(index=False))
 
 
 if __name__ == "__main__":

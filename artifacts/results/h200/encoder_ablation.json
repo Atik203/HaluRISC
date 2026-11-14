@@ -1,0 +1,136 @@
+{
+  "dataset": "halueval_test",
+  "variant": "m2",
+  "threshold": 0.5,
+  "seeds": [
+    42,
+    123,
+    456
+  ],
+  "runs": [
+    {
+      "tag": "base",
+      "encoder": "DeBERTa-v3-base + MiniLM-L6 (deployed)",
+      "variant": "m2",
+      "n_features": 34.0,
+      "precision_mean": 0.9923356373965304,
+      "recall_mean": 0.9782222222222222,
+      "f1_mean": 0.985228288583092,
+      "f1_std": 0.0013431955455119,
+      "auroc_mean": 0.9985903703703704,
+      "auroc_std": 0.0001305761843434,
+      "mcc_mean": 0.9707650426217332,
+      "ece_mean": 0.0088204491717947,
+      "brier_mean": 0.0105769593889514
+    },
+    {
+      "tag": "nli-large",
+      "encoder": "DeBERTa-v3-large + MiniLM-L6",
+      "variant": "m2",
+      "n_features": 34.0,
+      "precision_mean": 0.99436646550974,
+      "recall_mean": 0.9806666666666668,
+      "f1_mean": 0.987468575665603,
+      "f1_std": 0.001189157340855,
+      "auroc_mean": 0.997804148148148,
+      "auroc_std": 7.693426192821298e-05,
+      "mcc_mean": 0.975204556063432,
+      "ece_mean": 0.0033685451915694,
+      "brier_mean": 0.0099284549554189
+    },
+    {
+      "tag": "bge-base",
+      "encoder": "DeBERTa-v3-base + BGE-base",
+      "variant": "m2",
+      "n_features": 34.0,
+      "precision_mean": 0.9918955367961884,
+      "recall_mean": 0.979111111111111,
+      "f1_mean": 0.9854616876916784,
+      "f1_std": 0.0005200113976167,
+      "auroc_mean": 0.9983617777777778,
+      "auroc_std": 4.943732782741467e-05,
+      "mcc_mean": 0.9711921102550212,
+      "ece_mean": 0.0055289579167858,
+      "brier_mean": 0.0103743992124994
+    }
+  ],
+  "frozen_reference": null,
+  "mcnemar": {
+    "base_vs_nli-large": {
+      "per_seed": [
+        {
+          "seed": 42,
+          "only_a_correct": 9,
+          "only_b_correct": 12,
+          "pvalue": 0.6625205835400574
+        },
+        {
+          "seed": 123,
+          "only_a_correct": 7,
+          "only_b_correct": 10,
+          "pvalue": 0.6276258050283593
+        },
+        {
+          "seed": 456,
+          "only_a_correct": 5,
+          "only_b_correct": 19,
+          "pvalue": 0.007963489206550003
+        }
+      ],
+      "median_pvalue": 0.6276258050283593,
+      "total_only_a_correct": 21,
+      "total_only_b_correct": 41
+    },
+    "base_vs_bge-base": {
+      "per_seed": [
+        {
+          "seed": 42,
+          "only_a_correct": 7,
+          "only_b_correct": 5,
+          "pvalue": 0.7728299926844475
+        },
+        {
+          "seed": 123,
+          "only_a_correct": 6,
+          "only_b_correct": 7,
+          "pvalue": 1.0
+        },
+        {
+          "seed": 456,
+          "only_a_correct": 3,
+          "only_b_correct": 6,
+          "pvalue": 0.5049850750938457
+        }
+      ],
+      "median_pvalue": 0.7728299926844475,
+      "total_only_a_correct": 16,
+      "total_only_b_correct": 18
+    },
+    "nli-large_vs_bge-base": {
+      "per_seed": [
+        {
+          "seed": 42,
+          "only_a_correct": 16,
+          "only_b_correct": 11,
+          "pvalue": 0.4414183267820536
+        },
+        {
+          "seed": 123,
+          "only_a_correct": 10,
+          "only_b_correct": 8,
+          "pvalue": 0.8136637157667919
+        },
+        {
+          "seed": 456,
+          "only_a_correct": 19,
+          "only_b_correct": 8,
+          "pvalue": 0.05429182836685469
+        }
+      ],
+      "median_pvalue": 0.4414183267820536,
+      "total_only_a_correct": 45,
+      "total_only_b_correct": 27
+    }
+  },
+  "note": "Encoder ablation only. Features and hyperparameter search are identical across tags; the sole change is the NLI checkpoint or the embedding checkpoint. The deployed model (frozen b6-ec-xgb-v1.0) is unchanged."
+}
