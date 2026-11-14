@@ -209,3 +209,20 @@ pnpm run lint   # eslint (flat config, eslint 9)
 3. **Build:** compile the manuscript with TeX Live 2025: `latexmk -pdf -outdir=out halurisc.tex` from `Journal_Paper/`. Verify a clean build (no unresolved citations; 13-16 pages journal format) before finishing paper work. Figures resolve from `Journal_Paper/figures/` first. `src/models/plot_paper_figures.py` refreshes the two shift/transfer figures in `artifacts/`; `src/models/plot_paper_figures_hires.py` regenerates the paper-grade (600+ DPI) copies of the four charts into `Journal_Paper/figures/` without touching the frozen artifact figures. The two architecture diagrams are rasterized from `web/public/slides/*.svg` with headless Chrome (`--force-device-scale-factor=3`); only `architecture-flow.svg` is used in the manuscript, while `system-architecture.svg` remains available for presentations. The UI screenshot is kept in the repository or supplementary material; it is not part of the manuscript.
 4. **References:** `Journal_Paper/ref.bib` (38 entries) is verified against real publications (30 in the original set plus 8 review-response additions checked via Crossref, arXiv, and NeurIPS proceedings). Do not add references without web verification. The manuscript follows the CAS sample and names that chapter `Conventional Method`.
 5. **Audit provenance:** the B5.5 explanation audit was performed with an AI assistant (two review passes, `review_mode = ai-expert` in `artifacts/results/b5/b5_review_cases_reviewed.csv`). Never describe it as a two-human-reviewer study, and always state the error-enriched sampling caveat wherever its numbers appear.
+
+---
+
+## 10. University GPU Server Rules (binding on every agent and session)
+
+Project-local shared H200 slice, approved for this project only. If an action is not explicitly allowed here, ask the user for permission first.
+
+- **Access:** SSH via the local alias `uiu-h200` only. Do not expose ports or create another connection method.
+- **GPU:** H200 MIG `1g.18gb` slice only; 18 GB VRAM maximum. Do not use other slices or devices.
+- **Driver / CUDA:** NVIDIA driver `580.178.04`, CUDA `13.5`. Do not change, overwrite, reinstall, or upgrade either; do not replace system libraries.
+- **No host changes:** do not change GPU clocks, power limits, MIG settings, SSH daemon, host keys, account name, login method, or other users' `authorized_keys`.
+- **Storage:** 200 GB maximum. Check `df -h` and `du -sh`; stay inside the project space; do not change mounts, quotas, or permissions; do not delete other users' files.
+- **Python:** use a project-local venv or conda environment only. No system-wide packages and no `sudo` without administrator approval.
+- **Jobs:** use `tmux` or `screen`; stop idle GPU jobs. No mining, public services, port scanning, or unrelated workloads.
+- **Secrets:** never commit a server address, hostname, username, account ID, password, SSH key, or host fingerprint. Allowed identifiers: `uiu-h200`, `H200 1g.18gb`, driver `580.178.04`, CUDA `13.5`.
+- **Policy:** follow the university's monitoring, acceptable-use, and data-handling policies.
+- **Change log:** record any approved hardware, driver, CUDA, or environment change in `docs/DECISIONS.md` before confirmatory work.
