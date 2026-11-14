@@ -1,0 +1,98 @@
+{
+  "m0": {
+    "42": {
+      "params": {
+        "subsample": 0.9,
+        "n_estimators": 500,
+        "max_depth": 4,
+        "learning_rate": 0.01,
+        "colsample_bytree": 0.7
+      },
+      "cv_auc": 0.9969816836734694
+    },
+    "123": {
+      "params": {
+        "subsample": 0.9,
+        "n_estimators": 200,
+        "max_depth": 4,
+        "learning_rate": 0.05,
+        "colsample_bytree": 0.7
+      },
+      "cv_auc": 0.9967714285714286
+    },
+    "456": {
+      "params": {
+        "subsample": 1.0,
+        "n_estimators": 100,
+        "max_depth": 5,
+        "learning_rate": 0.1,
+        "colsample_bytree": 0.7
+      },
+      "cv_auc": 0.9972825510204082
+    }
+  },
+  "m1": {
+    "42": {
+      "params": {
+        "subsample": 0.7,
+        "n_estimators": 300,
+        "max_depth": 5,
+        "learning_rate": 0.05,
+        "colsample_bytree": 0.7
+      },
+      "cv_auc": 0.9968410204081632
+    },
+    "123": {
+      "params": {
+        "subsample": 0.7,
+        "n_estimators": 100,
+        "max_depth": 5,
+        "learning_rate": 0.2,
+        "colsample_bytree": 0.7
+      },
+      "cv_auc": 0.9968259183673469
+    },
+    "456": {
+      "params": {
+        "subsample": 1.0,
+        "n_estimators": 100,
+        "max_depth": 5,
+        "learning_rate": 0.1,
+        "colsample_bytree": 0.7
+      },
+      "cv_auc": 0.9972089795918369
+    }
+  },
+  "m2": {
+    "42": {
+      "params": {
+        "subsample": 0.7,
+        "n_estimators": 100,
+        "max_depth": 7,
+        "learning_rate": 0.05,
+        "colsample_bytree": 0.9
+      },
+      "cv_auc": 0.996936224489796
+    },
+    "123": {
+      "params": {
+        "subsample": 0.8,
+        "n_estimators": 300,
+        "max_depth": 4,
+        "learning_rate": 0.05,
+        "colsample_bytree": 0.9
+      },
+      "cv_auc": 0.996969387755102
+    },
+    "456": {
+      "params": {
+        "subsample": 1.0,
+        "n_estimators": 100,
+        "max_depth": 5,
+        "learning_rate": 0.1,
+        "colsample_bytree": 0.7
+      },
+      "cv_auc": 0.9972993877551023
+    }
+  }
+}

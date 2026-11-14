@@ -61,6 +61,23 @@ artifacts/results/h200/*
 !artifacts/results/h200/*.csv
 !artifacts/results/h200/*.md
 !artifacts/results/h200/*.log
+!artifacts/results/h200/*.tex
+# Per-run encoder outputs (needed to reproduce the McNemar tests and per-seed means)
+!artifacts/results/h200/b6_base/
+artifacts/results/h200/b6_base/*
+!artifacts/results/h200/b6_base/*.csv
+!artifacts/results/h200/b6_base/*.json
+!artifacts/results/h200/b6_base/*.parquet
+!artifacts/results/h200/b6_nli-large/
+artifacts/results/h200/b6_nli-large/*
+!artifacts/results/h200/b6_nli-large/*.csv
+!artifacts/results/h200/b6_nli-large/*.json
+!artifacts/results/h200/b6_nli-large/*.parquet
+!artifacts/results/h200/b6_bge-base/
+artifacts/results/h200/b6_bge-base/*
+!artifacts/results/h200/b6_bge-base/*.csv
+!artifacts/results/h200/b6_bge-base/*.json
+!artifacts/results/h200/b6_bge-base/*.parquet
 
 # Web-local artifact mirror ships with the frontend so the Vercel build is self-contained
 !web/artifacts/
