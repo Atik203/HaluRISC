@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex out/halurisc"] 1794687752.72811 "out/halurisc.aux" "out/halurisc.bbl" "out/halurisc" 1794687766.32768 0
+["bibtex out/halurisc"] 1794688343.89868 "out/halurisc.aux" "out/halurisc.bbl" "out/halurisc" 1794688357.12698 0
   "./ref.bib" 1794481479 15765 469c099d4562db9e7b6168f16c5d8037 ""
   "c:/texlive/2026/texmf-dist/bibtex/bst/elsarticle/elsarticle-num.bst" 1793971264 29462 dde4ec39bf78fded04ea32048bba0a74 ""
-  "out/halurisc.aux" 1794687764 20630 df73a2fd047e959522b5ef466bc2aa83 "pdflatex"
+  "out/halurisc.aux" 1794688355 20630 d3f83390e65a79bf96aabeb0b34f86cf "pdflatex"
   (generated)
   "out/halurisc.bbl"
   "out/halurisc.blg"
   (rewritten before read)
-["pdflatex"] 1794687753.18104 "halurisc.tex" "out/halurisc.pdf" "halurisc" 1794687766.32904 0
+["pdflatex"] 1794688344.36665 "halurisc.tex" "out/halurisc.pdf" "halurisc" 1794688357.1282 0
   "c:/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1793971095 2971 def0b6c1f0b107b3b936def894055589 ""
   "c:/texlive/2026/texmf-dist/fonts/enc/dvips/stix/stix-t1.enc" 1793972328 7013 c55cc8669071ac14036c4a0c96c16202 ""
   "c:/texlive/2026/texmf-dist/fonts/enc/dvips/stix/stix-ts1.enc" 1793972328 2836 154e6b0061f9b8cb549144b55b268339 ""
@@ -244,11 +244,11 @@
   "figures/revision/per_seed_stability.png" 1794404756 241300 6b1151825ab16ef9779f15c37c9e715c ""
   "figures/revision/roc_pr_curves.png" 1794404756 844218 fc4c5a666685f065511cd9fd7c4d9c6e ""
   "figures/revision/system-architecture-large.png" 1794321395 448893 cf2327ed055154d12a59fde7da226b5f ""
-  "halurisc.tex" 1794687699 105723 16caf6e1d43535532fc6ae455d63a156 ""
-  "out/halurisc.abs" 1794687754 1898 0d5b05368f7e01618d6f171ccee9b3b7 "pdflatex"
-  "out/halurisc.aux" 1794687764 20630 df73a2fd047e959522b5ef466bc2aa83 "pdflatex"
-  "out/halurisc.bbl" 1794687753 12229 a53f8e82c73f4c99036552405b398bb3 "bibtex out/halurisc"
-  "out/halurisc.out" 1794687754 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "halurisc.tex" 1794688330 105712 59217d687bdccfe8a58a6dc6be83c002 ""
+  "out/halurisc.abs" 1794688346 1898 0d5b05368f7e01618d6f171ccee9b3b7 "pdflatex"
+  "out/halurisc.aux" 1794688355 20630 d3f83390e65a79bf96aabeb0b34f86cf "pdflatex"
+  "out/halurisc.bbl" 1794688344 12229 a53f8e82c73f4c99036552405b398bb3 "bibtex out/halurisc"
+  "out/halurisc.out" 1794688345 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
   (generated)
   "out/halurisc.abs"
   "out/halurisc.aux"
