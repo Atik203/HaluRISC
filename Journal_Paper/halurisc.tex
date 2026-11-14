@@ -985,7 +985,9 @@ Figure~\ref{fig:length} demonstrates the same pattern. The long complete sentenc
 The current paper tests EC-XGB, an evidence-consistent, 35-feature model, as a hallucination risk score and how its calibration and ranking change under domain and task shifts. The model's ranking is still intact after the corpus has changed and allows the score to rank answers for review. Moreover, its per-claim verdicts provide a reviewer with the explanation of each flagged instance. On the other hand, its probability is not so resilient; the display score requires labeled target rows, and target prevalence dictates the score's value. As a result, EC-XGB operates as a domain-specific screening score, not a general-purpose detector. The upcoming assessment considers adaptation to an unseen question-answering domain under prevalence shift. The seen-task source ablation will separate RAGTruth rows from the source indicator.
 
 \appendix
-\section{Encoder and Length Controls}\label{app:controls}
+\section{Additional Controls and Checks}\label{app:controls}
+
+\subsection{Encoder and Length Controls}\label{app:encoder}
 
 The deployed model uses DeBERTa-v3-base for the NLI features and MiniLM for the cosine features. Both are small checkpoints. A reader may ask whether the reported results depend on that choice. Two controls answer the question. The first replaces one encoder at a time and repeats the full protocol on the new feature matrix. The second removes the length shortcut from the external corpora. The deployed model is not retrained in either control. All runs reuse the grouped split, the thirty-iteration search, and the five-fold cross-validation with seeds 42, 123, and 456, so only the encoder changes.
 
@@ -1032,6 +1034,24 @@ Figure~\ref{fig:efficiency} reports throughput and memory for the three encoder 
   \caption{NLI throughput and peak memory for three encoder stacks on the H200 MIG slice, with batch size varied for the deployed stack.}
   \label{fig:efficiency}
 \end{figure}
+
+\subsection{Local Judge Scale}\label{app:judge}
+
+Table~\ref{tab:judge9b} adds a larger local judge on the same 900-row QA split. Qwen3.5-9B reaches F1 0.5957 and AUROC 0.7838, and it flags 24.0\% of the rows. The frozen 4B row sits at F1 0.6018 and AUROC 0.7783. The two sizes differ by 0.006 F1 and 0.006 AUROC in opposite directions, and the larger model does not recover the ranking that the API judge keeps at 0.910 AUROC. The 9B model moves recall up to 0.700 and precision down to 0.519, so it marks more rows as hallucinated. Cost stays at zero and the median call takes 1.47~s on the slice. Its exact agreement with EC-XGB is 0.274, which means the two tools answer different questions and should not be substituted for one another.
+
+\begin{table}[pos=htbp]
+  \centering
+  \caption{Local judges on the 900-row RAGTruth QA test split at natural prevalence, mean over three repeats. $^{\dagger}$Frozen row from the RTX 3060, so its latency is not comparable.}
+  \label{tab:judge9b}
+  \begin{tabular}{lrrrrrrr}
+    \toprule
+    \textbf{Judge} & \textbf{P} & \textbf{R} & \textbf{F1} & \textbf{AUROC} & \textbf{Flagged} & \textbf{p50 (ms)} & \textbf{\$/1K} \\
+    \midrule
+    Qwen3.5-9B & 0.519 & 0.700 & 0.5957 & 0.7838 & 24.0\% & 1466 & 0 \\
+    Qwen3.5-4B$^{\dagger}$ & 0.570 & 0.638 & 0.6018 & 0.7783 & 19.9\% & 3050 & 0 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 \printcredits
 

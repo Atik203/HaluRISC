@@ -153,23 +153,27 @@ def eff_rows() -> list[str]:
 def judge_rows() -> list[str]:
     rows = []
     for tag, label in (("qwen9b", "Qwen3.5-9B"), ("qwen4b", "Qwen3.5-4B")):
-        p = JUDGE / f"metrics_{tag}.json"
+        p = JUDGE / f"metrics_qwen_{tag}.json"
         if not p.exists():
-            p = JUDGE / f"metrics_qwen_{tag}.json"
+            p = JUDGE / f"metrics_{tag}.json"
         if not p.exists():
             logger.info("judge metrics not ready for %s", tag)
             continue
         d = json.loads(p.read_text())
-        blk = d.get("results", d)
+        m = d.get("mean_across_seeds", {})
+        lat = d.get("latency", {})
+        cost = d.get("cost", {})
         rows.append(
             " & ".join(
                 [
                     label,
-                    fmt(blk.get("precision"), 3),
-                    fmt(blk.get("recall"), 3),
-                    fmt(blk.get("f1"), 3),
-                    fmt(blk.get("auroc"), 3),
-                    fmt(blk.get("latency_ms_p50"), 0),
+                    f"{m.get('precision', {}).get('mean', float('nan')):.3f}",
+                    f"{m.get('recall', {}).get('mean', float('nan')):.3f}",
+                    f"{m.get('f1', {}).get('mean', float('nan')):.3f}",
+                    f"{m.get('auroc', {}).get('mean', float('nan')):.3f}",
+                    f"{m.get('predicted_positive_rate', {}).get('mean', float('nan')) * 100:.1f}",
+                    f"{lat.get('p50_ms', float('nan')):.0f}",
+                    f"{cost.get('usd_per_1000_calls', float('nan')):.0f}",
                 ]
             )
             + r" \\"

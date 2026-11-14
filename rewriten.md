@@ -3,17 +3,32 @@
 Every sentence added to `Journal_Paper/halurisc.tex` in this pass, formatted as paragraphs so each
 block can be copied and rewritten whole.
 
-Scope: Appendix A only (`\section{Encoder and Length Controls}`), four body paragraphs, two table
-captions, one figure caption. One preamble comment changed (`18 tables and 11 figures` to
-`20 tables and 12 figures`) and it does not print. Every existing sentence in Sections 1 to 6, and
-every existing table and figure, is unchanged.
+Scope: Appendix A only. Two subsections, five body paragraphs, three table captions, one figure
+caption. One preamble comment changed (`18 tables and 11 figures` to `20 tables and 12 figures`) and
+it does not print. Every existing sentence in Sections 1 to 6, and every existing table and figure,
+is unchanged.
 
 Authorship rung C: this is draft text built from verified artifacts, not finished prose. Rewrite it
 in your own voice and check that the numbers survive. If your institution requires an AI-assistance
 disclosure, keep this file as part of that record.
 
 Numbers trace to `artifacts/results/h200/encoder_ablation.json`,
-`artifacts/results/h200/length_matched.json`, and `artifacts/results/h200/efficiency.csv`.
+`artifacts/results/h200/length_matched.json`, `artifacts/results/h200/efficiency.csv`, and
+`artifacts/results/rebuild/judge/metrics_qwen_qwen9b.json`.
+
+---
+
+## Appendix A title
+
+Additional Controls and Checks
+
+## Subsection A.1 title
+
+Encoder and Length Controls
+
+## Subsection A.2 title
+
+Local Judge Scale
 
 ---
 
@@ -41,6 +56,12 @@ Figure 12 reports throughput and memory for the three encoder stacks on one H200
 
 ---
 
+## Appendix A, paragraph 5 (Table 21, local judge scale, 113 words)
+
+Table 21 adds a larger local judge on the same 900-row QA split. Qwen3.5-9B reaches F1 0.5957 and AUROC 0.7838, and it flags 24.0% of the rows. The frozen 4B row sits at F1 0.6018 and AUROC 0.7783. The two sizes differ by 0.006 F1 and 0.006 AUROC in opposite directions, and the larger model does not recover the ranking that the API judge keeps at 0.910 AUROC. The 9B model moves recall up to 0.700 and precision down to 0.519, so it marks more rows as hallucinated. Cost stays at zero and the median call takes 1.47 s on the slice. Its exact agreement with EC-XGB is 0.274, which means the two tools answer different questions and should not be substituted for one another.
+
+---
+
 ## Caption, Table 19
 
 In-domain encoder comparison on HaluEval QA (m2, 34 features, mean over seeds 42/123/456). Delta and McNemar p are against the deployed stack.
@@ -53,15 +74,17 @@ External AUROC before and after answer-length matching, mean over seeds 42/123/4
 
 ---
 
+## Caption, Table 21
+
+Local judges on the 900-row RAGTruth QA test split at natural prevalence, mean over three repeats. Dagger marks the frozen row from the RTX 3060, so its latency is not comparable.
+
+---
+
 ## Caption, Figure 12
 
 NLI throughput and peak memory for three encoder stacks on the H200 MIG slice, with batch size varied for the deployed stack.
 
 ---
-
-## Still to add
-
-A local-judge comparison (Qwen3.5-9B and Qwen3.5-4B on the 900-row RAGTruth QA split) is not in the manuscript yet. It will add one small table and about 90 words, listed here in the same paragraph format once the run finishes.
 
 ## Numbers you must not change while rewriting
 
@@ -82,3 +105,10 @@ A local-judge comparison (Qwen3.5-9B and Qwen3.5-4B on the 900-row RAGTruth QA s
 | 361 / 309 / 122 | rows per second at batch 128, 256, and for large NLI |
 | 3.2 / 6.1 / 10.3 | peak GB in the same three runs |
 | 15.9 | usable slice memory in GB |
+| 0.5957 / 0.7838 | 9B judge F1 / AUROC |
+| 0.6018 / 0.7783 | 4B judge F1 / AUROC (frozen row) |
+| 0.700 / 0.519 | 9B recall / precision |
+| 24.0% / 19.9% | flagged rows for 9B and 4B |
+| 1466 / 3050 | median call in ms for 9B and 4B |
+| 0.274 | exact agreement between the 9B judge and EC-XGB |
+| 0.910 | AUROC of the API judge on the same rows |

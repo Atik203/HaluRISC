@@ -57,19 +57,26 @@ weak regardless of length.
 
 ---
 
-## E3 — Local judge at natural prevalence (pending)
+## E3 — Local judge at natural prevalence
 
-Source: `artifacts/results/rebuild/judge/metrics_qwen9b.json`, `metrics_qwen4b.json`.
-900-row RAGTruth QA test split, 3 repeats, concurrency 1.
+Source: `artifacts/results/h200/judge_qwen9b_metrics.json` (copy of
+`artifacts/results/rebuild/judge/metrics_qwen_qwen9b.json`).
+900-row RAGTruth QA test split, 3 repeats, concurrency 1, zero failed calls.
 
-| Judge | Precision | Recall | F1 | AUROC | p50 (ms) |
-|---|---|---|---|---|---|
-| Qwen3.5-9B | pending | pending | pending | pending | pending |
-| Qwen3.5-4B | pending | pending | pending | pending | pending |
+| Judge | Precision | Recall | F1 | AUROC | Flagged | p50 (ms) | $/1K |
+|---|---|---|---|---|---|---|---|
+| Qwen3.5-9B (H200 slice) | 0.519 | 0.700 | 0.5957 | 0.7838 | 24.0% | 1466 | 0 |
+| Qwen3.5-4B (frozen, RTX 3060) | 0.570 | 0.638 | 0.6018 | 0.7783 | 19.9% | 3050 | 0 |
 
 Frozen reference rows already in the paper (`tab:judge`): GPT-5.6-Luna F1 0.565 /
-AUROC 0.910 at $0.234 per 1,000; Qwen3.5-4B F1 0.602 / AUROC 0.778; EC-XGB F1 0.310
-/ AUROC 0.558.
+AUROC 0.910 at $0.234 per 1,000; EC-XGB F1 0.310 / AUROC 0.558.
+
+**Reading:** scale does not help the local judge. The 9B model trades 0.006 F1
+down and 0.006 AUROC up, i.e. flat, and it still sits far below the API judge's
+0.910 AUROC. It also shifts the operating point (recall 0.700, precision 0.519,
+24.0% flagged). Agreement with EC-XGB is 0.274 exact match, so the two tools are
+not interchangeable. Latency is **not** comparable across the two rows because
+they ran on different GPUs.
 
 ---
 

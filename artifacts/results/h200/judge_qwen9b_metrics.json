@@ -1,0 +1,259 @@
+{
+  "meta": {
+    "work_package": "WP6",
+    "backend": "qwen",
+    "model": "qwen3.5:9b",
+    "dataset": "ragtruth_qa_test",
+    "out_tag": "qwen9b",
+    "n_rows": 900,
+    "n_predictions": 2700,
+    "seeds": [
+      42,
+      123,
+      456
+    ],
+    "prevalence": 0.17777777777777778,
+    "max_completion_tokens": 300,
+    "system_prompt_sha256": "5688460de11af09e053037b0eb1c4f8d4fcdabb6aa3cea10cf44d3c41244156e",
+    "system_prompt_tokens_o200k": 1150,
+    "prompt_doc": "docs/rebuild/judge_prompt.md",
+    "pilot": true,
+    "note": "Pilot numbers are not final; only --limit 0 produces the WP6 table."
+  },
+  "per_seed": {
+    "42": {
+      "n": 900,
+      "prevalence": 0.17777777777777778,
+      "accuracy": 0.8311111111111111,
+      "precision": 0.5185185185185185,
+      "recall": 0.7,
+      "f1": 0.5957446808510638,
+      "auroc": 0.7837837837837839,
+      "predicted_positive_rate": 0.24,
+      "confusion": {
+        "tp": 112,
+        "fp": 104,
+        "tn": 636,
+        "fn": 48
+      },
+      "ci95": {
+        "accuracy": [
+          0.8077500000000001,
+          0.8544444444444445
+        ],
+        "precision": [
+          0.45290145206064486,
+          0.5829689835575486
+        ],
+        "recall": [
+          0.6298641173641174,
+          0.7669067035762382
+        ],
+        "f1": [
+          0.5365813277338072,
+          0.6489396788862067
+        ],
+        "predicted_positive_rate": [
+          0.21222222222222223,
+          0.2666944444444444
+        ],
+        "auroc": [
+          0.7468476243467386,
+          0.8187866825103982
+        ]
+      },
+      "parse_failures": 0
+    },
+    "123": {
+      "n": 900,
+      "prevalence": 0.17777777777777778,
+      "accuracy": 0.8311111111111111,
+      "precision": 0.5185185185185185,
+      "recall": 0.7,
+      "f1": 0.5957446808510638,
+      "auroc": 0.7837837837837839,
+      "predicted_positive_rate": 0.24,
+      "confusion": {
+        "tp": 112,
+        "fp": 104,
+        "tn": 636,
+        "fn": 48
+      },
+      "ci95": {
+        "accuracy": [
+          0.8077500000000001,
+          0.8544444444444445
+        ],
+        "precision": [
+          0.45290145206064486,
+          0.5829689835575486
+        ],
+        "recall": [
+          0.6298641173641174,
+          0.7669067035762382
+        ],
+        "f1": [
+          0.5365813277338072,
+          0.6489396788862067
+        ],
+        "predicted_positive_rate": [
+          0.21222222222222223,
+          0.2666944444444444
+        ],
+        "auroc": [
+          0.7468476243467386,
+          0.8187866825103982
+        ]
+      },
+      "parse_failures": 0
+    },
+    "456": {
+      "n": 900,
+      "prevalence": 0.17777777777777778,
+      "accuracy": 0.8311111111111111,
+      "precision": 0.5185185185185185,
+      "recall": 0.7,
+      "f1": 0.5957446808510638,
+      "auroc": 0.7837837837837839,
+      "predicted_positive_rate": 0.24,
+      "confusion": {
+        "tp": 112,
+        "fp": 104,
+        "tn": 636,
+        "fn": 48
+      },
+      "ci95": {
+        "accuracy": [
+          0.8077500000000001,
+          0.8544444444444445
+        ],
+        "precision": [
+          0.45290145206064486,
+          0.5829689835575486
+        ],
+        "recall": [
+          0.6298641173641174,
+          0.7669067035762382
+        ],
+        "f1": [
+          0.5365813277338072,
+          0.6489396788862067
+        ],
+        "predicted_positive_rate": [
+          0.21222222222222223,
+          0.2666944444444444
+        ],
+        "auroc": [
+          0.7468476243467386,
+          0.8187866825103982
+        ]
+      },
+      "parse_failures": 0
+    }
+  },
+  "mean_across_seeds": {
+    "accuracy": {
+      "mean": 0.831111111111111,
+      "sd": 1.3597399555105182e-16
+    },
+    "precision": {
+      "mean": 0.5185185185185185,
+      "sd": 0.0
+    },
+    "recall": {
+      "mean": 0.6999999999999998,
+      "sd": 1.3597399555105182e-16
+    },
+    "f1": {
+      "mean": 0.5957446808510638,
+      "sd": 0.0
+    },
+    "auroc": {
+      "mean": 0.7837837837837839,
+      "sd": 0.0
+    },
+    "predicted_positive_rate": {
+      "mean": 0.24,
+      "sd": 0.0
+    }
+  },
+  "agreement": {
+    "n_common_rows": 900,
+    "pairwise": {
+      "42_vs_123": {
+        "n": 900,
+        "exact_match": 1.0,
+        "cohen_kappa": 1.0
+      },
+      "42_vs_456": {
+        "n": 900,
+        "exact_match": 1.0,
+        "cohen_kappa": 1.0
+      },
+      "123_vs_456": {
+        "n": 900,
+        "exact_match": 1.0,
+        "cohen_kappa": 1.0
+      }
+    },
+    "mean_pairwise_cohen_kappa": 1.0,
+    "three_way_exact_match": 1.0,
+    "fleiss_kappa": 1.0,
+    "majority_vote_vs_label": {
+      "n": 900,
+      "exact_match": 0.8311111111111111,
+      "cohen_kappa": 0.4919786096256684
+    },
+    "majority_vote": {
+      "predicted_positive_rate": 0.24,
+      "n_unanimous": 900
+    },
+    "vs_ec_xgb_seed42": {
+      "42": {
+        "n": 900,
+        "exact_match": 0.27444444444444444,
+        "cohen_kappa": 0.020754603803011085
+      },
+      "123": {
+        "n": 900,
+        "exact_match": 0.27444444444444444,
+        "cohen_kappa": 0.020754603803011085
+      },
+      "456": {
+        "n": 900,
+        "exact_match": 0.27444444444444444,
+        "cohen_kappa": 0.020754603803011085
+      }
+    }
+  },
+  "tokens": {
+    "calls": 2700,
+    "prompt_tokens": 4472130,
+    "cached_prompt_tokens": 0,
+    "uncached_prompt_tokens": 4472130,
+    "completion_tokens": 122817,
+    "reasoning_tokens": 0,
+    "total_tokens": 4594947,
+    "mean_prompt_tokens": 1656.3444444444444,
+    "mean_completion_tokens": 45.48777777777778,
+    "cache_hit_rate": 0.0
+  },
+  "cost": {
+    "usd": 0.0,
+    "usd_per_1000_calls": 0.0,
+    "pricing": null,
+    "assumption": "Local Ollama inference; no API charge. Electricity and hardware are excluded."
+  },
+  "latency": {
+    "n": 2700,
+    "mean_ms": 1545.020251851852,
+    "p50_ms": 1466.255,
+    "p95_ms": 2155.7904999999996,
+    "min_ms": 956.2,
+    "max_ms": 2709.5
+  },
+  "errors": {
+    "n_failed_calls": 0,
+    "first_errors": []
+  }
+}
