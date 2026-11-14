@@ -27,3 +27,11 @@ Record of approved hardware, driver, CUDA, or environment changes (required by `
 - Frozen artifacts untouched: all runs write to `artifacts/results/h200/` via
   `HALU_FEATURES_FULL`, `HALU_CLAIM_FEATURES`, `HALU_EXTERNAL_FEATURES`, and `--results-dir`.
 - Confirmatory runs use fp16 for the encoder features (unchanged from the frozen pipeline).
+
+## 2026-11-15 — No page limit for the manuscript
+
+- The author confirmed there is no page limit. The 18-page budget recorded in
+  `docs/writing-guideline.md` (2026-11-05) is treated as superseded, and the H200 appendix is not
+  trimmed to fit it. Current build is 26 pages with Appendix A included.
+- Do not delete appendix content to chase a page count. Do not add length either without a reason
+  that survives the number audits.
