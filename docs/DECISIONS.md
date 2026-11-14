@@ -35,3 +35,17 @@ Record of approved hardware, driver, CUDA, or environment changes (required by `
   trimmed to fit it. Current build is 26 pages with Appendix A included.
 - Do not delete appendix content to chase a page count. Do not add length either without a reason
   that survives the number audits.
+
+## 2026-11-15 - H200 run complete
+
+- E1 encoder ablation: base / DeBERTa-large / BGE-base, m0-m2, seeds 42/123/456. All
+  differences non-significant (McNemar p = 0.63 and 0.77). Results in
+  `artifacts/results/h200/encoder_ablation.json`.
+- E2 length-matched external control: frozen m3 read as-is, no retraining. Results in
+  `artifacts/results/h200/length_matched.json`.
+- E3 local judge: Qwen3.5-9B and 4B both measured on the slice, 2,700 calls each, zero
+  failures. `artifacts/results/h200/judge_qwen{9b,4b}_metrics.json`.
+- E4 throughput and VRAM: `artifacts/results/h200/efficiency.csv`. Batch 128 is the
+  slice optimum at 361 rows/s and 3.2 GB.
+- No appendix. The four controls sit in Sections 5.1, 5.5, and 5.6 (Table 6, Figure 10,
+  Table 19, Table 21).

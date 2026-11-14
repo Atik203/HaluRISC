@@ -37,9 +37,9 @@ The throughput measurements come from a second machine, an H200 MIG slice with 1
 
 ---
 
-## Section 5.5, new paragraph after Table 18 (Table 19, 131 words)
+## Section 5.5, new paragraph after Table 18 (Table 19, 127 words)
 
-A local judge of the same family tests whether model size changes the picture. Table 19 adds Qwen3.5-9B on the same 900 rows. It reaches F1 0.5957 and AUROC 0.7838, against 0.6018 and 0.7783 for the 4B row, so the two sizes differ by 0.006 in each direction and neither closes the gap to the API judge at 0.910 AUROC. The larger model moves recall to 0.700 and precision to 0.519, and it flags 24.0% of the rows. Cost stays at zero and the median call takes 1.47 s on the slice. Exact agreement with EC-XGB is 0.274, so the judge and the feature model answer different questions and are not interchangeable. Latency is not comparable across the two judge rows because they ran on different GPUs.
+A local judge of the same family tests whether model size changes the picture. Table 19 adds Qwen3.5-9B on the same 900 rows. The 9B model reaches F1 0.5957 and AUROC 0.7838, against 0.6012 and 0.7755 for the 4B row, so F1 differs by 0.005 and AUROC by 0.008 between the two sizes, and neither closes the gap to the API judge at 0.910 AUROC. The 9B model flags 24.0% of the rows at recall 0.700 and precision 0.519. Cost stays at zero for both. Both rows come from the same slice, and the 4B model is about 1.5 times faster at the median. Exact agreement with EC-XGB is 0.274, so the judge and the feature model answer different questions and are not interchangeable.
 
 ---
 
@@ -57,7 +57,7 @@ In-domain encoder comparison on HaluEval QA (m2, 34 features, mean over seeds 42
 
 ## Caption, Table 19
 
-Local judges on the 900-row RAGTruth QA test split at natural prevalence, mean over three repeats. Dagger marks the frozen row from the RTX 3060, so its latency is not comparable.
+Local judges on the 900-row RAGTruth QA test split at natural prevalence, mean over three repeats, both measured on the same MIG slice.
 
 ---
 
@@ -93,9 +93,10 @@ NLI throughput and peak memory for three encoder stacks on the H200 MIG slice, w
 | 3.2 / 6.1 / 10.3 | peak GB in the same three runs |
 | 15.9 | usable slice memory in GB |
 | 0.5957 / 0.7838 | 9B judge F1 / AUROC |
-| 0.6018 / 0.7783 | 4B judge F1 / AUROC (frozen row) |
+| 0.6012 / 0.7755 | 4B judge F1 / AUROC (same slice) |
 | 0.700 / 0.519 | 9B recall / precision |
 | 24.0% / 19.9% | flagged rows for 9B and 4B |
-| 1466 / 3050 | median call in ms for 9B and 4B |
+| 1466 / 976 | median call in ms for 9B and 4B |
+| 1.5 | 4B speedup over 9B at the median |
 | 0.274 | exact agreement between the 9B judge and EC-XGB |
 | 0.910 | AUROC of the API judge on the same rows |

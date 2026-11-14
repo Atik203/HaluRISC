@@ -59,28 +59,28 @@ weak regardless of length.
 
 ---
 
-## E3 — Local judge at natural prevalence
+## E3 - Local judge at natural prevalence
 
-Source: `artifacts/results/h200/judge_qwen9b_metrics.json` (copy of
-`artifacts/results/rebuild/judge/metrics_qwen_qwen9b.json`).
-900-row RAGTruth QA test split, 3 repeats, concurrency 1, zero failed calls.
+Source: `artifacts/results/h200/judge_qwen9b_metrics.json` and
+`artifacts/results/h200/judge_qwen4b_metrics.json`.
+900-row RAGTruth QA test split, 3 repeats, concurrency 1, zero failed calls in both runs.
+Both rows were measured on the same MIG slice, so the latencies are comparable.
 
 | Judge | Precision | Recall | F1 | AUROC | Flagged | p50 (ms) | $/1K |
 |---|---|---|---|---|---|---|---|
-| Qwen3.5-9B (H200 slice) | 0.519 | 0.700 | 0.5957 | 0.7838 | 24.0% | 1466 | 0 |
-| Qwen3.5-4B (frozen, RTX 3060) | 0.570 | 0.638 | 0.6018 | 0.7783 | 19.9% | 3050 | 0 |
+| Qwen3.5-9B | 0.519 | 0.700 | 0.5957 | 0.7838 | 24.0% | 1466 | 0 |
+| Qwen3.5-4B | 0.574 | 0.631 | 0.6012 | 0.7755 | 19.6% | 976 | 0 |
 
-Frozen reference rows already in the paper (`tab:judge`): GPT-5.6-Luna F1 0.565 /
-AUROC 0.910 at $0.234 per 1,000; EC-XGB F1 0.310 / AUROC 0.558.
+Frozen reference rows already in the paper: GPT-5.6-Luna F1 0.565 / AUROC 0.910 at
+$0.234 per 1,000; EC-XGB F1 0.310 / AUROC 0.558.
 
-**Reading:** scale does not help the local judge. The 9B model trades 0.006 F1
-down and 0.006 AUROC up, i.e. flat, and it still sits far below the API judge's
-0.910 AUROC. It also shifts the operating point (recall 0.700, precision 0.519,
-24.0% flagged). Agreement with EC-XGB is 0.274 exact match, so the two tools are
-not interchangeable. Latency is **not** comparable across the two rows because
-they ran on different GPUs.
-
----
+**Reading:** scale does not help the local judge. The 9B model trades 0.005 F1 for
+0.008 AUROC against the 4B model, so the two are interchangeable on accuracy, and
+neither approaches the API judge at 0.910 AUROC. The 4B model is also 1.5 times faster
+at the median. Agreement with EC-XGB is 0.274 exact match, so the judge and the feature
+model are not substitutes. The earlier frozen 4B row (F1 0.6018, AUROC 0.7783, p50
+3050 ms on an RTX 3060) reproduces to within 0.0006 F1 on this slice, which is why the
+same-hardware numbers replace it.
 
 ## E4 — Throughput and VRAM on the MIG slice
 

@@ -748,6 +748,12 @@ If only the old plan is executed (neural baseline + cost/latency + claim-level),
 
 Confirm the venue limit before deciding whether to trim to 16. Do not cut the negative results or the calibration protocol to save space.
 
+### 18.8b Page budget (2026-11-15, current)
+
+The author confirmed there is no page limit. The earlier 16-18 page target is retired. The
+manuscript is 26 pages with 21 tables and 12 figures, and no content is trimmed to hit a page
+count. See `docs/DECISIONS.md`, 2026-11-15.
+
 ### 18.9 Risks and mitigations
 
 | Risk | Likelihood | Mitigation |
@@ -855,3 +861,37 @@ HALU_JUDGE_API_KEY=ollama
 4. **Zero-shot versus target-calibrated.** Already separated in §3.3, §3.4, §4.4, §5.3, and the Table 5 caption. Added Table 4 (`tab:protocols`) with P0/P1/P2 against calibrator fit, threshold fit, and zero-shot status.
 
 **Outcome:** 17 pages after shortening the conclusion and trimming duplicated protocol text, zero warnings, number audit 200/200, 231 tests pass. Citation rule from the author: one reference per claim, two at most, never three. The only triple citation was split into two sentences.
+
+### 18.14 H200 controls (2026-11-15) - complete
+
+> Four controls were run on a shared `H200 1g.18gb` MIG slice after submission readiness. None
+> of them changes the deployed model. Three of the four are null or negative results, which is
+> the point: they close the "your encoder did it" and "your model is a length detector"
+> objections before a reviewer raises them.
+
+| ID | Control | Status | Artifact |
+|---|---|---|---|
+| E1 | Encoder swap, m0-m2, seeds 42/123/456 | done, null | `artifacts/results/h200/encoder_ablation.json` |
+| E2 | Length-matched external slices, frozen m3 | done | `artifacts/results/h200/length_matched.json` |
+| E3 | Local judge scale, Qwen3.5-9B and 4B, 900 rows | done, null | `artifacts/results/h200/judge_qwen{9b,4b}_metrics.json` |
+| E4 | Throughput and VRAM sweep | done | `artifacts/results/h200/efficiency.csv` |
+
+Headline numbers:
+
+- E1: base 0.9852/0.9986, DeBERTa-large 0.9875/0.9978, BGE-base 0.9855/0.9984. McNemar
+  $p = 0.63$ and $p = 0.77$, so no encoder separates from the deployed stack.
+- E2: matching answer length costs 1.5 AUROC on HaluBench (0.6032 to 0.5882) and 4.7 on
+  MedHallu (0.8177 to 0.7707). Pair accuracy 0.8607 to 0.8290. The length-only baseline stays
+  far below in both slices.
+- E3: 9B 0.5957/0.7838, 4B 0.6012/0.7755. Scale is flat, and the 4B model is 1.5 times faster
+  at the median on the same slice.
+- E4: batch 128 is the throughput optimum at 361 rows/s and 3.2 GB, so the configured batch of
+  256 is already past the knee.
+
+Placement: there is no appendix. The four paragraphs and their floats sit in Sections 5.1,
+5.5, and 5.6 (Table 6, Figure 10, Table 19, Table 21). Draft sentences for the author's rewrite
+are listed in `rewriten.md`. Session log and environment decisions are in `docs/DECISIONS.md`.
+
+Server state: the project space on `uiu-h200` is removed after the run; only the pushed artifacts
+remain. No ports were opened, no system packages installed, and the driver and CUDA were not
+touched.
