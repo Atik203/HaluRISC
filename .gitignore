@@ -6,6 +6,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.so
+# H200 server-local runtime (never committed): venv, uv tools, HF cache, logs
+.venv-h200/
+.tools/
+.hf-cache/
+.setup.log
+.env.h200
 # Data (large files)
 data/raw/
 data/processed/*.parquet
@@ -47,6 +53,14 @@ artifacts/results/review/neural_baseline/*
 artifacts/results/review/neural_adapted/*
 !artifacts/results/review/neural_adapted/*.json
 !artifacts/results/review/neural_adapted/*.csv
+
+# H200 appendix runs (encoder ablation, length-matched control, local judge, efficiency)
+!artifacts/results/h200/
+artifacts/results/h200/*
+!artifacts/results/h200/*.json
+!artifacts/results/h200/*.csv
+!artifacts/results/h200/*.md
+!artifacts/results/h200/*.log
 
 # Web-local artifact mirror ships with the frontend so the Vercel build is self-contained
 !web/artifacts/

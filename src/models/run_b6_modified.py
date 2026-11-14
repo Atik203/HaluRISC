@@ -31,6 +31,7 @@ Outputs: artifacts/results/b6/ and artifacts/models/b6/.
 import argparse
 import json
 import logging
+import os
 import sys
 import time
 from dataclasses import dataclass, field
@@ -63,9 +64,11 @@ MODEL_NAME = "EC-XGB"
 MODEL_FULL_NAME = "Evidence-Consistent XGBoost"
 
 BASE_COLUMNS = [c for cols in FEATURE_GROUPS.values() for c in cols]
-FEATURES_FULL = DATA_PROCESSED / "features_full.parquet"
-CLAIM_FEATURES = DATA_PROCESSED / "claim_features.parquet"
-EXTERNAL_FEATURES = DATA_PROCESSED / "external_features.parquet"
+# Default paths match the frozen pipeline. H200 appendix runs override these so the
+# frozen matrices under data/processed/ are never rewritten in place.
+FEATURES_FULL = Path(os.environ.get("HALU_FEATURES_FULL", DATA_PROCESSED / "features_full.parquet"))
+CLAIM_FEATURES = Path(os.environ.get("HALU_CLAIM_FEATURES", DATA_PROCESSED / "claim_features.parquet"))
+EXTERNAL_FEATURES = Path(os.environ.get("HALU_EXTERNAL_FEATURES", DATA_PROCESSED / "external_features.parquet"))
 SOURCE_COLUMN = "source_ragtruth"
 
 LOG_LENGTH_COLUMNS = ("n_chars", "n_words")

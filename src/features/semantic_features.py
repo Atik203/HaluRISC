@@ -9,6 +9,7 @@ Empty context -> cosine_ctx_ans = 0.0 (no evidence available).
 """
 
 import logging
+import os
 from typing import Optional
 
 import numpy as np
@@ -16,7 +17,7 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
-EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+EMBEDDING_MODEL = os.environ.get("HALU_EMBED_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
 
 
 def _safe_device(device: Optional[str]) -> Optional[str]:
