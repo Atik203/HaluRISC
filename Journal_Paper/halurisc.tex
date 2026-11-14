@@ -10,7 +10,7 @@
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{booktabs}
-% Float placement: this paper carries 18 tables and 11 figures, so allow
+% Float placement: this paper carries 20 tables and 12 figures, so allow
 % pages to hold more than two floats and keep text pages from breaking early.
 \setcounter{topnumber}{3}
 \setcounter{bottomnumber}{2}
@@ -983,6 +983,55 @@ Figure~\ref{fig:length} demonstrates the same pattern. The long complete sentenc
 \section{Conclusion}\label{sec:conclusion}
 
 The current paper tests EC-XGB, an evidence-consistent, 35-feature model, as a hallucination risk score and how its calibration and ranking change under domain and task shifts. The model's ranking is still intact after the corpus has changed and allows the score to rank answers for review. Moreover, its per-claim verdicts provide a reviewer with the explanation of each flagged instance. On the other hand, its probability is not so resilient; the display score requires labeled target rows, and target prevalence dictates the score's value. As a result, EC-XGB operates as a domain-specific screening score, not a general-purpose detector. The upcoming assessment considers adaptation to an unseen question-answering domain under prevalence shift. The seen-task source ablation will separate RAGTruth rows from the source indicator.
+
+\appendix
+\section{Encoder and Length Controls}\label{app:controls}
+
+The deployed model uses DeBERTa-v3-base for the NLI features and MiniLM for the cosine features. Both are small checkpoints. A reader may ask whether the reported results depend on that choice. Two controls answer the question. The first replaces one encoder at a time and repeats the full protocol on the new feature matrix. The second removes the length shortcut from the external corpora. The deployed model is not retrained in either control. All runs reuse the grouped split, the thirty-iteration search, and the five-fold cross-validation with seeds 42, 123, and 456, so only the encoder changes.
+
+Table~\ref{tab:encoders} reports the in-domain comparison. The base row reproduces the frozen m2 row within 0.0005 F1 and 0.0002 AUROC, which confirms that a second machine follows the same pipeline. A larger NLI checkpoint adds 0.0022 F1 and loses 0.0008 AUROC. The BGE embedding adds 0.0002 F1. McNemar tests across the three seeds return $p = 0.63$ and $p = 0.77$, so neither change separates from the deployed stack. AUROC already sits at 0.998, and a comparison at that level has little room to show a gain. The larger checkpoint is not worth the extra cost.
+
+\begin{table}[pos=htbp]
+  \centering
+  \caption{In-domain encoder comparison on HaluEval QA (m2, 34 features, mean over seeds 42/123/456). Delta and McNemar $p$ are against the deployed stack.}
+  \label{tab:encoders}
+  \begin{tabular}{lrrrrr}
+    \toprule
+    \textbf{Encoder} & \textbf{F1} & \textbf{AUROC} & \textbf{$\Delta$F1} & \textbf{$\Delta$AUROC} & \textbf{$p$} \\
+    \midrule
+    DeBERTa-v3-base + MiniLM & 0.9852 $\pm$ 0.0013 & 0.9986 $\pm$ 0.0001 & --- & --- & --- \\
+    DeBERTa-v3-large + MiniLM & 0.9875 $\pm$ 0.0012 & 0.9978 $\pm$ 0.0001 & $+$0.0022 & $-$0.0008 & 0.63 \\
+    DeBERTa-v3-base + BGE-base & 0.9855 $\pm$ 0.0005 & 0.9984 $\pm$ 0.0000 & $+$0.0002 & $-$0.0002 & 0.77 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Table~\ref{tab:lengthmatch} repeats the two external comparisons after answer length is equalised. For HaluBench, each source keeps an equal number of PASS and FAIL answers inside each length bin. For MedHallu, the matched slice keeps the pairs whose two answers differ least in length. Matching costs 1.5 AUROC points on HaluBench and 4.7 on MedHallu. Pair accuracy falls from 0.8607 to 0.8290. The model stays well above the length-only baseline in both slices, at 0.588 against 0.475 on HaluBench and 0.771 against 0.401 on MedHallu. HaluBench is near chance in both slices, so its transfer value is weak with or without matching.
+
+\begin{table}[pos=htbp]
+  \centering
+  \caption{External AUROC before and after answer-length matching, mean over seeds 42/123/456. Length-only is a logistic regression on log1p($n_{\mathrm{words}}$).}
+  \label{tab:lengthmatch}
+  \begin{tabular}{llrrr}
+    \toprule
+    \textbf{Corpus} & \textbf{Slice} & \textbf{EC-XGB} & \textbf{Length-only} & \textbf{$\Delta$} \\
+    \midrule
+    HaluBench & full & 0.6032 $\pm$ 0.0068 & 0.5099 & --- \\
+    HaluBench & length-matched & 0.5882 $\pm$ 0.0088 & 0.4753 & $-$0.0151 \\
+    MedHallu & full & 0.8177 $\pm$ 0.0018 & 0.2604 & --- \\
+    MedHallu & length-matched & 0.7707 $\pm$ 0.0034 & 0.4007 & $-$0.0470 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Figure~\ref{fig:efficiency} reports throughput and memory for the three encoder stacks on one H200 MIG slice with 15.9~GB of usable memory. The measurements come from a second machine, not the RTX 3060 used for the main experiments. Batch 128 is the fastest point for the deployed stack at 361 rows per second and 3.2~GB of memory. Batch 256 gives 309 rows per second at 6.1~GB, so the configured value is already past the knee. The large NLI checkpoint runs at 122 rows per second and 10.3~GB. The null result in Table~\ref{tab:encoders} therefore costs about 2.5 times the extraction time, which is the practical argument for keeping the deployed encoder.
+
+\begin{figure}[pos=htbp]
+  \centering
+  \includegraphics[width=\linewidth]{revision/h200_efficiency.png}
+  \caption{NLI throughput and peak memory for three encoder stacks on the H200 MIG slice, with batch size varied for the deployed stack.}
+  \label{fig:efficiency}
+\end{figure}
 
 \printcredits
 

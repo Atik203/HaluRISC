@@ -23,8 +23,8 @@ Protocol unchanged: grouped 70/15/15 split, 30-iteration randomized search, 5-fo
 | DeBERTa-v3-base + BGE-base | 0.9855 ± 0.0005 | 0.9984 ± 0.0000 | +0.0002 | −0.0002 | 0.77 |
 
 Reproduction check: the `base` row (0.9852 / 0.9986) matches the frozen tuned m2
-row (0.9849 / 0.9985) and the frozen fixed-hp m3 row (0.9854 / 0.9986) within
-0.0006 F1, so the server pipeline reproduces the published artifacts.
+row (0.9857 / 0.9984) within 0.0005 F1 and 0.0002 AUROC, so the second machine
+follows the same pipeline.
 
 **Reading:** no encoder change is significant. The larger NLI checkpoint buys
 +0.0022 F1 and loses 0.0008 AUROC; McNemar across three seeds does not separate it
