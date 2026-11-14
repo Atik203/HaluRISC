@@ -1,0 +1,237 @@
+{
+  "schema": "h200-length-matched-v1",
+  "threshold": 0.5,
+  "n_bins_halubench": 8,
+  "medhallu_pair_gap_median_log": 0.4480247225269607,
+  "medhallu": {
+    "full": {
+      "pair_accuracy_mean": 0.8606666666666666,
+      "per_seed": [
+        {
+          "seed": 42,
+          "n_pairs": 1000,
+          "pair_accuracy": 0.865
+        },
+        {
+          "seed": 123,
+          "n_pairs": 1000,
+          "pair_accuracy": 0.867
+        },
+        {
+          "seed": 456,
+          "n_pairs": 1000,
+          "pair_accuracy": 0.85
+        }
+      ],
+      "n_rows": 6000,
+      "ci95": [
+        0.845,
+        0.885
+      ]
+    },
+    "length_matched": {
+      "pair_accuracy_mean": 0.8290086493679308,
+      "per_seed": [
+        {
+          "seed": 42,
+          "n_pairs": 501,
+          "pair_accuracy": 0.8383233532934131
+        },
+        {
+          "seed": 123,
+          "n_pairs": 501,
+          "pair_accuracy": 0.8403193612774451
+        },
+        {
+          "seed": 456,
+          "n_pairs": 501,
+          "pair_accuracy": 0.8083832335329342
+        }
+      ],
+      "n_rows": 3006,
+      "ci95": [
+        0.8063872255489022,
+        0.8703093812375249
+      ]
+    }
+  },
+  "rows": [
+    {
+      "dataset": "halubench",
+      "slice": "full",
+      "model": "length_only",
+      "threshold": NaN,
+      "threshold_rule": "not reported (see note)",
+      "n": 900,
+      "auroc": 0.509874074074074,
+      "positive_rate": 0.5,
+      "f1": NaN
+    },
+    {
+      "dataset": "halubench",
+      "slice": "full",
+      "model": "ec_xgb_m3_seed42",
+      "threshold": 0.5,
+      "threshold_rule": "0.5",
+      "n": 900,
+      "auroc": 0.5989975308641974,
+      "positive_rate": 0.5,
+      "f1": 0.5872156013001083
+    },
+    {
+      "dataset": "halubench",
+      "slice": "full",
+      "model": "ec_xgb_m3_seed123",
+      "threshold": 0.5,
+      "threshold_rule": "0.5",
+      "n": 900,
+      "auroc": 0.6110222222222221,
+      "positive_rate": 0.5,
+      "f1": 0.5969498910675382
+    },
+    {
+      "dataset": "halubench",
+      "slice": "full",
+      "model": "ec_xgb_m3_seed456",
+      "threshold": 0.5,
+      "threshold_rule": "0.5",
+      "n": 900,
+      "auroc": 0.5996641975308642,
+      "positive_rate": 0.5,
+      "f1": 0.6059322033898306
+    },
+    {
+      "dataset": "halubench",
+      "slice": "length_matched",
+      "model": "length_only",
+      "threshold": NaN,
+      "threshold_rule": "not reported (see note)",
+      "n": 828,
+      "auroc": 0.47531155919624735,
+      "positive_rate": 0.5,
+      "f1": NaN
+    },
+    {
+      "dataset": "halubench",
+      "slice": "length_matched",
+      "model": "ec_xgb_m3_seed42",
+      "threshold": 0.5,
+      "threshold_rule": "0.5",
+      "n": 828,
+      "auroc": 0.5830999556582418,
+      "positive_rate": 0.5,
+      "f1": 0.5817757009345794
+    },
+    {
+      "dataset": "halubench",
+      "slice": "length_matched",
+      "model": "ec_xgb_m3_seed123",
+      "threshold": 0.5,
+      "threshold_rule": "0.5",
+      "n": 828,
+      "auroc": 0.5983278489579688,
+      "positive_rate": 0.5,
+      "f1": 0.5889281507656066
+    },
+    {
+      "dataset": "halubench",
+      "slice": "length_matched",
+      "model": "ec_xgb_m3_seed456",
+      "threshold": 0.5,
+      "threshold_rule": "0.5",
+      "n": 828,
+      "auroc": 0.5830999556582418,
+      "positive_rate": 0.5,
+      "f1": 0.5940366972477065
+    },
+    {
+      "dataset": "medhallu",
+      "slice": "full",
+      "model": "ec_xgb_m3_seed42",
+      "threshold": 0.5,
+      "threshold_rule": "0.5",
+      "n": 2000,
+      "auroc": 0.8193940000000001,
+      "positive_rate": 0.5,
+      "f1": 0.6666666666666666
+    },
+    {
+      "dataset": "medhallu",
+      "slice": "full",
+      "model": "ec_xgb_m3_seed123",
+      "threshold": 0.5,
+      "threshold_rule": "0.5",
+      "n": 2000,
+      "auroc": 0.8157745,
+      "positive_rate": 0.5,
+      "f1": 0.6666666666666666
+    },
+    {
+      "dataset": "medhallu",
+      "slice": "full",
+      "model": "ec_xgb_m3_seed456",
+      "threshold": 0.5,
+      "threshold_rule": "0.5",
+      "n": 2000,
+      "auroc": 0.8178270000000001,
+      "positive_rate": 0.5,
+      "f1": 0.6666666666666666
+    },
+    {
+      "dataset": "medhallu",
+      "slice": "full",
+      "model": "length_only",
+      "threshold": NaN,
+      "threshold_rule": "not reported (see note)",
+      "n": 2000,
+      "auroc": 0.260407,
+      "positive_rate": 0.5,
+      "f1": NaN
+    },
+    {
+      "dataset": "medhallu",
+      "slice": "length_matched",
+      "model": "ec_xgb_m3_seed42",
+      "threshold": 0.5,
+      "threshold_rule": "0.5",
+      "n": 1002,
+      "auroc": 0.7733176361847163,
+      "positive_rate": 0.5,
+      "f1": 0.6666666666666666
+    },
+    {
+      "dataset": "medhallu",
+      "slice": "length_matched",
+      "model": "ec_xgb_m3_seed123",
+      "threshold": 0.5,
+      "threshold_rule": "0.5",
+      "n": 1002,
+      "auroc": 0.7668674626794315,
+      "positive_rate": 0.5,
+      "f1": 0.6666666666666666
+    },
+    {
+      "dataset": "medhallu",
+      "slice": "length_matched",
+      "model": "ec_xgb_m3_seed456",
+      "threshold": 0.5,
+      "threshold_rule": "0.5",
+      "n": 1002,
+      "auroc": 0.771815650136852,
+      "positive_rate": 0.5,
+      "f1": 0.6666666666666666
+    },
+    {
+      "dataset": "medhallu",
+      "slice": "length_matched",
+      "model": "length_only",
+      "threshold": NaN,
+      "threshold_rule": "not reported (see note)",
+      "n": 1002,
+      "auroc": 0.400747407380847,
+      "positive_rate": 0.5,
+      "f1": NaN
+    }
+  ],
+  "note": "Frozen m3 boosters and frozen MedHallu predictions are read as-is; nothing is retrained. The length-only baseline is log1p(n_words) logistic regression fitted on the 5,034 RAGTruth QA calibration rows. F1 is not reported for that baseline because its probability scale does not transfer across corpora with very different answer-length distributions; AUROC is the scale-free comparison."
+}

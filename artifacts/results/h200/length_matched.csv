@@ -1,0 +1,17 @@
+dataset,slice,model,threshold,threshold_rule,n,auroc,positive_rate,f1
+halubench,full,length_only,,not reported (see note),900,0.509874074074074,0.5,
+halubench,full,ec_xgb_m3_seed42,0.5,0.5,900,0.5989975308641974,0.5,0.5872156013001083
+halubench,full,ec_xgb_m3_seed123,0.5,0.5,900,0.6110222222222221,0.5,0.5969498910675382
+halubench,full,ec_xgb_m3_seed456,0.5,0.5,900,0.5996641975308642,0.5,0.6059322033898306
+halubench,length_matched,length_only,,not reported (see note),828,0.47531155919624735,0.5,
+halubench,length_matched,ec_xgb_m3_seed42,0.5,0.5,828,0.5830999556582418,0.5,0.5817757009345794
+halubench,length_matched,ec_xgb_m3_seed123,0.5,0.5,828,0.5983278489579688,0.5,0.5889281507656066
+halubench,length_matched,ec_xgb_m3_seed456,0.5,0.5,828,0.5830999556582418,0.5,0.5940366972477065
+medhallu,full,ec_xgb_m3_seed42,0.5,0.5,2000,0.8193940000000001,0.5,0.6666666666666666
+medhallu,full,ec_xgb_m3_seed123,0.5,0.5,2000,0.8157745,0.5,0.6666666666666666
+medhallu,full,ec_xgb_m3_seed456,0.5,0.5,2000,0.8178270000000001,0.5,0.6666666666666666
+medhallu,full,length_only,,not reported (see note),2000,0.260407,0.5,
+medhallu,length_matched,ec_xgb_m3_seed42,0.5,0.5,1002,0.7733176361847163,0.5,0.6666666666666666
+medhallu,length_matched,ec_xgb_m3_seed123,0.5,0.5,1002,0.7668674626794315,0.5,0.6666666666666666
+medhallu,length_matched,ec_xgb_m3_seed456,0.5,0.5,1002,0.771815650136852,0.5,0.6666666666666666
+medhallu,length_matched,length_only,,not reported (see note),1002,0.400747407380847,0.5,
