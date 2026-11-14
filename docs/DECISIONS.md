@@ -49,3 +49,12 @@ Record of approved hardware, driver, CUDA, or environment changes (required by `
   slice optimum at 361 rows/s and 3.2 GB.
 - No appendix. The four controls sit in Sections 5.1, 5.5, and 5.6 (Table 6, Figure 10,
   Table 19, Table 21).
+
+## 2026-11-15 - H200 project space removed
+
+- Verified before deletion: SHA-256 of `encoder_ablation.json`, `efficiency.csv`, and the three
+  `b6_model_comparison.csv` files matched the local copies byte for byte.
+- Removed `~/halurisc` (24 GB), the Hugging Face token file, tmux sessions, the venv, the uv and
+  Ollama tools, and the model caches.
+- After cleanup: `/home` back to 12 GB used, GPU at 1 MiB, no tmux sessions, no project paths left.
+- Driver `580.178.04`, CUDA, MIG layout, and system packages were not touched at any point.
