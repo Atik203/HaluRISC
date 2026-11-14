@@ -83,7 +83,7 @@ QWEN_MODEL=qwen3.5:9b python src/models/rebuild_judge.py --backend qwen --limit 
 ```
 
 Outputs: `artifacts/results/rebuild/judge/*qwen9b*` (copied to `h200/judge_qwen9b_metrics.json`).
-Observed: 9B F1 0.5957 / AUROC 0.7838 versus frozen 4B 0.6018 / 0.7783, so scale is a null result. See docs/h200_appendix_results.md.
+Observed: 9B F1 0.5957 / AUROC 0.7838 versus frozen 4B 0.6018 / 0.7783, so scale is a null result. See docs/h200_controls_results.md.
 
 ### E4 — Efficiency report (one figure, no paper-number risk)
 
