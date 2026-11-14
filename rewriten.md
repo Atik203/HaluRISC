@@ -37,9 +37,9 @@ The throughput measurements come from a second machine, an H200 MIG slice with 1
 
 ---
 
-## Section 5.5, new paragraph after Table 18 (Table 19, 127 words)
+## Section 5.5, new paragraph after Table 18 (Table 19, 146 words)
 
-A local judge of the same family tests whether model size changes the picture. Table 19 adds Qwen3.5-9B on the same 900 rows. The 9B model reaches F1 0.5957 and AUROC 0.7838, against 0.6012 and 0.7755 for the 4B row, so F1 differs by 0.005 and AUROC by 0.008 between the two sizes, and neither closes the gap to the API judge at 0.910 AUROC. The 9B model flags 24.0% of the rows at recall 0.700 and precision 0.519. Cost stays at zero for both. Both rows come from the same slice, and the 4B model is about 1.5 times faster at the median. Exact agreement with EC-XGB is 0.274, so the judge and the feature model answer different questions and are not interchangeable.
+A local judge of the same family tests whether model size changes the picture. Table 19 adds Qwen3.5-9B on the same 900 rows. The 9B model reaches F1 0.5957 and AUROC 0.7838, against 0.6012 and 0.7755 for the 4B row, so F1 differs by 0.005 and AUROC by 0.008 between the two sizes, and neither closes the gap to the API judge at 0.910 AUROC. The 9B model flags 24.0% of the rows at recall 0.700 and precision 0.519. Cost stays at zero for both. Both rows come from the same slice, and the 4B model is about 1.5 times faster at the median. The 4B latency in Tables 17 and 18 was measured on the RTX 3060, which is why the same model is faster here. Exact agreement with EC-XGB is 0.274, so the judge and the feature model answer different questions and are not interchangeable.
 
 ---
 
@@ -98,5 +98,6 @@ NLI throughput and peak memory for three encoder stacks on the H200 MIG slice, w
 | 24.0% / 19.9% | flagged rows for 9B and 4B |
 | 1466 / 976 | median call in ms for 9B and 4B |
 | 1.5 | 4B speedup over 9B at the median |
+| 3050 | 4B latency on the RTX 3060, quoted in Tables 17 and 18 |
 | 0.274 | exact agreement between the 9B judge and EC-XGB |
 | 0.910 | AUROC of the API judge on the same rows |
