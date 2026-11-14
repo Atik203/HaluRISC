@@ -1,6 +1,6 @@
-# H200 Appendix Plan — `uiu-h200` (`1g.18gb`, 18GB)
+# H200 Controls Plan - `uiu-h200` (`1g.18gb`, 18GB)
 
-Follow `AGENTS.md` §6 (seeds 42/123/456, 5-fold CV where tuned, Platt on validation only) and §10 (ask-first, `uiu-h200` only, no host changes, project-local env, `tmux`/`screen`, 200GB cap, no secrets). Log every model/env change in `docs/DECISIONS.md` before confirmatory runs. Frozen `b6-ec-xgb-v1.0` stays intact; all new work writes to `artifacts/results/h200/` and is appendix-only.
+Follow `AGENTS.md` §6 (seeds 42/123/456, 5-fold CV where tuned, Platt on validation only) and §10 (ask-first, `uiu-h200` only, no host changes, project-local env, `tmux`/`screen`, 200GB cap, no secrets). Log every model/env change in `docs/DECISIONS.md` before confirmatory runs. Frozen `b6-ec-xgb-v1.0` stays intact; all new work writes to `artifacts/results/h200/`. The results are now folded into Sections 5.1, 5.5, and 5.6; there is no appendix.
 
 ## 0. Server check (paste-only, no changes)
 
@@ -30,8 +30,8 @@ Ollama (only if admin allows user-space install; else skip E3-big and run E3-4B 
 ```bash
 ollama pull qwen3.5:4b
 ollama pull qwen2.5:7b-instruct-q4_0    # ~4.5GB, fits 18GB
-ollama pull qwen3.5:9b                 # fallback big model if 14B too slow or Q4 does not fit
-ollama pull qwen2.5:14b-instruct-q4_0  # ~8.5GB, fits 18GB, 1g compute = slow
+ollama pull qwen3.5:9b                 # 6.6GB, the largest available in this family
+# qwen3.5:14b does not exist in the registry (HTTP 404); do not plan around it.
 # DO NOT pull 32B+ (OOM on 18GB). concurrency=1 always for local judge.
 ```
 
@@ -78,15 +78,12 @@ source .venv-h200/bin/activate
 python src/models/rebuild_judge.py --backend qwen --limit 0 --repeats 3 --concurrency 1 --out-tag full
 # 7B: set QWEN_MODEL / QWEN_URL per src/models/rebuild_judge.py:96-98, review_llm_judge_qwen.py:33
 QWEN_MODEL=qwen2.5:7b-instruct-q4_0 python src/models/rebuild_judge.py --backend qwen --limit 0 --repeats 3 --concurrency 1 --out-tag qwen7b
-# 9B fallback if 14B too slow or Q4 does not fit: fewer params than 14B, fits 18GB quantized
 ollama pull qwen3.5:9b
 QWEN_MODEL=qwen3.5:9b python src/models/rebuild_judge.py --backend qwen --limit 0 --repeats 3 --concurrency 1 --out-tag qwen9b
-# 14B pilot last (slowest on 1g slice): 200 rows, 1 repeat first
-QWEN_MODEL=qwen2.5:14b-instruct-q4_0 python src/models/rebuild_judge.py --backend qwen --limit 200 --repeats 1 --concurrency 1 --out-tag qwen14b-pilot
 ```
 
-Outputs: `artifacts/results/rebuild/judge/*qwen7b*, *qwen9b*, *qwen14b*` (copy to `h200/`).
-Expect: F1 flat vs 4B (0.60-0.65 natural), win is $0/1K + reproducibility + p50 latency. Order: 7B -> 9B -> 14B-pilot. Stop 14B if tokens/s < 5 or OOM; use 9B as the big-model result; record choice in DECISIONS.md.
+Outputs: `artifacts/results/rebuild/judge/*qwen9b*` (copied to `h200/judge_qwen9b_metrics.json`).
+Observed: 9B F1 0.5957 / AUROC 0.7838 versus frozen 4B 0.6018 / 0.7783, so scale is a null result. See docs/h200_appendix_results.md.
 
 ### E4 — Efficiency report (one figure, no paper-number risk)
 
@@ -115,14 +112,14 @@ python src/models/float_proximity_audit.py
 
 Gate: new artifacts load + predict on this machine; 116/298/108 + 29/29 floats stay green for frozen numbers.
 
-## 4. Paper delta (appendix-only, keep 24pp from growing)
+## 4. Paper delta (measured after the runs)
 
 - Text to add: ~600-900 words total. Appendix (~450-650 words: E1 setup + E2 matched-slice result + E3 judge cost + E4 batch table) + §5.5/§5.6 one paragraph each (~150-250 words). No changes to §§1-4, no renumbering of Eqs. 1-17.
 - Text to update: 3-5 sentences only (E2 length-matched attribution for Tab. 18, E3 $/latency line, E4 batch footnote). Keep author wording; fix numbers/claims/citations only.
 - Tables: 1 new (Appx. Tab. A1: encoder ablation mean±std + McNemar p; E2 matched-slice F1/AUROC; judge $/latency). Optionally extend Tab. 11 with one matched-slice row. No edits to Tabs. 1-18 values.
-- Figures: 1 new (Appx. Fig. A1: batch-size vs rows/s + peak VRAM, or Qwen 4B/7B/9B/14B cost-accuracy scatter). Reuse `plot_m3_shap.py` label map if SHAP re-rendered. No changes to Figs. 1-11.
+- Figures: 1 new (Figure 10 in Section 5.5: batch size versus rows/s plus peak VRAM). Only four batch points and three encoders are available, so the Qwen cost-accuracy scatter was not produced.
 - Build: `latexmk -pdf -outdir=out halurisc.tex` from `Journal_Paper/`; check 0 undefined, 0 overfull, floats within 2pp.
 
 ## 5. Stop conditions
 
-Stop E1 if in-domain delta < 0.002 after seed 42 pilot. Stop E3-14B on OOM or <5 tok/s and fall back to 9B as the big-model result. Stop any run exceeding 150GB project total. Record all stops in `docs/DECISIONS.md`.
+Stop E1 if the in-domain delta is under 0.002 after the seed 42 pilot. Stop any E3 model on OOM or under 5 tokens per second. Stop any run that pushes the project past 150GB. Record all stops in `docs/DECISIONS.md`.
