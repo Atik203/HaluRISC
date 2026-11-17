@@ -23,7 +23,6 @@
 - 💰 **Cheaper and Faster than LLM Judges**: measured $0.105/1K predictions and 1,310 ms for GPT 5.6 Luna as judge, versus about $0.001/1K and 61.8 ms for the local model — roughly 100x cheaper and 20x faster.
 - 🔬 **Statistically Rigorous**: 20,000 samples (HaluEval QA), leakage-free grouped 70/15/15 splits, 3-seed protocol (42/123/456), grouped 5-fold CV tuning, McNemar tests and bootstrap CIs. Raw probabilities are already calibrated on the source domain (ECE 0.0045); Platt (0.0091) and isotonic (0.0070) do not improve them there.
 - 🌍 **Cross-Domain and Explanation-Aware**: zero-shot transfer measured on RAGTruth and FaithBench, target-domain recalibration (ECE 0.819 → 0.134 on RAGTruth QA), SHAP reliability metrics, a structured expert audit of 26 error-enriched cases, and an answer-length confound analysis.
-- 📄 **Journal Manuscript**: an Elsevier CAS single-column manuscript (`Journal_Paper/halurisc.tex`), built from the frozen artifacts.
 
 ---
 
@@ -321,7 +320,6 @@ HaluRISC/
 ├── LICENSE                 # MIT License
 ├── .env.example            # Environment variables template
 ├── requirements.txt        # Pinned Python dependencies (exact pins)
-├── Journal_Paper/          # Journal manuscript (halurisc.tex, CAS single column) + figures/screenshots
 ├── data/
 │   ├── raw/                # gitignored raw corpora + revision.json provenance
 │   └── processed/          # clean parquet, unified records, audit samples
@@ -363,7 +361,6 @@ HaluRISC/
 - **MD. Miraz Ahamed**
 - **Ohidujjaman Tuhin**
 
-Manuscript: `Journal_Paper/halurisc.tex` (Elsevier CAS single column). Cover letter: `Journal_Paper/cover_letter.tex`.  
 Correspondence: mrahaman2310298@bscse.uiu.ac.bd
 
 _Supervisor:_ **Ohidujjaman Tuhin, PhD**
