@@ -140,11 +140,11 @@ INPUT c:/texlive/2026/texmf-dist/tex/latex/lm/omxlmex.fd
 INPUT c:/texlive/2026/texmf-dist/fonts/tfm/public/lm/lmex10.tfm
 INPUT c:/texlive/2026/texmf-dist/fonts/tfm/public/lm/ec-lmri10.tfm
 INPUT c:/texlive/2026/texmf-dist/fonts/tfm/public/lm/ec-lmbx10.tfm
-INPUT ./signature.jpg
-INPUT ./signature.jpg
-INPUT ./signature.jpg
-INPUT ./signature.jpg
-INPUT ./signature.jpg
+INPUT ./signature_hires.png
+INPUT ./signature_hires.png
+INPUT ./signature_hires.png
+INPUT ./signature_hires.png
+INPUT ./signature_hires.png
 INPUT c:/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map
 INPUT c:/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc
 INPUT out/cover_letter.aux
