@@ -1,64 +1,60 @@
 \documentclass[11pt]{article}
-\usepackage[a4paper,margin=0.9in]{geometry}
+\usepackage[a4paper,margin=0.95in]{geometry}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage{parskip}
 \usepackage{enumitem}
 \usepackage[hidelinks]{hyperref}
 \pagestyle{empty}
-\setlength{\parskip}{4pt}
+\setlength{\parskip}{5pt}
+\setlist[enumerate]{leftmargin=1.6em,itemsep=4pt,topsep=4pt,label=\arabic*)}
 
 \begin{document}
 
-\begin{flushright}
-Md. Atikur Rahaman\\
-Computer Science and Engineering\\
-United International University\\
-Dhaka 1212, Bangladesh\\
-\href{mailto:mrahaman2310298@bscse.uiu.ac.bd}{mrahaman2310298@bscse.uiu.ac.bd}
-\end{flushright}
+\begin{center}
+{\Large\underline{Cover Letter}}
+\end{center}
 
-\today
+\vspace{0.4em}
 
-\vspace{0.5em}
-
+\noindent
+\begin{minipage}[t]{0.62\linewidth}
+To\\[0.35em]
 Editor-in-Chief\\
-\emph{[Journal Name]}
+\emph{[Journal Name]}\\
+ISSN: [ISSN]\\
+E-ISSN: [E-ISSN]\\
+Elsevier
+\end{minipage}%
+\begin{minipage}[t]{0.38\linewidth}
+\raggedleft
+Date: 18 Nov. 2026
+\end{minipage}
 
-\vspace{1em}
+\vspace{0.6em}
 
-\textbf{Subject: Submission of original research manuscript}
+Dear Sir / Madam,
 
-Dear Editor,
+\begin{enumerate}
+  \item I am happy to submit an \textbf{original article} titled ``\textbf{Calibrated Hallucination Risk for Large Language Models Under Domain and Task Shift with Evidence-Consistent XGBoost}'' for consideration of publication in the \emph{[Journal Name]}.
 
-Please consider our manuscript, \textbf{``Calibrated Hallucination Risk for Large Language Models Under Domain and Task Shift with Evidence-Consistent XGBoost,''} for publication in \emph{[Journal Name]} as an Original Research Article.
+  \item This manuscript introduces \textbf{EC-XGB}, an evidence-consistent XGBoost model that scores hallucination risk from 35 features: 26 base features, eight claim-level natural language inference aggregates, and a source indicator. The model is trained on HaluEval QA and RAGTruth non-QA rows, and evaluated with fixed-hyperparameter ablations, source and target calibration, conformal prediction, SHAP stability analysis, a length-only control, and judge stress tests. It reaches F1 0.9854 and AUROC 0.9986 on HaluEval QA, but lexical overlap and length carry most of that score. On MedHallu it ranks the hallucinated answer above the grounded one in 86.7\% of 1{,}000 pairs while flagging every row (ECE 0.493). Target Platt calibration lowers ECE from 0.731 to 0.125 on RAGTruth QA without changing the ranking.
 
-The paper asks whether a small, interpretable feature model can score hallucination risk and keep its ranking and calibration under domain and task shift. We introduce EC-XGB, a 35-feature XGBoost model built on base features, claim-level natural language inference aggregates, and a source indicator. The model is trained on HaluEval QA and RAGTruth non-QA rows, and evaluated with fixed-hyperparameter ablations, source and target calibration, conformal prediction, SHAP stability analysis, a length-only control, and judge stress tests.
+  \item We believe this manuscript is appropriate for publication in the \emph{[Journal Name]} because it separates ranking from probability under domain and task shift, reports the negative results as well, and provides a reproducible protocol with public code and data instructions.
 
-The main results are:
-\begin{itemize}[leftmargin=1.4em,itemsep=1pt,topsep=1pt]
-  \item EC-XGB reaches F1 0.9854 and AUROC 0.9986 on HaluEval QA, but lexical overlap and length carry most of that score.
-  \item On MedHallu it ranks the hallucinated answer above the grounded one in 86.7\% of 1{,}000 pairs, yet it flags every row and is poorly calibrated (ECE 0.493).
-  \item Target Platt calibration lowers ECE from 0.731 to 0.125 on RAGTruth QA without changing the ranking.
-  \item The encoder choice is a null result: base, large-NLI, and BGE encoders differ by 0.0022 F1 or less.
-  \item A local 9B judge does not close the gap to an API judge on natural QA.
-\end{itemize}
+  \item I shall be acting as the corresponding author on behalf of all my co-authors and will be responsible for communicating with the other authors about revisions and final approval of the proofs.
 
-The contribution is a careful separation of ranking from probability, with controls for answer length and domain shift. We report the negative results as well, including the failure of the display score under task shift.
+  \item This manuscript has not been published and is not under consideration for publication elsewhere, and all authors have approved it and agreed to submit it to the \emph{[Journal Name]}.
+\end{enumerate}
 
-This work is original, has not been published previously, and is not under consideration elsewhere. All authors have approved the manuscript and agree with its submission. The authors declare no competing interests, and the research received no specific grant from any funding agency. Data and code availability statements are included in the Declarations section.
+Thanking you,
 
-Thank you for your consideration.
+Yours sincerely,\\[0.3em]
+(Md. Atikur Rahaman)\\
+United International University, Dhaka, Bangladesh
 
-\vspace{1em}
-
-Sincerely,\\[0.6em]
-\textbf{Md. Atikur Rahaman}\\
-Corresponding author\\
-Computer Science and Engineering, United International University, Dhaka 1212, Bangladesh\\
-\href{mailto:mrahaman2310298@bscse.uiu.ac.bd}{mrahaman2310298@bscse.uiu.ac.bd}
-
-\vspace{0.5em}
-\noindent Co-authors: Saiful Alam Sabbir, MD. Miraz Ahamed, Ohidujjaman Tuhin
+\vspace{1.4em}
+\noindent\rule{7cm}{0.4pt}\\[0.3em]
+(Name, address \& Signature of corresponding author)
 
 \end{document}
