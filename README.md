@@ -344,6 +344,16 @@ HaluRISC/
 
 ---
 
+## Contributing, security, and citation
+
+- [Contributing guide](CONTRIBUTING.md)
+- [Security policy](SECURITY.md)
+- [Code of conduct](CODE_OF_CONDUCT.md)
+- [Citation metadata](CITATION.cff)
+- [Changelog](CHANGELOG.md)
+
+---
+
 ## 📜 Dataset & Licensing Disclosures
 
 - **HaluRISC Codebase**: Released under the **[MIT License](LICENSE)**.

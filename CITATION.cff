@@ -1,0 +1,62 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the accompanying manuscript."
+title: "HaluRISC: Calibrated Hallucination Risk Scoring for Large Language Models"
+abstract: "HaluRISC is a black-box hallucination risk scorer. It combines evidence-aware text features, a calibrated XGBoost classifier, claim-level natural language inference aggregates, and SHAP explanations. The repository includes the feature pipeline, the FastAPI inference service, the Next.js dashboard, and the reproducible evaluation code."
+type: software
+version: 1.0.0
+date-released: "2026-11-18"
+license: MIT
+repository-code: "https://github.com/Atik203/HaluRISC"
+url: "https://halurisc.vercel.app"
+keywords:
+  - hallucination detection
+  - hallucination risk
+  - calibration
+  - XGBoost
+  - SHAP
+  - explainable AI
+  - natural language inference
+  - large language models
+authors:
+  - family-names: Rahaman
+    given-names: Md. Atikur
+    orcid: "https://orcid.org/0009-0008-2945-4117"
+    email: mrahaman2310298@bscse.uiu.ac.bd
+    affiliation: "Computer Science and Engineering, United International University, Dhaka 1212, Bangladesh"
+  - family-names: Sabbir
+    given-names: Saiful Alam
+    orcid: "https://orcid.org/0009-0009-8460-1295"
+    email: sabbir2310105@bscse.uiu.ac.bd
+    affiliation: "Computer Science and Engineering, United International University, Dhaka 1212, Bangladesh"
+  - family-names: Ahamed
+    given-names: MD. Miraz
+    orcid: "https://orcid.org/0009-0001-1709-8812"
+    email: mahamed2310524@bscse.uiu.ac.bd
+    affiliation: "Computer Science and Engineering, United International University, Dhaka 1212, Bangladesh"
+  - family-names: Tuhin
+    given-names: Ohidujjaman
+    orcid: "https://orcid.org/0000-0002-8776-7145"
+    email: ohidujjaman@cse.uiu.ac.bd
+    affiliation: "Computer Science and Engineering, United International University, Dhaka 1212, Bangladesh"
+preferred-citation:
+  type: article
+  title: "Calibrated Hallucination Risk for Large Language Models Under Domain and Task Shift with Evidence-Consistent XGBoost"
+  authors:
+    - family-names: Rahaman
+      given-names: Md. Atikur
+      orcid: "https://orcid.org/0009-0008-2945-4117"
+      affiliation: "Computer Science and Engineering, United International University, Dhaka 1212, Bangladesh"
+    - family-names: Sabbir
+      given-names: Saiful Alam
+      orcid: "https://orcid.org/0009-0009-8460-1295"
+      affiliation: "Computer Science and Engineering, United International University, Dhaka 1212, Bangladesh"
+    - family-names: Ahamed
+      given-names: MD. Miraz
+      orcid: "https://orcid.org/0009-0001-1709-8812"
+      affiliation: "Computer Science and Engineering, United International University, Dhaka 1212, Bangladesh"
+    - family-names: Tuhin
+      given-names: Ohidujjaman
+      orcid: "https://orcid.org/0000-0002-8776-7145"
+      affiliation: "Computer Science and Engineering, United International University, Dhaka 1212, Bangladesh"
+  year: 2026
+  notes: "Manuscript under review."
