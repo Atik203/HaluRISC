@@ -24,7 +24,7 @@ spacy==3.8.14
 # spaCy model wheel is not published on PyPI; pin the official GitHub release.
 en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
 datasets==5.0.1
-huggingface-hub==1.26.0
+huggingface-hub==2.4.0
 
 # Backend API & LLM
 fastapi==0.141.1
