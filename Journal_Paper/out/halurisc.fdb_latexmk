@@ -1,16 +1,15 @@
 # Fdb version 4
-["bibtex out/halurisc"] 1794688343.89868 "out/halurisc.aux" "out/halurisc.bbl" "out/halurisc" 1794688357.12698 0
+["bibtex out/halurisc"] 1794938784.47229 "out/halurisc.aux" "out/halurisc.bbl" "out/halurisc" 1794939553.78909 0
   "./ref.bib" 1794481479 15765 469c099d4562db9e7b6168f16c5d8037 ""
   "c:/texlive/2026/texmf-dist/bibtex/bst/elsarticle/elsarticle-num.bst" 1793971264 29462 dde4ec39bf78fded04ea32048bba0a74 ""
-  "out/halurisc.aux" 1794688355 20630 d3f83390e65a79bf96aabeb0b34f86cf "pdflatex"
+  "out/halurisc.aux" 1794939552 20693 b23c5e5270820da09b554799a570203d "pdflatex"
   (generated)
   "out/halurisc.bbl"
   "out/halurisc.blg"
   (rewritten before read)
-["pdflatex"] 1794688344.36665 "halurisc.tex" "out/halurisc.pdf" "halurisc" 1794688357.1282 0
+["pdflatex"] 1794939542.37178 "g:/HaluRISC/Journal_Paper/halurisc.tex" "out/halurisc.pdf" "halurisc" 1794939553.79031 0
   "c:/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1793971095 2971 def0b6c1f0b107b3b936def894055589 ""
   "c:/texlive/2026/texmf-dist/fonts/enc/dvips/stix/stix-t1.enc" 1793972328 7013 c55cc8669071ac14036c4a0c96c16202 ""
-  "c:/texlive/2026/texmf-dist/fonts/enc/dvips/stix/stix-ts1.enc" 1793972328 2836 154e6b0061f9b8cb549144b55b268339 ""
   "c:/texlive/2026/texmf-dist/fonts/map/fontname/texfonts.map" 1793971357 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "c:/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/ecrm1000.tfm" 1793971251 3584 adb004a0c8e7c46ee66cad73671f37b4 ""
   "c:/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/ecsi0900.tfm" 1793971251 3584 859c630ad84177317fc9327eec97f76b ""
@@ -41,7 +40,6 @@
   "c:/texlive/2026/texmf-dist/fonts/tfm/public/stix/t1-stixgeneral-bold.tfm" 1793972328 11012 fe8465b2dc4812fb0ce069fcb0fe6af8 ""
   "c:/texlive/2026/texmf-dist/fonts/tfm/public/stix/t1-stixgeneral-italic.tfm" 1793972328 11156 e8d76832153748248385d623691129d7 ""
   "c:/texlive/2026/texmf-dist/fonts/tfm/public/stix/t1-stixgeneral.tfm" 1793972328 11184 42ce9dfc058df87da7094b2e2fab1260 ""
-  "c:/texlive/2026/texmf-dist/fonts/tfm/public/stix/ts1-stixgeneral.tfm" 1793972328 1420 a3fb73e1fffd188e53dd5a0b1edb271e ""
   "c:/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfsi0900.pfb" 1793971096 104439 5e4a05c6f26cb6bbaf32e7ff2d8b6c50 ""
   "c:/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfss0800.pfb" 1793971096 95441 f3742c04ede4078cb6256b4a44ed48ea ""
   "c:/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfss0900.pfb" 1793971096 94648 5f9c40876a1f66bd23698cfef2370b2d ""
@@ -215,7 +213,6 @@
   "c:/texlive/2026/texmf-dist/tex/latex/stix/ls2stixtt.fd" 1793972328 1650 17f864699a46f12cf4c2bb97bd4c7768 ""
   "c:/texlive/2026/texmf-dist/tex/latex/stix/stix.sty" 1793972328 127754 a11e838621b2e6d75941a1980aaa80ac ""
   "c:/texlive/2026/texmf-dist/tex/latex/stix/t1stix.fd" 1793972328 2214 8c074e05c4ef5af520f739918e222af4 ""
-  "c:/texlive/2026/texmf-dist/tex/latex/stix/ts1stix.fd" 1793972328 2227 3023591354ba6ccf3a61923e27246aae ""
   "c:/texlive/2026/texmf-dist/tex/latex/sttools/stfloats.sty" 1793972336 19135 2044f4970d2ece01df5d5dfacaaaec0f ""
   "c:/texlive/2026/texmf-dist/tex/latex/tools/array.sty" 1793972525 17611 67b5fb6ce86687c2a79cc0e3eeec4449 ""
   "c:/texlive/2026/texmf-dist/tex/latex/tools/dcolumn.sty" 1793972525 2758 e8f90cd7cfc4c176bd1ea245095635ab ""
@@ -244,11 +241,12 @@
   "figures/revision/per_seed_stability.png" 1794404756 241300 6b1151825ab16ef9779f15c37c9e715c ""
   "figures/revision/roc_pr_curves.png" 1794404756 844218 fc4c5a666685f065511cd9fd7c4d9c6e ""
   "figures/revision/system-architecture-large.png" 1794321395 448893 cf2327ed055154d12a59fde7da226b5f ""
-  "halurisc.tex" 1794688330 105712 59217d687bdccfe8a58a6dc6be83c002 ""
-  "out/halurisc.abs" 1794688346 1898 0d5b05368f7e01618d6f171ccee9b3b7 "pdflatex"
-  "out/halurisc.aux" 1794688355 20630 d3f83390e65a79bf96aabeb0b34f86cf "pdflatex"
-  "out/halurisc.bbl" 1794688344 12229 a53f8e82c73f4c99036552405b398bb3 "bibtex out/halurisc"
-  "out/halurisc.out" 1794688345 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "g:/HaluRISC/Journal_Paper/halurisc.tex" 1794939541 114175 a8b1261b4f275cd41d1ac81a23e396e2 ""
+  "halurisc.tex" 1794939541 114175 a8b1261b4f275cd41d1ac81a23e396e2 ""
+  "out/halurisc.abs" 1794939543 2108 2ca5e84d4187cf0d7d37f8b259a78737 "pdflatex"
+  "out/halurisc.aux" 1794939552 20693 b23c5e5270820da09b554799a570203d "pdflatex"
+  "out/halurisc.bbl" 1794938784 12229 a53f8e82c73f4c99036552405b398bb3 "bibtex out/halurisc"
+  "out/halurisc.out" 1794939543 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
   (generated)
   "out/halurisc.abs"
   "out/halurisc.aux"

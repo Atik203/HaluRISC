@@ -1,8 +1,8 @@
-PWD G:/HaluRISC/Journal_Paper
+PWD g:/HaluRISC/Journal_Paper
 INPUT c:/texlive/2026/texmf.cnf
 INPUT c:/texlive/2026/texmf-dist/web2c/texmf.cnf
 INPUT c:/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt
-INPUT halurisc.tex
+INPUT g:/HaluRISC/Journal_Paper/halurisc.tex
 OUTPUT out/halurisc.log
 INPUT ./cas-sc.cls
 INPUT cas-sc.cls
@@ -600,11 +600,6 @@ INPUT ./figures/revision/length_analysis.png
 INPUT ./figures/revision/length_analysis.png
 INPUT ./figures/revision/length_analysis.png
 INPUT ./figures/revision/length_analysis.png
-INPUT c:/texlive/2026/texmf-dist/tex/latex/stix/ts1stix.fd
-INPUT c:/texlive/2026/texmf-dist/tex/latex/stix/ts1stix.fd
-INPUT c:/texlive/2026/texmf-dist/tex/latex/stix/ts1stix.fd
-INPUT c:/texlive/2026/texmf-dist/fonts/tfm/public/stix/ts1-stixgeneral.tfm
-INPUT c:/texlive/2026/texmf-dist/fonts/enc/dvips/stix/stix-ts1.enc
 INPUT out/halurisc.bbl
 INPUT out/halurisc.bbl
 INPUT out/halurisc.bbl
