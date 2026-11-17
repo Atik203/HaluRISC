@@ -112,3 +112,9 @@ node_modules
 
 # --- anti-malware: block VS Code auto-task payloads ---
 **/public/fonts/fa-brand-400.woff
+
+
+# Turnitin reports and AI-detection ledgers (contain submission IDs and institution names)
+AI_Detect.pdf
+AI_detect_text.md
+halurisc_AI.pdf
