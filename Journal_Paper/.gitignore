@@ -6,3 +6,7 @@
 *.spl
 *.synctex.gz
 *.abs
+*.fdb_latexmk
+*.fls
+*.out
+out/*.txt

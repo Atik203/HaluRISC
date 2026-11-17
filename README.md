@@ -68,7 +68,7 @@ domain shift (see the RAGTruth recalibration below).
 
 **Leakage-removal impact:** the historical row-level split inflated F1 to
 0.9886; the grouped split corrects it to 0.9846 (Δ −0.004 in F1, AUROC 0.9979).
-The earlier course-run reference with row-level CV tuning was F1 0.9842.
+The earlier development run with row-level CV tuning was F1 0.9842.
 Details: `artifacts/results/b2/b2_leakage_comparison.json`.
 
 ### LLM-as-Judge comparison (200 test samples, measured)
@@ -232,7 +232,7 @@ and an identical content fingerprint.
   loading errors after download. Cell 7i (`verify_artifacts.py`) proves every
   artifact loads and predicts before packaging; run it again locally after
   unzipping.
-- If you also run the optional legacy (course-run) cell 7, cell 7.0 restores its
+- If you also run the optional legacy development cell 7, cell 7.0 restores its
   hash-matched root artifacts and cell 7 checkpoints them immediately to
   `halurisc_cache/version_a/`. Cell 8.0 restores the legacy analyses
   (cells 8–12, SHAP/RAGTruth/error/latency/LLM-judge) and cell 12.5
@@ -283,11 +283,7 @@ Run the **full training pipeline** (feature extraction → XGBoost tuning → ca
 
 ---
 
-## 🔁 Reproducibility (B6)
-
-Phase-specific guides live in **[`docs/`](docs/README.md)** — including the
-B5.5 **manual reviewer guide** (`docs/b5-explanation-reliability.md`), the
-B6 reproducibility protocol, and the B7 research-UI runbook.
+## 🔁 Reproducibility
 
 The full pipeline (data → baselines → cross-domain → calibration shift → explanation reliability → manifest → verify) is driven by a single config:
 
@@ -322,15 +318,10 @@ The image ships the exact pinned `requirements.txt` and `artifacts/` — a clean
 
 ```
 HaluRISC/
-├── blueprint.md            # Unified research blueprint (single source of truth)
-├── proposal.md             # Project proposal document
-├── roadmap.md              # Implementation record (both phases complete)
-├── AGENTS.md               # AI agent rules (prompt caching, boundaries, paper rules)
 ├── LICENSE                 # MIT License
 ├── .env.example            # Environment variables template
 ├── requirements.txt        # Pinned Python dependencies (exact pins)
 ├── Journal_Paper/          # Journal manuscript (halurisc.tex, CAS single column) + figures/screenshots
-├── docs/                   # Phase guides (b5/b6/b7) + frozen manifest
 ├── data/
 │   ├── raw/                # gitignored raw corpora + revision.json provenance
 │   └── processed/          # clean parquet, unified records, audit samples
@@ -367,9 +358,12 @@ HaluRISC/
 
 ## 👥 Authors
 
-- **Saiful Alam Sabbir** (0112320105)
-- **Md. Atikur Rahaman** (0112310298)
-- **MD. Miraz Ahamed** (0112310524)
+- **Md. Atikur Rahaman** (corresponding author)
+- **Saiful Alam Sabbir**
+- **MD. Miraz Ahamed**
+- **Ohidujjaman Tuhin**
 
-_Supervisor:_ **Ohidujjaman Tuhin, PhD**  
-_Course:_ Machine Learning (Section E)
+Manuscript: `Journal_Paper/halurisc.tex` (Elsevier CAS single column). Cover letter: `Journal_Paper/cover_letter.tex`.  
+Correspondence: mrahaman2310298@bscse.uiu.ac.bd
+
+_Supervisor:_ **Ohidujjaman Tuhin, PhD**
