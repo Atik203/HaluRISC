@@ -4,7 +4,7 @@
 # Core Scientific & Data
 numpy==2.4.6
 pandas==3.0.5
-pyarrow==25.0.0
+pyarrow==26.0.1
 joblib==1.5.3
 
 # Classical ML & Explainability
