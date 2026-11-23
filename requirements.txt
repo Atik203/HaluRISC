@@ -11,7 +11,7 @@ joblib==1.5.3
 scikit-learn==1.9.0
 xgboost==3.3.0
 scipy==1.17.1
-statsmodels==0.14.6
+statsmodels==0.15.0
 shap==0.52.0
 
 # NLP & NLI (torch is the CUDA 12.8 build from the PyTorch index; +cu128 only
